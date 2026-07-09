@@ -58,7 +58,7 @@
 | 3.8 | Ultrawork trigger detection | `lazycodex/plugins/omo/components/ultrawork/src/codex-hook.ts` | Detect "ulw" / "ultrawork" keywords in user prompt | user-prompt-submit keyword detection | `.trae/hooks/user-prompt-submit.sh` | COMPLETE | v0.7 |
 | 3.9 | Ulw-loop steering hook | `lazycodex/plugins/omo/components/ulw-loop/hooks/hooks.json` | Steering detection on UserPromptSubmit | user-prompt-submit steering detection | `.trae/hooks/user-prompt-submit.sh` | COMPLETE | v0.7 |
 | 3.10 | Ulw-loop goal budget protection | `lazycodex/plugins/omo/components/ulw-loop/hooks/hooks.json` (PreToolUse) | Enforce unlimited goal budget on create_goal | pre-tool-use budget enforcement | `.trae/hooks/pre-tool-use.sh` | DESIGN | v0.7 |
-| 3.11 | LSP diagnostics hook | `lazycodex/plugins/omo/components/lsp/hooks/hooks.json` | Run LSP diagnostics on PostToolUse | Optional external LSP MCP | `.trae/mcp.json` (optional) | GAP | v0.8 |
+| 3.11 | LSP diagnostics hook | `lazycodex/plugins/omo/components/lsp/hooks/hooks.json` | Run LSP diagnostics on PostToolUse | Optional LSP MCP template | `.trae/mcp.json` (lsp server, optional) | COMPLETE (optional) | v0.11 |
 | 3.12 | Codegraph init hook | `lazycodex/plugins/omo/components/codegraph/src/hook.ts` | Initialize code graph on session start | Optional external tool | — | GAP | v0.8 |
 | 3.13 | Rules dynamic matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Match rules to changed files after edits | Hook-based PostToolUse extraction | `.trae/hooks/post-tool-use.sh` | COMPLETE (simplified) | v0.7 |
 | 3.14 | Telemetry hook | `lazycodex/plugins/omo/components/telemetry/src/codex-hook.ts` | PostHog-based telemetry | Not ported | — | N/A | — |
@@ -105,7 +105,7 @@
 | 6.2 | context7 MCP | `lazycodex/plugins/omo/.mcp.json` (line 6) | Documentation lookup | Optional in .trae/mcp.json | `.trae/mcp.json` | COMPLETE | v0.8 |
 | 6.3 | codegraph MCP | `lazycodex/plugins/omo/.mcp.json` (line 10) | Code graph analysis | Optional external tool | — | GAP | v0.8 |
 | 6.4 | git_bash MCP | `lazycodex/plugins/omo/.mcp.json` (line 17) | Git operations via bash | Optional in .trae/mcp.json | `.trae/mcp.json` | COMPLETE | v0.8 |
-| 6.5 | lsp MCP | `lazycodex/plugins/omo/.mcp.json` (line 25) | Language server protocol | Optional external LSP MCP | `.trae/mcp.json` | GAP | v0.8 |
+| 6.5 | lsp MCP | `lazycodex/plugins/omo/.mcp.json` (line 25) | Language server protocol | Optional LSP MCP template | `.trae/mcp.json` (lsp server, optional) | COMPLETE (optional) | v0.11 |
 | 6.6 | LazyTrae state MCP | Not in LazyCodex (LazyTrae addition) | LazyTrae state query/mutation | LazyTrae MCP server | `packages/mcp/src/index.js` (9 tools), `packages/mcp/src/tools.js`, `packages/cli/src/commands/mcp.js` (thin wrapper) | COMPLETE | v0.8 |
 
 ## 7. Model Routing
@@ -130,18 +130,18 @@
 | 8.4 | ulw-loop skill | `lazycodex/plugins/omo/components/ulw-loop/skills/ulw-loop/SKILL.md` | Long-horizon execution loop | ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | COMPLETE | v0.3 |
 | 8.5 | review-work skill | `lazycodex/plugins/omo/skills/review-work/SKILL.md` | Review/Oracle protocol | reviewer skill | `.trae/skills/reviewer/SKILL.md` | COMPLETE | v0.3 |
 | 8.6 | remove-ai-slops skill | `lazycodex/plugins/omo/skills/remove-ai-slops/SKILL.md` | AI-slop cleanup | remove-ai-slops skill | `.trae/skills/remove-ai-slops/SKILL.md` | COMPLETE | v0.3 |
-| 8.7 | refactor skill | `lazycodex/plugins/omo/skills/refactor/SKILL.md` | Refactoring guidance | Embedded in start-work | — | DEFERRED | — |
-| 8.8 | programming skill | `lazycodex/plugins/omo/skills/programming/SKILL.md` | General programming guidance | Embedded in start-work | — | DEFERRED | — |
-| 8.9 | frontend skill | `lazycodex/plugins/omo/skills/frontend/SKILL.md` | Frontend-specific guidance | Embedded in start-work | — | DEFERRED | — |
-| 8.10 | git-master skill | `lazycodex/plugins/omo/skills/git-master/SKILL.md` | Git workflow guidance | Embedded in start-work | — | DEFERRED | — |
+| 8.7 | refactor skill | `lazycodex/plugins/omo/skills/refactor/SKILL.md` | Refactoring guidance | refactor skill | `.trae/skills/refactor/SKILL.md` | COMPLETE | v0.11 |
+| 8.8 | programming skill | `lazycodex/plugins/omo/skills/programming/SKILL.md` | General programming guidance | programming skill | `.trae/skills/programming/SKILL.md` | COMPLETE | v0.11 |
+| 8.9 | frontend skill | `lazycodex/plugins/omo/skills/frontend/SKILL.md` | Frontend-specific guidance | frontend skill | `.trae/skills/frontend/SKILL.md` | COMPLETE | v0.11 |
+| 8.10 | git-master skill | `lazycodex/plugins/omo/skills/git-master/SKILL.md` | Git workflow guidance | git-master skill | `.trae/skills/git-master/SKILL.md` | COMPLETE | v0.11 |
 | 8.11 | comment-checker skill | `lazycodex/plugins/omo/skills/comment-checker/SKILL.md` | Comment checking guidance | Optional in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | COMPLETE | v0.7 |
 | 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.js` | COMPLETE | v0.6 |
-| 8.13 | lcx-report-bug skill | `lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` | Bug reporting | Not ported | — | DEFERRED | — |
-| 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` | Structural code search | Optional external tool | — | DEFERRED | — |
+| 8.13 | lcx-report-bug skill | `lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` | Bug reporting | lcx-report-bug skill | `.trae/skills/lcx-report-bug/SKILL.md` | COMPLETE | v0.11 |
+| 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` | Structural code search | ast-grep skill | `.trae/skills/ast-grep/SKILL.md` | COMPLETE | v0.11 |
 | 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` | Session management guidance | coding-agent-sessions skill | `.trae/skills/coding-agent-sessions/SKILL.md` | COMPLETE | v0.12 |
 | 8.16 | ultrawork skill | `lazycodex/plugins/omo/components/ultrawork/skills/ultrawork/SKILL.md` | Ultrawork directive as skill | Embedded in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | COMPLETE | v0.3 |
 | 8.17 | rules skill | `lazycodex/plugins/omo/components/rules/skills/rules/SKILL.md` | Rules injection guidance | Embedded in AGENTS.md + rules | `AGENTS.md`, `.trae/rules/lazytrae.md` | COMPLETE | v0.2 |
-| 8.18 | lsp skill | `lazycodex/plugins/omo/components/lsp/skills/lsp/SKILL.md` | LSP diagnostics guidance | Optional external LSP MCP | `.trae/mcp.json` (optional) | GAP | v0.8 |
+| 8.18 | lsp skill | `lazycodex/plugins/omo/components/lsp/skills/lsp/SKILL.md` | LSP diagnostics guidance | Optional LSP MCP template + ast-grep skill as structural search substitute | `.trae/mcp.json` (lsp server), `.trae/skills/ast-grep/SKILL.md` | COMPLETE (optional) | v0.11 |
 | 8.19 | teammode skill | `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md` | Team mode guidance | Team mode docs | `docs/lazytrae-team-mode.md` | COMPLETE | v0.11 |
 | 8.20 | librarian skill | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | Codebase search and context gathering, external research | librarian skill | `.trae/skills/librarian/SKILL.md` | COMPLETE | v0.3 |
 | 8.21 | verifier skill | LazyTrae addition (not in LazyCodex) | Verification gate enforcement | verifier skill | `.trae/skills/verifier/SKILL.md` | COMPLETE | v0.3 |
