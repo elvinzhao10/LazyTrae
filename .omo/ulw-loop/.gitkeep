@@ -1,0 +1,13 @@
+# .omo/ulw-loop/ Compatibility Mirror
+
+This directory is a compatibility mirror of LazyCodex `.omo/ulw-loop/`. Loop state files written here are readable by both LazyCodex and LazyTrae tooling.
+
+**Primary state**: `.lazytrae/state/active-loop.json` — LazyTrae's native loop state.
+**Mirror**: `.omo/ulw-loop/` — loop state files (goals.json, brief.md, ledger.jsonl).
+
+LazyTrae mirrors the following LazyCodex files:
+- `goals.json` ← `.lazytrae/state/active-loop.json` (goals array)
+- `brief.md` ← original task brief
+- `ledger.jsonl` ← audit trail of all mutations
+
+The `.omo/` path is preserved for compatibility with any LazyCodex tooling that expects it.

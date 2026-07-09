@@ -1,0 +1,31 @@
+{
+  "version": "0.5.0",
+  "schema_version": 1,
+  "enabled": true,
+  "features": {
+    "boulder_state": true,
+    "active_loop": true,
+    "session_tracking": true,
+    "evidence_recording": true,
+    "verification_gates": true
+  },
+  "paths": {
+    "state": ".lazytrae/state",
+    "evidence": ".lazytrae/evidence",
+    "schemas": ".lazytrae/schemas",
+    "logs": ".lazytrae/logs",
+    "compatibility_mirror": ".omo"
+  },
+  "model_routing": {
+    "default": "trae:auto",
+    "plan": "trae:max",
+    "worker": "trae:auto",
+    "reviewer": "trae:max",
+    "explorer": "trae:auto",
+    "librarian": "trae:auto"
+  },
+  "iteration_caps": {
+    "ultrawork": 500,
+    "normal": 100
+  }
+}

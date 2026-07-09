@@ -1,0 +1,212 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lazytrae.ai/schemas/active-loop.schema.json",
+  "title": "Active Loop Schema",
+  "description": "LazyTrae Active Loop schema for long-horizon goal execution. Mirrors LazyCodex UlwLoopPlan from domain-types.ts.",
+  "type": "object",
+  "required": ["version", "created_at", "updated_at", "brief_path", "goals_path", "ledger_path", "goals"],
+  "properties": {
+    "version": { "type": "integer", "description": "Schema version. Must be 1.", "minimum": 1, "maximum": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "brief_path": { "type": "string", "description": "Relative path to the brief file." },
+    "goals_path": { "type": "string", "description": "Relative path to the goals JSON file." },
+    "ledger_path": { "type": "string", "description": "Relative path to the ledger JSONL file." },
+    "codex_goal_mode": {
+      "type": "string",
+      "description": "Goal aggregation mode.",
+      "enum": ["aggregate", "per_story"]
+    },
+    "codex_objective": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "description": "Aggregate objective text." }
+      ]
+    },
+    "codex_objective_aliases": {
+      "type": "array",
+      "description": "Legacy objective aliases.",
+      "items": { "type": "string" }
+    },
+    "active_goal_id": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "description": "ID of the currently active goal." }
+      ]
+    },
+    "aggregate_completion": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/definitions/AggregateCompletion" }
+      ]
+    },
+    "goals": {
+      "type": "array",
+      "description": "List of goals in this loop.",
+      "items": { "$ref": "#/definitions/UlwLoopItem" }
+    },
+    "checkpoints": {
+      "type": "array",
+      "description": "Checkpoint records for resumption.",
+      "items": { "$ref": "#/definitions/Checkpoint" }
+    },
+    "iteration": {
+      "type": "integer",
+      "description": "Current iteration number.",
+      "minimum": 0
+    },
+    "max_iterations": {
+      "type": "integer",
+      "description": "Maximum iterations. 500 for ultrawork, 100 for normal. From lazycodex constants.ts.",
+      "minimum": 1,
+      "maximum": 500
+    },
+    "completion_promise": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "description": "The user's original completion promise text." }
+      ]
+    },
+    "verification_status": {
+      "type": "string",
+      "description": "Overall verification status.",
+      "enum": ["pending", "in_progress", "pass", "fail", "blocked"]
+    },
+    "reviewer_status": {
+      "type": "string",
+      "description": "Reviewer approval status.",
+      "enum": ["pending", "in_progress", "approved", "rejected", "iterating"]
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Metadata about the loop structure, including all enumerations from constants.ts.",
+      "properties": {
+        "description": { "type": "string" },
+        "max_iterations": { "type": "integer" },
+        "max_iterations_source": { "type": "string" },
+        "goal_statuses": { "type": "array", "items": { "type": "string" } },
+        "criterion_statuses": { "type": "array", "items": { "type": "string" } },
+        "criterion_user_models": { "type": "array", "items": { "type": "string" } },
+        "steering_mutation_kinds": { "type": "array", "items": { "type": "string" } },
+        "ledger_event_kinds": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "definitions": {
+    "UlwLoopStatus": {
+      "type": "string",
+      "description": "Goal status enum from constants.ts: pending, in_progress, complete, failed, blocked, review_blocked, needs_user_decision.",
+      "enum": ["pending", "in_progress", "complete", "failed", "blocked", "review_blocked", "needs_user_decision"]
+    },
+    "UlwLoopCriterionStatus": {
+      "type": "string",
+      "description": "Success criterion status enum from constants.ts: pending, pass, fail, blocked.",
+      "enum": ["pending", "pass", "fail", "blocked"]
+    },
+    "UlwLoopSuccessCriterionUserModel": {
+      "type": "string",
+      "description": "Success criterion user model enum from constants.ts: happy, edge, regression, adversarial.",
+      "enum": ["happy", "edge", "regression", "adversarial"]
+    },
+    "UlwLoopSteeringMutationKind": {
+      "type": "string",
+      "description": "Steering mutation kind enum from constants.ts. 7 kinds total: add_subgoal, split_subgoal, reorder_pending, revise_pending_wording, revise_criterion, annotate_ledger, mark_blocked_superseded.",
+      "enum": ["add_subgoal", "split_subgoal", "reorder_pending", "revise_pending_wording", "revise_criterion", "annotate_ledger", "mark_blocked_superseded"]
+    },
+    "UlwLoopSteeringStatus": {
+      "type": "string",
+      "description": "Steering status enum from constants.ts: superseded, blocked.",
+      "enum": ["superseded", "blocked"]
+    },
+    "SuccessCriterion": {
+      "type": "object",
+      "required": ["id", "scenario", "userModel", "expectedEvidence", "status"],
+      "properties": {
+        "id": { "type": "string", "description": "Unique criterion identifier." },
+        "scenario": { "type": "string", "description": "Description of the test scenario." },
+        "userModel": { "$ref": "#/definitions/UlwLoopSuccessCriterionUserModel" },
+        "expectedEvidence": { "type": "string", "description": "What evidence is expected to pass this criterion." },
+        "essential": { "type": "boolean", "description": "Whether this criterion is essential for completion." },
+        "capturedEvidence": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "description": "Path or text of captured evidence." }
+          ]
+        },
+        "status": { "$ref": "#/definitions/UlwLoopCriterionStatus" },
+        "capturedAt": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string", "description": "Additional notes about this criterion." }
+      }
+    },
+    "UlwLoopItem": {
+      "type": "object",
+      "required": ["id", "title", "objective", "status", "successCriteria", "attempt", "createdAt", "updatedAt"],
+      "properties": {
+        "id": { "type": "string", "description": "Unique goal identifier (usually Gxxx format)." },
+        "title": { "type": "string", "description": "Short title of the goal." },
+        "objective": { "type": "string", "description": "Detailed objective description." },
+        "status": { "$ref": "#/definitions/UlwLoopStatus" },
+        "successCriteria": {
+          "type": "array",
+          "description": "List of success criteria for this goal.",
+          "items": { "$ref": "#/definitions/SuccessCriterion" }
+        },
+        "attempt": { "type": "integer", "description": "Number of attempts on this goal.", "minimum": 0 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "failedAt": { "type": "string", "format": "date-time" },
+        "reviewBlockedAt": { "type": "string", "format": "date-time" },
+        "evidence": { "type": "string", "description": "Evidence for this goal." },
+        "failureReason": { "type": "string", "description": "Reason for failure, if failed." },
+        "steeringStatus": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/definitions/UlwLoopSteeringStatus" }
+          ]
+        },
+        "supersededBy": { "type": "array", "items": { "type": "string" }, "description": "IDs of goals that supersede this goal." },
+        "supersedes": { "type": "array", "items": { "type": "string" }, "description": "IDs of goals that this goal supersedes." },
+        "blockedReason": { "type": "string", "description": "Reason for blocking, if blocked." },
+        "blockerSignature": { "type": "string", "description": "Unique blocker signature for deduplication." },
+        "blockerOccurrenceCount": { "type": "integer", "minimum": 0 },
+        "requiredExternalDecision": { "type": "string", "description": "External decision required from user." },
+        "nonRetriable": { "type": "boolean", "description": "Whether this failure/block is non-retriable." },
+        "steeringEvidence": { "type": "string", "description": "Evidence for the steering mutation." },
+        "steeringRationale": { "type": "string", "description": "Rationale for the steering mutation." }
+      }
+    },
+    "AggregateCompletion": {
+      "type": "object",
+      "required": ["status", "completedAt", "evidence"],
+      "properties": {
+        "status": { "type": "string", "enum": ["complete"] },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "evidence": { "type": "string", "description": "Path to completion evidence file." },
+        "codexGoal": { "type": ["null", "object"], "description": "Legacy Codex goal object." }
+      }
+    },
+    "Checkpoint": {
+      "type": "object",
+      "required": ["id", "iteration", "created_at", "goal_id", "status", "summary"],
+      "properties": {
+        "id": { "type": "string", "description": "Unique checkpoint identifier." },
+        "iteration": { "type": "integer", "minimum": 1 },
+        "created_at": { "type": "string", "format": "date-time" },
+        "goal_id": { "type": "string", "description": "Goal that was active at checkpoint." },
+        "status": {
+          "type": "string",
+          "description": "Goal status at checkpoint.",
+          "enum": ["pending", "in_progress", "checkpointed", "complete", "blocked"]
+        },
+        "summary": { "type": "string", "description": "Summary of progress at this checkpoint." },
+        "evidence_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Evidence paths captured at this checkpoint."
+        }
+      }
+    }
+  }
+}

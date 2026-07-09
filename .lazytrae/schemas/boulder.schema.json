@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lazytrae.ai/schemas/boulder.schema.json",
+  "title": "Boulder State Schema",
+  "description": "LazyTrae Boulder state schema for durable plan task tracking. Mirrors LazyCodex schema_version 2.",
+  "type": "object",
+  "required": ["schema_version", "active_work_id", "works"],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "description": "Schema version. Must be 2 for current schema.",
+      "minimum": 2,
+      "maximum": 2
+    },
+    "active_work_id": {
+      "oneOf": [
+        { "type": "null", "description": "No active work currently." },
+        { "type": "string", "description": "ID of the currently active work." }
+      ]
+    },
+    "works": {
+      "type": "object",
+      "description": "Map of work IDs to work objects.",
+      "additionalProperties": { "$ref": "#/definitions/WorkEntry" }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional metadata about the boulder state.",
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" }
+      }
+    }
+  },
+  "definitions": {
+    "WorkEntry": {
+      "type": "object",
+      "required": ["work_id", "active_plan", "plan_name", "session_ids", "status", "tasks", "created_at", "updated_at"],
+      "properties": {
+        "work_id": { "type": "string", "description": "Unique identifier for this work." },
+        "active_plan": { "type": "string", "description": "Path to the plan file (markdown with checkboxes)." },
+        "plan_name": { "type": "string", "description": "Name/slug of the plan." },
+        "session_ids": {
+          "type": "array",
+          "description": "List of session IDs that have worked on this plan.",
+          "items": { "type": "string" }
+        },
+        "status": {
+          "type": "string",
+          "description": "Overall work status.",
+          "enum": ["active", "paused", "complete", "cancelled"]
+        },
+        "worktree_path": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "description": "Path to a specific worktree (for multi-worktree setups)." }
+          ]
+        },
+        "tasks": {
+          "type": "array",
+          "description": "List of tasks from the plan checkboxes.",
+          "items": { "$ref": "#/definitions/Task" }
+        },
+        "blockers": {
+          "type": "array",
+          "description": "List of current blockers.",
+          "items": { "$ref": "#/definitions/Blocker" }
+        },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Task": {
+      "type": "object",
+      "required": ["id", "description", "status"],
+      "properties": {
+        "id": { "type": "string", "description": "Unique task identifier." },
+        "description": { "type": "string", "description": "Task description from the plan." },
+        "status": {
+          "type": "string",
+          "description": "Task status.",
+          "enum": ["pending", "in_progress", "complete", "failed", "blocked"]
+        },
+        "evidence_paths": {
+          "type": "array",
+          "description": "Paths to evidence files for this task.",
+          "items": { "type": "string" }
+        },
+        "started_at": { "type": "string", "format": "date-time", "description": "When this task started." },
+        "started_by": { "type": "string", "description": "Session ID that started this task." },
+        "completed_at": { "type": "string", "format": "date-time", "description": "When this task completed." },
+        "completed_by": { "type": "string", "description": "Session ID that completed this task." },
+        "failure_reason": { "type": "string", "description": "Reason for failure, if failed." },
+        "blocked_reason": { "type": "string", "description": "Reason for blocking, if blocked." }
+      }
+    },
+    "Blocker": {
+      "type": "object",
+      "required": ["task_id", "reason", "occurred_at"],
+      "properties": {
+        "task_id": { "type": "string", "description": "ID of the blocked task." },
+        "reason": { "type": "string", "description": "Description of the blocker." },
+        "signature": { "type": "string", "description": "Unique signature for deduplication." },
+        "occurrence_count": { "type": "integer", "minimum": 1, "description": "How many times this blocker has occurred." },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "required_external_decision": { "type": "string", "description": "What external decision is required." },
+        "non_retriable": { "type": "boolean", "description": "Whether this blocker cannot be retried." }
+      }
+    }
+  }
+}

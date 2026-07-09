@@ -1,0 +1,8 @@
+# .omo/plans/ Compatibility Mirror
+
+This directory is a compatibility mirror of LazyCodex `.omo/plans/`. Plan files written here are readable by both LazyCodex and LazyTrae tooling.
+
+**Primary state**: `.lazytrae/state/boulder.json` — LazyTrae's native state.
+**Mirror**: `.omo/plans/` — plan markdown files.
+
+LazyTrae skills (start-work, ulw-loop) read plan files from `.omo/plans/` and write boulder state to `.lazytrae/state/boulder.json`. The `.omo/` path is preserved for compatibility with any LazyCodex tooling that expects it.

@@ -263,22 +263,22 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 
 | # | State | LazyCodex Source | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- |
-| 25 | Boulder state | `lazycodex/packages/web/content/docs/start-work.md` | `.lazytrae/state/boulder.json` | DESIGN | v0.5 |
-| 26 | UlwLoop plan | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | `.lazytrae/state/active-loop.json` | DESIGN | v0.5 |
-| 27 | Session tracking | `lazycodex/plugins/omo/components/rules/src/session-state-lock.ts` | `.lazytrae/state/sessions.json` | DESIGN | v0.5 |
-| 28 | Evidence recording | `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts` | `.lazytrae/evidence/*.md` | DESIGN | v0.5 |
+| 25 | Boulder state | `lazycodex/packages/web/content/docs/start-work.md` | `.lazytrae/state/boulder.json` | COMPLETE | v0.5 |
+| 26 | UlwLoop plan | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
+| 27 | Session tracking | `lazycodex/plugins/omo/components/rules/src/session-state-lock.ts` | `.lazytrae/state/sessions.json` | COMPLETE | v0.5 |
+| 28 | Evidence recording | `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts` | `.lazytrae/evidence/*.md` | COMPLETE | v0.5 |
 
 ### Verification Gates
 
 | # | Gate | LazyCodex Source | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- |
-| 29 | Plan reread | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` | Reviewer protocol step 1 | DESIGN | v0.5 |
-| 30 | Automated verification | `lazycodex/packages/web/content/docs/tdd.md` | `.lazytrae/evidence/test-runs.md` | DESIGN | v0.5 |
-| 31 | Manual-QA | `lazycodex/plugins/omo/components/ultrawork/directive.md` | `.lazytrae/evidence/verifier.md` | DESIGN | v0.5 |
-| 32 | Adversarial QA | `lazycodex/packages/web/content/docs/manual-qa.md` | `.lazytrae/evidence/reviewer.md` | DESIGN | v0.5 |
+| 29 | Plan reread | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` | Reviewer protocol step 1 | COMPLETE | v0.5 |
+| 30 | Automated verification | `lazycodex/packages/web/content/docs/tdd.md` | `.lazytrae/evidence/test-runs.md` | COMPLETE | v0.5 |
+| 31 | Manual-QA | `lazycodex/plugins/omo/components/ultrawork/directive.md` | `.lazytrae/evidence/verifier.md` | COMPLETE | v0.5 |
+| 32 | Adversarial QA | `lazycodex/packages/web/content/docs/manual-qa.md` | `.lazytrae/evidence/reviewer.md` | COMPLETE | v0.5 |
 | 33 | Cleanup | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` | `.trae/skills/remove-ai-slops/SKILL.md` | COMPLETE | v0.3 |
-| 34 | Completion claim | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | `.lazytrae/evidence/completion.md` | DESIGN | v0.5 |
-| 35 | Handoff summary | `lazycodex/packages/web/content/docs/` (handoff workflow) | `.lazytrae/evidence/handoff.md` | DESIGN | v0.5 |
+| 34 | Completion claim | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | `.lazytrae/evidence/completion.md` | COMPLETE | v0.5 |
+| 35 | Handoff summary | `lazycodex/packages/web/content/docs/` (handoff workflow) | `.lazytrae/evidence/handoff.md` | COMPLETE | v0.5 |
 
 ### Rules Component
 

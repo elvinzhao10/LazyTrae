@@ -1,0 +1,52 @@
+{
+  "schema_version": 2,
+  "active_work_id": null,
+  "works": {},
+  "metadata": {
+    "created_at": "2026-07-09T00:00:00Z",
+    "updated_at": "2026-07-09T00:00:00Z",
+    "description": "LazyTrae Boulder state — durable plan task tracker. Mirrors LazyCodex .omo/boulder.json behavior. Each work entry tracks an active plan, its tasks, evidence, blockers, and session ids."
+  },
+  "_schema": "See .lazytrae/schemas/boulder.schema.json for validation rules.",
+  "_example": {
+    "schema_version": 2,
+    "active_work_id": "work-001",
+    "works": {
+      "work-001": {
+        "work_id": "work-001",
+        "active_plan": ".omo/plans/sample-plan.md",
+        "plan_name": "sample-plan",
+        "session_ids": ["trae:session-abc123"],
+        "status": "active",
+        "worktree_path": null,
+        "tasks": [
+          {
+            "id": "task-1",
+            "description": "Create project structure",
+            "status": "complete",
+            "evidence_paths": [".lazytrae/evidence/test-runs.md"],
+            "completed_at": "2026-07-09T10:00:00Z",
+            "completed_by": "session-abc123"
+          },
+          {
+            "id": "task-2",
+            "description": "Implement core logic",
+            "status": "in_progress",
+            "evidence_paths": [],
+            "started_at": "2026-07-09T11:00:00Z",
+            "started_by": "session-abc123"
+          },
+          {
+            "id": "task-3",
+            "description": "Write tests",
+            "status": "pending",
+            "evidence_paths": []
+          }
+        ],
+        "blockers": [],
+        "created_at": "2026-07-09T09:00:00Z",
+        "updated_at": "2026-07-09T11:00:00Z"
+      }
+    }
+  }
+}
