@@ -14,6 +14,7 @@ const commands = {
   mcp: () => require('./commands/mcp').run,
   loop: () => require('./commands/loop').run,
   run: () => require('./commands/run').run,
+  team: () => require('./commands/team').run,
 };
 
 const aliases = {
@@ -25,10 +26,11 @@ const aliases = {
   h: 'handoff',
   l: 'loop',
   r: 'run',
+  t: 'team',
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v0.10.0 — Trae-native LazyCodex/OmO workflows
+  console.log(`LazyTrae CLI v0.11.0 — Trae-native LazyCodex/OmO workflows
 
 Usage: lazytrae <command> [options]
 
@@ -43,8 +45,9 @@ Commands:
   mcp         Start the LazyTrae MCP server (stdio JSON-RPC)
   loop        Long-horizon execution loop status and control
   run         Execute a task with explicit model routing (optional trae-agent backend)
+  team        Team mode / parallel-work coordination
 
-Aliases: i, d, s, rm, v, h, l, r
+Aliases: i, d, s, rm, v, h, l, r, t
 
 Run 'lazytrae <command> --help' for more info.
 `);

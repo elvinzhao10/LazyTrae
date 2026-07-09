@@ -142,7 +142,7 @@
 | 8.16 | ultrawork skill | `lazycodex/plugins/omo/components/ultrawork/skills/ultrawork/SKILL.md` | Ultrawork directive as skill | Embedded in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | COMPLETE | v0.3 |
 | 8.17 | rules skill | `lazycodex/plugins/omo/components/rules/skills/rules/SKILL.md` | Rules injection guidance | Embedded in AGENTS.md + rules | `AGENTS.md`, `.trae/rules/lazytrae.md` | COMPLETE | v0.2 |
 | 8.18 | lsp skill | `lazycodex/plugins/omo/components/lsp/skills/lsp/SKILL.md` | LSP diagnostics guidance | Optional external LSP MCP | `.trae/mcp.json` (optional) | GAP | v0.8 |
-| 8.19 | teammode skill | `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md` | Team mode guidance | Team mode docs | `docs/lazytrae-team-mode.md` | DESIGN | v0.11 |
+| 8.19 | teammode skill | `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md` | Team mode guidance | Team mode docs | `docs/lazytrae-team-mode.md` | COMPLETE | v0.11 |
 | 8.20 | librarian skill | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | Codebase search and context gathering, external research | librarian skill | `.trae/skills/librarian/SKILL.md` | COMPLETE | v0.3 |
 | 8.21 | verifier skill | LazyTrae addition (not in LazyCodex) | Verification gate enforcement | verifier skill | `.trae/skills/verifier/SKILL.md` | COMPLETE | v0.3 |
 | 8.22 | migration-planner skill | LazyTrae addition (not in LazyCodex) | Migration planning for platform adaptation | migration-planner skill | `.trae/skills/migration-planner/SKILL.md` | COMPLETE | v0.3 |
@@ -162,6 +162,18 @@
 | 9.9 | Transcript search | `lazycodex/plugins/omo/components/rules/src/transcript-search.ts` | Search transcript for rule mentions | Transcript search in hook | `.trae/hooks/user-prompt-submit.sh` | COMPLETE | v0.7 |
 | 9.10 | Bundled rules (hephaestus) | `lazycodex/plugins/omo/components/rules/bundled-rules/hephaestus.md` | Pre-bundled hephaestus rule | Embedded in hephaestus agent | `.trae/agents/hephaestus.md` | DESIGN | v0.4 |
 
+## 10. Team Mode
+
+| # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 10.1 | Team state model | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-state.mjs` | Durable team state shape and persistence | Team JSON schema + sample team | `.lazytrae/team/team.json`, `.lazytrae/schemas/team.schema.json` | COMPLETE | v0.11 |
+| 10.2 | Team controller CLI | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team.mjs` | CLI for init/add-member/bind-thread/archive/delete/status | Team CLI commands | `packages/cli/src/commands/team.js` | COMPLETE | v0.11 |
+| 10.3 | Leader orchestration protocol | `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md` | Team-vs-subagent decision, leader protocol | Team mode documentation | `docs/lazytrae-team-mode.md` | COMPLETE | v0.11 |
+| 10.4 | Worktree isolation | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-worktree.mjs` | Git worktree provisioning | Documented (manual git worktrees on Trae) | `docs/lazytrae-team-mode.md` | COMPLETE (simplified) | v0.11 |
+| 10.5 | Thread title hygiene hook | `lazycodex/plugins/omo/components/teammode/src/codex-hook.ts` | PostToolUse hook for thread title enforcement | Not applicable (Trae subagents are ephemeral) | — | N/A | — |
+| 10.6 | Member communication | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-guide.mjs` | `codex_app.send_message_to_thread` / `codex_app.read_thread` | Mailbox file-based communication | `.lazytrae/team/mailbox/` | COMPLETE (adapted) | v0.11 |
+| 10.7 | Durability across sessions | Codex thread persistence | Durable threads across session close | Durable team.json + member report files | `.lazytrae/team/team.json`, `.lazytrae/team/members/<id>/report.md` | COMPLETE (adapted) | v0.11 |
+
 ## Summary
 
 | Category | Total | COMPLETE | DESIGN | GAP | DEFERRED | N/A |
@@ -173,12 +185,13 @@
 | Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
 | MCP Servers | 6 | 4 | 0 | 2 | 0 | 0 |
 | Model Routing | 7 | 6 | 0 | 0 | 0 | 1 |
-| Skills (Shared) | 22 | 13 | 2 | 1 | 6 | 0 |
+| Skills (Shared) | 22 | 14 | 1 | 1 | 6 | 0 |
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 0 | 1 |
 | Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
-| **TOTAL** | **118** | **97** | **4** | **7** | **6** | **4** |
+| Team Mode | 7 | 6 | 0 | 0 | 0 | 1 |
+| **TOTAL** | **125** | **104** | **3** | **7** | **6** | **5** |
 
-**Coverage**: 97/118 items COMPLETE (82.2%). 6 completed in v0.10 (Model Routing: 6 items — role-based profiles, default/plan/worker/verifier mappings, agent TOML model field → agent prompt routing hints, config routing section, model routing reference docs, CLI run command). 1 N/A (managed profiles).
+**Coverage**: 104/125 items COMPLETE (83.2%). 7 completed in v0.11 (Team Mode: 6 items — state model, controller CLI, leader protocol, worktree isolation, member communication, durability across sessions; Skills: teammode skill promoted from DESIGN). 1 N/A (thread title hygiene hook).
 
 ## References
 

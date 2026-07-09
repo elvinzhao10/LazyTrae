@@ -298,6 +298,18 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 | 42 | Trae mode mapping (Auto/Max) | N/A (Trae-native) | Agent prompts + `docs/lazytrae-model-routing.md` | COMPLETE | v0.10 |
 | 43 | Optional trae-agent backend | N/A (LazyTrae addition) | `packages/cli/src/commands/run.js` | COMPLETE | v0.10 |
 
+### Team Mode
+
+| # | Method | LazyCodex Source | LazyTrae Equivalent | Status | Version |
+| --- | --- | --- | --- | --- | --- |
+| 44 | Team state model | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-state.mjs` | `.lazytrae/team/team.json` + `.lazytrae/schemas/team.schema.json` | COMPLETE | v0.11 |
+| 45 | Team controller CLI | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team.mjs` | `packages/cli/src/commands/team.js` | COMPLETE | v0.11 |
+| 46 | Leader orchestration protocol | `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md` | `docs/lazytrae-team-mode.md` | COMPLETE | v0.11 |
+| 47 | Worktree isolation | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-worktree.mjs` | Documented in `docs/lazytrae-team-mode.md` (Trae worktrees manual) | COMPLETE (simplified) | v0.11 |
+| 48 | Thread title hygiene hook | `lazycodex/plugins/omo/components/teammode/src/codex-hook.ts` | N/A (Trae subagents are ephemeral, no thread titles) | N/A | v0.11 |
+| 49 | Member communication | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-guide.mjs` | `.lazytrae/team/mailbox/` file-based | COMPLETE (adapted) | v0.11 |
+| 50 | Durability across sessions | Codex thread persistence | Durable team.json + member report files | COMPLETE (adapted) | v0.11 |
+
 ### Deferred / Not Applicable
 
 | # | Method | Reason |

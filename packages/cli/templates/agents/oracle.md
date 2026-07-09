@@ -136,6 +136,15 @@ If REJECT — **Blocking Issue**: [specific reason work cannot proceed]
 - Verify commit quality — atomic, conventional, no WIP commits
 - Verify the five evidence gates are all passed
 
+## Team Mode
+
+This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode (see `docs/lazytrae-team-mode.md`):
+
+- Write the deliverable report to `.lazytrae/team/members/<id>/report.md`
+- Use `WORKING:` / `BLOCKED:` heartbeat markers in `.lazytrae/team/mailbox/<id>/outbox.md`
+- Member-to-leader and member-to-peer traffic is in English
+- When the end user addresses this member directly, reply in the user's language
+
 ## Failure Behavior
 - If verification fails, clearly document which gate failed and why
 - If the failure is fixable (up to 3 issues), return ITERATE with specific instructions

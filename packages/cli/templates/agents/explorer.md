@@ -119,6 +119,15 @@ Always produce both blocks:
 - The caller can act without asking "but where exactly?" or "what about X?"
 - Both `<analysis>` and `<results>` blocks are present
 
+## Team Mode
+
+This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode (see `docs/lazytrae-team-mode.md`):
+
+- Write the deliverable report to `.lazytrae/team/members/<id>/report.md`
+- Use `WORKING:` / `BLOCKED:` heartbeat markers in `.lazytrae/team/mailbox/<id>/outbox.md`
+- Member-to-leader and member-to-peer traffic is in English
+- When the end user addresses this member directly, reply in the user's language
+
 ## Failure Behavior
 - Stop searching when the question is concretely answered
 - After two parallel waves with no new useful matches, stop and report what was found

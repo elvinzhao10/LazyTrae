@@ -5,6 +5,7 @@ const { extractBlockNames } = require('../lib/managed-blocks');
 const { checkParityLedger } = require('../lib/parity-check');
 const { checkModelRouting } = require('../lib/model-routing-check');
 const { checkTraeStructure } = require('../lib/trae-checks');
+const { checkTeamMode } = require('../lib/team-check');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -175,6 +176,10 @@ Options:
   const routingResult = checkModelRouting(repoRoot);
   addResult(routingResult.label, routingResult.status, routingResult.detail);
 
+  // Team mode check (v0.11)
+  const teamResult = checkTeamMode(repoRoot);
+  addResult(teamResult.label, teamResult.status, teamResult.detail);
+
   // Parity ledger
   const parityResult = checkParityLedger(repoRoot);
   if (!parityResult.present) {
@@ -187,7 +192,7 @@ Options:
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v0.10.0`);
+  console.log(`LazyTrae Doctor v0.11.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);

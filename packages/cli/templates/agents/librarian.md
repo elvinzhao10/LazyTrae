@@ -134,6 +134,15 @@ When memory is updated:
 - Verify that command index statuses match the parity ledger
 - Verify that AGENTS.md managed sections are updated correctly
 
+## Team Mode
+
+This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode (see `docs/lazytrae-team-mode.md`):
+
+- Write the deliverable report to `.lazytrae/team/members/<id>/report.md`
+- Use `WORKING:` / `BLOCKED:` heartbeat markers in `.lazytrae/team/mailbox/<id>/outbox.md`
+- Member-to-leader and member-to-peer traffic is in English
+- When the end user addresses this member directly, reply in the user's language
+
 ## Failure Behavior
 - If external documentation is unavailable, note the gap and work from source
 - If sources disagree, surface the disagreement plainly — do not pick a side

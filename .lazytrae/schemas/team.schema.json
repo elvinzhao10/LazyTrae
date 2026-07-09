@@ -1,0 +1,193 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lazytrae.dev/schemas/team.schema.json",
+  "title": "LazyTrae Team State",
+  "description": "Durable team state shape (schemaVersion 2). Mirrors LazyCodex team-state.mjs shape.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "teamId",
+    "teamName",
+    "sessionName",
+    "status",
+    "createdAt",
+    "updatedAt",
+    "leader",
+    "communication",
+    "worktree",
+    "members",
+    "log"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2,
+      "description": "Schema version — must equal 2"
+    },
+    "teamId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique team identifier"
+    },
+    "teamName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable team name"
+    },
+    "sessionName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Session name for the leader session"
+    },
+    "sessionId": {
+      "type": ["string", "null"],
+      "description": "Leader session id (nullable — Trae has no real thread id)"
+    },
+    "threadTitleConvention": {
+      "type": "string",
+      "description": "Convention: [<teamName>] <member name>"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "archived"]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "archivedAt": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "leader": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "main-session"
+        },
+        "sessionId": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "communication": {
+      "type": "object",
+      "required": ["memberLanguage", "replyToUserInUserLanguage"],
+      "properties": {
+        "memberLanguage": {
+          "type": "string",
+          "default": "english"
+        },
+        "replyToUserInUserLanguage": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "worktree": {
+      "type": "object",
+      "required": ["enabled", "baseBranch", "root"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "baseBranch": {
+          "type": "string",
+          "default": "dev"
+        },
+        "root": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "members": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "focus", "lens", "deliverable", "threadTitle", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique member identifier"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Short role label for thread title"
+          },
+          "focus": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Concrete slice of work"
+          },
+          "lens": {
+            "type": "string",
+            "enum": ["area", "ownership", "perspective"],
+            "description": "How the member approaches its focus"
+          },
+          "deliverable": {
+            "type": "string",
+            "description": "What this member must produce"
+          },
+          "threadId": {
+            "type": ["string", "null"],
+            "description": "Subagent invocation id (nullable — Trae subagents are ephemeral)"
+          },
+          "threadTitle": {
+            "type": "string",
+            "minLength": 1,
+            "description": "[<teamName>] <member name>"
+          },
+          "cwd": {
+            "type": ["string", "null"],
+            "description": "Working directory for this member"
+          },
+          "worktree": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": ["string", "null"]
+              },
+              "branch": {
+                "type": ["string", "null"]
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "active", "reported", "blocked", "archived"],
+            "description": "Member lifecycle status"
+          }
+        }
+      }
+    },
+    "log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ts", "event", "detail"],
+        "properties": {
+          "ts": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "event": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
