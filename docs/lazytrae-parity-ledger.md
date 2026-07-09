@@ -106,7 +106,7 @@
 | 6.3 | codegraph MCP | `lazycodex/plugins/omo/.mcp.json` (line 10) | Code graph analysis | Optional external tool | — | GAP |
 | 6.4 | git_bash MCP | `lazycodex/plugins/omo/.mcp.json` (line 17) | Git operations via bash | Optional in .trae/mcp.json | `.trae/mcp.json` | COMPLETE |
 | 6.5 | lsp MCP | `lazycodex/plugins/omo/.mcp.json` (line 25) | Language server protocol | Optional external LSP MCP | `.trae/mcp.json` | GAP |
-| 6.6 | LazyTrae state MCP | Not in LazyCodex (LazyTrae addition) | LazyTrae state query/mutation | LazyTrae MCP server | `packages/cli/src/commands/mcp.js` | COMPLETE |
+| 6.6 | LazyTrae state MCP | Not in LazyCodex (LazyTrae addition) | LazyTrae state query/mutation | LazyTrae MCP server | `packages/mcp/src/index.js` (9 tools), `packages/mcp/src/tools.js`, `packages/cli/src/commands/mcp.js` (thin wrapper) | COMPLETE |
 
 ## 7. Model Routing
 
@@ -200,7 +200,7 @@
 
 **Coverage**: 77/118 (65.3%) are COMPLETE. 24/118 (20.3%) have concrete Trae-native designs.
 - 77 items COMPLETE: 9 core commands + 11 agent roles + 11 hooks + 15 state management + 7 verification gates + 4 MCP servers + 13 skills + 7 rules component.
-- v0.8 completed: 6 items (4 MCP config entries + 1 LazyTrae state MCP server + 1 MCP config template).
+- v0.8 completed: 6 items (4 MCP config entries + 1 LazyTrae state MCP server + 1 MCP config template). MCP server package at `packages/mcp/` with 9 tools; CLI `mcp` command delegates to it; `.trae/mcp.json` with 9 server entries; `docs/lazytrae-mcp-reference.md`; doctor check for MCP server.
 
 ## References
 

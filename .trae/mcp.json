@@ -53,6 +53,6 @@
     }
   },
   "lazytrae": {
-    "description": "LazyTrae MCP configuration template for v0.8. The 'lazytrae' server provides 9 tools to query and mutate LazyTrae state. Optional servers provide additional capabilities and degrade gracefully when not configured."
+    "description": "LazyTrae MCP configuration for v0.8. The 'lazytrae' server provides 9 tools to query and mutate LazyTrae state. Optional servers provide additional capabilities and degrade gracefully when not configured."
   }
 }

@@ -106,7 +106,7 @@
 | 6.3 | codegraph MCP | `lazycodex/plugins/omo/.mcp.json` (line 10) | Code graph analysis | Optional external tool | — | GAP | v0.8 |
 | 6.4 | git_bash MCP | `lazycodex/plugins/omo/.mcp.json` (line 17) | Git operations via bash | Optional in .trae/mcp.json | `.trae/mcp.json` | COMPLETE | v0.8 |
 | 6.5 | lsp MCP | `lazycodex/plugins/omo/.mcp.json` (line 25) | Language server protocol | Optional external LSP MCP | `.trae/mcp.json` | GAP | v0.8 |
-| 6.6 | LazyTrae state MCP | Not in LazyCodex (LazyTrae addition) | LazyTrae state query/mutation | LazyTrae MCP server | `packages/cli/src/commands/mcp.js` | COMPLETE | v0.8 |
+| 6.6 | LazyTrae state MCP | Not in LazyCodex (LazyTrae addition) | LazyTrae state query/mutation | LazyTrae MCP server | `packages/mcp/src/index.js` (9 tools), `packages/mcp/src/tools.js`, `packages/cli/src/commands/mcp.js` (thin wrapper) | COMPLETE | v0.8 |
 
 ## 7. Model Routing
 
@@ -177,7 +177,7 @@
 | Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
 | **TOTAL** | **103** | **77** | **10** | **7** | **6** | **3** |
 
-**Coverage**: 77/103 items COMPLETE. 6 completed in v0.8 (4 MCP config entries + 1 LazyTrae state MCP server + 1 MCP config template).
+**Coverage**: 77/103 items COMPLETE. 6 completed in v0.8 (4 MCP config entries + 1 LazyTrae state MCP server + 1 MCP config template). MCP server package at `packages/mcp/` with 9 tools; CLI `mcp` command delegates to it; `.trae/mcp.json` with 9 server entries; `docs/lazytrae-mcp-reference.md`; doctor check for MCP server.
 
 ## References
 

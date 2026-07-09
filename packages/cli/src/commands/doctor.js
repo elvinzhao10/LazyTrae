@@ -86,7 +86,18 @@ Options:
 
   // .trae/hooks.json
   const hooksPath = path.join(repoRoot, '.trae', 'hooks.json');
-  addResult('.trae/hooks.json', fs.existsSync(hooksPath) ? 'PASS' : 'WARN', 'v0.7 hooks support');
+  if (fs.existsSync(hooksPath)) {
+    try {
+      const hooksConfig = JSON.parse(fs.readFileSync(hooksPath, 'utf-8'));
+      const hookEvents = Object.keys(hooksConfig.hooks || {});
+      addResult('.trae/hooks.json', hookEvents.length >= 5 ? 'PASS' : 'WARN',
+        `${hookEvents.length} hook events configured, expected at least 5`);
+    } catch (e) {
+      addResult('.trae/hooks.json', 'FAIL', `Invalid JSON: ${e.message}`);
+    }
+  } else {
+    addResult('.trae/hooks.json', 'WARN', 'Hooks config for v0.7');
+  }
 
   // .trae/hooks/ — check executability of hook scripts
   const hooksDir = path.join(repoRoot, '.trae', 'hooks');
@@ -107,7 +118,11 @@ Options:
       } else {
         addResult('.trae/hooks/ executability', 'WARN', `Not executable: ${nonExec.join(', ')}`);
       }
+    } else {
+      addResult('.trae/hooks/', 'WARN', 'No hook scripts found');
     }
+  } else {
+    addResult('.trae/hooks/', 'WARN', 'Directory not found');
   }
 
   // .trae/mcp.json — parse if present
@@ -122,6 +137,32 @@ Options:
   } else {
     addResult('.trae/mcp.json', 'WARN', 'MCP config for v0.8');
   }
+
+  // MCP server package check
+  const mcpIndexPath = path.join(repoRoot, 'packages', 'mcp', 'src', 'index.js');
+  if (fs.existsSync(mcpIndexPath)) {
+    addResult('packages/mcp/src/index.js', 'PASS');
+  } else {
+    addResult('packages/mcp/src/index.js', 'FAIL', 'MCP server entry point not found');
+  }
+
+  // MCP server tools check
+  const mcpToolsPath = path.join(repoRoot, 'packages', 'mcp', 'src', 'tools.js');
+  if (fs.existsSync(mcpToolsPath)) {
+    try {
+      const { TOOLS } = require(mcpToolsPath);
+      const toolCount = TOOLS.length;
+      addResult('MCP tools (9 expected)', toolCount >= 9 ? 'PASS' : 'FAIL',
+        `Found ${toolCount} MCP tools, expected 9`);
+    } catch (e) {
+      addResult('MCP tools', 'FAIL', `Cannot load tools.js: ${e.message}`);
+    }
+  } else {
+    addResult('packages/mcp/src/tools.js', 'FAIL', 'MCP tools file not found');
+  }
+
+  // MCP server runtime check (WARN if not running, expected outside Trae)
+  addResult('MCP server running', 'WARN', 'Server runs inside Trae IDE; not expected standalone');
 
   // .lazytrae/config.json
   const configPath = path.join(repoRoot, '.lazytrae', 'config.json');
@@ -228,7 +269,7 @@ Options:
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v0.6.0`);
+  console.log(`LazyTrae Doctor v0.8.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);
