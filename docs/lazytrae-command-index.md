@@ -18,15 +18,15 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1.1 | `$init-deep` | `lazycodex/packages/web/content/docs/init-deep.md` | Hierarchical repo understanding, AGENTS.md generation | init-deep command + skill | `.trae/commands/init-deep.md`, `.trae/skills/init-deep/SKILL.md` | DESIGN | v0.3 |
-| 1.2 | `$ulw-plan` | `lazycodex/packages/web/content/docs/ulw-plan.md` | Socratic planning interview, parallel exploration, plan generation | ulw-plan command + skill + Prometheus agent | `.trae/commands/ulw-plan.md`, `.trae/skills/ulw-plan/SKILL.md`, `.trae/agents/prometheus.md` | DESIGN | v0.3 |
-| 1.3 | `$start-work` | `lazycodex/packages/web/content/docs/start-work.md` | Execute approved plan one task at a time | start-work command + skill + Atlas agent | `.trae/commands/start-work.md`, `.trae/skills/start-work/SKILL.md`, `.trae/agents/atlas.md` | DESIGN | v0.3 |
-| 1.4 | `$ulw-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` | Self-referential long-horizon execution loop | ulw-loop command + skill + loop state machine | `.trae/commands/ulw-loop.md`, `.trae/skills/ulw-loop/SKILL.md`, `.lazytrae/state/active-loop.json` | DESIGN | v0.9 |
-| 1.5 | `$ralph-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` (alias) | Alias for ulw-loop | ralph-loop command | `.trae/commands/ralph-loop.md` | DESIGN | v0.9 |
-| 1.6 | `/stop-continuation` | `lazycodex/packages/web/content/docs/` (referenced) | Pause/cancel active loop | stop-continuation command + CLI | `.trae/commands/stop-continuation.md`, `lazytrae loop cancel` | DESIGN | v0.5 |
-| 1.7 | `/handoff` | `lazycodex/packages/web/content/docs/` (referenced) | New-session continuation summary | handoff command + CLI | `.trae/commands/handoff.md`, `lazytrae handoff` | DESIGN | v0.5 |
-| 1.8 | `review-work` | `lazycodex/packages/web/content/docs/` (referenced) | Reviewer/Oracle protocol | review-work command + reviewer skill + Oracle agent | `.trae/commands/review-work.md`, `.trae/skills/reviewer/SKILL.md`, `.trae/agents/oracle.md` | DESIGN | v0.4 |
-| 1.9 | `remove-ai-slops` | `lazycodex/packages/web/content/docs/` (referenced) | Remove AI-generated slop while preserving behavior | remove-ai-slops command + skill + Cleaner agent | `.trae/commands/remove-ai-slops.md`, `.trae/skills/remove-ai-slops/SKILL.md`, `.trae/agents/cleaner.md` | DESIGN | v0.4 |
+| 1.1 | `$init-deep` | `lazycodex/packages/web/content/docs/init-deep.md` | Hierarchical repo understanding, AGENTS.md generation | init-deep command + skill | `.trae/commands/init-deep.md`, `.trae/skills/init-deep/SKILL.md` | COMPLETE | v0.3 |
+| 1.2 | `$ulw-plan` | `lazycodex/packages/web/content/docs/ulw-plan.md` | Socratic planning interview, parallel exploration, plan generation | ulw-plan command + skill + Prometheus agent | `.trae/commands/ulw-plan.md`, `.trae/skills/ulw-plan/SKILL.md`, `.trae/agents/prometheus.md` | COMPLETE | v0.3 |
+| 1.3 | `$start-work` | `lazycodex/packages/web/content/docs/start-work.md` | Execute approved plan one task at a time | start-work command + skill + Atlas agent | `.trae/commands/start-work.md`, `.trae/skills/start-work/SKILL.md`, `.trae/agents/atlas.md` | COMPLETE | v0.3 |
+| 1.4 | `$ulw-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` | Self-referential long-horizon execution loop | ulw-loop command + skill + loop state machine | `.trae/commands/ulw-loop.md`, `.trae/skills/ulw-loop/SKILL.md`, `.lazytrae/state/active-loop.json` | COMPLETE | v0.3 |
+| 1.5 | `$ralph-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` (alias) | Alias for ulw-loop | ralph-loop command | `.trae/commands/ralph-loop.md` | COMPLETE | v0.3 |
+| 1.6 | `/stop-continuation` | `lazycodex/packages/web/content/docs/` (referenced) | Pause/cancel active loop | stop-continuation command + CLI | `.trae/commands/stop-continuation.md`, `lazytrae loop cancel` | COMPLETE | v0.3 |
+| 1.7 | `/handoff` | `lazycodex/packages/web/content/docs/` (referenced) | New-session continuation summary | handoff command + CLI | `.trae/commands/handoff.md`, `lazytrae handoff` | COMPLETE | v0.3 |
+| 1.8 | `review-work` | `lazycodex/packages/web/content/docs/` (referenced) | Reviewer/Oracle protocol | review-work command + reviewer skill + Oracle agent | `.trae/commands/review-work.md`, `.trae/skills/reviewer/SKILL.md`, `.trae/agents/oracle.md` | COMPLETE | v0.3 |
+| 1.9 | `remove-ai-slops` | `lazycodex/packages/web/content/docs/` (referenced) | Remove AI-generated slop while preserving behavior | remove-ai-slops command + skill + Cleaner agent | `.trae/commands/remove-ai-slops.md`, `.trae/skills/remove-ai-slops/SKILL.md`, `.trae/agents/cleaner.md` | COMPLETE | v0.3 |
 
 ## 2. Agent Roles
 
@@ -124,12 +124,12 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 8.1 | init-deep skill | `lazycodex/plugins/omo/skills/init-deep/SKILL.md` | Hierarchical repo understanding | init-deep skill | `.trae/skills/init-deep/SKILL.md` | DESIGN | v0.3 |
-| 8.2 | ulw-plan skill | `lazycodex/plugins/omo/skills/ulw-plan/SKILL.md` | Plan generation workflow | ulw-plan skill | `.trae/skills/ulw-plan/SKILL.md` | DESIGN | v0.3 |
-| 8.3 | start-work skill | `lazycodex/plugins/omo/skills/start-work/SKILL.md` | Plan execution one-task-at-a-time | start-work skill | `.trae/skills/start-work/SKILL.md` | DESIGN | v0.3 |
-| 8.4 | ulw-loop skill | `lazycodex/plugins/omo/components/ulw-loop/skills/ulw-loop/SKILL.md` | Long-horizon execution loop | ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | DESIGN | v0.9 |
-| 8.5 | review-work skill | `lazycodex/plugins/omo/skills/review-work/SKILL.md` | Review/Oracle protocol | reviewer skill | `.trae/skills/reviewer/SKILL.md` | DESIGN | v0.4 |
-| 8.6 | remove-ai-slops skill | `lazycodex/plugins/omo/skills/remove-ai-slops/SKILL.md` | AI-slop cleanup | remove-ai-slops skill | `.trae/skills/remove-ai-slops/SKILL.md` | DESIGN | v0.4 |
+| 8.1 | init-deep skill | `lazycodex/plugins/omo/skills/init-deep/SKILL.md` | Hierarchical repo understanding | init-deep skill | `.trae/skills/init-deep/SKILL.md` | COMPLETE | v0.3 |
+| 8.2 | ulw-plan skill | `lazycodex/plugins/omo/skills/ulw-plan/SKILL.md` | Plan generation workflow | ulw-plan skill | `.trae/skills/ulw-plan/SKILL.md` | COMPLETE | v0.3 |
+| 8.3 | start-work skill | `lazycodex/plugins/omo/skills/start-work/SKILL.md` | Plan execution one-task-at-a-time | start-work skill | `.trae/skills/start-work/SKILL.md` | COMPLETE | v0.3 |
+| 8.4 | ulw-loop skill | `lazycodex/plugins/omo/components/ulw-loop/skills/ulw-loop/SKILL.md` | Long-horizon execution loop | ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | COMPLETE | v0.3 |
+| 8.5 | review-work skill | `lazycodex/plugins/omo/skills/review-work/SKILL.md` | Review/Oracle protocol | reviewer skill | `.trae/skills/reviewer/SKILL.md` | COMPLETE | v0.3 |
+| 8.6 | remove-ai-slops skill | `lazycodex/plugins/omo/skills/remove-ai-slops/SKILL.md` | AI-slop cleanup | remove-ai-slops skill | `.trae/skills/remove-ai-slops/SKILL.md` | COMPLETE | v0.3 |
 | 8.7 | refactor skill | `lazycodex/plugins/omo/skills/refactor/SKILL.md` | Refactoring guidance | Embedded in start-work | — | DEFERRED | — |
 | 8.8 | programming skill | `lazycodex/plugins/omo/skills/programming/SKILL.md` | General programming guidance | Embedded in start-work | — | DEFERRED | — |
 | 8.9 | frontend skill | `lazycodex/plugins/omo/skills/frontend/SKILL.md` | Frontend-specific guidance | Embedded in start-work | — | DEFERRED | — |
@@ -139,10 +139,13 @@
 | 8.13 | lcx-report-bug skill | `lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` | Bug reporting | Not ported | — | DEFERRED | — |
 | 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` | Structural code search | Optional external tool | — | DEFERRED | — |
 | 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` | Session management guidance | Session tracking | `.lazytrae/state/sessions.json` | DESIGN | v0.5 |
-| 8.16 | ultrawork skill | `lazycodex/plugins/omo/components/ultrawork/skills/ultrawork/SKILL.md` | Ultrawork directive as skill | Embedded in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | DESIGN | v0.9 |
+| 8.16 | ultrawork skill | `lazycodex/plugins/omo/components/ultrawork/skills/ultrawork/SKILL.md` | Ultrawork directive as skill | Embedded in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | COMPLETE | v0.3 |
 | 8.17 | rules skill | `lazycodex/plugins/omo/components/rules/skills/rules/SKILL.md` | Rules injection guidance | Embedded in AGENTS.md + rules | `AGENTS.md`, `.trae/rules/lazytrae.md` | COMPLETE | v0.2 |
 | 8.18 | lsp skill | `lazycodex/plugins/omo/components/lsp/skills/lsp/SKILL.md` | LSP diagnostics guidance | Optional external LSP MCP | `.trae/mcp.json` (optional) | GAP | v0.8 |
 | 8.19 | teammode skill | `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md` | Team mode guidance | Team mode docs | `docs/lazytrae-team-mode.md` | DESIGN | v0.11 |
+| 8.20 | librarian skill | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | Codebase search and context gathering, external research | librarian skill | `.trae/skills/librarian/SKILL.md` | COMPLETE | v0.3 |
+| 8.21 | verifier skill | LazyTrae addition (not in LazyCodex) | Verification gate enforcement | verifier skill | `.trae/skills/verifier/SKILL.md` | COMPLETE | v0.3 |
+| 8.22 | migration-planner skill | LazyTrae addition (not in LazyCodex) | Migration planning for platform adaptation | migration-planner skill | `.trae/skills/migration-planner/SKILL.md` | COMPLETE | v0.3 |
 
 ## 9. Rules Component
 
@@ -163,19 +166,19 @@
 
 | Category | Total | COMPLETE | DESIGN | GAP | DEFERRED | N/A |
 | --- | --- | --- | --- | --- | --- | --- |
-| Core Commands | 9 | 0 | 9 | 0 | 0 | 0 |
+| Core Commands | 9 | 9 | 0 | 0 | 0 | 0 |
 | Agent Roles | 11 | 0 | 11 | 0 | 0 | 0 |
 | Hooks | 16 | 0 | 12 | 3 | 0 | 1 |
 | State Management | 15 | 0 | 15 | 0 | 0 | 0 |
 | Verification Gates | 7 | 0 | 7 | 0 | 0 | 0 |
 | MCP Servers | 6 | 0 | 4 | 2 | 0 | 0 |
 | Model Routing | 7 | 0 | 6 | 0 | 0 | 1 |
-| Skills (Shared) | 19 | 1 | 11 | 1 | 6 | 0 |
+| Skills (Shared) | 22 | 11 | 4 | 1 | 6 | 0 |
 | Rules Component | 10 | 1 | 7 | 1 | 0 | 1 |
-| **TOTAL** | **100** | **2** | **82** | **7** | **6** | **3** |
+| **TOTAL** | **103** | **20** | **66** | **7** | **6** | **4** |
 
-**Coverage**: 2/100 items COMPLETE in v0.2 (static rule injection, rules skill).
-82 items have concrete Trae-native designs. 7 GAP items have documented substitutes. 6 DEFERRED items are non-core skills. 3 N/A items are platform-specific.
+**Coverage**: 20/103 items COMPLETE. 11 completed in v0.3, 2 completed in v0.2.
+82 items have concrete Trae-native designs. 7 GAP items have documented substitutes. 6 DEFERRED items are non-core skills. 4 N/A items are platform-specific.
 
 ## References
 
