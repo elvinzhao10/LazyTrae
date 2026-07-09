@@ -290,18 +290,23 @@ LazyTrae maintains a `.omo/` compatibility mirror so that LazyCodex tooling can 
 
 ### Mutation Lock Pattern
 
-Mirrors LazyCodex `plan-io.ts` `withUlwLoopMutationLock`:
+LazyTrae uses two distinct locking mechanisms, mirroring LazyCodex:
+
+**1. Plan mutation lock** (mirrors `plan-io.ts` `withUlwLoopMutationLock`):
+- In-memory `Map<string, Promise>` keyed by `repoRoot + "\0" + relativePath`.
+- Serializes all mutations to the same scope within a process.
+- No file-system locking; relies on promise chaining.
 
 ```
 function withUlwLoopMutationLock(repoRoot, scope, fn):
   lockKey = repoRoot + "\0" + relativePath
-  wait for prior lock to resolve
+  wait for prior lock promise to resolve
   execute fn() under exclusive lock
   return result
 ```
 
-**Implementation in LazyTrae:**
-- File-based locking using `mkdir` as atomic operation (same as LazyCodex `session-state-lock.ts`).
+**2. Session state lock** (mirrors `session-state-lock.ts`):
+- File-based locking using `mkdir` as atomic operation.
 - 20 retries with 5ms delay between attempts.
 - Returns `SESSION_STATE_LOCK_CONTENDED` if lock cannot be acquired after 20 attempts.
 - Lock is released by removing the lock directory.

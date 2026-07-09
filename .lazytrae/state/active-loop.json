@@ -15,7 +15,7 @@
   "metadata": {
     "description": "LazyTrae Active Loop state — mirrors LazyCodex UlwLoopPlan. Tracks long-horizon goal, iterations, checkpoints, completion promise, verification status, and reviewer status.",
     "max_iterations": 500,
-    "iteration_cap_source": "lazycodex/plugins/omo/components/ulw-loop/src/constants.ts (ultrawork mode: 500, normal: 100)",
+    "iteration_cap_source": "lazycodex/packages/web/content/docs/ulw-loop.md (line 25: ultrawork mode: 500, normal: 100)",
     "goal_statuses": ["pending", "in_progress", "complete", "failed", "blocked", "review_blocked", "needs_user_decision"],
     "criterion_statuses": ["pending", "pass", "fail", "blocked"],
     "criterion_user_models": ["happy", "edge", "regression", "adversarial"],
