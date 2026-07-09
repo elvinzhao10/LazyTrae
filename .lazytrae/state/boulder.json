@@ -16,7 +16,9 @@
         "work_id": "work-001",
         "active_plan": ".omo/plans/sample-plan.md",
         "plan_name": "sample-plan",
-        "session_ids": ["trae:session-abc123"],
+        "session_ids": [
+          "trae:session-abc123"
+        ],
         "status": "active",
         "worktree_path": null,
         "tasks": [
@@ -24,7 +26,9 @@
             "id": "task-1",
             "description": "Create project structure",
             "status": "complete",
-            "evidence_paths": [".lazytrae/evidence/test-runs.md"],
+            "evidence_paths": [
+              ".lazytrae/evidence/test-runs.md"
+            ],
             "completed_at": "2026-07-09T10:00:00Z",
             "completed_by": "session-abc123"
           },
@@ -48,5 +52,6 @@
         "updated_at": "2026-07-09T11:00:00Z"
       }
     }
-  }
+  },
+  "updated_at": "2026-07-09T09:23:55.342Z"
 }

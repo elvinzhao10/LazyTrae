@@ -151,21 +151,21 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| 9.1 | Ultrawork directive | `lazycodex/plugins/omo/components/ultrawork/directive.md` | Full ultrawork mode directive | Embedded in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | DESIGN |
+| 9.1 | Ultrawork directive | `lazycodex/plugins/omo/components/ultrawork/directive.md` | Full ultrawork mode directive | Embedded in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | COMPLETE |
 | 9.2 | Skill pointer | `lazycodex/plugins/omo/components/ultrawork/src/skill-pointer.ts` | <4096-byte pointer to skill | Trae native skill loading (eliminates pointer) | N/A | N/A |
-| 9.3 | Tier triage (LIGHT/HEAVY) | `lazycodex/plugins/omo/components/ultrawork/directive.md` (Tier triage section) | Classify task complexity at bootstrap | Tier triage in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | DESIGN |
-| 9.4 | Manual-QA channels | `lazycodex/plugins/omo/components/ultrawork/directive.md` (Manual-QA channels: HTTP, tmux, browser, CLI, data) | Real-surface proof channels | Manual-QA channels in verifier protocol | `.lazytrae/evidence/verifier.md` | DESIGN |
-| 9.5 | Iteration cap (500/100) | `lazycodex/packages/web/content/docs/ulw-loop.md` | Maximum iterations per loop | Iteration cap in loop state | `.lazytrae/state/active-loop.json` | DESIGN |
-| 9.6 | Codex goal mode (aggregate/per_story) | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` (UlwLoopCodexGoalMode) | Goal aggregation mode | Goal mode in active-loop.json | `.lazytrae/state/active-loop.json` | DESIGN |
-| 9.7 | Aggregate completion | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` (UlwLoopAggregateCompletion) | Formal loop completion | Completion evidence | `.lazytrae/evidence/completion.md` | DESIGN |
-| 9.8 | Plan creation | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` (createUlwLoopPlan) | Create ulw-loop plan from brief | `lazytrae loop create` | `packages/cli/src/commands/loop.ts` | DESIGN |
-| 9.9 | Start next goal | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` (startNextUlwLoop) | Start next pending goal | `lazytrae loop next` | `packages/cli/src/commands/loop.ts` | DESIGN |
-| 9.10 | Goal completion | `lazycodex/plugins/omo/components/ulw-loop/src/goal-status.ts` (isUlwLoopDone, hasAllCriteriaPass) | Check if goal/loop is complete | Goal completion check in loop state | `.lazytrae/state/active-loop.json` | DESIGN |
-| 9.11 | Steering engine | `lazycodex/plugins/omo/components/ulw-loop/src/steering.ts` | Runtime plan adjustments | Steering in loop state | `.lazytrae/state/active-loop.json` | DESIGN |
-| 9.12 | CLI arg parser | `lazycodex/plugins/omo/components/ulw-loop/src/cli-arg-parser.ts` | Parse CLI arguments | CLI arg parsing | `packages/cli/src/commands/loop.ts` | DESIGN |
-| 9.13 | CLI commands | `lazycodex/plugins/omo/components/ulw-loop/src/cli-commands.ts` | CLI command implementations | CLI commands | `packages/cli/src/commands/loop.ts` | DESIGN |
-| 9.14 | CLI output | `lazycodex/plugins/omo/components/ulw-loop/src/cli-output.ts` | Formatted CLI output | CLI output | `packages/cli/src/commands/loop.ts` | DESIGN |
-| 9.15 | Review blockers | `lazycodex/plugins/omo/components/ulw-loop/src/review-blockers.ts` | Blocker tracking and classification | Blocker tracking in boulder state | `.lazytrae/state/boulder.json` | DESIGN |
+| 9.3 | Tier triage (LIGHT/HEAVY) | `lazycodex/plugins/omo/components/ultrawork/directive.md` (Tier triage section) | Classify task complexity at bootstrap | Tier triage in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | COMPLETE |
+| 9.4 | Manual-QA channels | `lazycodex/plugins/omo/components/ultrawork/directive.md` (Manual-QA channels: HTTP, tmux, browser, CLI, data) | Real-surface proof channels | Manual-QA channels in verifier protocol | `docs/lazytrae-verifier-protocol.md` | COMPLETE |
+| 9.5 | Iteration cap (500/100) | `lazycodex/packages/web/content/docs/ulw-loop.md` | Maximum iterations per loop | Iteration cap in loop state | `.lazytrae/state/active-loop.json` | COMPLETE |
+| 9.6 | Codex goal mode (aggregate/per_story) | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` (UlwLoopCodexGoalMode) | Goal aggregation mode | Goal mode in active-loop.json | `.lazytrae/state/active-loop.json` | COMPLETE |
+| 9.7 | Aggregate completion | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` (UlwLoopAggregateCompletion) | Formal loop completion | Completion evidence | `.lazytrae/evidence/completion.md` | COMPLETE |
+| 9.8 | Plan creation | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` (createUlwLoopPlan) | Create ulw-loop plan from brief | Loop state initialization | `.lazytrae/state/active-loop.json` | COMPLETE |
+| 9.9 | Start next goal | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` (startNextUlwLoop) | Start next pending goal | Loop cycle step 5 | `docs/lazytrae-execution-loop.md` | COMPLETE |
+| 9.10 | Goal completion | `lazycodex/plugins/omo/components/ulw-loop/src/goal-status.ts` (isUlwLoopDone, hasAllCriteriaPass) | Check if goal/loop is complete | Goal completion check in loop state | `.lazytrae/state/active-loop.json` | COMPLETE |
+| 9.11 | Steering engine | `lazycodex/plugins/omo/components/ulw-loop/src/steering.ts` | Runtime plan adjustments | Steering in loop state (7 mutation kinds) | `docs/lazytrae-execution-loop.md` §9 | COMPLETE |
+| 9.12 | CLI arg parser | `lazycodex/plugins/omo/components/ulw-loop/src/cli-arg-parser.ts` | Parse CLI arguments | CLI arg parsing | `packages/cli/src/commands/loop.js` | COMPLETE |
+| 9.13 | CLI commands | `lazycodex/plugins/omo/components/ulw-loop/src/cli-commands.ts` | CLI command implementations | CLI commands (status/cancel/pause/resume/log/checkpoint) | `packages/cli/src/commands/loop.js` | COMPLETE |
+| 9.14 | CLI output | `lazycodex/plugins/omo/components/ulw-loop/src/cli-output.ts` | Formatted CLI output | CLI output formatting | `packages/cli/src/commands/loop.js` | COMPLETE |
+| 9.15 | Review blockers | `lazycodex/plugins/omo/components/ulw-loop/src/review-blockers.ts` | Blocker tracking and classification | Blocker tracking documented in loop state and reviewer protocol | `docs/lazytrae-reviewer-protocol.md`, `docs/lazytrae-failure-recovery.md` | COMPLETE |
 
 ## 10. Rules Component
 
@@ -184,23 +184,23 @@
 
 ## Summary
 
-| Category | Total | DESIGN | GAP | DEFERRED | N/A | COMPLETE |
+| Category | Total | COMPLETE | DESIGN | GAP | DEFERRED | N/A |
 | --- | --- | --- | --- | --- | --- | --- |
-| Core Commands | 9 | 0 | 0 | 0 | 0 | 9 |
-| Agent Roles | 11 | 0 | 0 | 0 | 0 | 11 |
-| Hooks | 16 | 1 | 3 | 0 | 1 | 11 |
-| State Management | 15 | 0 | 0 | 0 | 0 | 15 |
-| Verification Gates | 7 | 0 | 0 | 0 | 0 | 7 |
-| MCP Servers | 6 | 0 | 2 | 0 | 0 | 4 |
-| Model Routing | 7 | 6 | 0 | 0 | 1 | 0 |
-| Skills (Shared) | 22 | 2 | 1 | 6 | 0 | 13 |
-| Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 1 | 0 |
-| Rules Component | 10 | 1 | 1 | 0 | 1 | 7 |
-| **TOTAL** | **118** | **24** | **7** | **6** | **4** | **77** |
+| Core Commands | 9 | 9 | 0 | 0 | 0 | 0 |
+| Agent Roles | 11 | 11 | 0 | 0 | 0 | 0 |
+| Hooks | 16 | 11 | 1 | 3 | 0 | 1 |
+| State Management | 15 | 15 | 0 | 0 | 0 | 0 |
+| Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
+| MCP Servers | 6 | 4 | 0 | 2 | 0 | 0 |
+| Model Routing | 7 | 0 | 6 | 0 | 0 | 1 |
+| Skills (Shared) | 22 | 13 | 2 | 1 | 6 | 0 |
+| Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 0 | 1 |
+| Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
+| **TOTAL** | **118** | **91** | **10** | **7** | **6** | **4** |
 
-**Coverage**: 77/118 (65.3%) are COMPLETE. 24/118 (20.3%) have concrete Trae-native designs.
-- 77 items COMPLETE: 9 core commands + 11 agent roles + 11 hooks + 15 state management + 7 verification gates + 4 MCP servers + 13 skills + 7 rules component.
-- v0.8 completed: 6 items (4 MCP config entries + 1 LazyTrae state MCP server + 1 MCP config template). MCP server package at `packages/mcp/` with 9 tools; CLI `mcp` command delegates to it; `.trae/mcp.json` with 9 server entries; `docs/lazytrae-mcp-reference.md`; doctor check for MCP server.
+**Coverage**: 91/118 (77.1%) are COMPLETE. 10/118 (8.5%) have concrete Trae-native designs.
+- 91 items COMPLETE: 9 core commands + 11 agent roles + 11 hooks + 15 state management + 7 verification gates + 4 MCP servers + 13 skills + 14 ultrawork core + 7 rules component.
+- v0.9 completed: 14 items (ultrawork/ulw-loop core: directive, tier triage, manual-QA, iteration cap, goal mode, aggregate completion, plan creation, start goal, goal completion, steering, CLI arg parser, CLI commands, CLI output, review blockers). Full execution loop with 10 states, 13-step cycle, NDJSON event log, .omo mirror, CLI loop command, verifier/reviewer/failure-recovery docs, loop simulation evidence.
 
 ## References
 

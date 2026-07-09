@@ -178,4 +178,37 @@ No mid-operation interrupts in this deliverable.
 - **Overall**: PASS
 - **Classes probed**: 1/9
 - **Classes N/A**: 8 (prompt injection, cancel/resume, stale state, dirty worktree, hung commands, flaky tests, misleading output, repeated interruptions) — no applicable surface in static state/config files.
-- **Classes failed**: None
+- **Classes failed**: None# Reviewer Protocol — 2026-07-09T09:23:55.340Z
+
+## Context
+Test review context
+
+## Files Changed
+  - packages/cli/src/commands/mcp.js
+
+## Five Evidence Gates
+
+### 1. Plan Reread
+- [ ] Plan re-read before claiming completion
+
+### 2. Automated Verification
+- [ ] Tests, linters, type checks, builds pass
+
+### 3. Manual-QA
+- [ ] Real-surface proof through channels (CLI, HTTP, browser, data)
+
+### 4. Adversarial QA
+- [ ] Edge cases, regression, adversarial scenarios tested
+
+### 5. Cleanup
+- [ ] AI slop removed, dead code cleaned up
+
+## Verdict
+- [ ] APPROVE
+- [ ] ITERATE (max 3 fixable issues)
+- [ ] REJECT (blocking)
+
+## Notes
+
+_Review requested for task: task-1_
+

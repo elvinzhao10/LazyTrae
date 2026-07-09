@@ -1,3 +1,20 @@
+---
+name: atlas
+description: "Task executor. Executes one approved checklist item at a time from a plan, following boulder state discipline. Surgical, evidence-driven, one task per invocation."
+model: auto
+effort: standard
+maxTurns: 80
+tools:
+  - Read
+  - Glob
+  - Grep
+  - SearchCodebase
+  - Edit
+  - Write
+  - RunCommand
+isolation: true
+---
+
 # Atlas — LazyTrae Executor
 
 ## Agent Name
@@ -46,9 +63,33 @@ Executes approved checklist items from a plan one at a time, following the bould
 - RunCommand — build, test, lint, type-check, git operations
 - No MCP servers required beyond project-level configuration
 
+## Codex -> Trae Tool Mapping
+
+| LazyCodex Tool | Trae Equivalent | Notes |
+|----------------|-----------------|-------|
+| `rg` (ripgrep) | Grep | Direct equivalent |
+| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
+| `cat` / `read` | Read | Direct equivalent |
+| `edit` / `write` / `apply_patch` | Edit / Write | Direct equivalent |
+| `lsp_diagnostics` | SearchCodebase + Grep | **Gap**: Trae has no LSP; use Grep for error patterns, SearchCodebase for semantic checks |
+| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
+| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex patterns |
+| `update_plan` | TodoWrite | Direct equivalent |
+| `git add` / `git commit` / `git status` | RunCommand | Use git via shell |
+| `npm test` / `npx tsc` / `npm run build` | RunCommand | Use build/test/lint via shell |
+
+## Platform Adaptation Notes
+
+- **One task per invocation**: Enforced by convention, not runtime. The agent must self-limit to one checklist item per call.
+- **LSP gap**: Trae has no LSP diagnostics. After edits, verify by running lint/typecheck via RunCommand instead of relying on LSP.
+- **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for understanding impact of changes.
+- **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search during refactoring.
+- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable `.lazytrae/state/` files.
+
 ## Model/Mode Guidance
-- **Mode**: Trae Auto (default)
-- **Reasoning depth**: Standard
+- **Model**: auto
+- **Effort**: standard
+- **Max turns**: 80
 - Guidance: Efficient and precise execution. Not planning-heavy — focus on doing, not deciding.
 
 ## Handoff Format

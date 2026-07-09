@@ -12,6 +12,7 @@ const commands = {
   handoff: () => require('./commands/handoff').run,
   hook: () => require('./commands/hook').run,
   mcp: () => require('./commands/mcp').run,
+  loop: () => require('./commands/loop').run,
 };
 
 const aliases = {
@@ -21,10 +22,11 @@ const aliases = {
   rm: 'uninstall',
   v: 'verify',
   h: 'handoff',
+  l: 'loop',
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v0.8.0 — Trae-native LazyCodex/OmO workflows
+  console.log(`LazyTrae CLI v0.9.0 — Trae-native LazyCodex/OmO workflows
 
 Usage: lazytrae <command> [options]
 
@@ -37,8 +39,9 @@ Commands:
   handoff     Print handoff summary from current state
   hook        Dispatch a LazyTrae hook event
   mcp         Start the LazyTrae MCP server (stdio JSON-RPC)
+  loop        Long-horizon execution loop status and control
 
-Aliases: i, d, s, rm, v, h
+Aliases: i, d, s, rm, v, h, l
 
 Run 'lazytrae <command> --help' for more info.
 `);

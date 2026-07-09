@@ -170,6 +170,53 @@
   4. Prioritize core workflow features over nice-to-have features
 - **Acceptance criteria**: Parity ledger covers 100% of discovered LazyCodex methods; deferred items have documented rationale.
 
+### R-012: No PostCompact Hook Event (Fundamental Platform Gap)
+
+- **Severity**: HIGH
+- **Category**: Platform
+- **Affected versions**: All
+- **Description**: Trae IDE does not have a PostCompact hook event. LazyCodex uses PostCompact to reset rule caches and re-inject rules after every context compaction. Without this, rules injected by hooks may be lost after compaction, and the agent may not have access to project rules without re-reading them manually.
+- **LazyCodex reference**: `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 38: PostCompact hook), `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts`
+- **Mitigation**:
+  1. Detect compaction heuristically via SessionStart source field and UserPromptSubmit transcript markers
+  2. Maintain compaction state in `.lazytrae/state/sessions.json`
+  3. SessionStart hook checks for post-compact recovery flag and re-injects context
+  4. UserPromptSubmit hook scans for compaction markers and sets recovery flag
+  5. Document the limitation clearly — detection may miss some compaction events
+- **Acceptance criteria**: Detection catches >= 80% of compaction events; remaining cases have manual fallback (re-inject command).
+- **Fundamental limitation**: This can never be fully fixed in Trae — the hook event doesn't exist. Best-effort detection only.
+
+### R-013: No TOML-Backed Agent Role Routing (Fundamental Platform Gap)
+
+- **Severity**: MEDIUM
+- **Category**: Platform
+- **Affected versions**: All
+- **Description**: LazyCodex agents are TOML files with `model`, `reasoning_effort`, `service_tier`, and `disallowed_tools` that the platform enforces at runtime. Trae's Task/subagent tool cannot select roles by name — agent role requirements must be pasted into the task description as text. There is no runtime guarantee that a subagent is actually operating under the specified role constraints (model, tools, effort level).
+- **LazyCodex reference**: `lazycodex/plugins/omo/components/ultrawork/agents/*.toml`, `multi_agent_v1.spawn_agent` with role parameter
+- **Mitigation**:
+  1. Document role requirements in task descriptions explicitly
+  2. Use YAML frontmatter in agent .md files as specification (even if not enforced)
+  3. Agent instructions explicitly state what tools and model to use
+  4. Reviewer verifies subagent output quality as a check
+  5. Document this as a known fidelity gap
+- **Acceptance criteria**: All agents have frontmatter specifications; task descriptions include role requirements; quality differences are documented.
+- **Fundamental limitation**: Trae has no role-based subagent routing. This is a best-effort text-based workaround.
+
+### R-014: Synchronous Subagents (Fundamental Platform Gap)
+
+- **Severity**: MEDIUM
+- **Category**: Platform
+- **Affected versions**: All
+- **Description**: LazyCodex `multi_agent_v1.spawn_agent` returns immediately, and the parent uses `multi_agent_v1.wait_agent` to poll — allowing the parent to continue working while subagents run. Trae's Task/subagent tool is synchronous — the parent blocks until the subagent returns. This means: (1) no parallel execution of parent and subagent work, (2) no progress updates during long subagent tasks, (3) the parent can't do independent root work while exploration subagents run.
+- **LazyCodex reference**: `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` (strategy: parallel read-only exploration), `multi_agent_v1.wait_agent`
+- **Mitigation**:
+  1. Launch all read-only subagents (explorer, librarian) at the start and wait for all together
+  2. Use batch parallelism (multiple subagents at once) instead of interleaved parallelism
+  3. Break work into smaller subagent tasks to reduce blocking time
+  4. Document the synchronous model and its impact on workflow
+- **Acceptance criteria**: Parallel exploration phases use batch parallelism; documentation clearly states synchronous model.
+- **Fundamental limitation**: Trae subagents are synchronous. This is a workflow adaptation, not a fix.
+
 ## Risk Matrix by Version
 
 | Version | Risks | Highest Severity |
@@ -179,19 +226,20 @@
 | v0.4 | R-004 | MEDIUM |
 | v0.5 | R-006 | HIGH |
 | v0.6 | R-002 | MEDIUM |
-| v0.7 | R-001, R-005 | HIGH |
+| v0.7 | R-001, R-005, R-012 | HIGH |
 | v0.8 | — | LOW |
 | v0.9 | R-006, R-008 | HIGH |
 | v0.10 | — | LOW |
-| v0.11 | R-009 | MEDIUM |
+| v0.11 | R-009, R-014 | MEDIUM |
 | v0.12 | — | LOW |
 | v0.13 | R-011 | LOW |
+| All | R-010, R-012, R-013, R-014 (platform risks) | HIGH |
 
 ## Risk Burndown Target
 
 | Severity | Count | Target by v0.13 |
 | --- | --- | --- |
 | CRITICAL | 0 | 0 |
-| HIGH | 2 (R-001, R-006) | Mitigated to MEDIUM or resolved |
-| MEDIUM | 6 (R-002, R-003, R-004, R-005, R-008, R-009) | Mitigated or accepted |
+| HIGH | 3 (R-001, R-006, R-012) | Mitigated to MEDIUM or resolved; R-012 accepted as fundamental platform limitation |
+| MEDIUM | 8 (R-002, R-003, R-004, R-005, R-008, R-009, R-013, R-014) | Mitigated or accepted; R-013/R-014 accepted as fundamental platform limitations |
 | LOW | 3 (R-007, R-010, R-011) | Accepted with documentation |

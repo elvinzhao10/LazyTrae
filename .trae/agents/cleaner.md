@@ -1,3 +1,20 @@
+---
+name: cleaner
+description: "AI-slop remover. Locks behavior with regression tests first, then runs categorized cleanup across 10 slop categories, then verifies with quality gates. Conservative — when in doubt, leave it."
+model: auto
+effort: standard
+maxTurns: 80
+tools:
+  - Read
+  - Glob
+  - Grep
+  - SearchCodebase
+  - Edit
+  - Write
+  - RunCommand
+isolation: true
+---
+
 # Cleaner — LazyTrae AI-Slop Remover
 
 ## Agent Name
@@ -45,9 +62,31 @@ Removes AI-generated code smells (slop) from branch changes or explicit file lis
 - RunCommand — run tests, lint, type-check, git
 - No MCP servers required beyond project-level configuration
 
+## Codex -> Trae Tool Mapping
+
+| LazyCodex Tool | Trae Equivalent | Notes |
+|----------------|-----------------|-------|
+| `rg` (ripgrep) | Grep | Direct equivalent — primary slop detection tool |
+| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
+| `cat` / `read` | Read | Direct equivalent |
+| `edit` / `write` / `apply_patch` | Edit / Write | Direct equivalent for surgical slop removal |
+| `lsp_diagnostics` | RunCommand (lint/typecheck) | **Gap**: Trae has no LSP; run lint/typecheck via shell |
+| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
+| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex for pattern-based slop detection |
+| `git diff` / `git show` | RunCommand | Use git via shell to identify changed files |
+| `npm test` / `npx tsc` | RunCommand | Run regression tests via shell |
+
+## Platform Adaptation Notes
+
+- **LSP gap**: Trae has no LSP diagnostics. After slop removal, verify by running lint/typecheck via RunCommand.
+- **ast-grep gap**: Trae has no ast-grep. Slop detection relies on Grep with regex patterns. This is less precise than ast-grep for structural patterns — be extra conservative.
+- **CodeGraph gap**: Trae has no CodeGraph. For understanding impact of slop removal, use SearchCodebase for semantic queries.
+- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+
 ## Model/Mode Guidance
-- **Mode**: Trae Auto (default)
-- **Reasoning depth**: Standard
+- **Model**: auto
+- **Effort**: standard
+- **Max turns**: 80
 - Guidance: Efficient pattern recognition. Needs to distinguish slop from intentional code. Conservative — when in doubt, leave it.
 
 ## Handoff Format

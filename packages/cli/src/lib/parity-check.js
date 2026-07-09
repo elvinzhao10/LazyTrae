@@ -34,13 +34,13 @@ function checkParityLedger(repoRoot) {
 
   const summaryMatch = content.match(/Summary[\s\S]*?TOTAL.*?(\d+).*?(\d+).*?(\d+).*?(\d+).*?(\d+).*?(\d+)/);
   if (summaryMatch) {
-    // Parity ledger column order: Total | DESIGN | GAP | DEFERRED | N/A | COMPLETE
+    // Parity ledger column order: Total | COMPLETE | DESIGN | GAP | DEFERRED | N/A
     const total = parseInt(summaryMatch[1], 10);
-    const design = parseInt(summaryMatch[2], 10);
-    const gap = parseInt(summaryMatch[3], 10);
-    const deferred = parseInt(summaryMatch[4], 10);
-    const na = parseInt(summaryMatch[5], 10);
-    const complete = parseInt(summaryMatch[6], 10);
+    const complete = parseInt(summaryMatch[2], 10);
+    const design = parseInt(summaryMatch[3], 10);
+    const gap = parseInt(summaryMatch[4], 10);
+    const deferred = parseInt(summaryMatch[5], 10);
+    const na = parseInt(summaryMatch[6], 10);
 
     const coverage = total > 0 ? ((complete / total) * 100).toFixed(1) : '0.0';
 

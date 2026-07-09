@@ -1,3 +1,21 @@
+---
+name: explorer
+description: "Codebase search specialist. Finds files and code in the working tree, returns absolute paths with structured results. Read-only."
+model: lite
+effort: low
+maxTurns: 40
+tools:
+  - Read
+  - Glob
+  - Grep
+  - SearchCodebase
+  - RunCommand
+disallowed:
+  - Edit
+  - Write
+isolation: true
+---
+
 # Explorer — LazyTrae Codebase Scout
 
 ## Agent Name
@@ -37,9 +55,31 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - RunCommand — `git log`, `git blame`, `git show`, `rg`, `find`
 - No MCP servers required beyond project-level configuration
 
+## Codex -> Trae Tool Mapping
+
+| LazyCodex Tool | Trae Equivalent | Notes |
+|----------------|-----------------|-------|
+| `rg` (ripgrep) | Grep | Direct equivalent |
+| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
+| `cat` / `read` | Read | Direct equivalent |
+| `lsp_goto_definition` / `lsp_find_references` / `lsp_symbols` / `lsp_diagnostics` | SearchCodebase | **Gap**: Trae has no LSP tools; compensate with Grep + SearchCodebase |
+| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
+| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex patterns |
+| `git log` / `git blame` / `git show` | RunCommand | Use git via shell |
+| `multi_agent_v1.spawn_agent` | Task (subagent_type: search) | **Adaptation**: Trae Task is synchronous; isolation: true by default |
+
+## Platform Adaptation Notes
+
+- **fork_context: false -> isolation: true**: LazyCodex spawns subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
+- **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase (semantic search) and Grep (text search) for symbol-level queries.
+- **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries.
+- **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search.
+- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+
 ## Model/Mode Guidance
-- **Mode**: Trae Auto (default)
-- **Reasoning depth**: Low (LazyCodex explorer.toml uses `gpt-5.4-mini` with `low`)
+- **Model**: lite (LazyCodex explorer.toml uses `gpt-5.4-mini` with `low` effort)
+- **Effort**: low
+- **Max turns**: 40
 - Guidance: Fast, parallel, thorough. Not reasoning-heavy — focus on search coverage.
 
 ## Handoff Format

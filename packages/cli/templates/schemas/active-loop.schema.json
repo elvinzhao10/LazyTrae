@@ -7,6 +7,77 @@
   "required": ["version", "created_at", "updated_at", "brief_path", "goals_path", "ledger_path", "goals"],
   "properties": {
     "version": { "type": "integer", "description": "Schema version. Must be 1.", "minimum": 1, "maximum": 1 },
+    "run_id": { "type": "string", "description": "Unique run identifier for this loop execution." },
+    "loop_state": {
+      "type": "string",
+      "description": "Current loop state. One of 10 states from execution-loop.md.",
+      "enum": ["idle", "initializing", "planning", "active", "verifying", "reviewing", "blocked", "paused", "complete", "cancelled"]
+    },
+    "loop_mode": {
+      "type": "string",
+      "description": "Loop mode: ultrawork (500 max iterations) or normal (100 max iterations).",
+      "enum": ["ultrawork", "normal"]
+    },
+    "completion_promise": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "description": "The user's completion promise text from the original goal." }
+      ]
+    },
+    "current_task_index": {
+      "type": "integer",
+      "description": "Index of the currently active task in the goals array.",
+      "minimum": 0
+    },
+    "iteration": {
+      "type": "integer",
+      "description": "Current iteration number (one pass through steps 5-12 of the loop cycle).",
+      "minimum": 0
+    },
+    "max_iterations": {
+      "type": "integer",
+      "description": "Maximum iterations. 500 for ultrawork, 100 for normal. From lazycodex constants.ts.",
+      "minimum": 1,
+      "maximum": 500
+    },
+    "retry_count": {
+      "type": "integer",
+      "description": "Number of verification retries for the current task. Max 3 before blocking.",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "max_retries": {
+      "type": "integer",
+      "description": "Maximum verification retries before blocking a task. Always 3 (from LazyCodex).",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "reviewer_verdict": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "enum": ["APPROVE", "ITERATE", "REJECT"], "description": "Last Oracle reviewer verdict for the current task." }
+      ]
+    },
+    "reviewer_issues": {
+      "type": "array",
+      "description": "Issues identified by the reviewer (for ITERATE/REJECT verdicts).",
+      "items": { "type": "string" }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the loop started."
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the loop completed (aggregate completion)."
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the loop was cancelled."
+    },
     "created_at": { "type": "string", "format": "date-time" },
     "updated_at": { "type": "string", "format": "date-time" },
     "brief_path": { "type": "string", "description": "Relative path to the brief file." },
@@ -50,45 +121,24 @@
       "description": "Checkpoint records for resumption.",
       "items": { "$ref": "#/definitions/Checkpoint" }
     },
-    "iteration": {
-      "type": "integer",
-      "description": "Current iteration number.",
-      "minimum": 0
-    },
-    "max_iterations": {
-      "type": "integer",
-      "description": "Maximum iterations. 500 for ultrawork, 100 for normal. From lazycodex constants.ts.",
-      "minimum": 1,
-      "maximum": 500
-    },
-    "completion_promise": {
-      "oneOf": [
-        { "type": "null" },
-        { "type": "string", "description": "The user's original completion promise text." }
-      ]
-    },
-    "verification_status": {
-      "type": "string",
-      "description": "Overall verification status.",
-      "enum": ["pending", "in_progress", "pass", "fail", "blocked"]
-    },
-    "reviewer_status": {
-      "type": "string",
-      "description": "Reviewer approval status.",
-      "enum": ["pending", "in_progress", "approved", "rejected", "iterating"]
-    },
     "metadata": {
       "type": "object",
       "description": "Metadata about the loop structure, including all enumerations from constants.ts.",
       "properties": {
         "description": { "type": "string" },
         "max_iterations": { "type": "integer" },
-        "max_iterations_source": { "type": "string" },
+        "iteration_cap_source": { "type": "string" },
         "goal_statuses": { "type": "array", "items": { "type": "string" } },
+        "loop_states": { "type": "array", "items": { "type": "string" } },
         "criterion_statuses": { "type": "array", "items": { "type": "string" } },
         "criterion_user_models": { "type": "array", "items": { "type": "string" } },
         "steering_mutation_kinds": { "type": "array", "items": { "type": "string" } },
-        "ledger_event_kinds": { "type": "array", "items": { "type": "string" } }
+        "ledger_event_kinds": { "type": "array", "items": { "type": "string" } },
+        "loop_event_types": { "type": "array", "items": { "type": "string" } },
+        "steering_source": { "type": "array", "items": { "type": "string" } },
+        "manual_qa_surfaces": { "type": "array", "items": { "type": "string" } },
+        "manual_qa_artifact_kinds": { "type": "array", "items": { "type": "string" } },
+        "reviewer_verdicts": { "type": "array", "items": { "type": "string" } }
       }
     }
   },
@@ -110,13 +160,23 @@
     },
     "UlwLoopSteeringMutationKind": {
       "type": "string",
-      "description": "Steering mutation kind enum from constants.ts. 7 kinds total: add_subgoal, split_subgoal, reorder_pending, revise_pending_wording, revise_criterion, annotate_ledger, mark_blocked_superseded.",
+      "description": "Steering mutation kind enum from constants.ts. 7 kinds total.",
       "enum": ["add_subgoal", "split_subgoal", "reorder_pending", "revise_pending_wording", "revise_criterion", "annotate_ledger", "mark_blocked_superseded"]
     },
     "UlwLoopSteeringStatus": {
       "type": "string",
       "description": "Steering status enum from constants.ts: superseded, blocked.",
       "enum": ["superseded", "blocked"]
+    },
+    "LoopState": {
+      "type": "string",
+      "description": "Loop state enum. 10 states total.",
+      "enum": ["idle", "initializing", "planning", "active", "verifying", "reviewing", "blocked", "paused", "complete", "cancelled"]
+    },
+    "ReviewerVerdict": {
+      "type": "string",
+      "description": "Oracle reviewer verdict: APPROVE, ITERATE, or REJECT.",
+      "enum": ["APPROVE", "ITERATE", "REJECT"]
     },
     "SuccessCriterion": {
       "type": "object",
@@ -184,7 +244,7 @@
         "status": { "type": "string", "enum": ["complete"] },
         "completedAt": { "type": "string", "format": "date-time" },
         "evidence": { "type": "string", "description": "Path to completion evidence file." },
-        "codexGoal": { "type": ["null", "object"], "description": "Legacy Codex goal object." }
+        "codexGoal": { "description": "Legacy Codex goal object." }
       }
     },
     "Checkpoint": {

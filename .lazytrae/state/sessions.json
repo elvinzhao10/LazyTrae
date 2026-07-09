@@ -3,8 +3,8 @@
   "current_session_id": null,
   "sessions": {},
   "compaction_state": {
-    "last_compaction_at": null,
-    "compaction_count": 0,
+    "last_compaction_at": "2026-07-09T09:07:11.965Z",
+    "compaction_count": 2,
     "post_compact_recovery_needed": false
   },
   "metadata": {

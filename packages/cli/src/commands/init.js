@@ -31,7 +31,7 @@ Options:
 
   const summary = { created: [], updated: [], skipped: [], merged: [] };
 
-  console.log(`LazyTrae init v0.6.0`);
+  console.log(`LazyTrae init v0.7.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Create directory structure
@@ -99,6 +99,26 @@ Options:
     }
   } catch (e) {
     summary.skipped.push(`.trae/hooks.json (copy failed: ${e.message})`);
+  }
+
+  // Copy .trae/hooks/ shell scripts
+  const hooksResult = copyDir(
+    path.join(templatesDir, 'hooks'),
+    path.join(repoRoot, '.trae', 'hooks')
+  );
+  if (hooksResult.created > 0) summary.created.push(`${hooksResult.created} hook scripts`);
+  if (hooksResult.updated > 0) summary.updated.push(`${hooksResult.updated} hook scripts`);
+
+  // Make hook scripts executable
+  const hooksDestDir = path.join(repoRoot, '.trae', 'hooks');
+  if (fs.existsSync(hooksDestDir)) {
+    const scripts = fs.readdirSync(hooksDestDir).filter(f => f.endsWith('.sh'));
+    for (const script of scripts) {
+      try {
+        const scriptPath = path.join(hooksDestDir, script);
+        fs.chmodSync(scriptPath, 0o755);
+      } catch (_) { /* ignore */ }
+    }
   }
 
   // Copy .lazytrae/config.json

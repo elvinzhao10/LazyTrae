@@ -49,10 +49,18 @@
       "command": "npx",
       "args": ["-y", "lsp-mcp"],
       "required": false,
-      "description": "Language Server Protocol diagnostics — optional template"
+      "description": "Language Server Protocol diagnostics — optional template. GAP: Trae has no built-in LSP; use this MCP as a workaround for go-to-definition, find-references, and diagnostics. Mirrors LazyCodex lsp MCP."
+    },
+    "codegraph": {
+      "command": "echo",
+      "args": ["CodeGraph MCP not yet available. Use SearchCodebase as a workaround for structural queries."],
+      "required": false,
+      "disabled": true,
+      "description": "Code graph analysis — GAP. LazyCodex has codegraph MCP for structural queries (call graphs, dependency graphs). LazyTrae compensates with SearchCodebase. Enable when a suitable codegraph MCP server is available."
     }
   },
   "lazytrae": {
-    "description": "LazyTrae MCP configuration template for v0.8. The 'lazytrae' server provides 9 tools to query and mutate LazyTrae state. Optional servers provide additional capabilities and degrade gracefully when not configured."
+    "description": "LazyTrae MCP configuration template for v0.8. The 'lazytrae' server provides 9 tools to query and mutate LazyTrae state. Optional servers provide additional capabilities and degrade gracefully when not configured.",
+    "note": "Required: false servers are optional and will not cause errors if unavailable. Disable unwanted servers by setting 'disabled': true."
   }
 }

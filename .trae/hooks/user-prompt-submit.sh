@@ -33,8 +33,38 @@ fi
 
 # ULTRAWORK trigger detection (mirrors lazycodex/plugins/omo/components/ultrawork/src/codex-hook.ts)
 if echo "$prompt" | grep -qiE '\b(ultrawork|ulw)\b' 2>/dev/null; then
-  echo "[LazyTrae] Ultrawork trigger detected. Loading ultrawork directive..."
-  echo "[LazyTrae] Hint: use ulw-plan or ulw-loop skills for structured workflow."
+  cat <<'ULTRAWORK_DIRECTIVE'
+[LazyTrae] ⚡ ULTRAWORK MODE ENABLED!
+
+You are now operating in ULTRAWORK mode. Follow this directive for the entire session:
+
+## Tier Triage
+Classify the work as LIGHT or HEAVY. HEAVY if any of these are true:
+- Multi-file changes (>3 files)
+- Cross-module refactoring
+- Risk of breaking existing tests
+- Requires research or design decisions
+- User says "careful", "thorough", or similar
+
+## Execution Loop: PIN → RED → GREEN → SURFACE → CLEAN
+
+1. PIN: Anchor the goal. Write success criteria. Record starting state.
+2. RED: Write the failing test or reproduce the bug. Prove it's broken.
+3. GREEN: Make it pass. Smallest possible change. No refactoring.
+4. SURFACE: Manual-QA proof. Real surface, not dry-run.
+5. CLEAN: Refactor safely. Remove AI slop. Update docs.
+
+## Verification
+- HEAVY tier: binding reviewer gate — 5-agent parallel review
+- All 5 evidence gates must pass: plan reread, automated, manual-QA, adversarial, cleanup
+- No completion claim without evidence
+
+## Stop Rules
+Stop when all criteria pass + cleanup receipts + notepad current + reviewer approved.
+If 2 consecutive failures, escalate. If 2 waves of exploration, stop and report.
+
+To exit ultrawork mode, say "exit ultrawork" explicitly.
+ULTRAWORK_DIRECTIVE
 fi
 
 # Keyword detection for LazyTrae commands
