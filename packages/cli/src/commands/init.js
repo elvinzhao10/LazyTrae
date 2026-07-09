@@ -77,7 +77,7 @@ Options:
     force ? summary.updated.push('.trae/rules/lazytrae.md') : summary.created.push('.trae/rules/lazytrae.md');
   }
 
-  // Copy .trae/mcp.json (only if not on denylist)
+  // Copy .trae/mcp.json
   try {
     if (copyFileIfChanged(
       path.join(templatesDir, 'mcp.json'),
@@ -86,7 +86,7 @@ Options:
       summary.created.push('.trae/mcp.json');
     }
   } catch (e) {
-    summary.skipped.push('.trae/mcp.json (denylisted, copy manually)');
+    summary.skipped.push(`.trae/mcp.json (copy failed: ${e.message})`);
   }
 
   // Copy .trae/hooks.json
@@ -98,7 +98,7 @@ Options:
       summary.created.push('.trae/hooks.json');
     }
   } catch (e) {
-    summary.skipped.push('.trae/hooks.json (denylisted, copy manually)');
+    summary.skipped.push(`.trae/hooks.json (copy failed: ${e.message})`);
   }
 
   // Copy .lazytrae/config.json

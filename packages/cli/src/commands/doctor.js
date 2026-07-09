@@ -88,9 +88,40 @@ Options:
   const hooksPath = path.join(repoRoot, '.trae', 'hooks.json');
   addResult('.trae/hooks.json', fs.existsSync(hooksPath) ? 'PASS' : 'WARN', 'v0.7 hooks support');
 
-  // .trae/mcp.json
+  // .trae/hooks/ — check executability of hook scripts
+  const hooksDir = path.join(repoRoot, '.trae', 'hooks');
+  if (fs.existsSync(hooksDir)) {
+    const hookScripts = fs.readdirSync(hooksDir).filter(f => f.endsWith('.sh'));
+    if (hookScripts.length > 0) {
+      const nonExec = [];
+      for (const script of hookScripts) {
+        const scriptPath = path.join(hooksDir, script);
+        try {
+          fs.accessSync(scriptPath, fs.constants.X_OK);
+        } catch (_) {
+          nonExec.push(script);
+        }
+      }
+      if (nonExec.length === 0) {
+        addResult('.trae/hooks/ executability', 'PASS', `${hookScripts.length} scripts executable`);
+      } else {
+        addResult('.trae/hooks/ executability', 'WARN', `Not executable: ${nonExec.join(', ')}`);
+      }
+    }
+  }
+
+  // .trae/mcp.json — parse if present
   const mcpPath = path.join(repoRoot, '.trae', 'mcp.json');
-  addResult('.trae/mcp.json', fs.existsSync(mcpPath) ? 'PASS' : 'WARN', 'MCP config for v0.8');
+  if (fs.existsSync(mcpPath)) {
+    try {
+      JSON.parse(fs.readFileSync(mcpPath, 'utf-8'));
+      addResult('.trae/mcp.json', 'PASS');
+    } catch (e) {
+      addResult('.trae/mcp.json', 'FAIL', `Invalid JSON: ${e.message}`);
+    }
+  } else {
+    addResult('.trae/mcp.json', 'WARN', 'MCP config for v0.8');
+  }
 
   // .lazytrae/config.json
   const configPath = path.join(repoRoot, '.lazytrae', 'config.json');

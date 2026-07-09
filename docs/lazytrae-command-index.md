@@ -62,8 +62,8 @@
 | 3.12 | Codegraph init hook | `lazycodex/plugins/omo/components/codegraph/src/hook.ts` | Initialize code graph on session start | Optional external tool | — | GAP | v0.8 |
 | 3.13 | Rules dynamic matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Match rules to changed files after edits | Hook-based PostToolUse extraction | `.trae/hooks/post-tool-use.sh` | DESIGN | v0.7 |
 | 3.14 | Telemetry hook | `lazycodex/plugins/omo/components/telemetry/src/codex-hook.ts` | PostHog-based telemetry | Not ported | — | N/A | — |
-| 3.15 | Auto-update hook | `lazycodex/plugins/omo/components/bootstrap/src/hook.ts` | Check for plugin updates | `lazytrae sync` | `packages/cli/src/commands/sync.ts` | COMPLETE | v0.6 |
-| 3.16 | Bootstrap provisioning | `lazycodex/plugins/omo/components/bootstrap/src/provision.ts` | Provision plugin environment | `lazytrae init` | `packages/cli/src/commands/init.ts` | COMPLETE | v0.6 |
+| 3.15 | Auto-update hook | `lazycodex/plugins/omo/components/bootstrap/src/hook.ts` | Check for plugin updates | `lazytrae sync` | `packages/cli/src/commands/sync.js` | COMPLETE | v0.6 |
+| 3.16 | Bootstrap provisioning | `lazycodex/plugins/omo/components/bootstrap/src/provision.ts` | Provision plugin environment | `lazytrae init` | `packages/cli/src/commands/init.js` | COMPLETE | v0.6 |
 
 ## 4. State Management
 
@@ -135,7 +135,7 @@
 | 8.9 | frontend skill | `lazycodex/plugins/omo/skills/frontend/SKILL.md` | Frontend-specific guidance | Embedded in start-work | — | DEFERRED | — |
 | 8.10 | git-master skill | `lazycodex/plugins/omo/skills/git-master/SKILL.md` | Git workflow guidance | Embedded in start-work | — | DEFERRED | — |
 | 8.11 | comment-checker skill | `lazycodex/plugins/omo/skills/comment-checker/SKILL.md` | Comment checking guidance | Optional in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | DESIGN | v0.7 |
-| 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.ts` | COMPLETE | v0.6 |
+| 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.js` | COMPLETE | v0.6 |
 | 8.13 | lcx-report-bug skill | `lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` | Bug reporting | Not ported | — | DEFERRED | — |
 | 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` | Structural code search | Optional external tool | — | DEFERRED | — |
 | 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` | Session management guidance | Session tracking | `.lazytrae/state/sessions.json` | DESIGN | v0.5 |
