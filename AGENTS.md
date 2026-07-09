@@ -316,14 +316,14 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 | --- | --- | --- |
 | D1 | Telemetry hook | LazyTrae does not add telemetry — N/A |
 | D2 | Codex marketplace install | Not portable — replaced by `npx lazytrae-ai init` |
-| D3 | LSP daemon | Optional external LSP MCP — GAP |
+| D3 | LSP daemon | Optional LSP MCP template in `.trae/mcp.json` — COMPLETE (optional) |
 | D4 | Codegraph | Optional external code graph tool — GAP |
-| D5 | refactor skill | Embedded in start-work — DEFERRED |
-| D6 | programming skill | Embedded in start-work — DEFERRED |
-| D7 | frontend skill | Embedded in start-work — DEFERRED |
-| D8 | git-master skill | Embedded in start-work — DEFERRED |
-| D9 | lcx-report-bug skill | Not ported — DEFERRED |
-| D10 | ast-grep skill | Optional external tool — DEFERRED |
+| D5 | refactor skill | COMPLETE — `.trae/skills/refactor/SKILL.md` |
+| D6 | programming skill | COMPLETE — `.trae/skills/programming/SKILL.md` |
+| D7 | frontend skill | COMPLETE — `.trae/skills/frontend/SKILL.md` |
+| D8 | git-master skill | COMPLETE — `.trae/skills/git-master/SKILL.md` |
+| D9 | lcx-report-bug skill | COMPLETE — `.trae/skills/lcx-report-bug/SKILL.md` |
+| D10 | ast-grep skill | COMPLETE — `.trae/skills/ast-grep/SKILL.md` + MCP template |
 | D11 | Managed profiles (model routing) | Legacy compatibility — N/A |
 
 <!-- lazytrae:managed:end:command-index -->

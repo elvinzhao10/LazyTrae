@@ -203,6 +203,24 @@ All LazyTrae hooks follow these safety rules:
 5. **All node calls are error-handled** — syntax errors or missing files don't break the hook.
 6. **Timeouts are conservative** — 10 seconds for most hooks, 30 seconds for post-tool-use.
 
+## Structural Limitation: Non-Blocking Hooks
+
+**This is the defining structural deficit of LazyTrae compared to LazyCodex.**
+
+LazyCodex hooks can block tool execution — the Stop hook can prevent session termination if evidence gates haven't passed, PreToolUse can deny destructive operations, and PostToolUse can reject edits that fail quality checks. This is how LazyCodex mechanically enforces its evidence gate and quality bar.
+
+Trae hooks **cannot block**. All hooks exit 0 unconditionally. The `Stop` hook can only print a continuation reminder — the user can always dismiss it and end the session. This means:
+
+- The evidence/completion gate is **advisory**, not enforced.
+- A user can always end a session without passing verification gates.
+- Quality enforcement depends on agent discipline, not platform mechanics.
+
+**Mitigation**: The reviewer/Oracle protocol and the ulw-loop skill both emphasize that completion claims without evidence are invalid. The hooks provide reminders, and the agent instructions require evidence. But this is a **soft enforcement** — it relies on the agent following instructions, not on the platform blocking bad behavior.
+
+**Risk**: R-012 (PostCompact gap) and R-015 (non-blocking hooks) in `docs/lazytrae-risk-register.md`.
+
+**Unfixable without Trae platform change**: Trae would need to support non-zero exit codes in hooks to block operations. This is not currently available.
+
 ## Testing Hooks with Fixtures
 
 LazyTrae includes test fixtures in `packages/cli/test/fixtures/`:

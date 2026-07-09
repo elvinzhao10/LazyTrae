@@ -217,6 +217,21 @@
 - **Acceptance criteria**: Parallel exploration phases use batch parallelism; documentation clearly states synchronous model.
 - **Fundamental limitation**: Trae subagents are synchronous. This is a workflow adaptation, not a fix.
 
+### R-015: Non-Blocking Hooks — Evidence Gate Is Advisory (Fundamental Platform Gap)
+
+- **Severity**: HIGH
+- **Category**: Platform
+- **Affected versions**: All
+- **Description**: Trae hooks cannot block operations — all hooks must exit 0. LazyCodex hooks can block: the Stop hook prevents session termination if evidence gates haven't passed, PreToolUse denies destructive operations, and PostToolUse rejects edits that fail quality checks. This is how LazyCodex **mechanically enforces** its evidence gate and quality bar. In LazyTrae, the Stop hook can only print a continuation reminder that the user can dismiss. This means the evidence/completion gate is advisory, not enforced — a user can always end a session without passing verification gates.
+- **LazyCodex reference**: `lazycodex/plugins/omo/.codex-plugin/plugin.json` (lines 30, 33, 41-42: PreToolUse, PostToolUse, Stop hooks with blocking capability)
+- **Mitigation**:
+  1. Reviewer/Oracle protocol emphasizes completion claims without evidence are invalid
+  2. Hooks provide prominent reminders and warnings
+  3. Agent instructions (ulw-loop skill) require evidence before claiming completion
+  4. Document this as the defining structural deficit vs LazyCodex
+- **Acceptance criteria**: Non-blocking limitation is documented in hooks reference, risk register, and parity ledger. Soft enforcement via agent discipline is the accepted mitigation.
+- **Fundamental limitation**: Trae would need to support non-zero exit codes in hooks to block operations. This is not currently available. This is the **single sharpest differentiator** between LazyTrae and LazyCodex/LazyWorkBuddy — LazyWorkBuddy can block; Trae cannot.
+
 ## Risk Matrix by Version
 
 | Version | Risks | Highest Severity |
@@ -226,20 +241,20 @@
 | v0.4 | R-004 | MEDIUM |
 | v0.5 | R-006 | HIGH |
 | v0.6 | R-002 | MEDIUM |
-| v0.7 | R-001, R-005, R-012 | HIGH |
+| v0.7 | R-001, R-005, R-012, R-015 | HIGH |
 | v0.8 | — | LOW |
 | v0.9 | R-006, R-008 | HIGH |
 | v0.10 | — | LOW |
 | v0.11 | R-009, R-014 | MEDIUM |
 | v0.12 | — | LOW |
 | v0.13 | R-011 | LOW |
-| All | R-010, R-012, R-013, R-014 (platform risks) | HIGH |
+| All | R-010, R-012, R-013, R-014, R-015 (platform risks) | HIGH |
 
 ## Risk Burndown Target
 
 | Severity | Count | Target by v0.13 |
 | --- | --- | --- |
 | CRITICAL | 0 | 0 |
-| HIGH | 3 (R-001, R-006, R-012) | Mitigated to MEDIUM or resolved; R-012 accepted as fundamental platform limitation |
+| HIGH | 4 (R-001, R-006, R-012, R-015) | Mitigated to MEDIUM or resolved; R-012/R-015 accepted as fundamental platform limitations |
 | MEDIUM | 8 (R-002, R-003, R-004, R-005, R-008, R-009, R-013, R-014) | Mitigated or accepted; R-013/R-014 accepted as fundamental platform limitations |
 | LOW | 3 (R-007, R-010, R-011) | Accepted with documentation |

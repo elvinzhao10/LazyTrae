@@ -74,45 +74,7 @@ for f in $(echo "$changed_files" | tr ';;' '\n'); do
   fi
 done
 
-# Dynamic rule matching (simplified rules engine — mirrors @oh-my-opencode/rules-engine)
-# Extracts file types from changed files and reminds about relevant rules.
-# LazyCodex uses file fingerprint matching; LazyTrae uses extension/path-based matching.
-RULES_DIR="$REPO_ROOT/.trae/rules"
-matched_rules=""
-
-for f in $(echo "$changed_files" | tr ';;' '\n'); do
-  if [ -f "$f" ]; then
-    basename_f=$(basename "$f")
-    ext="${f##*.}"
-
-    # Match rules by file pattern (simplified fingerprint matching)
-    if [ -d "$RULES_DIR" ]; then
-      for rule_file in "$RULES_DIR"/*.md; do
-        [ -f "$rule_file" ] || continue
-        rule_name=$(basename "$rule_file" .md)
-        # Skip the main lazytrae rules file — it's always loaded at session start
-        [ "$rule_name" = "lazytrae" ] && continue
-        # Check if rule file has a pattern marker for this file type
-        if grep -q "^pattern:" "$rule_file" 2>/dev/null; then
-          pattern=$(grep "^pattern:" "$rule_file" | sed 's/^pattern:\s*//')
-          if echo "$basename_f" | grep -qiE "$pattern" 2>/dev/null; then
-            matched_rules="$matched_rules $rule_name"
-          fi
-        fi
-        # Also match by extension for extension-based rules
-        if echo "$rule_name" | grep -qiE "($ext)" 2>/dev/null; then
-          matched_rules="$matched_rules $rule_name"
-        fi
-      done
-    fi
-  fi
-done
-
-# Deduplicate matched rules
-if [ -n "$matched_rules" ]; then
-  unique_rules=$(echo "$matched_rules" | tr ' ' '\n' | sort -u | tr '\n' ' ')
-  echo "[LazyTrae] Dynamic rules matched:${unique_rules}"
-  echo "[LazyTrae] Review relevant rules before proceeding with changes."
-fi
+# Dynamic rule matching (delegated to companion script to keep this hook under 100 lines)
+bash "$REPO_ROOT/.trae/hooks/dynamic-rules.sh" "$changed_files" 2>/dev/null || true
 
 exit 0
