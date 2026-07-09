@@ -140,7 +140,7 @@
 | 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` (inferred from shared skills) | Structural code search | Optional external tool | — | DEFERRED |
 | 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` (inferred from shared skills) | Session management guidance | Session tracking | `.lazytrae/state/sessions.json` | DESIGN |
 | 8.16 | ultrawork skill | `lazycodex/plugins/omo/components/ultrawork/skills/ultrawork/SKILL.md` (inferred) | Ultrawork directive as skill | Embedded in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | DESIGN |
-| 8.17 | rules skill | `lazycodex/plugins/omo/components/rules/skills/rules/SKILL.md` | Rules injection guidance | Not separately ported; embedded in AGENTS.md + rules | `AGENTS.md`, `.trae/rules/lazytrae.md` | DESIGN |
+| 8.17 | rules skill | `lazycodex/plugins/omo/components/rules/skills/rules/SKILL.md` | Rules injection guidance | Not separately ported; embedded in AGENTS.md + rules | `AGENTS.md`, `.trae/rules/lazytrae.md` | COMPLETE |
 | 8.18 | lsp skill | `lazycodex/plugins/omo/components/lsp/skills/lsp/SKILL.md` | LSP diagnostics guidance | Optional external LSP MCP | `.trae/mcp.json` (optional) | GAP |
 | 8.19 | teammode skill | `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md` | Team mode guidance | Team mode docs | `docs/lazytrae-team-mode.md` | DESIGN |
 
@@ -168,7 +168,7 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| 10.1 | Static rule injection | `lazycodex/plugins/omo/components/rules/src/static-injection.ts` | Load AGENTS.md and rules at session start | AGENTS.md + .trae/rules/ | `AGENTS.md`, `.trae/rules/lazytrae.md` | DESIGN |
+| 10.1 | Static rule injection | `lazycodex/plugins/omo/components/rules/src/static-injection.ts` | Load AGENTS.md and rules at session start | AGENTS.md + .trae/rules/ | `AGENTS.md`, `.trae/rules/lazytrae.md` | COMPLETE |
 | 10.2 | Dynamic rule matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Match rules to changed files after edits | Hook-based PostToolUse extraction | `.trae/hooks/post-tool-use.sh` | DESIGN |
 | 10.3 | Context pressure detection | `lazycodex/plugins/omo/components/rules/src/context-pressure.ts` | Skip injection when compacted | SessionStart/UserPromptSubmit detection | `.trae/hooks/session-start.sh`, `.trae/hooks/user-prompt-submit.sh` | DESIGN |
 | 10.4 | Post-compact recovery | `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts` | Track compacted state for re-injection | Post-compact state file | `.lazytrae/state/post-compact.json` | GAP |
@@ -181,24 +181,22 @@
 
 ## Summary
 
-| Category | Total | DESIGN | GAP | DEFERRED | N/A |
-| --- | --- | --- | --- | --- | --- |
-| Core Commands | 9 | 9 | 0 | 0 | 0 |
-| Agent Roles | 11 | 11 | 0 | 0 | 0 |
-| Hooks | 16 | 12 | 3 | 0 | 1 |
-| State Management | 15 | 15 | 0 | 0 | 0 |
-| Verification Gates | 7 | 7 | 0 | 0 | 0 |
-| MCP Servers | 6 | 4 | 2 | 0 | 0 |
-| Model Routing | 7 | 6 | 0 | 0 | 1 |
-| Skills (Shared) | 19 | 13 | 1 | 4 | 1 |
-| Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 1 |
-| Rules Component | 10 | 8 | 1 | 0 | 1 |
-| **TOTAL** | **115** | **99** | **7** | **4** | **5** |
+| Category | Total | DESIGN | GAP | DEFERRED | N/A | COMPLETE |
+| --- | --- | --- | --- | --- | --- | --- |
+| Core Commands | 9 | 9 | 0 | 0 | 0 | 0 |
+| Agent Roles | 11 | 11 | 0 | 0 | 0 | 0 |
+| Hooks | 16 | 12 | 3 | 0 | 1 | 0 |
+| State Management | 15 | 15 | 0 | 0 | 0 | 0 |
+| Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
+| MCP Servers | 6 | 4 | 2 | 0 | 0 | 0 |
+| Model Routing | 7 | 6 | 0 | 0 | 1 | 0 |
+| Skills (Shared) | 19 | 11 | 1 | 4 | 1 | 2 |
+| Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 1 | 0 |
+| Rules Component | 10 | 7 | 1 | 0 | 1 | 1 |
+| **TOTAL** | **115** | **96** | **7** | **4** | **5** | **3** |
 
 **Coverage**: 99/115 (86.1%) have concrete Trae-native designs.
-- 7 GAP items have documented substitutes.
-- 4 DEFERRED items are non-core skills with documented rationale.
-- 5 N/A items are platform-specific features not applicable to Trae.
+- 3 items COMPLETE in v0.2 (static rule injection, rules skill).
 
 ## References
 
