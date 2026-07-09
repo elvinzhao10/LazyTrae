@@ -224,15 +224,15 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 
 | # | LazyCodex Method | LazyCodex Source | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `$init-deep` | `lazycodex/packages/web/content/docs/init-deep.md` | init-deep command + skill | `.trae/commands/init-deep.md`, `.trae/skills/init-deep/SKILL.md` | DESIGN | v0.3 |
-| 2 | `$ulw-plan` | `lazycodex/packages/web/content/docs/ulw-plan.md` | ulw-plan command + skill + Prometheus agent | `.trae/commands/ulw-plan.md`, `.trae/skills/ulw-plan/SKILL.md`, `.trae/agents/prometheus.md` | DESIGN | v0.3 |
-| 3 | `$start-work` | `lazycodex/packages/web/content/docs/start-work.md` | start-work command + skill + Atlas agent | `.trae/commands/start-work.md`, `.trae/skills/start-work/SKILL.md`, `.trae/agents/atlas.md` | DESIGN | v0.3 |
-| 4 | `$ulw-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` | ulw-loop command + skill + loop state machine | `.trae/commands/ulw-loop.md`, `.trae/skills/ulw-loop/SKILL.md`, `.lazytrae/state/active-loop.json` | DESIGN | v0.9 |
-| 5 | `$ralph-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` (alias) | ralph-loop command | `.trae/commands/ralph-loop.md` | DESIGN | v0.9 |
-| 6 | `/stop-continuation` | `lazycodex/packages/web/content/docs/` (referenced) | stop-continuation command + CLI | `.trae/commands/stop-continuation.md`, `lazytrae loop cancel` | DESIGN | v0.5 |
-| 7 | `/handoff` | `lazycodex/packages/web/content/docs/` (referenced) | handoff command + CLI | `.trae/commands/handoff.md`, `lazytrae handoff` | DESIGN | v0.5 |
-| 8 | `review-work` | `lazycodex/packages/web/content/docs/` (referenced) | review-work command + reviewer skill + Oracle agent | `.trae/commands/review-work.md`, `.trae/skills/reviewer/SKILL.md`, `.trae/agents/oracle.md` | DESIGN | v0.4 |
-| 9 | `remove-ai-slops` | `lazycodex/packages/web/content/docs/` (referenced) | remove-ai-slops command + skill + Cleaner agent | `.trae/commands/remove-ai-slops.md`, `.trae/skills/remove-ai-slops/SKILL.md`, `.trae/agents/cleaner.md` | DESIGN | v0.4 |
+| 1 | `$init-deep` | `lazycodex/packages/web/content/docs/init-deep.md` | init-deep command + skill | `.trae/commands/init-deep.md`, `.trae/skills/init-deep/SKILL.md` | COMPLETE | v0.3 |
+| 2 | `$ulw-plan` | `lazycodex/packages/web/content/docs/ulw-plan.md` | ulw-plan command + skill + Prometheus agent | `.trae/commands/ulw-plan.md`, `.trae/skills/ulw-plan/SKILL.md`, `.trae/agents/prometheus.md` | COMPLETE | v0.3 |
+| 3 | `$start-work` | `lazycodex/packages/web/content/docs/start-work.md` | start-work command + skill + Atlas agent | `.trae/commands/start-work.md`, `.trae/skills/start-work/SKILL.md`, `.trae/agents/atlas.md` | COMPLETE | v0.3 |
+| 4 | `$ulw-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` | ulw-loop command + skill + loop state machine | `.trae/commands/ulw-loop.md`, `.trae/skills/ulw-loop/SKILL.md`, `.lazytrae/state/active-loop.json` | COMPLETE | v0.3 |
+| 5 | `$ralph-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` (alias) | ralph-loop command | `.trae/commands/ralph-loop.md` | COMPLETE | v0.3 |
+| 6 | `/stop-continuation` | `lazycodex/packages/web/content/docs/` (referenced) | stop-continuation command + CLI | `.trae/commands/stop-continuation.md`, `lazytrae loop cancel` | COMPLETE | v0.3 |
+| 7 | `/handoff` | `lazycodex/packages/web/content/docs/` (referenced) | handoff command + CLI | `.trae/commands/handoff.md`, `lazytrae handoff` | COMPLETE | v0.3 |
+| 8 | `review-work` | `lazycodex/packages/web/content/docs/` (referenced) | review-work command + reviewer skill + Oracle agent | `.trae/commands/review-work.md`, `.trae/skills/reviewer/SKILL.md`, `.trae/agents/oracle.md` | COMPLETE | v0.3 |
+| 9 | `remove-ai-slops` | `lazycodex/packages/web/content/docs/` (referenced) | remove-ai-slops command + skill + Cleaner agent | `.trae/commands/remove-ai-slops.md`, `.trae/skills/remove-ai-slops/SKILL.md`, `.trae/agents/cleaner.md` | COMPLETE | v0.3 |
 
 ### Agent Roles
 
@@ -276,7 +276,7 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 | 30 | Automated verification | `lazycodex/packages/web/content/docs/tdd.md` | `.lazytrae/evidence/test-runs.md` | DESIGN | v0.5 |
 | 31 | Manual-QA | `lazycodex/plugins/omo/components/ultrawork/directive.md` | `.lazytrae/evidence/verifier.md` | DESIGN | v0.5 |
 | 32 | Adversarial QA | `lazycodex/packages/web/content/docs/manual-qa.md` | `.lazytrae/evidence/reviewer.md` | DESIGN | v0.5 |
-| 33 | Cleanup | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` | `.trae/skills/remove-ai-slops/SKILL.md` | DESIGN | v0.5 |
+| 33 | Cleanup | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` | `.trae/skills/remove-ai-slops/SKILL.md` | COMPLETE | v0.3 |
 | 34 | Completion claim | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | `.lazytrae/evidence/completion.md` | DESIGN | v0.5 |
 | 35 | Handoff summary | `lazycodex/packages/web/content/docs/` (handoff workflow) | `.lazytrae/evidence/handoff.md` | DESIGN | v0.5 |
 

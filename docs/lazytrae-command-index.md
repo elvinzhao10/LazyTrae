@@ -175,10 +175,10 @@
 | Model Routing | 7 | 0 | 6 | 0 | 0 | 1 |
 | Skills (Shared) | 22 | 11 | 4 | 1 | 6 | 0 |
 | Rules Component | 10 | 1 | 7 | 1 | 0 | 1 |
-| **TOTAL** | **103** | **20** | **66** | **7** | **6** | **4** |
+| **TOTAL** | **103** | **21** | **66** | **7** | **6** | **3** |
 
-**Coverage**: 20/103 items COMPLETE. 11 completed in v0.3, 2 completed in v0.2.
-82 items have concrete Trae-native designs. 7 GAP items have documented substitutes. 6 DEFERRED items are non-core skills. 4 N/A items are platform-specific.
+**Coverage**: 21/103 items COMPLETE. 11 completed in v0.3, 2 completed in v0.2.
+82 items have concrete Trae-native designs. 7 GAP items have documented substitutes. 6 DEFERRED items are non-core skills. 3 N/A items are platform-specific.
 
 ## References
 

@@ -33,7 +33,7 @@
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2.1 | Explorer | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` | Codebase search specialist, read-only, parallel tool calls | Explorer agent | `.trae/agents/explorer.md` | DESIGN |
-| 2.2 | Librarian | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | External docs/library researcher, SHA-pinned citations | Librarian agent + skill | `.trae/agents/librarian.md`, `.trae/skills/librarian/SKILL.md` | COMPLETE |
+| 2.2 | Librarian | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | External docs/library researcher, SHA-pinned citations | Librarian agent + skill | `.trae/agents/librarian.md`, `.trae/skills/librarian/SKILL.md` | DESIGN |
 | 2.3 | Plan (Prometheus) | `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml` | Strategic planning, writes `.omo/plans/<slug>.md`, never implements | Prometheus agent | `.trae/agents/prometheus.md` | DESIGN |
 | 2.4 | Metis | `lazycodex/plugins/omo/components/ultrawork/agents/metis.toml` | Pre-planning gap analyst, detects contradictions and ambiguity | Metis agent | `.trae/agents/metis.md` | DESIGN |
 | 2.5 | Momus | `lazycodex/plugins/omo/components/ultrawork/agents/momus.toml` | Plan reviewer, issues OKAY/ITERATE/REJECT | Momus agent | `.trae/agents/momus.md` | DESIGN |
@@ -187,7 +187,7 @@
 | Category | Total | DESIGN | GAP | DEFERRED | N/A | COMPLETE |
 | --- | --- | --- | --- | --- | --- | --- |
 | Core Commands | 9 | 0 | 0 | 0 | 0 | 9 |
-| Agent Roles | 11 | 10 | 0 | 0 | 0 | 1 |
+| Agent Roles | 11 | 11 | 0 | 0 | 0 | 0 |
 | Hooks | 16 | 12 | 3 | 0 | 1 | 0 |
 | State Management | 15 | 15 | 0 | 0 | 0 | 0 |
 | Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
@@ -196,10 +196,10 @@
 | Skills (Shared) | 22 | 4 | 1 | 6 | 0 | 11 |
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 1 | 0 |
 | Rules Component | 10 | 7 | 1 | 0 | 1 | 1 |
-| **TOTAL** | **118** | **79** | **7** | **6** | **4** | **22** |
+| **TOTAL** | **118** | **80** | **7** | **6** | **4** | **21** |
 
-**Coverage**: 22/118 (18.6%) are COMPLETE. 79/118 (66.9%) have concrete Trae-native designs.
-- 22 items COMPLETE: 9 core commands + 1 agent role (librarian skill) + 11 skills + 1 rules component.
+**Coverage**: 21/118 (17.8%) are COMPLETE. 80/118 (67.8%) have concrete Trae-native designs.
+- 21 items COMPLETE: 9 core commands + 11 skills + 1 rules component.
 - v0.3 completed: 9 commands, 9 skills (including librarian, verifier, migration-planner).
 
 ## References
