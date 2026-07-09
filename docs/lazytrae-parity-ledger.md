@@ -48,19 +48,19 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| 3.1 | SessionStart hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 22) | Rules loading, telemetry, auto-update, bootstrap, codegraph | session-start hook | `.trae/hooks/session-start.sh` | DESIGN |
-| 3.2 | UserPromptSubmit hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 28) | Rules re-injection, ultrawork trigger, ulw-loop steering | user-prompt-submit hook | `.trae/hooks/user-prompt-submit.sh` | DESIGN |
-| 3.3 | PreToolUse hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 30) | Git bash MCP guidance, ulw-loop goal budget protection | pre-tool-use hook | `.trae/hooks/pre-tool-use.sh` | DESIGN |
-| 3.4 | PostToolUse hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 33) | Comment checker, LSP diagnostics, codegraph init, rule matching | post-tool-use hook | `.trae/hooks/post-tool-use.sh` | DESIGN |
-| 3.5 | Stop/SubagentStop hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (lines 41-42) | Start-work continuation, executor evidence verification | stop hook | `.trae/hooks/stop.sh` | DESIGN |
-| 3.6 | PostCompact hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 38) | Cache resets, rule re-injection after compaction | Post-compact detection (no direct Trae event) | `.lazytrae/state/post-compact.json` | GAP |
-| 3.7 | Comment checker hook | `lazycodex/plugins/omo/hooks/post-tool-use-checking-comments.json` | Check for AI-generated comments on edits | Optional in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | DESIGN |
-| 3.8 | Ultrawork trigger detection | `lazycodex/plugins/omo/components/ultrawork/src/codex-hook.ts` | Detect "ulw" / "ultrawork" keywords in user prompt | user-prompt-submit keyword detection | `.trae/hooks/user-prompt-submit.sh` | DESIGN |
-| 3.9 | Ulw-loop steering hook | `lazycodex/plugins/omo/components/ulw-loop/hooks/hooks.json` | Steering detection on UserPromptSubmit | user-prompt-submit steering detection | `.trae/hooks/user-prompt-submit.sh` | DESIGN |
+| 3.1 | SessionStart hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 22) | Rules loading, telemetry, auto-update, bootstrap, codegraph | session-start hook | `.trae/hooks/session-start.sh` | COMPLETE |
+| 3.2 | UserPromptSubmit hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 28) | Rules re-injection, ultrawork trigger, ulw-loop steering | user-prompt-submit hook | `.trae/hooks/user-prompt-submit.sh` | COMPLETE |
+| 3.3 | PreToolUse hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 30) | Git bash MCP guidance, ulw-loop goal budget protection | pre-tool-use hook | `.trae/hooks/pre-tool-use.sh` | COMPLETE |
+| 3.4 | PostToolUse hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 33) | Comment checker, LSP diagnostics, codegraph init, rule matching | post-tool-use hook | `.trae/hooks/post-tool-use.sh` | COMPLETE |
+| 3.5 | Stop/SubagentStop hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (lines 41-42) | Start-work continuation, executor evidence verification | stop hook | `.trae/hooks/stop.sh` | COMPLETE |
+| 3.6 | PostCompact hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 38) | Cache resets, rule re-injection after compaction | Post-compact detection (no direct Trae event) | `sessions.json` with `post_compact_recovery_needed` flag | GAP |
+| 3.7 | Comment checker hook | `lazycodex/plugins/omo/hooks/post-tool-use-checking-comments.json` | Check for AI-generated comments on edits | Optional in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | COMPLETE |
+| 3.8 | Ultrawork trigger detection | `lazycodex/plugins/omo/components/ultrawork/src/codex-hook.ts` | Detect "ulw" / "ultrawork" keywords in user prompt | user-prompt-submit keyword detection | `.trae/hooks/user-prompt-submit.sh` | COMPLETE |
+| 3.9 | Ulw-loop steering hook | `lazycodex/plugins/omo/components/ulw-loop/hooks/hooks.json` | Steering detection on UserPromptSubmit | user-prompt-submit steering detection | `.trae/hooks/user-prompt-submit.sh` | COMPLETE |
 | 3.10 | Ulw-loop goal budget protection | `lazycodex/plugins/omo/components/ulw-loop/hooks/hooks.json` (PreToolUse) | Enforce unlimited goal budget on create_goal | pre-tool-use budget enforcement | `.trae/hooks/pre-tool-use.sh` | DESIGN |
 | 3.11 | LSP diagnostics hook | `lazycodex/plugins/omo/components/lsp/hooks/hooks.json` | Run LSP diagnostics on PostToolUse | Optional external LSP MCP | `.trae/mcp.json` (optional) | GAP |
 | 3.12 | Codegraph init hook | `lazycodex/plugins/omo/components/codegraph/src/hook.ts` | Initialize code graph on session start | Optional external tool | — | GAP |
-| 3.13 | Rules dynamic matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Match rules to changed files after edits | Hook-based PostToolUse extraction | `.trae/hooks/post-tool-use.sh` | DESIGN |
+| 3.13 | Rules dynamic matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Match rules to changed files after edits | Hook-based PostToolUse extraction | `.trae/hooks/post-tool-use.sh` | COMPLETE (simplified) |
 | 3.14 | Telemetry hook | `lazycodex/plugins/omo/components/telemetry/src/codex-hook.ts` | PostHog-based telemetry | Not ported | — | N/A |
 | 3.15 | Auto-update hook | `lazycodex/plugins/omo/components/bootstrap/src/hook.ts` | Check for plugin updates | `lazytrae sync` | `packages/cli/src/commands/sync.js` | COMPLETE |
 | 3.16 | Bootstrap provisioning | `lazycodex/plugins/omo/components/bootstrap/src/provision.ts` | Provision plugin environment | `lazytrae init` | `packages/cli/src/commands/init.js` | COMPLETE |
@@ -101,12 +101,12 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| 6.1 | grep_app MCP | `lazycodex/plugins/omo/.mcp.json` (line 3) | Remote code search | Optional in .trae/mcp.json | `.trae/mcp.json` | DESIGN |
-| 6.2 | context7 MCP | `lazycodex/plugins/omo/.mcp.json` (line 6) | Documentation lookup | Optional in .trae/mcp.json | `.trae/mcp.json` | DESIGN |
+| 6.1 | grep_app MCP | `lazycodex/plugins/omo/.mcp.json` (line 3) | Remote code search | Optional in .trae/mcp.json | `.trae/mcp.json` | COMPLETE |
+| 6.2 | context7 MCP | `lazycodex/plugins/omo/.mcp.json` (line 6) | Documentation lookup | Optional in .trae/mcp.json | `.trae/mcp.json` | COMPLETE |
 | 6.3 | codegraph MCP | `lazycodex/plugins/omo/.mcp.json` (line 10) | Code graph analysis | Optional external tool | — | GAP |
-| 6.4 | git_bash MCP | `lazycodex/plugins/omo/.mcp.json` (line 17) | Git operations via bash | Optional in .trae/mcp.json | `.trae/mcp.json` | DESIGN |
+| 6.4 | git_bash MCP | `lazycodex/plugins/omo/.mcp.json` (line 17) | Git operations via bash | Optional in .trae/mcp.json | `.trae/mcp.json` | COMPLETE |
 | 6.5 | lsp MCP | `lazycodex/plugins/omo/.mcp.json` (line 25) | Language server protocol | Optional external LSP MCP | `.trae/mcp.json` | GAP |
-| 6.6 | LazyTrae state MCP | Not in LazyCodex (LazyTrae addition) | LazyTrae state query/mutation | LazyTrae MCP server | `packages/mcp/src/server.ts` | DESIGN |
+| 6.6 | LazyTrae state MCP | Not in LazyCodex (LazyTrae addition) | LazyTrae state query/mutation | LazyTrae MCP server | `packages/cli/src/commands/mcp.js` | COMPLETE |
 
 ## 7. Model Routing
 
@@ -134,7 +134,7 @@
 | 8.8 | programming skill | `lazycodex/plugins/omo/skills/programming/SKILL.md` (inferred from shared skills) | General programming guidance | Not separately ported; embedded in start-work | — | DEFERRED |
 | 8.9 | frontend skill | `lazycodex/plugins/omo/skills/frontend/SKILL.md` (inferred from shared skills) | Frontend-specific guidance | Not separately ported; embedded in start-work | — | DEFERRED |
 | 8.10 | git-master skill | `lazycodex/plugins/omo/skills/git-master/SKILL.md` (inferred from shared skills) | Git workflow guidance | Not separately ported; embedded in start-work | — | DEFERRED |
-| 8.11 | comment-checker skill | `lazycodex/plugins/omo/skills/comment-checker/SKILL.md` (inferred from shared skills) | Comment checking guidance | Optional in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | DESIGN |
+| 8.11 | comment-checker skill | `lazycodex/plugins/omo/skills/comment-checker/SKILL.md` (inferred from shared skills) | Comment checking guidance | Optional in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | COMPLETE |
 | 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` (inferred from shared skills) | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.js` | COMPLETE |
 | 8.13 | lcx-report-bug skill | `lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` (inferred from shared skills) | Bug reporting | Not ported | — | DEFERRED |
 | 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` (inferred from shared skills) | Structural code search | Optional external tool | — | DEFERRED |
@@ -172,14 +172,14 @@
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | 10.1 | Static rule injection | `lazycodex/plugins/omo/components/rules/src/static-injection.ts` | Load AGENTS.md and rules at session start | AGENTS.md + .trae/rules/ | `AGENTS.md`, `.trae/rules/lazytrae.md` | COMPLETE |
-| 10.2 | Dynamic rule matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Match rules to changed files after edits | Hook-based PostToolUse extraction | `.trae/hooks/post-tool-use.sh` | DESIGN |
-| 10.3 | Context pressure detection | `lazycodex/plugins/omo/components/rules/src/context-pressure.ts` | Skip injection when compacted | SessionStart/UserPromptSubmit detection | `.trae/hooks/session-start.sh`, `.trae/hooks/user-prompt-submit.sh` | DESIGN |
-| 10.4 | Post-compact recovery | `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts` | Track compacted state for re-injection | Post-compact state file | `.lazytrae/state/post-compact.json` | GAP |
-| 10.5 | Post-compact budget | `lazycodex/plugins/omo/components/rules/src/post-compact-budget.ts` | Budget tracking for post-compact operations | Post-compact budget in state | `.lazytrae/state/post-compact.json` | DESIGN |
+| 10.2 | Dynamic rule matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Match rules to changed files after edits | Hook-based PostToolUse extraction | `.trae/hooks/post-tool-use.sh` | COMPLETE (simplified) |
+| 10.3 | Context pressure detection | `lazycodex/plugins/omo/components/rules/src/context-pressure.ts` | Skip injection when compacted | SessionStart/UserPromptSubmit detection | `.trae/hooks/session-start.sh`, `.trae/hooks/user-prompt-submit.sh` | COMPLETE |
+| 10.4 | Post-compact recovery | `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts` | Track compacted state for re-injection | Post-compact state in sessions.json | `sessions.json` `compaction_state` field | GAP (mitigated) |
+| 10.5 | Post-compact budget | `lazycodex/plugins/omo/components/rules/src/post-compact-budget.ts` | Budget tracking for post-compact operations | Post-compact budget in state | `sessions.json` `compaction_state` | COMPLETE (simplified) |
 | 10.6 | Persistent cache | `lazycodex/plugins/omo/components/rules/src/persistent-cache.ts` | Session-level cache for rules | Not separately implemented; Trae rules are re-read each prompt | N/A | N/A |
-| 10.7 | Event budget | `lazycodex/plugins/omo/components/rules/src/event-budget.ts` | Budget tracking for hook events | Event budget in hook dispatcher | `packages/cli/src/commands/hook.ts` | DESIGN |
-| 10.8 | Tool path extraction | `lazycodex/plugins/omo/components/rules/src/tool-paths.ts` | Extract file paths from tool input | Tool path extraction in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | DESIGN |
-| 10.9 | Transcript search | `lazycodex/plugins/omo/components/rules/src/transcript-search.ts` | Search transcript for rule mentions | Transcript search in hook | `.trae/hooks/user-prompt-submit.sh` | DESIGN |
+| 10.7 | Event budget | `lazycodex/plugins/omo/components/rules/src/event-budget.ts` | Budget tracking for hook events | Event budget in hook dispatcher | `packages/cli/src/commands/hook.js` timeout config | COMPLETE |
+| 10.8 | Tool path extraction | `lazycodex/plugins/omo/components/rules/src/tool-paths.ts` | Extract file paths from tool input | Tool path extraction in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | COMPLETE |
+| 10.9 | Transcript search | `lazycodex/plugins/omo/components/rules/src/transcript-search.ts` | Search transcript for rule mentions | Transcript search in hook | `.trae/hooks/user-prompt-submit.sh` (context markers) | COMPLETE |
 | 10.10 | Bundled rules (hephaestus) | `lazycodex/plugins/omo/components/rules/bundled-rules/hephaestus.md` | Pre-bundled hephaestus rule | Embedded in hephaestus agent | `.trae/agents/hephaestus.md` | DESIGN |
 
 ## Summary
@@ -188,19 +188,19 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | Core Commands | 9 | 0 | 0 | 0 | 0 | 9 |
 | Agent Roles | 11 | 0 | 0 | 0 | 0 | 11 |
-| Hooks | 16 | 10 | 3 | 0 | 1 | 2 |
+| Hooks | 16 | 1 | 3 | 0 | 1 | 11 |
 | State Management | 15 | 0 | 0 | 0 | 0 | 15 |
 | Verification Gates | 7 | 0 | 0 | 0 | 0 | 7 |
-| MCP Servers | 6 | 4 | 2 | 0 | 0 | 0 |
+| MCP Servers | 6 | 0 | 2 | 0 | 0 | 4 |
 | Model Routing | 7 | 6 | 0 | 0 | 1 | 0 |
-| Skills (Shared) | 22 | 3 | 1 | 6 | 0 | 12 |
+| Skills (Shared) | 22 | 2 | 1 | 6 | 0 | 13 |
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 1 | 0 |
-| Rules Component | 10 | 7 | 1 | 0 | 1 | 1 |
-| **TOTAL** | **118** | **44** | **7** | **6** | **4** | **57** |
+| Rules Component | 10 | 1 | 1 | 0 | 1 | 7 |
+| **TOTAL** | **118** | **24** | **7** | **6** | **4** | **77** |
 
-**Coverage**: 57/118 (48.3%) are COMPLETE. 44/118 (37.3%) have concrete Trae-native designs.
-- 57 items COMPLETE: 9 core commands + 11 agent roles + 2 hooks + 15 state management + 7 verification gates + 12 skills + 1 rules component.
-- v0.6 completed: 3 items (auto-update hook, bootstrap provisioning, lcx-doctor).
+**Coverage**: 77/118 (65.3%) are COMPLETE. 24/118 (20.3%) have concrete Trae-native designs.
+- 77 items COMPLETE: 9 core commands + 11 agent roles + 11 hooks + 15 state management + 7 verification gates + 4 MCP servers + 13 skills + 7 rules component.
+- v0.8 completed: 6 items (4 MCP config entries + 1 LazyTrae state MCP server + 1 MCP config template).
 
 ## References
 

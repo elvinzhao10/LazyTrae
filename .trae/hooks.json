@@ -1,43 +1,45 @@
 {
   "hooks": {
-    "SessionStart": {
-      "description": "LazyTrae SessionStart hook — rules loading, state check",
-      "script": ".trae/hooks/session-start.sh",
-      "status": "design",
-      "version": "v0.7"
-    },
-    "UserPromptSubmit": {
-      "description": "LazyTrae UserPromptSubmit hook — rules re-injection, trigger detection",
-      "script": ".trae/hooks/user-prompt-submit.sh",
-      "status": "design",
-      "version": "v0.7"
-    },
-    "PreToolUse": {
-      "description": "LazyTrae PreToolUse hook — git bash guidance, budget protection",
-      "script": ".trae/hooks/pre-tool-use.sh",
-      "status": "design",
-      "version": "v0.7"
-    },
-    "PostToolUse": {
-      "description": "LazyTrae PostToolUse hook — comment checker, rule matching",
-      "script": ".trae/hooks/post-tool-use.sh",
-      "status": "design",
-      "version": "v0.7"
-    },
-    "Stop": {
-      "description": "LazyTrae Stop hook — start-work continuation, evidence verification",
-      "script": ".trae/hooks/stop.sh",
-      "status": "design",
-      "version": "v0.7"
-    },
-    "Notification": {
-      "description": "LazyTrae Notification hook",
-      "script": ".trae/hooks/notification.sh",
-      "status": "design",
-      "version": "v0.7"
-    }
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash \"${PROJECT_DIR}/.trae/hooks/session-start.sh\"",
+        "timeout": 10
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash \"${PROJECT_DIR}/.trae/hooks/user-prompt-submit.sh\"",
+        "timeout": 10
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "bash \"${PROJECT_DIR}/.trae/hooks/pre-tool-use.sh\"",
+        "timeout": 10
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "bash \"${PROJECT_DIR}/.trae/hooks/post-tool-use.sh\"",
+        "timeout": 30
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "bash \"${PROJECT_DIR}/.trae/hooks/stop.sh\"",
+        "timeout": 10
+      }
+    ]
   },
   "lazytrae": {
-    "note": "LazyTrae hooks configuration. Hook scripts will be implemented in v0.7. See docs/lazytrae-architecture-plan.md §2.5 for details."
+    "version": "v0.7",
+    "note": "LazyTrae hooks configuration. Six Trae events: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, Stop, Notification. PostCompact is a known gap handled via SessionStart detection + UserPromptSubmit context-pressure markers. See docs/lazytrae-hooks-reference.md for details.",
+    "safety": "All hooks exit 0 always. They never block Trae operations. No network calls — pure local file I/O.",
+    "postcompact_gap": "Trae has no PostCompact event. LazyTrae uses SessionStart to detect post_compact_recovery_needed flag and UserPromptSubmit to detect context-pressure markers. See docs/lazytrae-hooks-reference.md §PostCompact Gap Mitigation."
   }
 }

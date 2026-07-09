@@ -10,6 +10,8 @@ const commands = {
   uninstall: () => require('./commands/uninstall').run,
   verify: () => require('./commands/verify').run,
   handoff: () => require('./commands/handoff').run,
+  hook: () => require('./commands/hook').run,
+  mcp: () => require('./commands/mcp').run,
 };
 
 const aliases = {
@@ -22,7 +24,7 @@ const aliases = {
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v0.6.0 — Trae-native LazyCodex/OmO workflows
+  console.log(`LazyTrae CLI v0.8.0 — Trae-native LazyCodex/OmO workflows
 
 Usage: lazytrae <command> [options]
 
@@ -33,6 +35,8 @@ Commands:
   uninstall   Remove LazyTrae from the current repo
   verify      Same as doctor --strict (treats WARNs as FAILs)
   handoff     Print handoff summary from current state
+  hook        Dispatch a LazyTrae hook event
+  mcp         Start the LazyTrae MCP server (stdio JSON-RPC)
 
 Aliases: i, d, s, rm, v, h
 
@@ -48,6 +52,12 @@ function main() {
   if (!resolved || resolved === '--help' || resolved === '-h') {
     printUsage();
     process.exit(0);
+  }
+
+  // mcp is a special command — it starts a server, not a CLI action
+  if (resolved === 'mcp') {
+    commands.mcp()([]);
+    return;
   }
 
   if (!commands[resolved]) {

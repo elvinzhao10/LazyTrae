@@ -252,11 +252,11 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 
 | # | Hook | LazyCodex Source | LazyTrae Hook | Status | Version |
 | --- | --- | --- | --- | --- | --- |
-| 19 | SessionStart | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 22) | `.trae/hooks/session-start.sh` | DESIGN | v0.7 |
-| 20 | UserPromptSubmit | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 28) | `.trae/hooks/user-prompt-submit.sh` | DESIGN | v0.7 |
-| 21 | PreToolUse | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 30) | `.trae/hooks/pre-tool-use.sh` | DESIGN | v0.7 |
-| 22 | PostToolUse | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 33) | `.trae/hooks/post-tool-use.sh` | DESIGN | v0.7 |
-| 23 | Stop/SubagentStop | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (lines 41-42) | `.trae/hooks/stop.sh` | DESIGN | v0.7 |
+| 19 | SessionStart | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 22) | `.trae/hooks/session-start.sh` | COMPLETE | v0.7 |
+| 20 | UserPromptSubmit | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 28) | `.trae/hooks/user-prompt-submit.sh` | COMPLETE | v0.7 |
+| 21 | PreToolUse | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 30) | `.trae/hooks/pre-tool-use.sh` | COMPLETE | v0.7 |
+| 22 | PostToolUse | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 33) | `.trae/hooks/post-tool-use.sh` | COMPLETE | v0.7 |
+| 23 | Stop/SubagentStop | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (lines 41-42) | `.trae/hooks/stop.sh` | COMPLETE | v0.7 |
 | 24 | PostCompact | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 38) | Post-compact detection (no direct Trae event) | GAP | v0.7 |
 
 ### State Management
@@ -285,9 +285,9 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 | # | Method | LazyCodex Source | LazyTrae Equivalent | Status | Version |
 | --- | --- | --- | --- | --- | --- |
 | 36 | Static rule injection | `lazycodex/plugins/omo/components/rules/src/static-injection.ts` | `AGENTS.md` + `.trae/rules/lazytrae.md` | COMPLETE | v0.2 |
-| 37 | Dynamic rule matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Hook-based PostToolUse extraction | DESIGN | v0.7 |
-| 38 | Context pressure detection | `lazycodex/plugins/omo/components/rules/src/context-pressure.ts` | SessionStart/UserPromptSubmit detection | DESIGN | v0.7 |
-| 39 | Post-compact recovery | `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts` | Post-compact state file | GAP | v0.7 |
+| 37 | Dynamic rule matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Hook-based PostToolUse extraction | COMPLETE (simplified) | v0.7 |
+| 38 | Context pressure detection | `lazycodex/plugins/omo/components/rules/src/context-pressure.ts` | SessionStart/UserPromptSubmit detection | COMPLETE | v0.7 |
+| 39 | Post-compact recovery | `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts` | Post-compact state in sessions.json | GAP (mitigated) | v0.7 |
 
 ### Deferred / Not Applicable
 

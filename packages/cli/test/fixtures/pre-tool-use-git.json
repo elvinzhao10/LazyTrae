@@ -1,0 +1,15 @@
+{
+  "session_id": "trae:session-abc123",
+  "turn_id": "turn-003",
+  "transcript_path": null,
+  "cwd": "/Users/Admin/Desktop/lazytrae",
+  "hook_event_name": "PreToolUse",
+  "model": "claude-sonnet-4",
+  "permission_mode": "default",
+  "tool_name": "RunCommand",
+  "tool_input": {
+    "command": "git push --force origin main",
+    "cwd": "/Users/Admin/Desktop/lazytrae"
+  },
+  "tool_use_id": "tool-002"
+}

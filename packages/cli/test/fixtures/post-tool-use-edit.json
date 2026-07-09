@@ -1,0 +1,18 @@
+{
+  "session_id": "trae:session-abc123",
+  "turn_id": "turn-004",
+  "transcript_path": null,
+  "cwd": "/Users/Admin/Desktop/lazytrae",
+  "hook_event_name": "PostToolUse",
+  "model": "claude-sonnet-4",
+  "permission_mode": "default",
+  "tool_name": "Write",
+  "tool_input": {
+    "filePath": "/Users/Admin/Desktop/lazytrae/src/foo.ts",
+    "content": "// This function does nothing\nexport function foo() {}"
+  },
+  "tool_response": {
+    "success": true
+  },
+  "tool_use_id": "tool-001"
+}

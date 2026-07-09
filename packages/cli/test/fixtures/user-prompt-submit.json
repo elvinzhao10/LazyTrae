@@ -1,0 +1,10 @@
+{
+  "session_id": "trae:session-abc123",
+  "turn_id": "turn-001",
+  "transcript_path": null,
+  "cwd": "/Users/Admin/Desktop/lazytrae",
+  "hook_event_name": "UserPromptSubmit",
+  "model": "claude-sonnet-4",
+  "permission_mode": "default",
+  "prompt": "ulw: implement v0.7 hooks and enforcement"
+}
