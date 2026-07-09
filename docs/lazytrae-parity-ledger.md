@@ -138,7 +138,7 @@
 | 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` (inferred from shared skills) | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.js` | COMPLETE |
 | 8.13 | lcx-report-bug skill | `lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` (inferred from shared skills) | Bug reporting | lcx-report-bug skill | `.trae/skills/lcx-report-bug/SKILL.md` | COMPLETE |
 | 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` (inferred from shared skills) | Structural code search | ast-grep skill + optional MCP | `.trae/skills/ast-grep/SKILL.md`, `.trae/mcp.json` (ast_grep server) | COMPLETE |
-| 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` (inferred from shared skills) | Session management guidance | Session tracking | `.lazytrae/state/sessions.json` | DESIGN |
+| 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` (inferred from shared skills) | Session management guidance | coding-agent-sessions skill | `.trae/skills/coding-agent-sessions/SKILL.md` | COMPLETE |
 | 8.16 | ultrawork skill | `lazycodex/plugins/omo/components/ultrawork/skills/ultrawork/SKILL.md` (inferred) | Ultrawork directive as skill | Embedded in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | COMPLETE |
 | 8.17 | rules skill | `lazycodex/plugins/omo/components/rules/skills/rules/SKILL.md` | Rules injection guidance | Not separately ported; embedded in AGENTS.md + rules | `AGENTS.md`, `.trae/rules/lazytrae.md` | COMPLETE |
 | 8.18 | lsp skill | `lazycodex/plugins/omo/components/lsp/skills/lsp/SKILL.md` | LSP diagnostics guidance | Optional LSP MCP template + ast-grep skill as structural search substitute | `.trae/mcp.json` (lsp server), `.trae/skills/ast-grep/SKILL.md` | COMPLETE (optional) |
@@ -205,16 +205,16 @@
 | Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
 | MCP Servers | 6 | 5 | 0 | 1 | 0 | 0 |
 | Model Routing | 7 | 6 | 0 | 0 | 0 | 1 |
-| Skills (Shared) | 22 | 21 | 1 | 0 | 0 | 0 |
+| Skills (Shared) | 22 | 22 | 0 | 0 | 0 | 0 |
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 0 | 1 |
 | Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
 | Team Mode | 7 | 6 | 0 | 0 | 0 | 1 |
-| **TOTAL** | **125** | **113** | **3** | **4** | **0** | **5** |
+| **TOTAL** | **125** | **114** | **2** | **4** | **0** | **5** |
 
-**Coverage**: 113/125 (90.4%) are COMPLETE. 3/125 (2.4%) have concrete Trae-native designs.
-- 113 items COMPLETE: 9 core commands + 11 agent roles + 12 hooks + 15 state management + 7 verification gates + 5 MCP servers + 6 model routing + 21 skills + 14 ultrawork core + 7 rules component + 6 team mode.
+**Coverage**: 114/125 (91.2%) are COMPLETE. 2/125 (1.6%) have concrete Trae-native designs.
+- 114 items COMPLETE: 9 core commands + 11 agent roles + 12 hooks + 15 state management + 7 verification gates + 5 MCP servers + 6 model routing + 22 skills + 14 ultrawork core + 7 rules component + 6 team mode.
 - 4 GAPs: PostCompact hook (3.6, fundamental platform gap), codegraph MCP (6.3, no suitable server available), codegraph init hook (3.12, depends on codegraph MCP), post-compact recovery (10.4, mitigated via heuristic detection).
-- 3 DESIGN: ulw-loop goal budget protection (3.10), coding-agent-sessions skill (8.15), bundled rules hephaestus (10.10).
+- 2 DESIGN: ulw-loop goal budget protection (3.10), bundled rules hephaestus (10.10).
 
 ## References
 

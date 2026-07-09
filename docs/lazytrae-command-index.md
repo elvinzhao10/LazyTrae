@@ -138,7 +138,7 @@
 | 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.js` | COMPLETE | v0.6 |
 | 8.13 | lcx-report-bug skill | `lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` | Bug reporting | Not ported | — | DEFERRED | — |
 | 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` | Structural code search | Optional external tool | — | DEFERRED | — |
-| 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` | Session management guidance | Session tracking | `.lazytrae/state/sessions.json` | DESIGN | v0.5 |
+| 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` | Session management guidance | coding-agent-sessions skill | `.trae/skills/coding-agent-sessions/SKILL.md` | COMPLETE | v0.12 |
 | 8.16 | ultrawork skill | `lazycodex/plugins/omo/components/ultrawork/skills/ultrawork/SKILL.md` | Ultrawork directive as skill | Embedded in ulw-loop skill | `.trae/skills/ulw-loop/SKILL.md` | COMPLETE | v0.3 |
 | 8.17 | rules skill | `lazycodex/plugins/omo/components/rules/skills/rules/SKILL.md` | Rules injection guidance | Embedded in AGENTS.md + rules | `AGENTS.md`, `.trae/rules/lazytrae.md` | COMPLETE | v0.2 |
 | 8.18 | lsp skill | `lazycodex/plugins/omo/components/lsp/skills/lsp/SKILL.md` | LSP diagnostics guidance | Optional external LSP MCP | `.trae/mcp.json` (optional) | GAP | v0.8 |
@@ -180,18 +180,18 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | Core Commands | 9 | 9 | 0 | 0 | 0 | 0 |
 | Agent Roles | 11 | 11 | 0 | 0 | 0 | 0 |
-| Hooks | 16 | 11 | 1 | 3 | 0 | 1 |
+| Hooks | 16 | 12 | 1 | 2 | 0 | 1 |
 | State Management | 15 | 15 | 0 | 0 | 0 | 0 |
 | Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
-| MCP Servers | 6 | 4 | 0 | 2 | 0 | 0 |
+| MCP Servers | 6 | 5 | 0 | 1 | 0 | 0 |
 | Model Routing | 7 | 6 | 0 | 0 | 0 | 1 |
-| Skills (Shared) | 22 | 14 | 1 | 1 | 6 | 0 |
+| Skills (Shared) | 22 | 22 | 0 | 0 | 0 | 0 |
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 0 | 1 |
 | Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
 | Team Mode | 7 | 6 | 0 | 0 | 0 | 1 |
-| **TOTAL** | **125** | **104** | **3** | **7** | **6** | **5** |
+| **TOTAL** | **125** | **114** | **2** | **4** | **0** | **5** |
 
-**Coverage**: 104/125 items COMPLETE (83.2%). 7 completed in v0.11 (Team Mode: 6 items — state model, controller CLI, leader protocol, worktree isolation, member communication, durability across sessions; Skills: teammode skill promoted from DESIGN). 1 N/A (thread title hygiene hook).
+**Coverage**: 114/125 items COMPLETE (91.2%). 1 completed in v0.12 dogfood (coding-agent-sessions skill: DESIGN → COMPLETE).
 
 ## References
 
