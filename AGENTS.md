@@ -238,15 +238,15 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 
 | # | Role | LazyCodex Source | LazyTrae Agent | Status | Version |
 | --- | --- | --- | --- | --- | --- |
-| 10 | Explorer | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` | `.trae/agents/explorer.md` | DESIGN | v0.4 |
-| 11 | Librarian | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | `.trae/agents/librarian.md` + skill | DESIGN | v0.4 |
-| 12 | Plan (Prometheus) | `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml` | `.trae/agents/prometheus.md` | DESIGN | v0.4 |
-| 13 | Metis | `lazycodex/plugins/omo/components/ultrawork/agents/metis.toml` | `.trae/agents/metis.md` | DESIGN | v0.4 |
-| 14 | Momus | `lazycodex/plugins/omo/components/ultrawork/agents/momus.toml` | `.trae/agents/momus.md` | DESIGN | v0.4 |
-| 15 | Atlas (executor) | `lazycodex/packages/web/content/docs/discipline-agents.md` | `.trae/agents/atlas.md` | DESIGN | v0.4 |
-| 16 | Hephaestus | `lazycodex/packages/web/content/docs/discipline-agents.md` | `.trae/agents/hephaestus.md` | DESIGN | v0.4 |
-| 17 | Oracle (reviewer) | `lazycodex/packages/web/content/docs/discipline-agents.md` | `.trae/agents/oracle.md` | DESIGN | v0.4 |
-| 18 | Sisyphus (orchestrator) | Implicit in LazyCodex workflow | `.trae/agents/sisyphus.md` | DESIGN | v0.4 |
+| 10 | Explorer | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` | `.trae/agents/explorer.md` | COMPLETE | v0.4 |
+| 11 | Librarian | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | `.trae/agents/librarian.md` + skill | COMPLETE | v0.4 |
+| 12 | Plan (Prometheus) | `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml` | `.trae/agents/prometheus.md` | COMPLETE | v0.4 |
+| 13 | Metis | `lazycodex/plugins/omo/components/ultrawork/agents/metis.toml` | `.trae/agents/metis.md` | COMPLETE | v0.4 |
+| 14 | Momus | `lazycodex/plugins/omo/components/ultrawork/agents/momus.toml` | `.trae/agents/momus.md` | COMPLETE | v0.4 |
+| 15 | Atlas (executor) | `lazycodex/packages/web/content/docs/discipline-agents.md` | `.trae/agents/atlas.md` | COMPLETE | v0.4 |
+| 16 | Hephaestus | `lazycodex/packages/web/content/docs/discipline-agents.md` | `.trae/agents/hephaestus.md` | COMPLETE | v0.4 |
+| 17 | Oracle (reviewer) | `lazycodex/packages/web/content/docs/discipline-agents.md` | `.trae/agents/oracle.md` | COMPLETE | v0.4 |
+| 18 | Sisyphus (orchestrator) | Implicit in LazyCodex workflow | `.trae/agents/sisyphus.md` | COMPLETE | v0.4 |
 
 ### Hooks
 

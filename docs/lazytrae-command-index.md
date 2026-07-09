@@ -32,17 +32,17 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2.1 | Explorer | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` | Codebase search specialist, read-only, parallel tool calls | Explorer agent | `.trae/agents/explorer.md` | DESIGN | v0.4 |
-| 2.2 | Librarian | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | External docs/library researcher, SHA-pinned citations | Librarian agent + skill | `.trae/agents/librarian.md`, `.trae/skills/librarian/SKILL.md` | DESIGN | v0.4 |
-| 2.3 | Plan (Prometheus) | `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml` | Strategic planning, writes `.omo/plans/<slug>.md`, never implements | Prometheus agent | `.trae/agents/prometheus.md` | DESIGN | v0.4 |
-| 2.4 | Metis | `lazycodex/plugins/omo/components/ultrawork/agents/metis.toml` | Pre-planning gap analyst, detects contradictions and ambiguity | Metis agent | `.trae/agents/metis.md` | DESIGN | v0.4 |
-| 2.5 | Momus | `lazycodex/plugins/omo/components/ultrawork/agents/momus.toml` | Plan reviewer, issues OKAY/ITERATE/REJECT | Momus agent | `.trae/agents/momus.md` | DESIGN | v0.4 |
-| 2.6 | lazycodex-executor (Atlas) | `lazycodex/packages/web/content/docs/discipline-agents.md` | Executes one task unit at a time | Atlas agent | `.trae/agents/atlas.md` | DESIGN | v0.4 |
-| 2.7 | Hephaestus | `lazycodex/packages/web/content/docs/discipline-agents.md` | Deep autonomous worker for hard implementation | Hephaestus agent | `.trae/agents/hephaestus.md` | DESIGN | v0.4 |
-| 2.8 | lazycodex-code-reviewer | `lazycodex/packages/web/content/docs/discipline-agents.md` | Post-implementation code quality review | Oracle agent (code review role) | `.trae/agents/oracle.md` | DESIGN | v0.4 |
-| 2.9 | lazycodex-qa-executor | `lazycodex/packages/web/content/docs/discipline-agents.md` | Real-execution-based QA | Verifier skill + Oracle agent (QA role) | `.trae/skills/verifier/SKILL.md`, `.trae/agents/oracle.md` | DESIGN | v0.4 |
-| 2.10 | lazycodex-gate-reviewer (Oracle) | `lazycodex/packages/web/content/docs/discipline-agents.md` | Pre-completion verification gates | Oracle agent (gate review role) | `.trae/agents/oracle.md` | DESIGN | v0.4 |
-| 2.11 | Sisyphus (orchestrator) | Not a standalone TOML; implicit in LazyCodex workflow | Main orchestrator: decides plan/execute/review/loop | Sisyphus agent | `.trae/agents/sisyphus.md` | DESIGN | v0.4 |
+| 2.1 | Explorer | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` | Codebase search specialist, read-only, parallel tool calls | Explorer agent | `.trae/agents/explorer.md` | COMPLETE | v0.4 |
+| 2.2 | Librarian | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | External docs/library researcher, SHA-pinned citations | Librarian agent + skill | `.trae/agents/librarian.md`, `.trae/skills/librarian/SKILL.md` | COMPLETE | v0.4 |
+| 2.3 | Plan (Prometheus) | `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml` | Strategic planning, writes `.omo/plans/<slug>.md`, never implements | Prometheus agent | `.trae/agents/prometheus.md` | COMPLETE | v0.4 |
+| 2.4 | Metis | `lazycodex/plugins/omo/components/ultrawork/agents/metis.toml` | Pre-planning gap analyst, detects contradictions and ambiguity | Metis agent | `.trae/agents/metis.md` | COMPLETE | v0.4 |
+| 2.5 | Momus | `lazycodex/plugins/omo/components/ultrawork/agents/momus.toml` | Plan reviewer, issues OKAY/ITERATE/REJECT | Momus agent | `.trae/agents/momus.md` | COMPLETE | v0.4 |
+| 2.6 | lazycodex-executor (Atlas) | `lazycodex/packages/web/content/docs/discipline-agents.md` | Executes one task unit at a time | Atlas agent | `.trae/agents/atlas.md` | COMPLETE | v0.4 |
+| 2.7 | Hephaestus | `lazycodex/packages/web/content/docs/discipline-agents.md` | Deep autonomous worker for hard implementation | Hephaestus agent | `.trae/agents/hephaestus.md` | COMPLETE | v0.4 |
+| 2.8 | lazycodex-code-reviewer | `lazycodex/packages/web/content/docs/discipline-agents.md` | Post-implementation code quality review | Oracle agent (code review role) | `.trae/agents/oracle.md` | COMPLETE | v0.4 |
+| 2.9 | lazycodex-qa-executor | `lazycodex/packages/web/content/docs/discipline-agents.md` | Real-execution-based QA | Verifier skill + Oracle agent (QA role) | `.trae/skills/verifier/SKILL.md`, `.trae/agents/oracle.md` | COMPLETE | v0.4 |
+| 2.10 | lazycodex-gate-reviewer (Oracle) | `lazycodex/packages/web/content/docs/discipline-agents.md` | Pre-completion verification gates | Oracle agent (gate review role) | `.trae/agents/oracle.md` | COMPLETE | v0.4 |
+| 2.11 | Sisyphus (orchestrator) | Not a standalone TOML; implicit in LazyCodex workflow | Main orchestrator: decides plan/execute/review/loop | Sisyphus agent | `.trae/agents/sisyphus.md` | COMPLETE | v0.4 |
 
 ## 3. Hooks
 
@@ -167,7 +167,7 @@
 | Category | Total | COMPLETE | DESIGN | GAP | DEFERRED | N/A |
 | --- | --- | --- | --- | --- | --- | --- |
 | Core Commands | 9 | 9 | 0 | 0 | 0 | 0 |
-| Agent Roles | 11 | 0 | 11 | 0 | 0 | 0 |
+| Agent Roles | 11 | 11 | 0 | 0 | 0 | 0 |
 | Hooks | 16 | 0 | 12 | 3 | 0 | 1 |
 | State Management | 15 | 0 | 15 | 0 | 0 | 0 |
 | Verification Gates | 7 | 0 | 7 | 0 | 0 | 0 |
@@ -175,10 +175,10 @@
 | Model Routing | 7 | 0 | 6 | 0 | 0 | 1 |
 | Skills (Shared) | 22 | 11 | 4 | 1 | 6 | 0 |
 | Rules Component | 10 | 1 | 7 | 1 | 0 | 1 |
-| **TOTAL** | **103** | **21** | **66** | **7** | **6** | **3** |
+| **TOTAL** | **103** | **32** | **55** | **7** | **6** | **3** |
 
-**Coverage**: 21/103 items COMPLETE. 11 completed in v0.3, 2 completed in v0.2.
-82 items have concrete Trae-native designs. 7 GAP items have documented substitutes. 6 DEFERRED items are non-core skills. 3 N/A items are platform-specific.
+**Coverage**: 32/103 items COMPLETE. 11 completed in v0.4 (agent roles), 11 completed in v0.3 (skills), 9 completed in v0.3 (core commands), 1 completed in v0.2 (rules).
+71 items have concrete Trae-native designs. 7 GAP items have documented substitutes. 6 DEFERRED items are non-core skills. 3 N/A items are platform-specific.
 
 ## References
 
