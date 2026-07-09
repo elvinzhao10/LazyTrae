@@ -13,6 +13,7 @@ const commands = {
   hook: () => require('./commands/hook').run,
   mcp: () => require('./commands/mcp').run,
   loop: () => require('./commands/loop').run,
+  run: () => require('./commands/run').run,
 };
 
 const aliases = {
@@ -23,10 +24,11 @@ const aliases = {
   v: 'verify',
   h: 'handoff',
   l: 'loop',
+  r: 'run',
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v0.9.0 — Trae-native LazyCodex/OmO workflows
+  console.log(`LazyTrae CLI v0.10.0 — Trae-native LazyCodex/OmO workflows
 
 Usage: lazytrae <command> [options]
 
@@ -40,8 +42,9 @@ Commands:
   hook        Dispatch a LazyTrae hook event
   mcp         Start the LazyTrae MCP server (stdio JSON-RPC)
   loop        Long-horizon execution loop status and control
+  run         Execute a task with explicit model routing (optional trae-agent backend)
 
-Aliases: i, d, s, rm, v, h, l
+Aliases: i, d, s, rm, v, h, l, r
 
 Run 'lazytrae <command> --help' for more info.
 `);

@@ -112,12 +112,12 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 7.1 | Role-based model profiles | `lazycodex/plugins/omo/model-catalog.json` | Different models for different roles | Routing config | `.lazytrae/config.json` (routing section) | DESIGN | v0.10 |
-| 7.2 | Default model profile | `lazycodex/plugins/omo/model-catalog.json` (line 4) | Baseline model for most tasks | Trae Auto mode | Native Trae | DESIGN | v0.10 |
-| 7.3 | Plan mode profile | `lazycodex/plugins/omo/model-catalog.json` (line 7) | Strong reasoning for planning | Trae Max mode | Native Trae | DESIGN | v0.10 |
-| 7.4 | Worker model profile | `lazycodex/plugins/omo/model-catalog.json` (line 17) | Fast capable coding model | Trae Auto mode | Native Trae | DESIGN | v0.10 |
-| 7.5 | Verifier model profile | `lazycodex/plugins/omo/model-catalog.json` (line 13) | Oracle model for judgment | Trae Max mode | Native Trae | DESIGN | v0.10 |
-| 7.6 | Agent TOML model field | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` (line 4) | Per-agent model selection | Agent prompt routing hints | `.trae/agents/*.md` | DESIGN | v0.10 |
+| 7.1 | Role-based model profiles | `lazycodex/plugins/omo/model-catalog.json` | Different models for different roles | Routing config | `.lazytrae/config.json` (routing section) | COMPLETE | v0.10 |
+| 7.2 | Default model profile | `lazycodex/plugins/omo/model-catalog.json` (line 4) | Baseline model for most tasks | Trae Auto mode | Native Trae | COMPLETE | v0.10 |
+| 7.3 | Plan mode profile | `lazycodex/plugins/omo/model-catalog.json` (line 7) | Strong reasoning for planning | Trae Max mode | Native Trae | COMPLETE | v0.10 |
+| 7.4 | Worker model profile | `lazycodex/plugins/omo/model-catalog.json` (line 17) | Fast capable coding model | Trae Auto mode | Native Trae | COMPLETE | v0.10 |
+| 7.5 | Verifier model profile | `lazycodex/plugins/omo/model-catalog.json` (line 13) | Oracle model for judgment | Trae Max mode | Native Trae | COMPLETE | v0.10 |
+| 7.6 | Agent TOML model field | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` (line 4) | Per-agent model selection | Agent prompt routing hints | `.trae/agents/*.md` | COMPLETE | v0.10 |
 | 7.7 | Managed profiles | `lazycodex/plugins/omo/model-catalog.json` (managedProfiles) | Legacy profile compatibility | Not applicable | — | N/A | — |
 
 ## 8. Skills (Shared)
@@ -172,13 +172,13 @@
 | State Management | 15 | 15 | 0 | 0 | 0 | 0 |
 | Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
 | MCP Servers | 6 | 4 | 0 | 2 | 0 | 0 |
-| Model Routing | 7 | 0 | 6 | 0 | 0 | 1 |
+| Model Routing | 7 | 6 | 0 | 0 | 0 | 1 |
 | Skills (Shared) | 22 | 13 | 2 | 1 | 6 | 0 |
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 0 | 1 |
 | Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
-| **TOTAL** | **118** | **91** | **10** | **7** | **6** | **4** |
+| **TOTAL** | **118** | **97** | **4** | **7** | **6** | **4** |
 
-**Coverage**: 91/118 items COMPLETE (77.1%). 14 completed in v0.9 (Ultrawork/ulw-loop Core: execution loop, verifier protocol, reviewer protocol, failure recovery, state machine, checkpointing, resumption, steering mutations, mutation locks, evidence gates, completion promise, iteration caps, .omo mirror, loop CLI). 1 N/A (persistent cache).
+**Coverage**: 97/118 items COMPLETE (82.2%). 6 completed in v0.10 (Model Routing: 6 items — role-based profiles, default/plan/worker/verifier mappings, agent TOML model field → agent prompt routing hints, config routing section, model routing reference docs, CLI run command). 1 N/A (managed profiles).
 
 ## References
 

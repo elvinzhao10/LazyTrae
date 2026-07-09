@@ -83,6 +83,11 @@ Removes AI-generated code smells (slop) from branch changes or explicit file lis
 - **CodeGraph gap**: Trae has no CodeGraph. For understanding impact of slop removal, use SearchCodebase for semantic queries.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
+## Model Routing
+- **Default category**: quick
+- **Recommended Trae mode**: Auto
+- **Escalate to deep**: When slop removal reveals design issues requiring refactoring beyond mechanical cleanup.
+
 ## Model/Mode Guidance
 - **Model**: auto
 - **Effort**: standard

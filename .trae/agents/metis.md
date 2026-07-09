@@ -78,6 +78,11 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 - **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries during risk analysis.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
+## Model Routing
+- **Default category**: ultrabrain
+- **Recommended Trae mode**: Max
+- **Escalate to review**: When gap analysis is complete and the plan needs formal review before execution.
+
 ## Model/Mode Guidance
 - **Model**: max (LazyCodex metis.toml uses `gpt-5.5` with `high` effort)
 - **Effort**: high

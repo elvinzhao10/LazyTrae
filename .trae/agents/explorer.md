@@ -76,6 +76,11 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
+## Model Routing
+- **Default category**: quick
+- **Recommended Trae mode**: Auto
+- **Escalate to deep**: When search results reveal architectural complexity requiring sustained reasoning across layers.
+
 ## Model/Mode Guidance
 - **Model**: lite (LazyCodex explorer.toml uses `gpt-5.4-mini` with `low` effort)
 - **Effort**: low

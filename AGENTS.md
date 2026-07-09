@@ -289,6 +289,15 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 | 38 | Context pressure detection | `lazycodex/plugins/omo/components/rules/src/context-pressure.ts` | SessionStart/UserPromptSubmit detection | COMPLETE | v0.7 |
 | 39 | Post-compact recovery | `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts` | Post-compact state in sessions.json | GAP (mitigated) | v0.7 |
 
+### Model Routing
+
+| # | Method | LazyCodex Source | LazyTrae Equivalent | Status | Version |
+| --- | --- | --- | --- | --- | --- |
+| 40 | Role-based profiles | `lazycodex/plugins/omo/model-catalog.json` | `.lazytrae/config.json` routing section | COMPLETE | v0.10 |
+| 41 | Category routing (quick/deep/ultrabrain/visual/writing/review) | `lazycodex/plugins/omo/model-catalog.json` | Agent prompt routing hints + CLI `run` command | COMPLETE | v0.10 |
+| 42 | Trae mode mapping (Auto/Max) | N/A (Trae-native) | Agent prompts + `docs/lazytrae-model-routing.md` | COMPLETE | v0.10 |
+| 43 | Optional trae-agent backend | N/A (LazyTrae addition) | `packages/cli/src/commands/run.js` | COMPLETE | v0.10 |
+
 ### Deferred / Not Applicable
 
 | # | Method | Reason |

@@ -100,6 +100,11 @@ Goal-oriented deep autonomous worker for complex implementation, debugging, and 
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable notepad and `.lazytrae/state/` files. Always maintain a notepad for context recovery.
 - **Parent session ownership**: Even with subagent delegation, the parent session keeps ownership of goals, constraints, and final judgment. Never trust subagent self-reports — verify independently.
 
+## Model Routing
+- **Default category**: deep
+- **Recommended Trae mode**: Max
+- **Escalate to ultrabrain**: When debugging reveals fundamental design contradictions or missing constraints the plan didn't anticipate.
+
 ## Model/Mode Guidance
 - **Model**: max
 - **Effort**: high

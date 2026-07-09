@@ -93,6 +93,11 @@ Implicit in LazyCodex/OmO workflow. Full context:
 - **LSP gap**: Trae has no LSP tools. Not relevant for orchestrator role — delegates to execution agents.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable `.lazytrae/state/` files. Re-read state files after any compaction.
 
+## Model Routing
+- **Default category**: visual-engineering
+- **Recommended Trae mode**: Max
+- **Escalate to ultrabrain**: When orchestration decisions involve trade-offs between delivery speed, quality, and scope.
+
 ## Model/Mode Guidance
 - **Model**: max
 - **Effort**: high

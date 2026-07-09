@@ -90,6 +90,11 @@ Maintains project memory, external documentation research, command index, and pa
 - **SHA-pinned permalinks**: Still required. Get SHA via `gh api repos/<o>/<r>/commits/HEAD --jq .sha` or `git rev-parse HEAD` in a clone. NEVER link to branch names.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
+## Model Routing
+- **Default category**: writing
+- **Recommended Trae mode**: Auto
+- **Escalate to deep**: When documentation requires understanding complex architecture that spans multiple systems.
+
 ## Model/Mode Guidance
 - **Model**: lite (LazyCodex librarian.toml uses `gpt-5.4-mini` with `low` effort)
 - **Effort**: low

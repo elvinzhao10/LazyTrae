@@ -86,6 +86,11 @@ Converts LazyCodex workflows and methods to other host platforms. Analyzes sourc
 - **LSP gap**: Trae has no LSP tools. Not relevant for migration planning — focuses on documentation and pattern analysis.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
+## Model Routing
+- **Default category**: deep
+- **Recommended Trae mode**: Max
+- **Escalate to ultrabrain**: When migration involves fundamental platform incompatibilities requiring redesign, not adaptation.
+
 ## Model/Mode Guidance
 - **Model**: max
 - **Effort**: high

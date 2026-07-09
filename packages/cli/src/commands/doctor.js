@@ -3,6 +3,8 @@ const path = require('path');
 const { validateAllState } = require('../lib/validator');
 const { extractBlockNames } = require('../lib/managed-blocks');
 const { checkParityLedger } = require('../lib/parity-check');
+const { checkModelRouting } = require('../lib/model-routing-check');
+const { checkTraeStructure } = require('../lib/trae-checks');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -45,97 +47,9 @@ Options:
     else warn++;
   }
 
-  // .trae/rules/lazytrae.md
-  const rulesPath = path.join(repoRoot, '.trae', 'rules', 'lazytrae.md');
-  addResult('.trae/rules/lazytrae.md', fs.existsSync(rulesPath) ? 'PASS' : 'FAIL');
-
-  // .trae/skills — at least 9
-  const skillsDir = path.join(repoRoot, '.trae', 'skills');
-  if (fs.existsSync(skillsDir)) {
-    const skillDirs = fs.readdirSync(skillsDir, { withFileTypes: true })
-      .filter(d => d.isDirectory())
-      .filter(d => fs.existsSync(path.join(skillsDir, d.name, 'SKILL.md')));
-    const count = skillDirs.length;
-    addResult(`.trae/skills/ (${count} skills)`, count >= 9 ? 'PASS' : 'FAIL',
-      `Found ${count} skills, expected at least 9`);
-  } else {
-    addResult('.trae/skills/', 'FAIL', 'Directory not found');
-  }
-
-  // .trae/commands — at least 9
-  const commandsDir = path.join(repoRoot, '.trae', 'commands');
-  if (fs.existsSync(commandsDir)) {
-    const cmdFiles = fs.readdirSync(commandsDir).filter(f => f.endsWith('.md'));
-    const count = cmdFiles.length;
-    addResult(`.trae/commands/ (${count} commands)`, count >= 9 ? 'PASS' : 'FAIL',
-      `Found ${count} commands, expected at least 9`);
-  } else {
-    addResult('.trae/commands/', 'FAIL', 'Directory not found');
-  }
-
-  // .trae/agents — at least 11
-  const agentsDir = path.join(repoRoot, '.trae', 'agents');
-  if (fs.existsSync(agentsDir)) {
-    const agentFiles = fs.readdirSync(agentsDir).filter(f => f.endsWith('.md'));
-    const count = agentFiles.length;
-    addResult(`.trae/agents/ (${count} agents)`, count >= 11 ? 'PASS' : 'FAIL',
-      `Found ${count} agents, expected at least 11`);
-  } else {
-    addResult('.trae/agents/', 'FAIL', 'Directory not found');
-  }
-
-  // .trae/hooks.json
-  const hooksPath = path.join(repoRoot, '.trae', 'hooks.json');
-  if (fs.existsSync(hooksPath)) {
-    try {
-      const hooksConfig = JSON.parse(fs.readFileSync(hooksPath, 'utf-8'));
-      const hookEvents = Object.keys(hooksConfig.hooks || {});
-      addResult('.trae/hooks.json', hookEvents.length >= 5 ? 'PASS' : 'WARN',
-        `${hookEvents.length} hook events configured, expected at least 5`);
-    } catch (e) {
-      addResult('.trae/hooks.json', 'FAIL', `Invalid JSON: ${e.message}`);
-    }
-  } else {
-    addResult('.trae/hooks.json', 'WARN', 'Hooks config for v0.7');
-  }
-
-  // .trae/hooks/ — check executability of hook scripts
-  const hooksDir = path.join(repoRoot, '.trae', 'hooks');
-  if (fs.existsSync(hooksDir)) {
-    const hookScripts = fs.readdirSync(hooksDir).filter(f => f.endsWith('.sh'));
-    if (hookScripts.length > 0) {
-      const nonExec = [];
-      for (const script of hookScripts) {
-        const scriptPath = path.join(hooksDir, script);
-        try {
-          fs.accessSync(scriptPath, fs.constants.X_OK);
-        } catch (_) {
-          nonExec.push(script);
-        }
-      }
-      if (nonExec.length === 0) {
-        addResult('.trae/hooks/ executability', 'PASS', `${hookScripts.length} scripts executable`);
-      } else {
-        addResult('.trae/hooks/ executability', 'WARN', `Not executable: ${nonExec.join(', ')}`);
-      }
-    } else {
-      addResult('.trae/hooks/', 'WARN', 'No hook scripts found');
-    }
-  } else {
-    addResult('.trae/hooks/', 'WARN', 'Directory not found');
-  }
-
-  // .trae/mcp.json — parse if present
-  const mcpPath = path.join(repoRoot, '.trae', 'mcp.json');
-  if (fs.existsSync(mcpPath)) {
-    try {
-      JSON.parse(fs.readFileSync(mcpPath, 'utf-8'));
-      addResult('.trae/mcp.json', 'PASS');
-    } catch (e) {
-      addResult('.trae/mcp.json', 'FAIL', `Invalid JSON: ${e.message}`);
-    }
-  } else {
-    addResult('.trae/mcp.json', 'WARN', 'MCP config for v0.8');
+  // .trae/ structural checks (rules, skills, commands, agents, hooks, mcp)
+  for (const r of checkTraeStructure(repoRoot)) {
+    addResult(r.label, r.status, r.detail);
   }
 
   // MCP server package check
@@ -257,6 +171,10 @@ Options:
     }
   }
 
+  // Model routing config check (v0.10)
+  const routingResult = checkModelRouting(repoRoot);
+  addResult(routingResult.label, routingResult.status, routingResult.detail);
+
   // Parity ledger
   const parityResult = checkParityLedger(repoRoot);
   if (!parityResult.present) {
@@ -269,7 +187,7 @@ Options:
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v0.9.0`);
+  console.log(`LazyTrae Doctor v0.10.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);

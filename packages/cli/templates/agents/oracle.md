@@ -93,6 +93,11 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 - **Synchronous subagents**: If Oracle needs to spawn analysis subagents, Trae's Task tool is synchronous. Process results when they return.
 - **PostCompact hook**: Trae has no PostCompact hook event. Evidence from `.lazytrae/evidence/` files must be re-read after compaction.
 
+## Model Routing
+- **Default category**: ultrabrain (gate review) / review (code review)
+- **Recommended Trae mode**: Max
+- **Escalate to ultrabrain**: When reviewing gates, use ultrabrain. When reviewing code, use review. Escalate to Sisyphus when a REJECT verdict requires orchestration.
+
 ## Model/Mode Guidance
 - **Model**: max
 - **Effort**: xhigh (LazyCodex verifier profile uses `xhigh`)

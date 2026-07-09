@@ -76,6 +76,11 @@ Plan reviewer that verifies a work plan is executable: references exist, tasks a
 - **Parallel verification**: Use parallel Read/Grep calls to verify multiple plan references simultaneously.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
+## Model Routing
+- **Default category**: review
+- **Recommended Trae mode**: Max
+- **Escalate to ultrabrain**: When plan quality issues suggest deeper architectural problems beyond fixable plan gaps.
+
 ## Model/Mode Guidance
 - **Model**: max (LazyCodex momus.toml uses `gpt-5.5` with `xhigh` effort)
 - **Effort**: xhigh

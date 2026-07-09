@@ -86,6 +86,11 @@ Executes approved checklist items from a plan one at a time, following the bould
 - **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search during refactoring.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable `.lazytrae/state/` files.
 
+## Model Routing
+- **Default category**: quick
+- **Recommended Trae mode**: Auto
+- **Escalate to deep**: When the task requires understanding of multiple subsystems beyond the checklist item scope.
+
 ## Model/Mode Guidance
 - **Model**: auto
 - **Effort**: standard

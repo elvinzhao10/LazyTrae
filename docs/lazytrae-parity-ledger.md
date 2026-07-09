@@ -112,12 +112,12 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| 7.1 | Role-based model profiles | `lazycodex/plugins/omo/model-catalog.json` (roles section) | Different models for different roles | Routing config | `.lazytrae/config.json` (routing section) | DESIGN |
-| 7.2 | Default model profile | `lazycodex/plugins/omo/model-catalog.json` (line 4: gpt-5.5, high reasoning) | Baseline model for most tasks | Trae Auto mode | Native Trae | DESIGN |
-| 7.3 | Plan mode profile | `lazycodex/plugins/omo/model-catalog.json` (line 7: xhigh reasoning) | Strong reasoning for planning | Trae Max mode | Native Trae | DESIGN |
-| 7.4 | Worker model profile | `lazycodex/plugins/omo/model-catalog.json` (line 17) | Fast capable coding model | Trae Auto mode | Native Trae | DESIGN |
-| 7.5 | Verifier model profile | `lazycodex/plugins/omo/model-catalog.json` (line 13) | Oracle model for judgment | Trae Max mode | Native Trae | DESIGN |
-| 7.6 | Agent TOML model field | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` (line 4: model = "gpt-5.4-mini") | Per-agent model selection | Agent prompt routing hints | `.trae/agents/*.md` | DESIGN |
+| 7.1 | Role-based model profiles | `lazycodex/plugins/omo/model-catalog.json` (roles section) | Different models for different roles | Routing config | `.lazytrae/config.json` (routing section) | COMPLETE |
+| 7.2 | Default model profile | `lazycodex/plugins/omo/model-catalog.json` (line 4: gpt-5.5, high reasoning) | Baseline model for most tasks | Trae Auto mode | Native Trae | COMPLETE |
+| 7.3 | Plan mode profile | `lazycodex/plugins/omo/model-catalog.json` (line 7: xhigh reasoning) | Strong reasoning for planning | Trae Max mode | Native Trae | COMPLETE |
+| 7.4 | Worker model profile | `lazycodex/plugins/omo/model-catalog.json` (line 17) | Fast capable coding model | Trae Auto mode | Native Trae | COMPLETE |
+| 7.5 | Verifier model profile | `lazycodex/plugins/omo/model-catalog.json` (line 13) | Oracle model for judgment | Trae Max mode | Native Trae | COMPLETE |
+| 7.6 | Agent TOML model field | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` (line 4: model = "gpt-5.4-mini") | Per-agent model selection | Agent prompt routing hints | `.trae/agents/*.md` | COMPLETE |
 | 7.7 | Managed profiles | `lazycodex/plugins/omo/model-catalog.json` (managedProfiles array) | Legacy profile compatibility | Not applicable | — | N/A |
 
 ## 8. Skills (Shared)
@@ -192,15 +192,15 @@
 | State Management | 15 | 15 | 0 | 0 | 0 | 0 |
 | Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
 | MCP Servers | 6 | 4 | 0 | 2 | 0 | 0 |
-| Model Routing | 7 | 0 | 6 | 0 | 0 | 1 |
+| Model Routing | 7 | 6 | 0 | 0 | 0 | 1 |
 | Skills (Shared) | 22 | 13 | 2 | 1 | 6 | 0 |
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 0 | 1 |
 | Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
-| **TOTAL** | **118** | **91** | **10** | **7** | **6** | **4** |
+| **TOTAL** | **118** | **97** | **4** | **7** | **6** | **4** |
 
-**Coverage**: 91/118 (77.1%) are COMPLETE. 10/118 (8.5%) have concrete Trae-native designs.
-- 91 items COMPLETE: 9 core commands + 11 agent roles + 11 hooks + 15 state management + 7 verification gates + 4 MCP servers + 13 skills + 14 ultrawork core + 7 rules component.
-- v0.9 completed: 14 items (ultrawork/ulw-loop core: directive, tier triage, manual-QA, iteration cap, goal mode, aggregate completion, plan creation, start goal, goal completion, steering, CLI arg parser, CLI commands, CLI output, review blockers). Full execution loop with 10 states, 13-step cycle, NDJSON event log, .omo mirror, CLI loop command, verifier/reviewer/failure-recovery docs, loop simulation evidence.
+**Coverage**: 97/118 (82.2%) are COMPLETE. 4/118 (3.4%) have concrete Trae-native designs.
+- 97 items COMPLETE: 9 core commands + 11 agent roles + 11 hooks + 15 state management + 7 verification gates + 4 MCP servers + 6 model routing + 13 skills + 14 ultrawork core + 7 rules component.
+- v0.10 completed: 6 items (model routing: role-based profiles, default/plan/worker/verifier profiles, agent TOML model field → agent prompt routing hints; config routing section with 6 categories; model routing reference doc; CLI run command with graceful degradation).
 
 ## References
 

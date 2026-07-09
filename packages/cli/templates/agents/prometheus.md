@@ -90,6 +90,11 @@ Strategic planning consultant that produces a single executable work plan from a
 - **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase for symbol-level queries during context gathering.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
+## Model Routing
+- **Default category**: deep
+- **Recommended Trae mode**: Max
+- **Escalate to ultrabrain**: When requirements are ambiguous, contradictory, or involve cross-domain trade-offs needing the strongest reasoning.
+
 ## Model/Mode Guidance
 - **Model**: max (LazyCodex plan.toml uses `gpt-5.5` with `xhigh` effort)
 - **Effort**: xhigh
