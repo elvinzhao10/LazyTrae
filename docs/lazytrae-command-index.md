@@ -174,10 +174,11 @@
 | MCP Servers | 6 | 4 | 0 | 2 | 0 | 0 |
 | Model Routing | 7 | 0 | 6 | 0 | 0 | 1 |
 | Skills (Shared) | 22 | 13 | 2 | 1 | 6 | 0 |
+| Ultrawork/ulw-loop Core | 15 | 0 | 0 | 0 | 0 | 15 |
 | Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
-| **TOTAL** | **103** | **77** | **10** | **7** | **6** | **3** |
+| **TOTAL** | **118** | **77** | **10** | **7** | **6** | **18** |
 
-**Coverage**: 77/103 items COMPLETE. 6 completed in v0.8 (4 MCP config entries + 1 LazyTrae state MCP server + 1 MCP config template). MCP server package at `packages/mcp/` with 9 tools; CLI `mcp` command delegates to it; `.trae/mcp.json` with 9 server entries; `docs/lazytrae-mcp-reference.md`; doctor check for MCP server.
+**Coverage**: 77/118 items COMPLETE. 6 completed in v0.8 (4 MCP config entries + 1 LazyTrae state MCP server + 1 MCP config template). MCP server package at `packages/mcp/` with 9 tools; CLI `mcp` command delegates to it; `.trae/mcp.json` with 9 server entries; `docs/lazytrae-mcp-reference.md`; doctor check for MCP server.
 
 ## References
 

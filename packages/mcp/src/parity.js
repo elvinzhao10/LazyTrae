@@ -46,7 +46,7 @@ function getParityStatus(repoRoot) {
   // Format: | Category | Total | DESIGN | GAP | DEFERRED | N/A | COMPLETE |
   // We need to parse individual category rows and the TOTAL row
   const categories = [];
-  const rowRe = /\|\s*\*{0,2}([A-Za-z/\s-]+?)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|/g;
+  const rowRe = /\|\s*\*{0,2}([A-Za-z/\s()\-]+?)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|/g;
   let match;
   while ((match = rowRe.exec(content)) !== null) {
     const name = match[1].trim();
