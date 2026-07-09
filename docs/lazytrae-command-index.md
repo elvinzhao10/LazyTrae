@@ -170,12 +170,12 @@
 | Verification Gates | 7 | 0 | 7 | 0 | 0 | 0 |
 | MCP Servers | 6 | 0 | 4 | 2 | 0 | 0 |
 | Model Routing | 7 | 0 | 6 | 0 | 0 | 1 |
-| Skills (Shared) | 19 | 1 | 11 | 1 | 5 | 1 |
+| Skills (Shared) | 19 | 1 | 11 | 1 | 6 | 0 |
 | Rules Component | 10 | 1 | 7 | 1 | 0 | 1 |
-| **TOTAL** | **100** | **2** | **82** | **7** | **5** | **4** |
+| **TOTAL** | **100** | **2** | **82** | **7** | **6** | **3** |
 
 **Coverage**: 2/100 items COMPLETE in v0.2 (static rule injection, rules skill).
-82 items have concrete Trae-native designs. 7 GAP items have documented substitutes. 5 DEFERRED items are non-core skills. 4 N/A items are platform-specific.
+82 items have concrete Trae-native designs. 7 GAP items have documented substitutes. 6 DEFERRED items are non-core skills. 3 N/A items are platform-specific.
 
 ## References
 

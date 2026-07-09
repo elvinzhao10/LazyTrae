@@ -190,13 +190,13 @@
 | Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
 | MCP Servers | 6 | 4 | 2 | 0 | 0 | 0 |
 | Model Routing | 7 | 6 | 0 | 0 | 1 | 0 |
-| Skills (Shared) | 19 | 11 | 1 | 4 | 1 | 2 |
+| Skills (Shared) | 19 | 11 | 1 | 6 | 0 | 1 |
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 1 | 0 |
 | Rules Component | 10 | 7 | 1 | 0 | 1 | 1 |
-| **TOTAL** | **115** | **96** | **7** | **4** | **5** | **3** |
+| **TOTAL** | **115** | **96** | **7** | **6** | **4** | **2** |
 
-**Coverage**: 99/115 (86.1%) have concrete Trae-native designs.
-- 3 items COMPLETE in v0.2 (static rule injection, rules skill).
+**Coverage**: 96/115 (83.5%) have concrete Trae-native designs.
+- 2 items COMPLETE in v0.2 (static rule injection, rules skill).
 
 ## References
 
