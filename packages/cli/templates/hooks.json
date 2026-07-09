@@ -1,0 +1,43 @@
+{
+  "hooks": {
+    "SessionStart": {
+      "description": "LazyTrae SessionStart hook — rules loading, state check",
+      "script": ".trae/hooks/session-start.sh",
+      "status": "design",
+      "version": "v0.7"
+    },
+    "UserPromptSubmit": {
+      "description": "LazyTrae UserPromptSubmit hook — rules re-injection, trigger detection",
+      "script": ".trae/hooks/user-prompt-submit.sh",
+      "status": "design",
+      "version": "v0.7"
+    },
+    "PreToolUse": {
+      "description": "LazyTrae PreToolUse hook — git bash guidance, budget protection",
+      "script": ".trae/hooks/pre-tool-use.sh",
+      "status": "design",
+      "version": "v0.7"
+    },
+    "PostToolUse": {
+      "description": "LazyTrae PostToolUse hook — comment checker, rule matching",
+      "script": ".trae/hooks/post-tool-use.sh",
+      "status": "design",
+      "version": "v0.7"
+    },
+    "Stop": {
+      "description": "LazyTrae Stop hook — start-work continuation, evidence verification",
+      "script": ".trae/hooks/stop.sh",
+      "status": "design",
+      "version": "v0.7"
+    },
+    "Notification": {
+      "description": "LazyTrae Notification hook",
+      "script": ".trae/hooks/notification.sh",
+      "status": "design",
+      "version": "v0.7"
+    }
+  },
+  "lazytrae": {
+    "note": "LazyTrae hooks configuration. Hook scripts will be implemented in v0.7. See docs/lazytrae-architecture-plan.md §2.5 for details."
+  }
+}

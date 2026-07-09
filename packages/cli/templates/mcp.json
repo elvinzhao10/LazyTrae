@@ -1,0 +1,6 @@
+{
+  "mcpServers": {},
+  "lazytrae": {
+    "note": "LazyTrae MCP configuration. Add MCP servers here for v0.8. See docs/lazytrae-architecture-plan.md §2.6 for details."
+  }
+}

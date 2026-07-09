@@ -62,8 +62,8 @@
 | 3.12 | Codegraph init hook | `lazycodex/plugins/omo/components/codegraph/src/hook.ts` | Initialize code graph on session start | Optional external tool | — | GAP |
 | 3.13 | Rules dynamic matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Match rules to changed files after edits | Hook-based PostToolUse extraction | `.trae/hooks/post-tool-use.sh` | DESIGN |
 | 3.14 | Telemetry hook | `lazycodex/plugins/omo/components/telemetry/src/codex-hook.ts` | PostHog-based telemetry | Not ported | — | N/A |
-| 3.15 | Auto-update hook | `lazycodex/plugins/omo/components/bootstrap/src/hook.ts` | Check for plugin updates | `lazytrae sync` | `packages/cli/src/commands/sync.ts` | DESIGN |
-| 3.16 | Bootstrap provisioning | `lazycodex/plugins/omo/components/bootstrap/src/provision.ts` | Provision plugin environment | `lazytrae init` | `packages/cli/src/commands/init.ts` | DESIGN |
+| 3.15 | Auto-update hook | `lazycodex/plugins/omo/components/bootstrap/src/hook.ts` | Check for plugin updates | `lazytrae sync` | `packages/cli/src/commands/sync.js` | COMPLETE |
+| 3.16 | Bootstrap provisioning | `lazycodex/plugins/omo/components/bootstrap/src/provision.ts` | Provision plugin environment | `lazytrae init` | `packages/cli/src/commands/init.js` | COMPLETE |
 
 ## 4. State Management
 
@@ -135,7 +135,7 @@
 | 8.9 | frontend skill | `lazycodex/plugins/omo/skills/frontend/SKILL.md` (inferred from shared skills) | Frontend-specific guidance | Not separately ported; embedded in start-work | — | DEFERRED |
 | 8.10 | git-master skill | `lazycodex/plugins/omo/skills/git-master/SKILL.md` (inferred from shared skills) | Git workflow guidance | Not separately ported; embedded in start-work | — | DEFERRED |
 | 8.11 | comment-checker skill | `lazycodex/plugins/omo/skills/comment-checker/SKILL.md` (inferred from shared skills) | Comment checking guidance | Optional in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | DESIGN |
-| 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` (inferred from shared skills) | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.ts` | DESIGN |
+| 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` (inferred from shared skills) | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.js` | COMPLETE |
 | 8.13 | lcx-report-bug skill | `lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` (inferred from shared skills) | Bug reporting | Not ported | — | DEFERRED |
 | 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` (inferred from shared skills) | Structural code search | Optional external tool | — | DEFERRED |
 | 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` (inferred from shared skills) | Session management guidance | Session tracking | `.lazytrae/state/sessions.json` | DESIGN |
@@ -188,19 +188,19 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | Core Commands | 9 | 0 | 0 | 0 | 0 | 9 |
 | Agent Roles | 11 | 0 | 0 | 0 | 0 | 11 |
-| Hooks | 16 | 12 | 3 | 0 | 1 | 0 |
+| Hooks | 16 | 10 | 3 | 0 | 1 | 2 |
 | State Management | 15 | 0 | 0 | 0 | 0 | 15 |
 | Verification Gates | 7 | 0 | 0 | 0 | 0 | 7 |
 | MCP Servers | 6 | 4 | 2 | 0 | 0 | 0 |
 | Model Routing | 7 | 6 | 0 | 0 | 1 | 0 |
-| Skills (Shared) | 22 | 4 | 1 | 6 | 0 | 11 |
+| Skills (Shared) | 22 | 3 | 1 | 6 | 0 | 12 |
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 1 | 0 |
 | Rules Component | 10 | 7 | 1 | 0 | 1 | 1 |
-| **TOTAL** | **118** | **47** | **7** | **6** | **4** | **54** |
+| **TOTAL** | **118** | **44** | **7** | **6** | **4** | **57** |
 
-**Coverage**: 54/118 (45.8%) are COMPLETE. 47/118 (39.8%) have concrete Trae-native designs.
-- 54 items COMPLETE: 9 core commands + 11 agent roles + 15 state management + 7 verification gates + 11 skills + 1 rules component.
-- v0.5 completed: 15 state management items + 7 verification gate items.
+**Coverage**: 57/118 (48.3%) are COMPLETE. 44/118 (37.3%) have concrete Trae-native designs.
+- 57 items COMPLETE: 9 core commands + 11 agent roles + 2 hooks + 15 state management + 7 verification gates + 12 skills + 1 rules component.
+- v0.6 completed: 3 items (auto-update hook, bootstrap provisioning, lcx-doctor).
 
 ## References
 

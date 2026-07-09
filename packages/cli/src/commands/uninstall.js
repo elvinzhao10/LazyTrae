@@ -1,0 +1,155 @@
+const fs = require('fs');
+const path = require('path');
+const { removeAllBlocks } = require('../lib/managed-blocks');
+
+function detectRepoRoot() {
+  let dir = process.cwd();
+  while (dir !== path.dirname(dir)) {
+    if (fs.existsSync(path.join(dir, '.git'))) return dir;
+    dir = path.dirname(dir);
+  }
+  return process.cwd();
+}
+
+function rimraf(dirPath) {
+  if (!fs.existsSync(dirPath)) return;
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      rimraf(fullPath);
+    } else {
+      fs.unlinkSync(fullPath);
+    }
+  }
+  fs.rmdirSync(dirPath);
+}
+
+function run(args) {
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(`Usage: lazytrae uninstall [options]
+
+Remove LazyTrae from the current repo.
+
+Options:
+  --help, -h       Show this help message
+  --yes, -y        Skip confirmation prompt
+  --soft           Only remove managed files (preserve .lazytrae/ and .omo/)
+  --purge-state    Remove everything including plans/evidence
+`);
+    return;
+  }
+
+  const yes = args.includes('--yes') || args.includes('-y');
+  const soft = args.includes('--soft');
+  const purgeState = args.includes('--purge-state');
+
+  if (!yes) {
+    console.log('This will remove LazyTrae from the current repo.');
+    if (soft) console.log('Mode: --soft (preserve .lazytrae/ and .omo/)');
+    if (purgeState) console.log('Mode: --purge-state (remove everything)');
+    console.log('Are you sure? Run with --yes to confirm.');
+    process.exit(0);
+  }
+
+  const repoRoot = detectRepoRoot();
+  const summary = { removed: [], preserved: [] };
+
+  console.log(`LazyTrae uninstall v0.6.0`);
+  console.log(`Repo root: ${repoRoot}\n`);
+
+  // Remove .trae/ directory
+  const traeDir = path.join(repoRoot, '.trae');
+  if (fs.existsSync(traeDir)) {
+    rimraf(traeDir);
+    summary.removed.push('.trae/');
+  }
+
+  if (soft) {
+    summary.preserved.push('.lazytrae/ (--soft)');
+    summary.preserved.push('.omo/ (--soft)');
+  } else {
+    // Remove .lazytrae/ directory
+    const lazytraeDir = path.join(repoRoot, '.lazytrae');
+    if (fs.existsSync(lazytraeDir)) {
+      if (purgeState) {
+        rimraf(lazytraeDir);
+        summary.removed.push('.lazytrae/ (including state/evidence)');
+      } else {
+        // Preserve evidence and state by default
+        const evidenceDir = path.join(lazytraeDir, 'evidence');
+        const stateDir = path.join(lazytraeDir, 'state');
+        if (fs.existsSync(evidenceDir)) summary.preserved.push('.lazytrae/evidence/');
+        if (fs.existsSync(stateDir)) summary.preserved.push('.lazytrae/state/');
+
+        // Remove everything else
+        const entries = fs.readdirSync(lazytraeDir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.name === 'evidence' || entry.name === 'state') continue;
+          const fullPath = path.join(lazytraeDir, entry.name);
+          if (entry.isDirectory()) rimraf(fullPath);
+          else fs.unlinkSync(fullPath);
+        }
+        summary.removed.push('.lazytrae/ (evidence/state preserved)');
+      }
+    }
+
+    // Remove .omo/ directory
+    const omoDir = path.join(repoRoot, '.omo');
+    if (fs.existsSync(omoDir)) {
+      if (purgeState) {
+        rimraf(omoDir);
+        summary.removed.push('.omo/ (including plans)');
+      } else {
+        const plansDir = path.join(omoDir, 'plans');
+        if (fs.existsSync(plansDir)) summary.preserved.push('.omo/plans/');
+        rimraf(omoDir);
+        summary.removed.push('.omo/ (plans preserved)');
+      }
+    }
+  }
+
+  // Remove managed blocks from AGENTS.md
+  const agentsPath = path.join(repoRoot, 'AGENTS.md');
+  if (fs.existsSync(agentsPath)) {
+    let content = fs.readFileSync(agentsPath, 'utf-8');
+    const newContent = removeAllBlocks(content);
+    if (newContent !== content) {
+      fs.writeFileSync(agentsPath, newContent, 'utf-8');
+      summary.removed.push('AGENTS.md managed blocks');
+    } else {
+      summary.preserved.push('AGENTS.md (no managed blocks)');
+    }
+  }
+
+  // Remove .gitignore entries
+  const gitignorePath = path.join(repoRoot, '.gitignore');
+  if (fs.existsSync(gitignorePath)) {
+    let content = fs.readFileSync(gitignorePath, 'utf-8');
+    const marker = '# LazyTrae runtime';
+    const idx = content.indexOf(marker);
+    if (idx !== -1) {
+      // Find the end of the LazyTrae section
+      let endIdx = content.indexOf('\n\n', idx);
+      if (endIdx === -1) endIdx = content.length;
+      content = content.substring(0, idx).trimEnd() + '\n' + content.substring(endIdx);
+      content = content.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
+      fs.writeFileSync(gitignorePath, content, 'utf-8');
+      summary.removed.push('.gitignore LazyTrae entries');
+    }
+  }
+
+  // Print summary
+  console.log('=== Uninstall Summary ===\n');
+  if (summary.removed.length > 0) {
+    console.log('Removed:');
+    summary.removed.forEach(s => console.log(`  - ${s}`));
+  }
+  if (summary.preserved.length > 0) {
+    console.log('\nPreserved:');
+    summary.preserved.forEach(s => console.log(`  + ${s}`));
+  }
+  console.log('\nDone.');
+}
+
+module.exports = { run };

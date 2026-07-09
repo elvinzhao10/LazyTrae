@@ -62,8 +62,8 @@
 | 3.12 | Codegraph init hook | `lazycodex/plugins/omo/components/codegraph/src/hook.ts` | Initialize code graph on session start | Optional external tool | — | GAP | v0.8 |
 | 3.13 | Rules dynamic matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Match rules to changed files after edits | Hook-based PostToolUse extraction | `.trae/hooks/post-tool-use.sh` | DESIGN | v0.7 |
 | 3.14 | Telemetry hook | `lazycodex/plugins/omo/components/telemetry/src/codex-hook.ts` | PostHog-based telemetry | Not ported | — | N/A | — |
-| 3.15 | Auto-update hook | `lazycodex/plugins/omo/components/bootstrap/src/hook.ts` | Check for plugin updates | `lazytrae sync` | `packages/cli/src/commands/sync.ts` | DESIGN | v0.6 |
-| 3.16 | Bootstrap provisioning | `lazycodex/plugins/omo/components/bootstrap/src/provision.ts` | Provision plugin environment | `lazytrae init` | `packages/cli/src/commands/init.ts` | DESIGN | v0.6 |
+| 3.15 | Auto-update hook | `lazycodex/plugins/omo/components/bootstrap/src/hook.ts` | Check for plugin updates | `lazytrae sync` | `packages/cli/src/commands/sync.ts` | COMPLETE | v0.6 |
+| 3.16 | Bootstrap provisioning | `lazycodex/plugins/omo/components/bootstrap/src/provision.ts` | Provision plugin environment | `lazytrae init` | `packages/cli/src/commands/init.ts` | COMPLETE | v0.6 |
 
 ## 4. State Management
 
@@ -135,7 +135,7 @@
 | 8.9 | frontend skill | `lazycodex/plugins/omo/skills/frontend/SKILL.md` | Frontend-specific guidance | Embedded in start-work | — | DEFERRED | — |
 | 8.10 | git-master skill | `lazycodex/plugins/omo/skills/git-master/SKILL.md` | Git workflow guidance | Embedded in start-work | — | DEFERRED | — |
 | 8.11 | comment-checker skill | `lazycodex/plugins/omo/skills/comment-checker/SKILL.md` | Comment checking guidance | Optional in post-tool-use hook | `.trae/hooks/post-tool-use.sh` | DESIGN | v0.7 |
-| 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.ts` | DESIGN | v0.6 |
+| 8.12 | lcx-doctor skill | `lazycodex/plugins/omo/skills/lcx-doctor/SKILL.md` | LazyCodex health check | `lazytrae doctor` | `packages/cli/src/commands/doctor.ts` | COMPLETE | v0.6 |
 | 8.13 | lcx-report-bug skill | `lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` | Bug reporting | Not ported | — | DEFERRED | — |
 | 8.14 | ast-grep skill | `lazycodex/plugins/omo/skills/ast-grep/SKILL.md` | Structural code search | Optional external tool | — | DEFERRED | — |
 | 8.15 | coding-agent-sessions skill | `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` | Session management guidance | Session tracking | `.lazytrae/state/sessions.json` | DESIGN | v0.5 |
@@ -168,17 +168,16 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | Core Commands | 9 | 9 | 0 | 0 | 0 | 0 |
 | Agent Roles | 11 | 11 | 0 | 0 | 0 | 0 |
-| Hooks | 16 | 0 | 12 | 3 | 0 | 1 |
+| Hooks | 16 | 2 | 10 | 3 | 0 | 1 |
 | State Management | 15 | 15 | 0 | 0 | 0 | 0 |
 | Verification Gates | 7 | 7 | 0 | 0 | 0 | 0 |
 | MCP Servers | 6 | 0 | 4 | 2 | 0 | 0 |
 | Model Routing | 7 | 0 | 6 | 0 | 0 | 1 |
-| Skills (Shared) | 22 | 11 | 4 | 1 | 6 | 0 |
+| Skills (Shared) | 22 | 12 | 3 | 1 | 6 | 0 |
 | Rules Component | 10 | 1 | 7 | 1 | 0 | 1 |
-| **TOTAL** | **103** | **54** | **33** | **7** | **6** | **3** |
+| **TOTAL** | **103** | **57** | **30** | **7** | **6** | **3** |
 
-**Coverage**: 54/103 items COMPLETE. 15 completed in v0.5 (state management + verification gates), 11 completed in v0.4 (agent roles), 11 completed in v0.3 (skills), 9 completed in v0.3 (core commands), 1 completed in v0.2 (rules).
-33 items have concrete Trae-native designs. 7 GAP items have documented substitutes. 6 DEFERRED items are non-core skills. 3 N/A items are platform-specific.
+**Coverage**: 57/103 items COMPLETE. 3 completed in v0.6 (auto-update hook, bootstrap provisioning, lcx-doctor).
 
 ## References
 

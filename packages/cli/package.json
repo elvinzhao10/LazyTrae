@@ -1,0 +1,39 @@
+{
+  "name": "lazytrae-ai",
+  "version": "0.6.0",
+  "description": "LazyTrae CLI installer and doctor — Trae-native LazyCodex/OmO workflows",
+  "main": "src/index.js",
+  "bin": {
+    "lazytrae-ai": "src/index.js",
+    "lazytrae": "src/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "lazytrae",
+    "lazycodex",
+    "omo",
+    "ultrawork",
+    "ulw-loop",
+    "workflow",
+    "ai",
+    "trae"
+  ],
+  "author": "LazyTrae Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lazytrae-ai/lazytrae.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lazytrae-ai/lazytrae/issues"
+  },
+  "homepage": "https://github.com/lazytrae-ai/lazytrae#readme",
+  "dependencies": {
+    "ajv": "^8.12.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
