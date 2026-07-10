@@ -160,7 +160,7 @@ Options:
       addResult('AGENTS.md managed blocks', 'FAIL', `Missing: ${missing.join(', ')}`);
     }
   } else {
-    addResult('AGENTS.md', 'FAIL', 'Not found');
+    addResult('AGENTS.md', 'WARN', 'Not present (README is the onboarding guide)');
   }
 
   // Schema validation
