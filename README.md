@@ -6,11 +6,14 @@ LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning �
 
 > **Setup?** See [AGENTS.md](AGENTS.md) (the setup guide). This README is about **how to use** the harness once installed.
 
-## Start with AI
+## Onboard with AI
 
-Open this repository in Trae and ask:
+1. Copy or clone [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae) into a local folder.
+2. Open that folder in your Trae host and type `onboard`.
 
-> Read `AGENTS.md`. I am using **Trae IDE**, **Trae Work**, or **Trae CLI**. Guide me through only that host's setup, verify each step, and stop before changing any account or app setting. For Trae Work, remind me to add the LazyTrae MCP server manually in Settings → MCP.
+The agent reads `AGENTS.md`, asks which installed version you are using (**Trae IDE**, **Trae Work**, or **Trae CLI**), then performs the matching safe setup steps. It reports what it started and configured, verifies the expected result, and gives exact manual directions for anything it cannot perform. For Trae Work, it reminds you to add the LazyTrae MCP server manually in **Settings → MCP**.
+
+After onboarding, you can delete the copied repository if you only needed the installed setup, or keep it to explore and study how LazyTrae works.
 
 ## Commands
 

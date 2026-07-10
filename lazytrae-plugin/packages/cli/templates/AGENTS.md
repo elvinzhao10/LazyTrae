@@ -4,6 +4,16 @@
 
 LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supports Trae IDE, Trae Work, and Trae CLI; the `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
 
+## `onboard` protocol
+
+When the user types `onboard`:
+
+1. Read this guide and ask which installed host/version they are using: **Trae IDE**, **Trae Work**, or **Trae CLI**.
+2. Follow only that host's setup path. Perform safe repository and CLI steps automatically.
+3. Report each completed action and its observed result, including the final verification output.
+4. Stop before account, marketplace, model, or app-setting changes. Give exact manual directions for those steps. For Trae Work, manual **Settings → MCP** registration is required.
+5. End by explaining that the copied repository can be deleted after installation, or retained to explore and study the project.
+
 ## Step 0 — Which platform are you on?
 
 | Platform | Skills | Commands | Rules / Agents / Hooks | MCP server |
@@ -18,9 +28,7 @@ LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supp
 
 ## Step A — Install
 
-**Option A — let an agent install it (recommended).** Open this repo in your Trae surface and paste:
-
-> Install LazyTrae from `lazytrae-plugin/`. Copy `.trae/` (rules, skills, commands, agents, hooks) and `.lazytrae/` (schemas, config) into my project, wire `.trae/mcp.json`, then run `lazytrae doctor` to verify.
+**Option A — AI onboarding (recommended).** Open the copied repository in your Trae surface and type `onboard`.
 
 **Option B — manual CLI install:**
 ```bash
