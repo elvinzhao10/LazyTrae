@@ -82,15 +82,15 @@ Trae does not have a PostCompact hook event. LazyCodex uses PostCompact for cach
 | Entry point | `lazycodex/bin/lazycodex-ai.js` |
 | Plugin root | `lazycodex/plugins/omo/` |
 | Components | `lazycodex/plugins/omo/components/` |
-| Agent roles | `lazycodex/plugins/omo/components/ultrawork/agents/*.toml` |
+| Agent roles | `lazycodex/plugins/omo/components/lazy-ultrawork/agents/*.toml` |
 | Hooks | `lazycodex/plugins/omo/components/*/hooks/hooks.json` |
 | Skills | `lazycodex/plugins/omo/components/*/skills/*/SKILL.md` |
 | Shared skills | `lazycodex/plugins/omo/skills/*/SKILL.md` |
 | MCP config | `lazycodex/plugins/omo/.mcp.json` |
 | Model catalog | `lazycodex/plugins/omo/model-catalog.json` |
 | Web docs | `lazycodex/packages/web/content/docs/*.md` |
-| ulw-loop source | `lazycodex/plugins/omo/components/ulw-loop/src/` |
-| ultrawork source | `lazycodex/plugins/omo/components/ultrawork/src/` |
+| ulw-loop source | `lazycodex/plugins/omo/components/lazy-ulw-loop/src/` |
+| ultrawork source | `lazycodex/plugins/omo/components/lazy-ultrawork/src/` |
 | rules source | `lazycodex/plugins/omo/components/rules/src/` |
 
 ## Quick Reference: LazyTrae Docs
@@ -226,25 +226,25 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 
 | # | LazyCodex Method | LazyCodex Source | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `$init-deep` | `lazycodex/packages/web/content/docs/init-deep.md` | init-deep command + skill | `.trae/commands/init-deep.md`, `.trae/skills/init-deep/SKILL.md` | COMPLETE | v0.3 |
-| 2 | `$ulw-plan` | `lazycodex/packages/web/content/docs/ulw-plan.md` | ulw-plan command + skill + Prometheus agent | `.trae/commands/ulw-plan.md`, `.trae/skills/ulw-plan/SKILL.md`, `.trae/agents/prometheus.md` | COMPLETE | v0.3 |
-| 3 | `$start-work` | `lazycodex/packages/web/content/docs/start-work.md` | start-work command + skill + Atlas agent | `.trae/commands/start-work.md`, `.trae/skills/start-work/SKILL.md`, `.trae/agents/atlas.md` | COMPLETE | v0.3 |
-| 4 | `$ulw-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` | ulw-loop command + skill + loop state machine | `.trae/commands/ulw-loop.md`, `.trae/skills/ulw-loop/SKILL.md`, `.lazytrae/state/active-loop.json` | COMPLETE | v0.3 |
-| 5 | `$ralph-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` (alias) | ralph-loop command | `.trae/commands/ralph-loop.md` | COMPLETE | v0.3 |
-| 6 | `/stop-continuation` | `lazycodex/packages/web/content/docs/` (referenced) | stop-continuation command + CLI | `.trae/commands/stop-continuation.md`, `lazytrae loop cancel` | COMPLETE | v0.3 |
-| 7 | `/handoff` | `lazycodex/packages/web/content/docs/` (referenced) | handoff command + CLI | `.trae/commands/handoff.md`, `lazytrae handoff` | COMPLETE | v0.3 |
-| 8 | `review-work` | `lazycodex/packages/web/content/docs/` (referenced) | review-work command + reviewer skill + Oracle agent | `.trae/commands/review-work.md`, `.trae/skills/reviewer/SKILL.md`, `.trae/agents/oracle.md` | COMPLETE | v0.3 |
-| 9 | `remove-ai-slops` | `lazycodex/packages/web/content/docs/` (referenced) | remove-ai-slops command + skill + Cleaner agent | `.trae/commands/remove-ai-slops.md`, `.trae/skills/remove-ai-slops/SKILL.md`, `.trae/agents/cleaner.md` | COMPLETE | v0.3 |
+| 1 | `$init-deep` | `lazycodex/packages/web/content/docs/lazy-init-deep.md` | init-deep command + skill | `.trae/commands/lazy-init-deep.md`, `.trae/skills/lazy-init-deep/SKILL.md` | COMPLETE | v0.3 |
+| 2 | `$ulw-plan` | `lazycodex/packages/web/content/docs/lazy-ulw-plan.md` | ulw-plan command + skill + Prometheus agent | `.trae/commands/lazy-ulw-plan.md`, `.trae/skills/lazy-ulw-plan/SKILL.md`, `.trae/agents/prometheus.md` | COMPLETE | v0.3 |
+| 3 | `$start-work` | `lazycodex/packages/web/content/docs/lazy-start-work.md` | start-work command + skill + Atlas agent | `.trae/commands/lazy-start-work.md`, `.trae/skills/lazy-start-work/SKILL.md`, `.trae/agents/atlas.md` | COMPLETE | v0.3 |
+| 4 | `$ulw-loop` | `lazycodex/packages/web/content/docs/lazy-ulw-loop.md` | ulw-loop command + skill + loop state machine | `.trae/commands/lazy-ulw-loop.md`, `.trae/skills/lazy-ulw-loop/SKILL.md`, `.lazytrae/state/active-loop.json` | COMPLETE | v0.3 |
+| 5 | `$ralph-loop` | `lazycodex/packages/web/content/docs/lazy-ulw-loop.md` (alias) | ralph-loop command | `.trae/commands/lazy-ralph-loop.md` | COMPLETE | v0.3 |
+| 6 | `/lazy-stop-continuation` | `lazycodex/packages/web/content/docs/` (referenced) | stop-continuation command + CLI | `.trae/commands/lazy-stop-continuation.md`, `lazytrae loop cancel` | COMPLETE | v0.3 |
+| 7 | `/lazy-handoff` | `lazycodex/packages/web/content/docs/` (referenced) | handoff command + CLI | `.trae/commands/lazy-handoff.md`, `lazytrae handoff` | COMPLETE | v0.3 |
+| 8 | `review-work` | `lazycodex/packages/web/content/docs/` (referenced) | review-work command + reviewer skill + Oracle agent | `.trae/commands/lazy-review-work.md`, `.trae/skills/lazy-reviewer/SKILL.md`, `.trae/agents/oracle.md` | COMPLETE | v0.3 |
+| 9 | `remove-ai-slops` | `lazycodex/packages/web/content/docs/` (referenced) | remove-ai-slops command + skill + Cleaner agent | `.trae/commands/lazy-remove-ai-slops.md`, `.trae/skills/lazy-remove-ai-slops/SKILL.md`, `.trae/agents/cleaner.md` | COMPLETE | v0.3 |
 
 ### Agent Roles
 
 | # | Role | LazyCodex Source | LazyTrae Agent | Status | Version |
 | --- | --- | --- | --- | --- | --- |
-| 10 | Explorer | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` | `.trae/agents/explorer.md` | COMPLETE | v0.4 |
-| 11 | Librarian | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | `.trae/agents/librarian.md` + skill | COMPLETE | v0.4 |
-| 12 | Plan (Prometheus) | `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml` | `.trae/agents/prometheus.md` | COMPLETE | v0.4 |
-| 13 | Metis | `lazycodex/plugins/omo/components/ultrawork/agents/metis.toml` | `.trae/agents/metis.md` | COMPLETE | v0.4 |
-| 14 | Momus | `lazycodex/plugins/omo/components/ultrawork/agents/momus.toml` | `.trae/agents/momus.md` | COMPLETE | v0.4 |
+| 10 | Explorer | `lazycodex/plugins/omo/components/lazy-ultrawork/agents/explorer.toml` | `.trae/agents/explorer.md` | COMPLETE | v0.4 |
+| 11 | Librarian | `lazycodex/plugins/omo/components/lazy-ultrawork/agents/lazy-librarian.toml` | `.trae/agents/lazy-librarian.md` + skill | COMPLETE | v0.4 |
+| 12 | Plan (Prometheus) | `lazycodex/plugins/omo/components/lazy-ultrawork/agents/plan.toml` | `.trae/agents/prometheus.md` | COMPLETE | v0.4 |
+| 13 | Metis | `lazycodex/plugins/omo/components/lazy-ultrawork/agents/metis.toml` | `.trae/agents/metis.md` | COMPLETE | v0.4 |
+| 14 | Momus | `lazycodex/plugins/omo/components/lazy-ultrawork/agents/momus.toml` | `.trae/agents/momus.md` | COMPLETE | v0.4 |
 | 15 | Atlas (executor) | `lazycodex/packages/web/content/docs/discipline-agents.md` | `.trae/agents/atlas.md` | COMPLETE | v0.4 |
 | 16 | Hephaestus | `lazycodex/packages/web/content/docs/discipline-agents.md` | `.trae/agents/hephaestus.md` | COMPLETE | v0.4 |
 | 17 | Oracle (reviewer) | `lazycodex/packages/web/content/docs/discipline-agents.md` | `.trae/agents/oracle.md` | COMPLETE | v0.4 |
@@ -265,10 +265,10 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 
 | # | State | LazyCodex Source | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- |
-| 25 | Boulder state | `lazycodex/packages/web/content/docs/start-work.md` | `.lazytrae/state/boulder.json` | COMPLETE | v0.5 |
-| 26 | UlwLoop plan | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
+| 25 | Boulder state | `lazycodex/packages/web/content/docs/lazy-start-work.md` | `.lazytrae/state/boulder.json` | COMPLETE | v0.5 |
+| 26 | UlwLoop plan | `lazycodex/plugins/omo/components/lazy-ulw-loop/src/domain-types.ts` | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
 | 27 | Session tracking | `lazycodex/plugins/omo/components/rules/src/session-state-lock.ts` | `.lazytrae/state/sessions.json` | COMPLETE | v0.5 |
-| 28 | Evidence recording | `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts` | `.lazytrae/evidence/*.md` | COMPLETE | v0.5 |
+| 28 | Evidence recording | `lazycodex/plugins/omo/components/lazy-ulw-loop/src/evidence.ts` | `.lazytrae/evidence/*.md` | COMPLETE | v0.5 |
 
 ### Verification Gates
 
@@ -276,11 +276,11 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 | --- | --- | --- | --- | --- | --- |
 | 29 | Plan reread | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` | Reviewer protocol step 1 | COMPLETE | v0.5 |
 | 30 | Automated verification | `lazycodex/packages/web/content/docs/tdd.md` | `.lazytrae/evidence/test-runs.md` | COMPLETE | v0.5 |
-| 31 | Manual-QA | `lazycodex/plugins/omo/components/ultrawork/directive.md` | `.lazytrae/evidence/verifier.md` | COMPLETE | v0.5 |
-| 32 | Adversarial QA | `lazycodex/packages/web/content/docs/manual-qa.md` | `.lazytrae/evidence/reviewer.md` | COMPLETE | v0.5 |
-| 33 | Cleanup | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` | `.trae/skills/remove-ai-slops/SKILL.md` | COMPLETE | v0.3 |
-| 34 | Completion claim | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | `.lazytrae/evidence/completion.md` | COMPLETE | v0.5 |
-| 35 | Handoff summary | `lazycodex/packages/web/content/docs/` (handoff workflow) | `.lazytrae/evidence/handoff.md` | COMPLETE | v0.5 |
+| 31 | Manual-QA | `lazycodex/plugins/omo/components/lazy-ultrawork/directive.md` | `.lazytrae/evidence/lazy-verifier.md` | COMPLETE | v0.5 |
+| 32 | Adversarial QA | `lazycodex/packages/web/content/docs/manual-qa.md` | `.lazytrae/evidence/lazy-reviewer.md` | COMPLETE | v0.5 |
+| 33 | Cleanup | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` | `.trae/skills/lazy-remove-ai-slops/SKILL.md` | COMPLETE | v0.3 |
+| 34 | Completion claim | `lazycodex/plugins/omo/components/lazy-ulw-loop/src/domain-types.ts` | `.lazytrae/evidence/completion.md` | COMPLETE | v0.5 |
+| 35 | Handoff summary | `lazycodex/packages/web/content/docs/` (handoff workflow) | `.lazytrae/evidence/lazy-handoff.md` | COMPLETE | v0.5 |
 
 ### Rules Component
 
