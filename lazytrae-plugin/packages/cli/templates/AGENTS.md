@@ -10,7 +10,7 @@ LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supp
 |---|---|---|---|---|
 | **Trae IDE** | project `.trae/skills/` | project commands | project hooks | project `.trae/mcp.json` |
 | **Trae Work** | install from the Skills UI | invoke skills or natural language | CLI verification gates | project `.trae/mcp.json` or Settings UI |
-| **Trae CLI** | local project configuration | `trae` agent session + `lazytrae` gates | CLI verification gates | via `lazytrae mcp` |
+| **Trae CLI** | local project configuration | `trae-cli` agent session + `lazytrae` gates | CLI verification gates | registered with `trae-cli mcp add-json` |
 
 - **Trae IDE** → Step A, then open the project in Trae IDE.
 - **Trae Work** → Step A, then follow the Work setup in [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md).
@@ -20,7 +20,7 @@ LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supp
 
 **Option A — let an agent install it (recommended).** Open this repo in your Trae surface and paste:
 
-> Install the LazyTrae plugin from `lazytrae-plugin/`. Read the plugin manifest, copy `.trae/` (rules, skills, commands, agents, hooks) and `.lazytrae/` (schemas, config) into my project, wire `.trae/mcp.json`, then run `lazytrae doctor` to verify.
+> Install LazyTrae from `lazytrae-plugin/`. Copy `.trae/` (rules, skills, commands, agents, hooks) and `.lazytrae/` (schemas, config) into my project, wire `.trae/mcp.json`, then run `lazytrae doctor` to verify.
 
 **Option B — manual CLI install:**
 ```bash
@@ -42,11 +42,14 @@ Trae IDE automatically uses project configuration. Trae Work supports local Skil
 ## Step C — Trae CLI (no IDE)
 
 ```bash
+trae-cli                          # start a Trae CLI agent session
 lazytrae init && lazytrae doctor      # install + verify
 lazytrae verify --must-pass           # hard completion gate
 lazytrae loop status                  # long-horizon loop state
-lazytrae mcp                          # start MCP server (stdio JSON-RPC)
+trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'
 ```
+
+The final command registers the LazyTrae MCP server with Trae CLI. Run `lazytrae mcp` directly only when another MCP host launches it over stdio.
 
 ## Verify
 

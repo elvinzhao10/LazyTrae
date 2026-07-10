@@ -10,7 +10,7 @@ LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supp
 |---|---|---|---|---|
 | **Trae IDE** | project `.trae/skills/` | project commands | project hooks | project `.trae/mcp.json` |
 | **Trae Work** | install from the Skills UI | invoke skills or natural language | CLI verification gates | project `.trae/mcp.json` or Settings UI |
-| **Trae CLI** | local project configuration | `trae` agent session + `lazytrae` gates | CLI verification gates | via `lazytrae mcp` |
+| **Trae CLI** | local project configuration | `trae-cli` agent session + `lazytrae` gates | CLI verification gates | registered with `trae-cli mcp add-json` |
 
 - **Trae IDE** → Step A, then open the project in Trae IDE.
 - **Trae Work** → Step A, then follow the Work setup in [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md).
