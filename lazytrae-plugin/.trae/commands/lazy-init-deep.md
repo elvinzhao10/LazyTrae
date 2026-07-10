@@ -16,6 +16,7 @@ Triggers: `init-deep`, `initialize repo`, `generate AGENTS.md`, `understand this
 - One root AGENTS.md at the specified root.
 - Zero or more nested AGENTS.md in high-complexity directories.
 - Summary report with created files, file counts, and hierarchy.
+- Host load-check result from `lazytrae load-check --host ide|work|cli` before discovery begins.
 
 ## Success Criteria
 
@@ -24,6 +25,7 @@ Triggers: `init-deep`, `initialize repo`, `generate AGENTS.md`, `understand this
 - No generic content that applies to all projects.
 - No duplicate content from parent in child AGENTS.md.
 - All `WHERE TO LOOK` entries have correct paths.
+- The host load check passes, or a reported repair is re-checked successfully before completion.
 
 ## Linked Skill
 

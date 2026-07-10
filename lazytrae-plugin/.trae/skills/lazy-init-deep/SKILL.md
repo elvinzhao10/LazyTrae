@@ -24,22 +24,40 @@ Give agents local, scoped, telegraphic context before they touch code. A root AG
 - Git history (recent commits, branch structure).
 - Build/test/dev commands.
 
+## Mandatory host load check
+
+Before any repository discovery, identify the current host and run its status check. This is required every time `lazy-init-deep` is invoked, including an existing project:
+
+```bash
+# Trae IDE
+lazytrae load-check --host ide
+
+# Trae Work
+lazytrae load-check --host work
+
+# Trae CLI
+lazytrae load-check --host cli
+```
+
+Record the exact result in the final report. If project components are missing, run `lazytrae init --host <host>`; use `lazytrae sync` for an existing installation. For Trae Work, run `lazytrae work install` if global skills are missing. Re-run the check before continuing. Do not claim the project is initialized while the host load check fails. The Trae Work MCP setting remains manual.
+
 ## Step-by-Step Procedure
 
 ### Phase 1: Discovery + Analysis
 
-1. **Fire parallel read-only exploration** — use Trae Subagents or parallel tool calls to explore:
+1. **Confirm host readiness** — run the mandatory host load check above and report its observed counts before modifying or mapping the repository.
+2. **Fire parallel read-only exploration** — use Trae Subagents or parallel tool calls to explore:
    - Project structure (directory layout, file counts, code concentration).
    - Entry points (main files, CLI entry, server bootstrap).
    - Conventions (config files, lint rules, formatting standards).
    - Anti-patterns (DO NOT, NEVER, DEPRECATED comments).
    - Build/CI pipeline (.github/workflows, Makefile, CI config).
    - Test patterns (test directories, test frameworks, coverage).
-2. **Main session analysis** — while sub-agents run:
+3. **Main session analysis** — while sub-agents run:
    - Run directory structure analysis (depth, file counts per directory, code concentration by extension).
    - Read existing AGENTS.md / CLAUDE.md files.
    - Use Trae built-in tools (SearchCodebase, Grep, Glob) to map symbols and references.
-3. **Collect and merge** all findings.
+4. **Collect and merge** all findings.
 
 ### Phase 2: Scoring & Location Decision
 
@@ -124,6 +142,9 @@ Decision rules:
 
 Mode: {update | create-new}
 
+Host load check: {PASS | repaired then PASS}
+Host: {Trae IDE | Trae Work | Trae CLI}
+
 Files:
   [OK] ./AGENTS.md (root, {N} lines)
   [OK] ./src/hooks/AGENTS.md ({N} lines)
@@ -144,6 +165,7 @@ After init-deep completes, the project is ready for `ulw-plan` (planning) or `st
 ## Anti-Patterns
 
 - **Static exploration**: Must vary exploration depth based on project size.
+- **Skipping host status**: Never begin discovery before the mandatory load check passes.
 - **Sequential execution**: Must parallelize independent discoveries.
 - **Ignoring existing**: Always read existing AGENTS.md first, even with --create-new.
 - **Over-documenting**: Not every directory needs AGENTS.md.
