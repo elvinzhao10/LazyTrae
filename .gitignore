@@ -11,25 +11,37 @@ build/
 # Environment
 .env
 .env.local
+.env.*.local
 
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Editor
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
-# OmO compatibility state (keep directory structure, ignore live state)
-.omo/boulder.json
-.omo/ulw-loop/*/goals.json
-.omo/ulw-loop/*/evidence.jsonl
-.omo/ulw-loop/*/checkpoints.jsonl
-lazycodex/
+# Logs
+*.log
+npm-debug.log*
 
-# LazyTrae runtime (managed by lazytrae init)
-.lazytrae/state/
-.lazytrae/logs/
-.lazytrae/evidence/
+# Runtime state (samples live in other/)
+lazytrae-plugin/.lazytrae/state/
+lazytrae-plugin/.lazytrae/logs/
+lazytrae-plugin/.lazytrae/evidence/
+
+# OmO compatibility state (samples live in other/)
+other/omo/boulder.json
+other/omo/ulw-loop/*/goals.json
+other/omo/ulw-loop/*/evidence.jsonl
+other/omo/ulw-loop/*/checkpoints.jsonl
+
+# Reference clone (MIT-licensed upstream, too large for repo)
+reference/
+
+# Host-specific symlink (non-portable)
+.codegraph
