@@ -84,32 +84,32 @@ The easiest way to install: **give this repo to Trae and let an agent handle eve
 
 | Command | Purpose | When to use |
 |---------|---------|-------------|
-| `$init-deep` | Generate hierarchical project memory | First time in a new workspace |
-| `$ulw-plan` | Create a decision-complete work plan | Before any multi-file or ambiguous change |
-| `$start-work` | Execute a plan one checklist item at a time | When a plan is approved and ready to build |
-| `$ulw-loop` | Verified completion loop (10 states, 13-step cycle) | For open-ended tasks needing evidence-backed done |
-| `$ultrawork` | Binding high-precision mode | When maximum rigor and evidence are required |
-| `$review-work` | 5-agent parallel review gate | After every significant implementation |
-| `/verifier` | Run verification checks | After implementation, before claiming done |
-| `/reviewer` | Review changed files | After verification, before accepting |
-| `/librarian` | Update memory after changes | After accepted changes |
+| `/lazy-init-deep` | Generate hierarchical project memory | First time in a new workspace |
+| `/lazy-ulw-plan` | Create a decision-complete work plan | Before any multi-file or ambiguous change |
+| `/lazy-start-work` | Execute a plan one checklist item at a time | When a plan is approved and ready to build |
+| `/lazy-ulw-loop` | Verified completion loop (10 states, 13-step cycle) | For open-ended tasks needing evidence-backed done |
+| `/lazy-review-work` | 5-agent parallel review gate | After every significant implementation |
+| `/lazy-verifier` | Run verification checks | After implementation, before claiming done |
+| `/lazy-reviewer` | Review changed files | After verification, before accepting |
+| `/lazy-librarian` | Update memory after changes | After accepted changes |
+| `/lazy-migration-planner` | Plan cross-platform migrations | When porting to/from another host |
 
 ### Quick start workflow
 
 ```
-$init-deep                         # generates project memory
-$ulw-plan "implement feature X"   # creates a plan with checkboxes
-$start-work                        # executes plan one item at a time + verification
-$review-work                       # 5-agent review gate (all must pass)
+/lazy-init-deep                         # generates project memory
+/lazy-ulw-plan "implement feature X"   # creates a plan with checkboxes
+/lazy-start-work                        # executes plan one item at a time + verification
+/lazy-review-work                       # 5-agent review gate (all must pass)
 ```
 
 ### What Trae gets
 
 | Component | Count | What it does |
 |-----------|-------|--------------|
-| Skills | 22 | init-deep, ulw-plan, start-work, ulw-loop, verifier, reviewer, librarian, migration-planner, programming, git-master, debugging, remove-ai-slops, refactor, ast-grep, frontend, lcx-report-bug, coding-agent-sessions, … |
+| Skills | 17 | lazy-init-deep, lazy-ulw-plan, lazy-start-work, lazy-ulw-loop, lazy-verifier, lazy-reviewer, lazy-librarian, lazy-migration-planner, lazy-programming, lazy-git-master, lazy-debugging, lazy-remove-ai-slops, lazy-refactor, lazy-ast-grep, lazy-frontend, lazy-lcx-report-bug, lazy-coding-agent-sessions |
 | Agents | 11 | Sisyphus, Prometheus, Metis, Momus, Atlas, Hephaestus, Oracle, Explorer, Librarian, Cleaner, Migration-Planner |
-| Commands | 10 | Core workflow commands (init-deep → review-work) |
+| Commands | 9 | lazy-init-deep, lazy-ulw-plan, lazy-start-work, lazy-ulw-loop, lazy-review-work, lazy-handoff, lazy-ralph-loop, lazy-remove-ai-slops, lazy-stop-continuation |
 | Hooks | 12 | SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, Stop, + context-recovery (advisory — Trae can't block) |
 | MCP tools | 15 | 9 state/evidence/review/handoff + 6 context (symbol_search, find_references, goto_definition, diagnostics, docs_lookup, dependency_graph) |
 | CLI | 11 | init, doctor, sync, verify, handoff, loop (status/cancel/pause/resume), team (create/spawn/collect), run, mcp |
