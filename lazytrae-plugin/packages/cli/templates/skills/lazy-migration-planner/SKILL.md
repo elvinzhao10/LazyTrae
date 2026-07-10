@@ -7,12 +7,9 @@ description: "Migration planning for converting LazyCodex methods to other host 
 
 Migration planning skill for adapting LazyTrae workflows to other host platforms. This is a LazyTrae addition — it has no direct LazyCodex equivalent, as LazyCodex is a single-platform (Codex) system.
 
-## Canonical LazyCodex Source
+## Global Trae Work fallback
 
-This skill is a LazyTrae addition. It draws on the architecture and adaptation patterns documented in:
-- `docs/lazytrae-architecture-plan.md` — component mapping, host adaptation, non-portable features.
-- `docs/lazytrae-host-adaptation-map.md` (from v0.0 discovery) — Trae-specific adaptation decisions.
-- `docs/lazytrae-parity-ledger.md` — parity tracking methodology.
+This installed skill is self-contained. It does not require repository documentation, a parity ledger, or a LazyCodex checkout. Build the comparison from the current project's available LazyTrae components and the target platform's official documentation. A user-provided LazyCodex checkout may be used only as optional comparison material.
 
 ## Purpose
 
@@ -21,10 +18,9 @@ Plan the adaptation of LazyTrae workflows (skills, commands, agents, hooks, stat
 ## Required Context to Inspect
 
 - The target platform's capabilities (rules, skills, commands, agents, hooks, MCP, subagents).
-- The LazyTrae architecture plan (`docs/lazytrae-architecture-plan.md`).
-- The LazyTrae parity ledger (`docs/lazytrae-parity-ledger.md`).
+- The current project's available LazyTrae components (skills, commands, agents, hooks, MCP configuration, and state files).
 - The target platform's documentation (from web search or provided by user).
-- The canonical LazyCodex source (`lazycodex/`) for ground truth.
+- An optional user-provided LazyCodex checkout, when one is available for comparison.
 
 ## Step-by-Step Procedure
 
@@ -62,7 +58,7 @@ Produce a migration plan document at `.omo/plans/migration-<target>.md` with the
 
 - Create `.omo/plans/migration-<target>.md`.
 - Read project files, search documentation, run web searches.
-- Update the parity ledger with migration notes.
+- Update a project parity record only when the current project already provides one.
 
 ## Forbidden Behavior
 
@@ -97,7 +93,7 @@ Produce a migration plan document at `.omo/plans/migration-<target>.md` with the
 > Gaps: <N> features
 
 ## Platform Capability Matrix
-| LazyTrae Feature | LazyCodex Source | Target Equivalent | Status |
+| LazyTrae Feature | LazyTrae Basis | Target Equivalent | Status |
 |------------------|------------------|-------------------|--------|
 | ...              | ...              | ...               | PORTABLE / ADAPT / GAP / N/A |
 

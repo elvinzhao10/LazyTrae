@@ -5,6 +5,8 @@ const {
 } = require('../lib/templates');
 const { replaceBlock, hasManagedBlock, extractBlock } = require('../lib/managed-blocks');
 
+const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
+
 function detectRepoRoot() {
   let dir = process.cwd();
   while (dir !== path.dirname(dir)) {
@@ -12,6 +14,14 @@ function detectRepoRoot() {
     dir = path.dirname(dir);
   }
   return process.cwd();
+}
+
+function readHost(args) {
+  const hostIndex = args.indexOf('--host');
+  if (hostIndex === -1) return 'ide';
+  const host = args[hostIndex + 1];
+  if (!VALID_HOSTS.has(host)) throw new Error('--host must be ide, work, or cli.');
+  return host;
 }
 
 function run(args) {
@@ -24,17 +34,22 @@ Options:
   --help, -h   Show this help message
   --force      Force re-copy all files (even if unchanged)
   --host <id>  Run the final load check for ide, work, or cli
+  --skills-dir <path>
+                Override Trae Work's global skills directory with --host work
 `);
     return;
   }
 
+  const host = readHost(args);
+  const work = host === 'work' ? require('./work') : null;
+  const workSkillsDir = work ? work.readSkillsDir(args) : null;
   const repoRoot = detectRepoRoot();
   const force = args.includes('--force');
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
   const summary = { created: [], updated: [], skipped: [], merged: [] };
 
-  console.log(`LazyTrae init v0.15.0-alpha.1`);
+  console.log(`LazyTrae init v0.15.0-alpha.2`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Create directory structure
@@ -239,15 +254,13 @@ Options:
     summary.skipped.forEach(s => console.log(`  - ${s}`));
   }
   console.log('\nDone.');
-  const hostIndex = args.indexOf('--host');
-  const host = hostIndex === -1 ? 'ide' : args[hostIndex + 1];
   if (host === 'work') {
-    const work = require('./work');
-    work.install(work.readSkillsDir([]));
+    work.install(workSkillsDir);
   }
-  const loadCheckArgs = hostIndex === -1 ? [] : ['--host', host];
-  const loadStatus = require('./load-check').run(loadCheckArgs);
+  const loadCheckArgs = ['--host', host];
+  const loadCheck = () => require('./load-check').run(loadCheckArgs);
+  const loadStatus = work ? work.withSkillsDirOverride(workSkillsDir, loadCheck) : loadCheck();
   if (loadStatus !== 0) process.exitCode = loadStatus;
 }
 
-module.exports = { run };
+module.exports = { readHost, run };

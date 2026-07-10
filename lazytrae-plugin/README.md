@@ -15,15 +15,8 @@ The CLI template tree in `packages/cli/templates/` is the installation source of
 
 ## Install
 
-```bash
-cd packages/cli
-npm install
-npm install -g .
-cd /path/to/your/project
-lazytrae init --host ide
-lazytrae doctor
-```
+Copy or clone [LazyTrae](https://github.com/elvinzhao10/LazyTrae), open it in the target host, and type `onboard`. The generated setup guide selects Trae IDE, Trae Work, or Trae CLI and runs the matching `lazytrae init --host <host>` command when the companion CLI is already installed. That check proves package readiness only; host discovery and MCP connection are reported separately.
 
-For Trae Work, run `lazytrae init --host work`; it verifies the full project and global skill surface. Then restart or reload Trae Work. The host has no global command registry, so use skills or natural-language requests. Add the MCP server manually in **Settings → MCP** with command `lazytrae` and argument `mcp`; Trae Work does not auto-load `.trae/mcp.json`.
+For Trae Work, `lazytrae init --host work` also installs the global skills. Restart or reload Trae Work, then add the MCP server manually in **Settings → MCP** with command `lazytrae` and argument `mcp`. Trae Work does not auto-load the project `.trae/mcp.json` and has no global command registry, so use skills or natural-language requests.
 
 See the repository [setup guide](../AGENTS.md) for the full workflow.

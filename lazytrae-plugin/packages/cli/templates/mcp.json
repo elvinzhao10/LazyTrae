@@ -17,21 +17,20 @@
     },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@2026.7.10", "."],
       "required": false,
-      "description": "Filesystem access MCP server — optional template"
+      "description": "Filesystem access MCP server — optional template pinned to a reviewed version"
     },
     "git": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-git"],
       "required": false,
-      "description": "Git operations MCP server — optional template"
+      "disabled": true,
+      "description": "Git operations MCP server — disabled manual option. The former package name is no longer published; install and configure a reviewed Git MCP server explicitly before enabling it."
     },
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"],
+      "args": ["-y", "@playwright/mcp@0.0.78"],
       "required": false,
-      "description": "Browser automation MCP server via Playwright — optional template"
+      "description": "Browser automation MCP server via Playwright — optional template pinned to a reviewed version"
     },
     "context7_docs": {
       "url": "https://mcp.context7.com/mcp",
@@ -39,23 +38,19 @@
       "description": "Documentation search MCP server — optional template (alias for context7)"
     },
     "ast_grep": {
-      "command": "npx",
-      "args": ["-y", "@ast-grep/mcp"],
-      "required": false,
-      "description": "Structural code search via ast-grep — optional template"
-    },
-    "lsp": {
-      "command": "npx",
-      "args": ["-y", "lsp-mcp"],
-      "required": false,
-      "description": "Language Server Protocol diagnostics — optional template. GAP: Trae has no built-in LSP; use this MCP as a workaround for go-to-definition, find-references, and diagnostics. Mirrors LazyCodex lsp MCP."
-    },
-    "codegraph": {
-      "command": "echo",
-      "args": ["CodeGraph MCP not yet available. Use SearchCodebase as a workaround for structural queries."],
       "required": false,
       "disabled": true,
-      "description": "Code graph analysis — GAP. LazyCodex has codegraph MCP for structural queries (call graphs, dependency graphs). LazyTrae compensates with SearchCodebase. Enable when a suitable codegraph MCP server is available."
+      "description": "Structural code search via ast-grep — disabled manual option. The former package name is no longer published; install and configure a reviewed MCP server explicitly before enabling it."
+    },
+    "lsp": {
+      "required": false,
+      "disabled": true,
+      "description": "Language Server Protocol diagnostics — disabled manual option. Review and configure a local LSP MCP server explicitly before enabling it; Trae has no built-in LSP."
+    },
+    "codegraph": {
+      "required": false,
+      "disabled": true,
+      "description": "Code graph analysis — disabled manual option. LazyTrae compensates with SearchCodebase; review and configure a suitable CodeGraph MCP server explicitly before enabling it."
     }
   },
   "lazytrae": {

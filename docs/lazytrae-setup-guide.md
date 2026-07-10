@@ -5,20 +5,16 @@ LazyTrae supports three release surfaces: **Trae IDE**, **Trae Work**, and **Tra
 ## Install the CLI
 
 ```bash
-git clone https://github.com/elvinzhao10/Trae.git
-cd Trae/lazytrae-plugin/packages/cli
-npm install
-npm install -g .
-cd /path/to/your/project
-lazytrae init --host ide
-lazytrae doctor
+git clone https://github.com/elvinzhao10/LazyTrae.git
+cd LazyTrae
+# Open this copied repository in your Trae host and type: onboard
 ```
 
-`lazytrae init --host ide|work|cli` creates the project-local `.trae/` and `.lazytrae/` trees plus an `AGENTS.md` setup guide, then runs an exact tool load check. It verifies every bundled skill, command, agent, hook, and MCP declaration before asking you to reload the host. Keep the global `lazytrae` executable installed, because `.trae/mcp.json` launches its `mcp` subcommand.
+AI onboarding is the supported first path. It uses an already-installed `lazytrae` companion command to create the project-local `.trae/` and `.lazytrae/` trees plus the retained `.omo/` workflow-compatibility runtime, then runs `lazytrae init --host ide|work|cli`. Its final load check is a **package-readiness** check: it validates bundled skills, commands, agents, hook scripts and configuration declarations, but cannot prove host discovery, MCP connection, or a live session. The `lazytrae` command must remain available because the generated MCP declaration launches `lazytrae mcp`; do not run `npm` or `npx` just to use the copied workflow repository. `.trae/` and `.lazytrae/` are canonical; do not migrate or delete `.omo/` in v0.15.
 
 ## Trae IDE
 
-Open the initialized project in Trae IDE. Its project `.trae/` configuration provides the skills, commands, agents, hooks, and MCP configuration. Run `lazytrae doctor` after opening the project and `lazytrae verify --must-pass` before declaring a workflow complete.
+Run `lazytrae init --host ide`, then open or reopen the initialized project in Trae IDE. Its project `.trae/` configuration declares the skills, commands, agents, hooks, and MCP server; opening the project is the host-side discovery step and is not proven by package readiness. Run `lazytrae doctor` after opening the project and `lazytrae verify --must-pass` before declaring a workflow complete.
 
 ## Trae Work
 
@@ -45,18 +41,15 @@ Open the initialized project in Trae IDE. Its project `.trae/` configuration pro
 
 ## Trae CLI
 
-Install Trae CLI from the official TRAE installer, then use `trae-cli` for the agent session and `lazytrae` for the companion workflow gates:
+Install Trae CLI from the [official TRAE documentation](https://docs.trae.cn/), then configure the project and MCP server *before* opening an interactive `trae-cli` session:
 
 ```bash
-trae-cli
 lazytrae init --host cli
-lazytrae doctor
-lazytrae verify --must-pass
-lazytrae loop status
 trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'
+trae-cli
 ```
 
-The last command registers the local stdio MCP server. It uses the same `lazytrae mcp` process referenced by the generated `.trae/mcp.json`.
+The registration command declares the local stdio MCP server. The new session is where Trae CLI attempts to connect; package readiness alone cannot prove that connection. It uses the same `lazytrae mcp` process referenced by the generated `.trae/mcp.json`. Run `lazytrae verify --must-pass` before declaring work complete.
 
 ---
 
@@ -68,7 +61,7 @@ After setup on either platform:
 lazytrae doctor
 ```
 
-Expected: 33+ PASS, 1-4 WARN (team mode, parity ledger warnings are normal in consumer projects), 0 FAIL.
+Expected: `0 FAIL`. Treat environmental warnings as a prompt to inspect the named condition rather than as proof that a host loaded the package.
 
 ---
 

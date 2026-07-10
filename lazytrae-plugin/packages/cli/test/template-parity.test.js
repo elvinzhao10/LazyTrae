@@ -15,6 +15,42 @@ function readFiles(directory, prefix = '') {
   }).sort();
 }
 
+const EXACT_NPM_VERSION =
+  /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+
+function assertSafeMcpDefaults(mcpServers) {
+  for (const [name, server] of Object.entries(mcpServers)) {
+    if (server.disabled) {
+      assert.equal(
+        Object.hasOwn(server, 'command'),
+        false,
+        `${name} is disabled but still declares an executable command`,
+      );
+      assert.equal(
+        Object.hasOwn(server, 'args'),
+        false,
+        `${name} is disabled but still declares executable arguments`,
+      );
+      continue;
+    }
+    if (server.command !== 'npx') continue;
+    const packageName = server.args.find(argument =>
+      typeof argument === 'string' && argument.startsWith('@'),
+    );
+    const version = packageName?.slice(packageName.lastIndexOf('@') + 1) ?? '';
+    assert.match(
+      packageName ?? '',
+      /^@[^@/]+\/[^@/]+@.+$/,
+      `${name} must pin its npx package to an exact version or be disabled`,
+    );
+    assert.match(
+      version,
+      EXACT_NPM_VERSION,
+      `${name} must use an exact npm version, not a range or mutable tag`,
+    );
+  }
+}
+
 test('templates mirror every repository .trae artifact', () => {
   const source = readFiles(path.join(REPO_ROOT, '.trae'));
   const templates = readFiles(path.join(REPO_ROOT, 'packages', 'cli', 'templates'))
@@ -29,6 +65,54 @@ test('templates mirror every repository .trae artifact', () => {
       `${relativePath} diverges from .trae`,
     );
   }
+});
+
+test('generated onboarding guide uses stable Markdown references', () => {
+  const guide = fs.readFileSync(
+    path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'AGENTS.md'),
+    'utf8',
+  );
+  const localMarkdownLinks = [...guide.matchAll(/\]\((?!https?:\/\/)([^)#]+\.md)(?:#[^)]*)?\)/g)]
+    .map(match => match[1]);
+
+  assert.deepEqual(
+    localMarkdownLinks,
+    [],
+    'the installed guide must not link to documentation absent from a consumer project',
+  );
+});
+
+test('MCP templates have no unbounded active npx defaults', () => {
+  const config = JSON.parse(
+    fs.readFileSync(path.join(REPO_ROOT, '.trae', 'mcp.json'), 'utf8'),
+  );
+
+  assertSafeMcpDefaults(config.mcpServers);
+
+  const lazytrae = config.mcpServers.lazytrae;
+  assert.deepEqual(
+    { command: lazytrae.command, args: lazytrae.args },
+    { command: 'lazytrae', args: ['mcp'] },
+    'the generated configuration must retain the LazyTrae MCP entrypoint',
+  );
+});
+
+test('MCP default guard rejects ranges, mutable tags, and disabled executables', () => {
+  for (const selector of ['^1.2.3', '~1.2.3', 'latest', 'next']) {
+    assert.throws(
+      () => assertSafeMcpDefaults({
+        optional: { command: 'npx', args: ['-y', `@example/mcp@${selector}`] },
+      }),
+      /exact npm version/,
+      `must reject ${selector}`,
+    );
+  }
+  assert.throws(
+    () => assertSafeMcpDefaults({
+      manual: { disabled: true, command: 'echo', args: ['placeholder'] },
+    }),
+    /disabled but still declares an executable command/,
+  );
 });
 
 test('public CLI version banners match the package version', () => {
@@ -56,6 +140,17 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
     assert.equal(init.status, 0, init.stderr);
     assert.match(init.stdout, /LazyTrae Tool Load Check/);
     assert.match(init.stdout, /Load check passed/);
+    const installedMcp = JSON.parse(
+      fs.readFileSync(path.join(fixture, '.trae', 'mcp.json'), 'utf8'),
+    );
+    assert.deepEqual(
+      {
+        command: installedMcp.mcpServers.lazytrae.command,
+        args: installedMcp.mcpServers.lazytrae.args,
+      },
+      { command: 'lazytrae', args: ['mcp'] },
+      'init must retain the LazyTrae MCP entrypoint',
+    );
     for (const relativePath of readFiles(path.join(REPO_ROOT, '.trae'))) {
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),

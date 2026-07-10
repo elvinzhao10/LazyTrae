@@ -33,7 +33,7 @@ const aliases = {
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v0.15.0-alpha.1 — Trae-native LazyCodex/OmO workflows
+  console.log(`LazyTrae CLI v0.15.0-alpha.2 — Trae-native LazyCodex/OmO workflows
 
 Usage: lazytrae <command> [options]
 

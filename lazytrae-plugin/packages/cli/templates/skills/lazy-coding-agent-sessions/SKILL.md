@@ -7,9 +7,9 @@ description: "Find, read, list, search, inspect, or reconstruct coding-agent ses
 
 Find and inspect coding-agent sessions across Trae and other platforms before answering from memory. Use LazyTrae's session tracking state as the primary store; fall back to platform-native transcript files when available.
 
-## Canonical LazyCodex Source
+## Global Trae Work fallback
 
-`lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` — cross-platform session finder using `scripts/find-agent-sessions.py`. Covers Codex, Claude Code/Desktop, OpenCode, Senpi/pi, OpenClaw, Factory Droid, Amp, Gemini/Kimi/Qwen CLIs, Codebuff, Roo/Kilo/Cline, Kodu, Cursor CLI, Aider, and unknown local agent logs.
+This installed skill is self-contained. It does not require a LazyCodex checkout, helper script, or reference bundle. Use the local paths listed below when they are available; for an unlisted platform, ask the user for its documented transcript location before searching.
 
 ## Purpose
 
@@ -21,7 +21,6 @@ Reconstruct past sessions so agents can answer "what did we already do" question
 - `.lazytrae/state/boulder.json` — active work-in-progress state.
 - `.lazytrae/state/active-loop.json` — active ulw-loop plan with goal statuses.
 - `.lazytrae/evidence/` — recorded evidence from past verification runs.
-- `lazycodex/plugins/omo/skills/coding-agent-sessions/references/` — platform-specific storage docs for non-Trae sessions (codex.md, claude.md, opencode.md, senpi.md, all-platforms.md).
 
 ## Step-by-Step Procedure
 
@@ -57,12 +56,11 @@ To reconstruct what happened in a session:
 ### 4. Cross-Platform Search (Non-Trae Sessions)
 
 When the user asks about sessions from other coding agents:
-- Load the relevant reference from `lazycodex/plugins/omo/skills/coding-agent-sessions/references/` for platform-specific storage locations.
-- Use Grep/Glob to find transcript files at the documented paths.
+- Use Grep/Glob only in the user's approved local path.
 - For Codex: `.codex/state_*.sqlite`, rollout JSONL files.
 - For Claude: `~/.claude/projects/`, `~/.claude/transcripts/`.
 - For OpenCode: `~/.opencode/`, `~/.local/share/opencode/`.
-- For unknown platforms: check `references/all-platforms.md` for storage paths.
+- For another platform: ask the user for the official local storage path, or consult that platform's official documentation before searching.
 
 ### 5. Reconstruct Past Work
 
@@ -78,7 +76,6 @@ Combine session metadata with evidence to reconstruct what was done:
 - Read `.lazytrae/state/sessions.json`, `.lazytrae/state/boulder.json`, `.lazytrae/state/active-loop.json`.
 - Search `.lazytrae/evidence/` for past verification artifacts.
 - Read platform transcript files at documented paths (read-only).
-- Read LazyCodex reference docs for platform storage details.
 
 ## Forbidden Behavior
 
@@ -101,7 +98,7 @@ Combine session metadata with evidence to reconstruct what was done:
 - If `.lazytrae/state/sessions.json` is empty or absent: report that no Trae sessions have been tracked yet.
 - If a platform transcript path is not found: report the missing path and suggest manual location.
 - If session metadata is incomplete: report what is available and note what is missing.
-- If the user asks about a platform not in the references: report the unknown platform and suggest checking documentation.
+- If the user asks about an unlisted platform: report the unknown storage path and ask for the platform's documented location.
 
 ## Output Format
 

@@ -3,6 +3,7 @@ const os = require('os');
 const path = require('path');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'templates');
+const WORK_SKILLS_DIR_ENV = 'LAZYTRAE_WORK_SKILLS_DIR';
 
 function printHelp() {
   console.log(`Usage: lazytrae work <command> [options]
@@ -22,12 +23,15 @@ natural language. MCP registration is intentionally manual in Settings → MCP.
 }
 
 function readSkillsDir(args) {
-  const flag = args.indexOf('--skills-dir');
+  const optionArgs = args.length ? args : process.argv.slice(3);
+  const flag = optionArgs.indexOf('--skills-dir');
   if (flag !== -1) {
-    const value = args[flag + 1];
+    const value = optionArgs[flag + 1];
     if (!value || value.startsWith('--')) throw new Error('--skills-dir requires a path.');
     return path.resolve(value);
   }
+
+  if (process.env[WORK_SKILLS_DIR_ENV]) return path.resolve(process.env[WORK_SKILLS_DIR_ENV]);
 
   if (process.platform !== 'darwin') {
     throw new Error('Trae Work global skills are only known on macOS. Pass --skills-dir with the directory reported by your Trae Work installation.');
@@ -45,14 +49,39 @@ function listSkills() {
 }
 
 function rejectSymlink(target) {
-  if (fs.existsSync(target) && fs.lstatSync(target).isSymbolicLink()) {
+  try {
+    if (!fs.lstatSync(target).isSymbolicLink()) return;
     throw new Error(`Refusing to write through symlinked global skill path: ${target}`);
+  } catch (error) {
+    if (error.code === 'ENOENT') return;
+    throw error;
   }
+}
+
+function rejectHardLinkedFile(target) {
+  try {
+    const stat = fs.lstatSync(target);
+    if (!stat.isFile() || stat.nlink <= 1) return;
+    throw new Error(`Refusing to write through hard-linked global skill file: ${target}`);
+  } catch (error) {
+    if (error.code === 'ENOENT') return;
+    throw error;
+  }
+}
+
+function assertSafeSkillPath(skillsDir, name) {
+  const destinationDir = path.join(skillsDir, name);
+  const destination = path.join(destinationDir, 'SKILL.md');
+  rejectSymlink(skillsDir);
+  rejectSymlink(destinationDir);
+  rejectSymlink(destination);
+  rejectHardLinkedFile(destination);
+  return { destination, destinationDir };
 }
 
 function skillState(skillsDir, name) {
   const source = path.join(TEMPLATES_DIR, 'skills', name, 'SKILL.md');
-  const destination = path.join(skillsDir, name, 'SKILL.md');
+  const { destination } = assertSafeSkillPath(skillsDir, name);
   if (!fs.existsSync(destination)) return 'missing';
   if (fs.readFileSync(source, 'utf-8') === fs.readFileSync(destination, 'utf-8')) return 'current';
   return 'outdated';
@@ -67,13 +96,14 @@ function install(skillsDir) {
   rejectSymlink(skillsDir);
   fs.mkdirSync(skillsDir, { recursive: true });
 
+  const skills = listSkills();
+  for (const name of skills) assertSafeSkillPath(skillsDir, name);
+
   let installed = 0;
   let updated = 0;
   let unchanged = 0;
-  for (const name of listSkills()) {
-    const destinationDir = path.join(skillsDir, name);
-    const destination = path.join(destinationDir, 'SKILL.md');
-    rejectSymlink(destinationDir);
+  for (const name of skills) {
+    const { destination, destinationDir } = assertSafeSkillPath(skillsDir, name);
     const state = skillState(skillsDir, name);
     if (state === 'current') {
       unchanged++;
@@ -89,6 +119,17 @@ function install(skillsDir) {
   console.log(`Directory: ${skillsDir}`);
   console.log('Restart or reload Trae Work to discover newly copied skills.');
   printMcpReminder();
+}
+
+function withSkillsDirOverride(skillsDir, callback) {
+  const previous = process.env[WORK_SKILLS_DIR_ENV];
+  process.env[WORK_SKILLS_DIR_ENV] = skillsDir;
+  try {
+    return callback();
+  } finally {
+    if (previous === undefined) delete process.env[WORK_SKILLS_DIR_ENV];
+    else process.env[WORK_SKILLS_DIR_ENV] = previous;
+  }
 }
 
 function status(skillsDir) {
@@ -118,4 +159,15 @@ function run(args) {
   else process.exitCode = status(skillsDir);
 }
 
-module.exports = { install, listSkills, readSkillsDir, run, skillState, status };
+module.exports = {
+  WORK_SKILLS_DIR_ENV,
+  assertSafeSkillPath,
+  install,
+  listSkills,
+  readSkillsDir,
+  rejectHardLinkedFile,
+  run,
+  skillState,
+  status,
+  withSkillsDirOverride,
+};

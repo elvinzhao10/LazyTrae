@@ -11,7 +11,7 @@ LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning �
 1. Copy or clone [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae) into a local folder.
 2. Open that folder in your Trae host and type `onboard`.
 
-The agent reads `AGENTS.md`, asks which installed version you are using (**Trae IDE**, **Trae Work**, or **Trae CLI**), then runs `lazytrae init --host <host>` and reports its exact load check: 17 skills, 9 commands, 11 agents, 5 hooks, and 10 MCP declarations. It gives exact manual directions for anything it cannot perform. For Trae Work, it also installs the global skills with `lazytrae work install`, explains that Trae Work has no global command registry, and reminds you to add the LazyTrae MCP server manually in **Settings → MCP**.
+The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 10 MCP declarations. It cannot prove that a host loaded those files. The `lazytrae` declaration exposes 15 tools after its MCP server connects. The agent reports what it verified, what is still unchecked, and the exact manual step for each host—especially Trae Work’s required **Settings → MCP** registration.
 
 After onboarding, you can delete the copied repository if you only needed the installed setup, or keep it to explore and study how LazyTrae works.
 
@@ -76,9 +76,9 @@ Binding, not advisory — but because **Trae hooks can't block**, the completion
 
 Practice repo; contributions welcome as learning exercises.
 
-1. **Two canonical configuration trees:** work in `lazytrae-plugin/.trae/` for Trae integration and `lazytrae-plugin/.lazytrae/` for LazyTrae configuration and workflow data. `lazytrae-plugin/packages/cli/templates/` remains the installer source; run `lazytrae sync` to regenerate the live project tree.
+1. **Two canonical configuration trees:** work in `lazytrae-plugin/.trae/` for Trae integration and `lazytrae-plugin/.lazytrae/` for LazyTrae configuration and workflow data. `lazytrae init` also creates consumer-project-root `.omo/plans/` and `.omo/ulw-loop/` as a retained legacy/workflow-compatibility runtime; it is not a third canonical configuration tree and is not being migrated in v0.15. `lazytrae-plugin/packages/cli/templates/` remains the installer source; run `lazytrae sync` to regenerate the live project tree.
 2. **Naming discipline:** all skills & commands are `lazy-` prefixed. Keep new ones prefixed.
-3. **Test:** `cd lazytrae-plugin/packages/cli && node --test` (56 tests, all passing).
+3. **Test:** `cd lazytrae-plugin/packages/cli && node --test`.
 4. **Verify:** `lazytrae doctor` (0 FAIL expected) + `node --test`.
 5. **Commit:** conventional, atomic, stage only files you changed, no `--no-verify`.
 
@@ -98,6 +98,8 @@ lazytrae/
 └── NOTICE                   # omo/lazycodex provenance
 # dev/ (gitignored) — behind-the-scenes: reference/lazycodex clone + other/ runtime samples
 ```
+
+Consumer projects initialized with `lazytrae init` also receive `.omo/plans/` and `.omo/ulw-loop/` as the retained workflow-compatibility runtime. They are not part of the `lazytrae-plugin/` source layout.
 
 ## Related
 

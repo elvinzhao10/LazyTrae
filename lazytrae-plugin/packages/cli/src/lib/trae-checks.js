@@ -127,7 +127,7 @@ function checkTraeStructure(repoRoot) {
       results.push({ label: '.trae/mcp.json', status: 'FAIL', detail: `Invalid JSON: ${e.message}` });
     }
   } else {
-    results.push({ label: '.trae/mcp.json', status: 'WARN', detail: 'MCP config for v0.8' });
+    results.push({ label: '.trae/mcp.json', status: 'WARN', detail: 'MCP config for v0.15.0-alpha.2' });
   }
 
   return results;

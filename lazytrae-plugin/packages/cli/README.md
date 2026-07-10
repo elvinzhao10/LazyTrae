@@ -10,7 +10,7 @@ A developer installs LazyTrae from this repository, then uses the local `lazytra
 # Install LazyTrae into current repo
 lazytrae init
 
-# Verify all host components after a fresh init or reload
+# Verify copied package files and declarations after a fresh init
 lazytrae load-check --host ide
 
 # Check installation health
@@ -33,17 +33,11 @@ lazytrae verify
 lazytrae handoff
 ```
 
-## Install
+## Onboard
 
-```bash
-# From the cloned LazyTrae repository
-cd lazytrae-plugin/packages/cli
-npm install
-npm install -g .
+Copy or clone [LazyTrae](https://github.com/elvinzhao10/LazyTrae), open that folder in the selected Trae host, and type `onboard`. The setup guide asks for Trae IDE, Trae Work, or Trae CLI, then uses the already-installed `lazytrae` command for the matching safe setup path. It reports package readiness separately from host registration and a live MCP connection.
 
-# Then, in the project that should use LazyTrae
-lazytrae init --host ide
-```
+For Trae CLI, run `lazytrae init --host cli`, then `trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'`, then launch `trae-cli`. For Trae Work, run `lazytrae init --host work`, restart/reload the host, and manually add `lazytrae mcp` in **Settings → MCP**.
 
 This will:
 - Detect repo root (finds `.git`)
@@ -59,11 +53,11 @@ For Trae Work, run `lazytrae work install` after installing the CLI. It copies t
 | Path | Purpose |
 |------|---------|
 | `.trae/rules/lazytrae.md` | Project-level LazyTrae behavioral rules |
-| `.trae/skills/*.md` | 9 workflow skills (init-deep, ulw-plan, start-work, etc.) |
+| `.trae/skills/*/SKILL.md` | 17 workflow skills (init-deep, ulw-plan, start-work, etc.) |
 | `.trae/commands/*.md` | 9 slash command definitions |
 | `.trae/agents/*.md` | 11 custom agent role definitions |
-| `.trae/hooks.json` | Hooks configuration (for v0.7) |
-| `.trae/mcp.json` | MCP configuration (for v0.8) |
+| `.trae/hooks.json` | Five configured events referencing eight hook scripts (v0.15 alpha) |
+| `.trae/mcp.json` | Ten MCP declarations; the `lazytrae` declaration exposes 15 tools when connected |
 | `.lazytrae/config.json` | LazyTrae configuration |
 | `.lazytrae/state/` | Durable runtime state (boulder, active-loop, sessions) |
 | `.lazytrae/schemas/` | JSON schemas for state validation |

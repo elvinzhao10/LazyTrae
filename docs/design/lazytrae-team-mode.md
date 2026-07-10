@@ -50,9 +50,9 @@ These agent roles are read-only by default and are suitable for parallel team me
 
 | Agent | Role | Team Use |
 |-------|------|----------|
-| Explorer ([.trae/agents/explorer.md](file:///Users/Admin/Desktop/lazytrae/.trae/agents/explorer.md)) | Codebase search specialist | Parallel codebase exploration |
-| Oracle/Reviewer ([.trae/agents/oracle.md](file:///Users/Admin/Desktop/lazytrae/.trae/agents/oracle.md)) | Verification gate enforcer | Parallel review of deliverables |
-| Librarian ([.trae/agents/librarian.md](file:///Users/Admin/Desktop/lazytrae/.trae/agents/librarian.md)) | Docs/memory maintainer | Parallel documentation research |
+| Explorer ([explorer](../../lazytrae-plugin/.trae/agents/explorer.md)) | Codebase search specialist | Parallel codebase exploration |
+| Oracle/Reviewer ([oracle](../../lazytrae-plugin/.trae/agents/oracle.md)) | Verification gate enforcer | Parallel review of deliverables |
+| Librarian ([librarian](../../lazytrae-plugin/.trae/agents/librarian.md)) | Docs/memory maintainer | Parallel documentation research |
 
 ## Trae Subagent Delegation Pattern
 

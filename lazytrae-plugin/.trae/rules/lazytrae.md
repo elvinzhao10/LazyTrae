@@ -6,14 +6,14 @@
 ## Core Operating Rules
 
 ### Inspect Before Editing
-- Always read the actual LazyCodex source files before implementing any feature.
-- Never invent LazyCodex behavior from memory.
-- The `lazycodex/` directory is the canonical source of truth.
+- Read the current project's `AGENTS.md`, README, relevant source, and tests before editing.
+- Use the installed LazyTrae skills and commands as the workflow source of truth.
+- If external parity material is available, treat it as reference evidence, not as a required local directory.
 
 ### Plan Before Multi-File Changes
-- Read the versioned plan file in `plan/` before starting work.
-- Follow versions in order: v0.0 -> v0.1 -> ... -> v0.14.
-- Each version has objective, deliverables, steps, verification, and rollback.
+- For ambiguous or multi-file work, use `/lazy-ulw-plan` before changing product files.
+- Store active plans in `.omo/plans/`; keep compatible loop state in `.omo/ulw-loop/`.
+- Keep LazyTrae configuration, state, and evidence in `.lazytrae/`.
 
 ### Preserve LazyCodex Semantics
 - Keep command names (`init-deep`, `ulw-plan`, `start-work`, `ulw-loop`) where they communicate parity.
@@ -37,8 +37,8 @@
 - A child agent saying "done" does not close the work.
 
 ### Update Memory After Changes
-- After accepted changes, update AGENTS.md, command index, and parity ledger.
-- Keep the parity ledger current with implementation status.
+- Update the project's local instructions or documentation only when the accepted change makes them stale.
+- Preserve evidence in `.lazytrae/evidence/` and runtime state in `.lazytrae/state/` when the workflow uses them.
 
 ## Git Workflow
 
@@ -55,9 +55,7 @@ All versions use the `v0.x` scheme. Do not use `v1.x`, `v2.x`, etc.
 
 ## Key References
 
-- Constitution: `AGENTS.md`
-- Architecture: `docs/lazytrae-architecture-plan.md`
-- Parity ledger: `docs/lazytrae-parity-ledger.md`
-- Operating manual: `docs/lazytrae-operating-manual.md`
-- Command index: `docs/lazytrae-command-index.md`
-- LazyCodex source: `lazycodex/`
+- Project instructions: `AGENTS.md`
+- Trae integration: `.trae/`
+- LazyTrae configuration and evidence: `.lazytrae/`
+- Compatibility plans and loop state: `.omo/plans/` and `.omo/ulw-loop/`
