@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: frontend
 description: "Frontend development best practices. Use for UI, web frontend, and client-side implementation work. Triggers: frontend, UI, component, page, layout, style, CSS, React, Vue, web, browser."

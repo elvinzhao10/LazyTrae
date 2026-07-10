@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: coding-agent-sessions
 description: "Find, read, list, search, inspect, or reconstruct coding-agent sessions across Trae and other platforms. Covers session tracking, transcript search, session history, token usage, and subagent sessions. Use when asked about past sessions, session IDs, or reconstructing prior work. Triggers: coding agent sessions, session history, session ID, read session, find session, transcript search, what did I work on, did we already do this, reconstruct past work."

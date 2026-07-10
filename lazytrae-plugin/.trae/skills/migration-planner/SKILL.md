@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: migration-planner
 description: "Migration planning for converting LazyCodex methods to other host platforms. Use when adapting LazyTrae workflows to a different IDE, tool, or platform. Triggers: migration plan, adapt to platform, convert to host, migrate workflow, port to."

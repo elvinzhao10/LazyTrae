@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: sisyphus
 description: "Main orchestrator. Manages the LazyTrae workflow lifecycle, delegates to specialized subagents, keeps final ownership with the parent session. Decides plan->implement->verify->review->loop."

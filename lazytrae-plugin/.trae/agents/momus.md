@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: momus
 description: "Plan reviewer. Verifies a work plan is executable: references exist, tasks are startable, QA scenarios are concrete. Issues OKAY, ITERATE, or REJECT. Read-only."

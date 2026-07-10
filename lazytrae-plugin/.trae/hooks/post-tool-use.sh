@@ -1,5 +1,3 @@
-# Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 #!/usr/bin/env bash
 # LazyTrae v0.7 — PostToolUse hook
 # Records changed files, runs comment-checker, captures verification output.

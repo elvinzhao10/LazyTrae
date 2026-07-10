@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: refactor
 description: "Safe refactoring discipline. Use when changing code structure without changing behavior. Triggers: refactor, clean up, restructure, reorganize, improve code, rename, extract, move."

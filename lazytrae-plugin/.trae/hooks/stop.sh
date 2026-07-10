@@ -1,5 +1,3 @@
-# Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 #!/usr/bin/env bash
 # LazyTrae v0.7 — Stop hook
 # Emits continuation reminder if active work is incomplete.

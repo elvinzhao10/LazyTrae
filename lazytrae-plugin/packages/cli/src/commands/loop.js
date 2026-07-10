@@ -1,5 +1,3 @@
-// Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 const { detectRepoRoot } = require('../lib/loop-store');
 const runtime = require('../lib/loop-runtime');
 

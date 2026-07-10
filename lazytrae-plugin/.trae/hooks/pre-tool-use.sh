@@ -1,5 +1,3 @@
-# Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 #!/usr/bin/env bash
 # LazyTrae v0.7 — PreToolUse hook
 # Warns on write-before-read and destructive git commands.

@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: programming
 description: "General programming discipline and best practices. Use for any implementation work to ensure code quality, correctness, and maintainability. Triggers: implement, code, build, develop, write code, add feature, fix bug."

@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: git-master
 description: "Git workflow discipline and best practices. Use for any work involving git: commits, branches, rebases, merges, bisects, cherry-picks. Triggers: git, commit, branch, rebase, merge, bisect, cherry-pick, revert, stash."

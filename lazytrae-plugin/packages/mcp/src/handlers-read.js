@@ -1,5 +1,3 @@
-// Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 // LazyTrae MCP — Read-only handlers (get_active_plan, get_boulder_status, get_next_task, get_parity_status)
 
 const { getBoulderState, getActiveWork } = require('./state-access');

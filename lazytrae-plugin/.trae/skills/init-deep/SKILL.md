@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: init-deep
 description: "Hierarchical repo understanding and AGENTS.md generation. Use when onboarding a new repository, after major refactors, or when agents keep picking wrong files. Triggers: init-deep, initialize repo, generate AGENTS.md, understand this codebase."

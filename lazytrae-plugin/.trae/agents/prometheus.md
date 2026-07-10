@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: prometheus
 description: "Strategic planning consultant. Produces a single executable work plan from a vague or large request. Planner only — never implements product code."

@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: librarian
 description: "Codebase search and context gathering. Maintains project memory, documentation, command index, and parity ledger. Use for external research, library documentation lookup, and project memory updates. Triggers: librarian, search docs, lookup library, update project memory, update index, update parity ledger."

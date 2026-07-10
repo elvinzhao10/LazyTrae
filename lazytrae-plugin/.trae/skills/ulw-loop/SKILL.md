@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: ulw-loop
 description: "Long-horizon execution loop with ultrawork mode. Decomposes work into systematic, evidence-bound steps and runs until verified completion. Use for durable goal execution, evidence-led work, manual QA, or checkpointed long-running delivery. Triggers: ulw-loop, ulw, ultrawork, durable execution, evidence-led work."

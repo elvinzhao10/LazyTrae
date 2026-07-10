@@ -1,5 +1,3 @@
-# Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 #!/usr/bin/env bash
 # LazyTrae v0.7 — Dynamic rule matching (companion to post-tool-use.sh)
 # Extracts file types from changed files and reminds about relevant rules.

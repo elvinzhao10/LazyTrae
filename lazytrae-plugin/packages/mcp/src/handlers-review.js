@@ -1,5 +1,3 @@
-// Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 // LazyTrae MCP — Blocker and review handlers (add_blocker, request_review)
 
 const fs = require('fs');

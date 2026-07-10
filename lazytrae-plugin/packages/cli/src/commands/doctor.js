@@ -1,5 +1,3 @@
-// Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 const fs = require('fs');
 const path = require('path');
 const { validateAllState, checkCompletedTaskEvidence } = require('../lib/validator');

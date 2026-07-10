@@ -1,5 +1,3 @@
-// Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 #!/usr/bin/env node
 
 const { existsSync } = require('fs');

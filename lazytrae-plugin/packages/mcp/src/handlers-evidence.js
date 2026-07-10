@@ -1,5 +1,3 @@
-// Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 // LazyTrae MCP — Evidence and task handlers (record_evidence, mark_task_done)
 
 const fs = require('fs');

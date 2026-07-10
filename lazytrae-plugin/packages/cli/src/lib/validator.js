@@ -53,7 +53,7 @@ function validateStateFile(repoRoot, stateFileName, schemaFileName) {
     }
   }
 
-  const ajv = new Ajv({ allErrors: true });
+  const ajv = new Ajv({ allErrors: true, strict: false });
   const validate = ajv.compile(schemaData);
   const valid = validate(stateData);
 

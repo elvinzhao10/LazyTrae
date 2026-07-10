@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: remove-ai-slops
 description: "Remove AI-generated code smells (slop) from branch changes or an explicit file list. Locks behavior with regression tests FIRST, then runs categorized cleanup, then verifies with quality gates. Covers 10 slop categories. Use when the user asks to remove slop, clean AI code, deslop, or clean up AI-generated patterns. Triggers: remove ai slops, clean ai code, deslop, cleanup AI generated, remove AI slop, strip slop, ai-slop cleanup."

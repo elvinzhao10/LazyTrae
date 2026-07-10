@@ -181,7 +181,9 @@ The MCP server provides 15 tools over stdio JSON-RPC:
 
 ## Evaluation: How Much of LazyCodex Is Achieved?
 
-### Parity Score: 115/126 (91.3%)
+**Overall: 115/126 (91.3%).** Core workflow semantics fully ported; the 4 remaining gaps are all platform-inherent (Trae hook event / external tool), each mitigated. See [lazytrae-evaluation.md](lazytrae-evaluation.md) for the full assessment.
+
+### Summary
 
 | Category | Total | Complete | Gap | N/A |
 |---|---|---|---|---|
@@ -198,43 +200,27 @@ The MCP server provides 15 tools over stdio JSON-RPC:
 | Team Mode | 7 | 6 | 0 | 1 |
 | **Total** | **126** | **115** | **4** | **5** |
 
-### What Is Fully Achieved
+### What's fully achieved
 
-- **All 10 core commands** — init-deep, ulw-plan, start-work, ulw-loop, ralph-loop, stop-continuation, handoff, review-work, remove-ai-slops, completion-gate
-- **All 11 agent roles** — Sisyphus, Prometheus, Metis, Momus, Atlas, Hephaestus, Oracle, Explorer, Librarian, Cleaner, Migration-Planner
-- **All 7 verification gates** — plan reread, automated verification, manual-QA, adversarial QA, cleanup, completion claim, handoff
-- **All 15 state management items** — boulder state, loop state, session tracking, evidence recording, checkpointing, mutation locks, steering mutations
-- **All 22 skills** — init-deep, ulw-plan, start-work, ulw-loop, verifier, reviewer, librarian, migration-planner, remove-ai-slops, coding-agent-sessions, debugging, frontend, git-master, programming, refactor, ast-grep, lcx-report-bug
-- **15 MCP tools** — 9 state/evidence/review/handoff tools + 6 context tools
-- **Team mode** — parallel-work coordination with file-based team state, worktree isolation, member communication via mailbox files
-- **Model routing** — 6 categories (quick, deep, ultrabrain, visual-engineering, writing, review) mapped to Trae Auto/Max modes and agents
-- **Long-horizon loop** — 10 states, 13-step cycle, retry logic, checkpointing, resumption, steering mutations, completion promise
+- All 10 core commands, 11 agent roles, 7 verification gates, 15 state-management items, 22 skills
+- 15 MCP tools (9 state/evidence/review/handoff + 6 context)
+- Long-horizon loop (10 states, 13-step cycle, retry, checkpointing, steering)
+- Team mode with worktree isolation; model routing (6 categories)
 
-### 4 Known Gaps (Platform Limitations)
+### 4 known gaps (platform limitations)
 
-1. **PostCompact hook** — Trae has no PostCompact event. Mitigated via SessionStart detection + UserPromptSubmit context-pressure markers + context-recovery hook.
-2. **Codegraph MCP** — No suitable code graph server available for Trae. Heuristic local context tools provided as fallback.
-3. **Codegraph init hook** — Depends on codegraph MCP.
-4. **Post-compact recovery as native hook** — Mitigated through heuristic detection.
+1. **Hooks advisory-only** — Trae hooks can't block; gate moved to CLI (`lazytrae verify --must-pass`, `mark_task_done`)
+2. **PostCompact hook missing** — no Trae event; mitigated via SessionStart/UserPromptSubmit markers
+3. **Codegraph MCP unavailable** — heuristic local context tools as fallback
+4. **Post-compact recovery** — heuristic, not a native hook
 
-### What Is Different From LazyCodex (Creative Adaptations)
-
-| LazyCodex (Codex) | LazyTrae (Trae) | Why |
-|---|---|---|
-| Durable Codex threads | Ephemeral Trae subagents + file-based state | Trae subagents don't persist; state lives in files |
-| `codex_app.create_thread` | SOLO subagent invocation | No Trae thread API |
-| TOML agent definitions | Markdown agent prompts | Trae uses `.md` format |
-| Codex model profiles | Trae Auto/Max mode + routing hints | Trae has different model selection |
-| In-process plan mutation lock | mkdir-based file lock | Different concurrency model |
-
-### Test Coverage
-
-- **53 tests** across 9 test files (all passing before restructuring)
-- Security tests: symlink escape prevention, path boundary enforcement, shell injection prevention
-- Loop runtime tests: state transitions, retry logic, checkpoint semantics, steering mutations
-- Template parity tests: templates mirror repository artifacts, fresh init self-contained
+See [lazytrae-evaluation.md](lazytrae-evaluation.md) for strengths, weaknesses, creative adaptations, and future improvement suggestions.
 
 ---
+
+## Related
+
+- **[LazyWorkBuddy](https://github.com/elvinzhao10/LazyWorkBuddy)** — the sibling project: the same LazyCodex/OmO harness realized on the WorkBuddy platform. Where LazyTrae moves the completion gate into a CLI layer (Trae hooks can't block), LazyWorkBuddy bets on host hook blocking. Comparing the two is the clearest way to see how host binding — not design — drives divergence.
 
 ## License
 

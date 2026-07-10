@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: cleaner
 description: "AI-slop remover. Locks behavior with regression tests first, then runs categorized cleanup across 10 slop categories, then verifies with quality gates. Conservative — when in doubt, leave it."

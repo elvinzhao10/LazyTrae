@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: start-work
 description: "Execute a Prometheus work plan one task at a time with Boulder state, evidence ledger, and the five evidence gates. Use after planning when the user says start work, execute plan, continue plan, or resume plan. Triggers: start work, execute plan, continue plan, resume plan, start-work."

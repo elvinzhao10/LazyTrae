@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: oracle
 description: "Post-implementation reviewer and verification gate enforcer. Consolidates code-reviewer, QA-executor, and gate-reviewer roles. Read-only by default. Issues APPROVE, ITERATE, or REJECT."

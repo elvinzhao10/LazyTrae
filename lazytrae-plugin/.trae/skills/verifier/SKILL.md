@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: verifier
 description: "Verification gate enforcement. Runs automated tests, captures Manual-QA evidence, and exercises adversarial scenarios. Use after implementation to verify that work meets acceptance criteria. Triggers: verify, run verification, check my work, run tests, QA my work."

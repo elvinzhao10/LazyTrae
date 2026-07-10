@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: explorer
 description: "Codebase search specialist. Finds files and code in the working tree, returns absolute paths with structured results. Read-only."

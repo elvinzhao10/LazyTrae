@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: debugging
 description: "Systematic debugging workflow. Use when something doesn't work and you need to find out why. Triggers: debug, fix bug, not working, error, failing, crash, broken, investigate."

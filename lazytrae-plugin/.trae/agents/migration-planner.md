@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: migration-planner
 description: "Platform migration consultant. Converts LazyCodex workflows to other host platforms. Analyzes source patterns, maps to target capabilities, produces migration plans. Planning only — never implements."

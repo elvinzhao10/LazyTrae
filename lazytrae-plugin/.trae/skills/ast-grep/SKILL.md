@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: ast-grep
 description: "Structural code search and rewriting using AST patterns. Use when you need to find or rewrite code by its structure, not just its text. Triggers: ast-grep, sg, structural search, codemod, find pattern, rewrite code, AST search."

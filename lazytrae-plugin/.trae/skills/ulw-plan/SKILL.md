@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: ulw-plan
 description: "Explore-first planning consultant. Turns a vague or large request into a decision-complete work plan. Use for 5+ steps, ambiguous scope, multiple modules, architecture decisions, or when the user asks to plan before coding. Triggers: ulw-plan, plan this, make a plan, plan before coding, interview me, break this down, start planning, just make it good."

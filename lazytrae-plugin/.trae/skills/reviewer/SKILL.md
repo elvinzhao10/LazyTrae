@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: reviewer
 description: "Post-implementation reviewer/Oracle protocol. Launches parallel review sub-agents covering goal verification, code quality, security, QA execution, and context mining. All must pass for review to pass. Use after completing significant implementation work. Triggers: review work, review my work, review changes, QA my work, verify implementation, check my work, validate changes, post-implementation review."

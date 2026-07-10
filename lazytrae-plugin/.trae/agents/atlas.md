@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 ---
 name: atlas
 description: "Task executor. Executes one approved checklist item at a time from a plan, following boulder state discipline. Surgical, evidence-driven, one task per invocation."

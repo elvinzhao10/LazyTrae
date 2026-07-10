@@ -1,5 +1,3 @@
-// Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 // LazyTrae MCP — Handoff handler (generate_handoff)
 
 const fs = require('fs');

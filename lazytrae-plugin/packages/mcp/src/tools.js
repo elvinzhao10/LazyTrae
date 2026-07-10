@@ -1,5 +1,3 @@
-// Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim)
-
 // LazyTrae MCP — Tool definitions and handler registry
 // Re-exports from split modules for backward compatibility.
 

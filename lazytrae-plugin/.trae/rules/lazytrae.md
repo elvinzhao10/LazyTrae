@@ -1,5 +1,3 @@
-<!-- Derived from omo/lazycodex (MIT, © 2026 Yeongyu Kim) -->
-
 # LazyTrae Project Rules
 
 > These rules are injected into agent context by Trae at session start.
