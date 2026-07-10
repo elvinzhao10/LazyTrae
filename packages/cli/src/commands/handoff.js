@@ -1,10 +1,12 @@
 const fs = require('fs');
 const path = require('path');
+const { formatCompletionStatus, getCompletionStatus } = require('../lib/completion-gates');
 
 function detectRepoRoot() {
   let dir = process.cwd();
   while (dir !== path.dirname(dir)) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;
+    if (fs.existsSync(path.join(dir, '.lazytrae'))) return dir;
     dir = path.dirname(dir);
   }
   return process.cwd();
@@ -43,6 +45,7 @@ Options:
   const evidenceFiles = fs.existsSync(evidenceDir)
     ? fs.readdirSync(evidenceDir).filter(f => f.endsWith('.md'))
     : [];
+  const completionGate = getCompletionStatus(repoRoot);
 
   // Determine active work
   let activeWork = null;
@@ -73,6 +76,7 @@ Options:
       loopIteration: loop ? `${loop.iteration || 0}/${loop.max_iterations || 500}` : 'N/A',
     },
     evidenceProduced: evidenceFiles.map(f => `.lazytrae/evidence/${f}`),
+    completionGate,
     remainingGaps: [],
     blockers: [],
     nextPrompt: '',
@@ -126,6 +130,12 @@ ${handoff.whatWasAccomplished.length > 0
     : 'None'}
 - **Active loop**: ${handoff.currentState.activeLoop ? 'Active' : 'Inactive'}
 - **Loop iteration**: ${handoff.currentState.loopIteration}
+
+## Completion Gate
+
+\`\`\`
+${formatCompletionStatus(handoff.completionGate)}
+\`\`\`
 
 ## Evidence Produced
 

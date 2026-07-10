@@ -4,7 +4,7 @@ Full reference for the `lazytrae` CLI.
 
 ## Overview
 
-The `lazytrae` CLI provides installation, health checking, synchronization, uninstallation, and handoff summary for LazyTrae.
+The `lazytrae` CLI provides installation, health checking, synchronization, uninstallation, completion-gate status, and handoff summary for LazyTrae.
 
 All commands are idempotent — running them multiple times is safe.
 
@@ -119,16 +119,42 @@ lazytrae uninstall [options]
 
 ### `lazytrae verify`
 
-Alias for `lazytrae doctor --strict` — treats warnings as failures.
+Run LazyTrae health checks. With `--must-pass`, also checks completion gates so advisory Trae hooks have a hard CLI enforcement surface.
 
 **Usage:**
 ```bash
-lazytrae verify
+lazytrae verify [options]
 ```
+
+**Options:**
+- `--help`, `-h` — Show help
+- `--strict` — Treat WARNs as FAILs
+- `--must-pass` — Run doctor plus completion gates; exits non-zero when active work or loop evidence is incomplete
 
 **Exit codes:**
 - `0` — All checks PASS
-- `1` — One or more PASS/WARN (warns treated as fails)
+- `1` — One or more FAILs, or incomplete gates with `--must-pass`
+
+---
+
+### `lazytrae completion-status`
+
+Print whether active LazyTrae completion gates are `ready` or `blocked`.
+
+**Usage:**
+```bash
+lazytrae completion-status
+```
+
+**Checks performed:**
+- Active Boulder tasks must be complete before final completion
+- Completed Boulder tasks must have non-empty evidence paths
+- Active loop state must be complete before final completion
+- Completed loop state must have recorded aggregate evidence
+
+**Exit codes:**
+- `0` — `ready`
+- `1` — `blocked`
 
 ---
 
@@ -149,6 +175,7 @@ lazytrae handoff [options]
 - Session ID, date
 - What was accomplished (from active work in boulder state)
 - Current state (plan file, tasks completed, current task, loop iteration)
+- Completion gate status and reasons when blocked
 - List of evidence files
 - Remaining gaps
 - Blockers
@@ -168,9 +195,11 @@ packages/cli/
 │   │   ├── doctor.js           # doctor command
 │   │   ├── sync.js             # sync command
 │   │   ├── uninstall.js        # uninstall command
-│   │   ├── verify.js           # verify command (alias)
+│   │   ├── verify.js           # verify command
+│   │   ├── completion-status.js # completion gate status command
 │   │   └── handoff.js          # handoff command
 │   └── lib/
+│       ├── completion-gates.js # completion gate checks
 │       ├── templates.js        # template loading and copying
 │       ├── managed-blocks.js   # managed block parsing/merging
 │       ├── validator.js        # JSON schema validation
@@ -198,7 +227,8 @@ packages/cli/
 | doctor  | 0                   | 1                          |
 | sync    | 0                   | 1                          |
 | uninstall | 0                 | 1                          |
-| verify  | 0 (no FAIL+WARN)    | 1 (any FAIL or WARN)        |
+| verify  | 0 (no FAIL, and ready with `--must-pass`) | 1 (FAIL, strict WARN, or blocked gate) |
+| completion-status | 0 (`ready`) | 1 (`blocked`)             |
 | handoff | 0                   | 1                          |
 
 ## Idempotency

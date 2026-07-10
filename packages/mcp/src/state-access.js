@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { assertSafeRepoWritePath } = require('../../cli/src/lib/path-boundary');
 
 /**
  * State file read/write helpers for MCP tools and CLI.
@@ -26,10 +27,18 @@ function readJSON(filePath) {
 }
 
 function writeJSON(filePath, data) {
+  assertSafeWrite(filePath);
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   const tmp = filePath + '.' + process.pid + '.' + Date.now() + '.tmp';
   fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n', 'utf-8');
   fs.renameSync(tmp, filePath);
+}
+
+function assertSafeWrite(filePath) {
+  const marker = `${path.sep}.lazytrae${path.sep}`;
+  const index = filePath.indexOf(marker);
+  if (index < 0) throw new Error('write path must be inside .lazytrae');
+  assertSafeRepoWritePath(filePath.slice(0, index), filePath);
 }
 
 function iso() {
@@ -37,6 +46,7 @@ function iso() {
 }
 
 function withFileLock(filePath, fn) {
+  assertSafeWrite(filePath);
   const lockDir = filePath + '.lock';
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   for (let i = 0; i < 20; i++) {
@@ -109,6 +119,7 @@ module.exports = {
   detectRepoRoot,
   readJSON,
   writeJSON,
+  assertSafeWrite,
   iso,
   withFileLock,
   getBoulderState,

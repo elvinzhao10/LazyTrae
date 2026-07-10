@@ -9,6 +9,7 @@ const commands = {
   sync: () => require('./commands/sync').run,
   uninstall: () => require('./commands/uninstall').run,
   verify: () => require('./commands/verify').run,
+  'completion-status': () => require('./commands/completion-status').run,
   handoff: () => require('./commands/handoff').run,
   hook: () => require('./commands/hook').run,
   mcp: () => require('./commands/mcp').run,
@@ -30,7 +31,7 @@ const aliases = {
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v0.11.0 — Trae-native LazyCodex/OmO workflows
+  console.log(`LazyTrae CLI v0.8.0 — Trae-native LazyCodex/OmO workflows
 
 Usage: lazytrae <command> [options]
 
@@ -39,7 +40,9 @@ Commands:
   doctor      Check LazyTrae installation health
   sync        Update managed templates and managed blocks
   uninstall   Remove LazyTrae from the current repo
-  verify      Same as doctor --strict (treats WARNs as FAILs)
+  verify      Run doctor checks; --must-pass also checks completion gates
+  completion-status
+              Print ready/blocked status for completion gates
   handoff     Print handoff summary from current state
   hook        Dispatch a LazyTrae hook event
   mcp         Start the LazyTrae MCP server (stdio JSON-RPC)

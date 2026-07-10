@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const { ensureDir, copyDir, copyFileIfChanged } = require('../lib/templates');
+const {
+  chmodRepoFile, copyRepoDir, copyRepoFile, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
+} = require('../lib/templates');
 const { replaceBlock, hasManagedBlock, extractBlock } = require('../lib/managed-blocks');
 
 function detectRepoRoot() {
@@ -31,7 +33,7 @@ Options:
 
   const summary = { created: [], updated: [], skipped: [], merged: [] };
 
-  console.log(`LazyTrae init v0.7.0`);
+  console.log(`LazyTrae init v0.8.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Create directory structure
@@ -42,11 +44,11 @@ Options:
   ];
   for (const dir of dirs) {
     const fullPath = path.join(repoRoot, dir);
-    ensureDir(fullPath);
+    ensureRepoDir(repoRoot, fullPath);
   }
 
   // Copy .trae/agents/
-  const agentsResult = copyDir(
+  const agentsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'agents'),
     path.join(repoRoot, '.trae', 'agents')
   );
@@ -54,7 +56,7 @@ Options:
   if (agentsResult.updated > 0) summary.updated.push(`${agentsResult.updated} agent files`);
 
   // Copy .trae/skills/
-  const skillsResult = copyDir(
+  const skillsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'skills'),
     path.join(repoRoot, '.trae', 'skills')
   );
@@ -62,24 +64,24 @@ Options:
   if (skillsResult.updated > 0) summary.updated.push(`${skillsResult.updated} skill files`);
 
   // Copy .trae/commands/
-  const commandsResult = copyDir(
+  const commandsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'commands'),
     path.join(repoRoot, '.trae', 'commands')
   );
   if (commandsResult.created > 0) summary.created.push(`${commandsResult.created} command files`);
   if (commandsResult.updated > 0) summary.updated.push(`${commandsResult.updated} command files`);
 
-  // Copy .trae/rules/lazytrae.md
-  if (copyFileIfChanged(
-    path.join(templatesDir, 'rules', 'lazytrae.md'),
-    path.join(repoRoot, '.trae', 'rules', 'lazytrae.md')
-  )) {
-    force ? summary.updated.push('.trae/rules/lazytrae.md') : summary.created.push('.trae/rules/lazytrae.md');
-  }
+  // Copy .trae/rules/
+  const rulesResult = copyRepoDir(repoRoot,
+    path.join(templatesDir, 'rules'),
+    path.join(repoRoot, '.trae', 'rules')
+  );
+  if (rulesResult.created > 0) summary.created.push(`${rulesResult.created} rule files`);
+  if (rulesResult.updated > 0) summary.updated.push(`${rulesResult.updated} rule files`);
 
   // Copy .trae/mcp.json
   try {
-    if (copyFileIfChanged(
+    if (copyRepoFileIfChanged(repoRoot,
       path.join(templatesDir, 'mcp.json'),
       path.join(repoRoot, '.trae', 'mcp.json')
     )) {
@@ -91,7 +93,7 @@ Options:
 
   // Copy .trae/hooks.json
   try {
-    if (copyFileIfChanged(
+    if (copyRepoFileIfChanged(repoRoot,
       path.join(templatesDir, 'hooks.json'),
       path.join(repoRoot, '.trae', 'hooks.json')
     )) {
@@ -102,7 +104,7 @@ Options:
   }
 
   // Copy .trae/hooks/ shell scripts
-  const hooksResult = copyDir(
+  const hooksResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'hooks'),
     path.join(repoRoot, '.trae', 'hooks')
   );
@@ -116,14 +118,14 @@ Options:
     for (const script of scripts) {
       try {
         const scriptPath = path.join(hooksDestDir, script);
-        fs.chmodSync(scriptPath, 0o755);
+        chmodRepoFile(repoRoot, scriptPath, 0o755);
       } catch (_) { /* ignore */ }
     }
   }
 
   // Copy .lazytrae/config.json
   if (!fs.existsSync(path.join(repoRoot, '.lazytrae', 'config.json'))) {
-    copyFileIfChanged(
+    copyRepoFileIfChanged(repoRoot,
       path.join(templatesDir, 'config.json'),
       path.join(repoRoot, '.lazytrae', 'config.json')
     );
@@ -133,7 +135,7 @@ Options:
   }
 
   // Copy .lazytrae/schemas/
-  const schemasResult = copyDir(
+  const schemasResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'schemas'),
     path.join(repoRoot, '.lazytrae', 'schemas')
   );
@@ -141,7 +143,7 @@ Options:
   if (schemasResult.updated > 0) summary.updated.push(`${schemasResult.updated} schema files`);
 
   // Copy .lazytrae/evidence/
-  const evidenceResult = copyDir(
+  const evidenceResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'evidence'),
     path.join(repoRoot, '.lazytrae', 'evidence')
   );
@@ -149,7 +151,7 @@ Options:
   if (evidenceResult.updated > 0) summary.updated.push(`${evidenceResult.updated} evidence files`);
 
   // Copy .lazytrae/state/
-  const stateResult = copyDir(
+  const stateResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'state'),
     path.join(repoRoot, '.lazytrae', 'state')
   );
@@ -185,13 +187,13 @@ Options:
       }
 
       if (merges > 0) {
-        fs.writeFileSync(agentsDestPath, existingContent, 'utf-8');
+        writeRepoFile(repoRoot, agentsDestPath, existingContent);
         summary.merged.push(`AGENTS.md (${merges} managed blocks updated)`);
       } else {
         summary.skipped.push('AGENTS.md (no changes needed)');
       }
     } else {
-      fs.copyFileSync(agentsTemplatePath, agentsDestPath);
+      copyRepoFile(repoRoot, agentsTemplatePath, agentsDestPath);
       summary.created.push('AGENTS.md');
     }
   }
@@ -210,7 +212,7 @@ Options:
     let gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
     if (!gitignoreContent.includes('# LazyTrae runtime')) {
       gitignoreContent = gitignoreContent.trimEnd() + '\n' + gitignoreEntries + '\n';
-      fs.writeFileSync(gitignorePath, gitignoreContent, 'utf-8');
+      writeRepoFile(repoRoot, gitignorePath, gitignoreContent);
       summary.updated.push('.gitignore');
     } else {
       summary.skipped.push('.gitignore (already has LazyTrae entries)');

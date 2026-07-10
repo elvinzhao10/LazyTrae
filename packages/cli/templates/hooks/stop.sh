@@ -11,6 +11,24 @@ STATE_DIR="$REPO_ROOT/.lazytrae/state"
 BOULDER="$STATE_DIR/boulder.json"
 LOOP="$STATE_DIR/active-loop.json"
 
+gate_output=""
+if [ -f "$REPO_ROOT/packages/cli/src/index.js" ]; then
+  gate_output="$(cd "$REPO_ROOT" && node packages/cli/src/index.js completion-status 2>/dev/null || true)"
+elif command -v lazytrae >/dev/null 2>&1; then
+  gate_output="$(cd "$REPO_ROOT" && lazytrae completion-status 2>/dev/null || true)"
+fi
+
+if printf '%s\n' "$gate_output" | head -n 1 | grep -qx "blocked"; then
+  echo ""
+  echo "=== LazyTrae Completion Gate Reminder ==="
+  echo ""
+  printf '%s\n' "$gate_output"
+  echo ""
+  echo "========================================="
+  echo ""
+  exit 0
+fi
+
 has_incomplete=false
 reminders=""
 

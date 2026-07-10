@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
+const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -11,7 +12,7 @@ function detectRepoRoot() {
   return process.cwd();
 }
 
-const VALID_EVENTS = ['session-start', 'user-prompt-submit', 'pre-tool-use', 'post-tool-use', 'stop'];
+const VALID_EVENTS = ['session-start', 'user-prompt-submit', 'pre-tool-use', 'post-tool-use', 'stop', 'recover-context'];
 
 function run(args) {
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
@@ -25,6 +26,7 @@ Events:
   user-prompt-submit    Detect ulw/ultrawork keywords, context-pressure markers
   pre-tool-use          Warn on write-before-read and destructive git commands
   post-tool-use         Record changed files, run comment-checker
+  recover-context       Manually emit and clear post-compact recovery context
   stop                  Emit continuation reminder if work is incomplete
 
 Options:
@@ -33,6 +35,7 @@ Options:
 Examples:
   lazytrae hook session-start
   echo '{"prompt":"ulw: fix this"}' | lazytrae hook user-prompt-submit
+  lazytrae hook recover-context
   echo '{"tool_name":"Write","tool_input":{"filePath":"src/a.ts"}}' | lazytrae hook post-tool-use
 `);
     return;
@@ -47,6 +50,14 @@ Examples:
   }
 
   const repoRoot = detectRepoRoot();
+  if (['post-tool-use', 'recover-context', 'user-prompt-submit'].includes(eventName)) {
+    try {
+      assertSafeRepoWritePath(repoRoot, path.join(repoRoot, '.lazytrae', 'state', 'sessions.json'));
+    } catch (error) {
+      process.stderr.write(`[LazyTrae hook warning] ${error.message}\n`);
+      return;
+    }
+  }
   const scriptPath = path.join(repoRoot, '.trae', 'hooks', `${eventName}.sh`);
 
   if (!fs.existsSync(scriptPath)) {
@@ -71,7 +82,7 @@ Examples:
   }
 
   try {
-    const result = execSync(`bash "${scriptPath}"`, {
+    const result = spawnSync('bash', [scriptPath], {
       cwd: repoRoot,
       input: stdinData || undefined,
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -79,7 +90,7 @@ Examples:
       encoding: 'utf-8',
     });
 
-    const stdout = result.stdout || result.toString() || '';
+    const stdout = result.stdout || '';
     if (stdout.trim()) {
       process.stdout.write(stdout);
     }
@@ -87,6 +98,14 @@ Examples:
     const stderr = result.stderr;
     if (stderr && stderr.trim()) {
       process.stderr.write(stderr);
+    }
+    if (result.status && result.status !== 0) {
+      process.stderr.write(`[LazyTrae hook warning] Hook exited with code ${result.status}\n`);
+      process.exit(0);
+    }
+    if (result.error) {
+      process.stderr.write(`[LazyTrae hook warning] ${result.error.message}\n`);
+      process.exit(0);
     }
   } catch (err) {
     // Hook scripts should always exit 0, but if they somehow fail, log and continue

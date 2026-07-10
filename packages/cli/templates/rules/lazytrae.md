@@ -12,7 +12,7 @@
 
 ### Plan Before Multi-File Changes
 - Read the versioned plan file in `plan/` before starting work.
-- Follow versions in order: v0.0 -> v0.1 -> ... -> v0.13.
+- Follow versions in order: v0.0 -> v0.1 -> ... -> v0.14.
 - Each version has objective, deliverables, steps, verification, and rollback.
 
 ### Preserve LazyCodex Semantics

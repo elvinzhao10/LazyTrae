@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { copyDir, copyFileIfChanged } = require('../lib/templates');
+const { copyRepoDir, copyRepoFileIfChanged, writeRepoFile } = require('../lib/templates');
 const { replaceBlock, extractBlock, hasManagedBlock, extractBlockNames } = require('../lib/managed-blocks');
 
 function detectRepoRoot() {
@@ -29,11 +29,11 @@ Options:
 
   const summary = { updated: [], skipped: [] };
 
-  console.log(`LazyTrae sync v0.6.0`);
+  console.log(`LazyTrae sync v0.8.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Update .trae/agents/
-  const agentsResult = copyDir(
+  const agentsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'agents'),
     path.join(repoRoot, '.trae', 'agents')
   );
@@ -41,7 +41,7 @@ Options:
   else summary.skipped.push('agents (no changes)');
 
   // Update .trae/skills/
-  const skillsResult = copyDir(
+  const skillsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'skills'),
     path.join(repoRoot, '.trae', 'skills')
   );
@@ -49,25 +49,43 @@ Options:
   else summary.skipped.push('skills (no changes)');
 
   // Update .trae/commands/
-  const commandsResult = copyDir(
+  const commandsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'commands'),
     path.join(repoRoot, '.trae', 'commands')
   );
   if (commandsResult.updated > 0) summary.updated.push(`${commandsResult.updated} command files`);
   else summary.skipped.push('commands (no changes)');
 
-  // Update .trae/rules/lazytrae.md
-  if (copyFileIfChanged(
-    path.join(templatesDir, 'rules', 'lazytrae.md'),
-    path.join(repoRoot, '.trae', 'rules', 'lazytrae.md')
-  )) {
-    summary.updated.push('.trae/rules/lazytrae.md');
+  // Update .trae/rules/
+  const rulesResult = copyRepoDir(repoRoot,
+    path.join(templatesDir, 'rules'),
+    path.join(repoRoot, '.trae', 'rules')
+  );
+  if (rulesResult.created + rulesResult.updated > 0) {
+    summary.updated.push(`${rulesResult.created + rulesResult.updated} rule files`);
   } else {
-    summary.skipped.push('.trae/rules/lazytrae.md (no changes)');
+    summary.skipped.push('rules (no changes)');
+  }
+
+  for (const relativePath of ['.trae/hooks.json', '.trae/mcp.json']) {
+    const templatePath = path.join(templatesDir, relativePath.slice('.trae/'.length));
+    const destinationPath = path.join(repoRoot, relativePath);
+    if (copyRepoFileIfChanged(repoRoot, templatePath, destinationPath)) summary.updated.push(relativePath);
+    else summary.skipped.push(`${relativePath} (no changes)`);
+  }
+
+  const hooksResult = copyRepoDir(repoRoot,
+    path.join(templatesDir, 'hooks'),
+    path.join(repoRoot, '.trae', 'hooks')
+  );
+  if (hooksResult.created + hooksResult.updated > 0) {
+    summary.updated.push(`${hooksResult.created + hooksResult.updated} hook scripts`);
+  } else {
+    summary.skipped.push('hooks (no changes)');
   }
 
   // Update .lazytrae/schemas/
-  const schemasResult = copyDir(
+  const schemasResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'schemas'),
     path.join(repoRoot, '.lazytrae', 'schemas')
   );
@@ -75,12 +93,24 @@ Options:
   else summary.skipped.push('schemas (no changes)');
 
   // Update .lazytrae/evidence/ (only if missing, never overwrite)
-  const evidenceResult = copyDir(
+  const evidenceResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'evidence'),
     path.join(repoRoot, '.lazytrae', 'evidence')
   );
   if (evidenceResult.created > 0) summary.updated.push(`${evidenceResult.created} evidence files (created)`);
   else summary.skipped.push('evidence (no changes)');
+
+  const stateTemplateDir = path.join(templatesDir, 'state');
+  const stateDir = path.join(repoRoot, '.lazytrae', 'state');
+  let createdStateFiles = 0;
+  for (const name of fs.readdirSync(stateTemplateDir)) {
+    const destinationPath = path.join(stateDir, name);
+    if (!fs.existsSync(destinationPath) && copyRepoFileIfChanged(repoRoot, path.join(stateTemplateDir, name), destinationPath)) {
+      createdStateFiles++;
+    }
+  }
+  if (createdStateFiles > 0) summary.updated.push(`${createdStateFiles} state files (created)`);
+  else summary.skipped.push('state (consumer data preserved)');
 
   // Update AGENTS.md managed blocks
   const agentsTemplatePath = path.join(templatesDir, 'AGENTS.md');
@@ -106,7 +136,7 @@ Options:
     }
 
     if (merges > 0) {
-      fs.writeFileSync(agentsDestPath, existingContent, 'utf-8');
+      writeRepoFile(repoRoot, agentsDestPath, existingContent);
       summary.updated.push(`AGENTS.md (${merges} managed blocks updated)`);
     } else {
       summary.skipped.push('AGENTS.md managed blocks (no changes)');
@@ -122,7 +152,7 @@ Options:
     let config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     if (config.schema_version !== templateConfig.schema_version) {
       config.schema_version = templateConfig.schema_version;
-      fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf-8');
+      writeRepoFile(repoRoot, configPath, JSON.stringify(config, null, 2) + '\n');
       summary.updated.push(`.lazytrae/config.json (schema_version: ${config.schema_version})`);
     } else {
       summary.skipped.push('.lazytrae/config.json (schema_version unchanged)');

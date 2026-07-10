@@ -10,7 +10,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 STATE_DIR="$REPO_ROOT/.lazytrae/state"
 BOULDER="$STATE_DIR/boulder.json"
 LOOP="$STATE_DIR/active-loop.json"
-SESSIONS="$STATE_DIR/sessions.json"
+RECOVERY="$REPO_ROOT/.trae/hooks/context-recovery.sh"
 
 # Defaults
 active_plan="(none)"
@@ -23,53 +23,46 @@ recovery_notice=""
 
 # Read boulder state
 if [ -f "$BOULDER" ]; then
-  active_work_id=$(node -e "try{const d=require('$BOULDER');process.stdout.write(d.active_work_id||'')}catch(e){}" 2>/dev/null || true)
-  if [ -n "$active_work_id" ]; then
-    active_plan=$(node -e "try{const d=require('$BOULDER');const w=d.works['$active_work_id'];if(w){process.stdout.write(w.plan_name||w.active_plan||'')}}catch(e){}" 2>/dev/null || true)
-    # Find first in_progress or pending task
-    task_info=$(node -e "
+  boulder_info=$(node -e "
+const fs=require('fs');
 try{
-  const d=require('$BOULDER');
-  const w=d.works['$active_work_id'];
-  if(!w||!w.tasks)return;
-  const pending=w.tasks.filter(t=>t.status==='pending');
-  const inprog=w.tasks.filter(t=>t.status==='in_progress');
-  const blocked=w.tasks.filter(t=>t.status==='blocked');
-  if(inprog.length>0)process.stdout.write('in_progress|'+inprog[0].description);
-  else if(pending.length>0)process.stdout.write('pending|'+pending[0].description);
-  else if(blocked.length>0)process.stdout.write('blocked|'+blocked[0].description);
-  else process.stdout.write('complete|all tasks done');
-}catch(e){}" 2>/dev/null || true)
-    if [ -n "$task_info" ]; then
-      current_task=$(echo "$task_info" | cut -d'|' -f2)
-      next_action="execute task: $current_task"
-    fi
-    # Read blockers
-    blockers=$(node -e "try{const d=require('$BOULDER');const w=d.works['$active_work_id'];if(w&&w.blockers&&w.blockers.length>0){process.stdout.write(w.blockers.map(b=>b.reason||b.description||'unnamed').join('; '))}}catch(e){}" 2>/dev/null || true)
+  const d=JSON.parse(fs.readFileSync(process.argv[1],'utf-8'));
+  const w=d.active_work_id&&d.works?d.works[d.active_work_id]:null;
+  let plan='', task='', blockers='';
+  if(w){
+    plan=w.plan_name||w.active_plan||'';
+    const tasks=Array.isArray(w.tasks)?w.tasks:[];
+    const next=tasks.find(t=>t.status==='in_progress')||tasks.find(t=>t.status==='pending')||tasks.find(t=>t.status==='blocked');
+    task=next?(next.description||''):(tasks.length?'all tasks done':'');
+    blockers=Array.isArray(w.blockers)?w.blockers.map(b=>b.reason||b.description||'unnamed').join('; '):'';
+  fi
+  process.stdout.write([plan,task,blockers].map(v=>String(v).replace(/\n/g,' ')).join('\t'));
+}catch(e){}" "$BOULDER" 2>/dev/null || true)
+  if [ -n "$boulder_info" ]; then
+    IFS=$'\t' read -r active_plan current_task blockers <<< "$boulder_info"
+    [ -n "$current_task" ] && next_action="execute task: $current_task"
   fi
 fi
 
 # Read active loop state
 if [ -f "$LOOP" ]; then
-  _goal=$(node -e "try{const d=require('$LOOP');const g=d.goals?d.goals.find(g=>g.status==='in_progress'):null;if(g)process.stdout.write(g.title);else if(d.active_goal_id)process.stdout.write(d.active_goal_id)}catch(e){}" 2>/dev/null || true)
-  _iter=$(node -e "try{const d=require('$LOOP');const g=d.goals?d.goals.find(g=>g.status==='in_progress'):null;if(g)process.stdout.write(String(g.attempt||1))}catch(e){}" 2>/dev/null || true)
+  loop_info=$(node -e "
+const fs=require('fs');
+try{
+  const d=JSON.parse(fs.readFileSync(process.argv[1],'utf-8'));
+  const g=Array.isArray(d.goals)?d.goals.find(g=>g.status==='in_progress'):null;
+  const goal=g?(g.title||''):(d.active_goal_id||'');
+  const iter=g?String(g.attempt||1):'';
+  process.stdout.write([goal,iter].map(v=>String(v).replace(/\n/g,' ')).join('\t'));
+}catch(e){}" "$LOOP" 2>/dev/null || true)
+  IFS=$'\t' read -r _goal _iter <<< "$loop_info"
   [ -n "$_goal" ] && loop_goal="$_goal"
   [ -n "$_iter" ] && loop_iteration="$_iter"
 fi
 
 # Post-compact recovery detection
-if [ -f "$SESSIONS" ]; then
-  recovery_needed=$(node -e "try{const d=require('$SESSIONS');process.stdout.write(d.compaction_state&&d.compaction_state.post_compact_recovery_needed?'true':'false')}catch(e){}" 2>/dev/null || true)
-  if [ "$recovery_needed" = "true" ]; then
-    recovery_notice="[LazyTrae] Post-compact recovery needed. Re-injecting project rules and state context."
-    # Reset the flag
-    node -e "
-try{
-  const d=require('$SESSIONS');
-  if(d.compaction_state)d.compaction_state.post_compact_recovery_needed=false;
-  require('fs').writeFileSync('$SESSIONS',JSON.stringify(d,null,2)+'\n');
-}catch(e){}" 2>/dev/null || true
-  fi
+if [ -x "$RECOVERY" ]; then
+  recovery_notice=$(bash "$RECOVERY" recover-if-needed 2>/dev/null || true)
 fi
 
 # Output

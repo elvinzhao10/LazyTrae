@@ -1,11 +1,23 @@
 const fs = require('fs');
 const path = require('path');
+const { resolveRepoPath } = require('./path-boundary');
 
 let Ajv;
 try {
   Ajv = require('ajv');
 } catch (e) {
   Ajv = null;
+}
+
+function formatAjvError(error) {
+  let errorPath = error.instancePath;
+  if (!errorPath && error.schemaPath) {
+    const propertyMatch = error.schemaPath.match(/^#\/properties\/([^/]+)/);
+    if (propertyMatch) {
+      errorPath = `/${propertyMatch[1]}`;
+    }
+  }
+  return `${errorPath || '/'} ${error.message}`;
 }
 
 function validateStateFile(repoRoot, stateFileName, schemaFileName) {
@@ -46,9 +58,7 @@ function validateStateFile(repoRoot, stateFileName, schemaFileName) {
   const valid = validate(stateData);
 
   if (!valid) {
-    const errors = (validate.errors || []).map(e =>
-      `${e.instancePath || '/'} ${e.message}`
-    );
+    const errors = (validate.errors || []).map(formatAjvError);
     return { valid: false, errors };
   }
 
@@ -78,4 +88,42 @@ function validateAllState(repoRoot) {
   return results;
 }
 
-module.exports = { validateStateFile, validateAllState };
+function checkCompletedTaskEvidence(repoRoot) {
+  const boulderPath = path.join(repoRoot, '.lazytrae', 'state', 'boulder.json');
+  if (!fs.existsSync(boulderPath)) {
+    return { valid: true, errors: [] };
+  }
+
+  let boulder;
+  try {
+    boulder = JSON.parse(fs.readFileSync(boulderPath, 'utf-8'));
+  } catch (e) {
+    return { valid: false, errors: [`Cannot inspect completed tasks: ${e.message}`] };
+  }
+
+  const errors = [];
+  for (const [workId, work] of Object.entries(boulder.works || {})) {
+    for (const task of work.tasks || []) {
+      if (task.status !== 'complete') continue;
+      const evidencePaths = Array.isArray(task.evidence_paths) ? task.evidence_paths : [];
+      if (evidencePaths.length === 0) {
+        errors.push(`${workId}/${task.id} is complete but has no evidence_paths`);
+        continue;
+      }
+      for (const evidencePath of evidencePaths) {
+        const resolved = resolveRepoPath(repoRoot, evidencePath, { mustExist: true });
+        if (!resolved.ok) {
+          errors.push(`${workId}/${task.id} invalid evidence path: ${evidencePath} (${resolved.error})`);
+        } else if (!fs.statSync(resolved.path).isFile()) {
+          errors.push(`${workId}/${task.id} evidence is not a file: ${evidencePath}`);
+        } else if (fs.statSync(resolved.path).size === 0) {
+          errors.push(`${workId}/${task.id} evidence empty: ${evidencePath}`);
+        }
+      }
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+module.exports = { validateStateFile, validateAllState, checkCompletedTaskEvidence };

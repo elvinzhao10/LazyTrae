@@ -2,7 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readJSON, writeJSON, iso, withFileLock, getActiveWork } = require('./state-access');
+const { assertSafeWrite, readJSON, writeJSON, iso, withFileLock } = require('./state-access');
+const { validateEvidencePaths } = require('../../cli/src/lib/completion-gates');
 
 const GATE_FILE_MAP = {
   plan_reread: 'reviewer.md',
@@ -16,6 +17,7 @@ function handleRecordEvidence(root, args) {
   const gateType = args.gate_type;
   const fileName = GATE_FILE_MAP[gateType] || 'general.md';
   const evidenceDir = path.join(root, '.lazytrae', 'evidence');
+  assertSafeWrite(path.join(evidenceDir, fileName));
   fs.mkdirSync(evidenceDir, { recursive: true });
 
   const filePath = path.join(evidenceDir, fileName);
@@ -89,7 +91,8 @@ function handleMarkTaskDone(root, args) {
     const b = readJSON(bp);
     if (!b) return { error: 'boulder.json not found' };
 
-    const work = getActiveWork(root);
+    if (!b.works) b.works = {};
+    const work = b.active_work_id ? b.works[b.active_work_id] : null;
     if (!work) return { error: 'No active work found' };
 
     let task = null;
@@ -100,39 +103,45 @@ function handleMarkTaskDone(root, args) {
         return { error: 'Task index ' + args.task_index + ' out of range (0-' + (work.tasks.length - 1) + ')' };
       task = work.tasks[args.task_index];
       taskIndex = args.task_index;
+    } else if (args.task_id) {
+      taskIndex = work.tasks.findIndex(t => t.id === args.task_id);
+      if (taskIndex === -1) return { error: 'Task with id "' + args.task_id + '" not found' };
+      task = work.tasks[taskIndex];
     } else if (args.task_description) {
       taskIndex = work.tasks.findIndex(t => t.description === args.task_description);
       if (taskIndex === -1) return { error: 'Task with description "' + args.task_description + '" not found' };
       task = work.tasks[taskIndex];
     } else {
-      return { error: 'Either task_index or task_description is required' };
+      return { error: 'Either task_id, task_index, or task_description is required' };
     }
 
     if (!task) return { error: 'Task not found' };
     if (task.status === 'complete') return { error: 'Task "' + task.id + '" is already complete' };
 
     // Evidence gate: refuse if no evidence
-    if (!args.evidence_summary) {
+    if (typeof args.evidence_summary !== 'string' || args.evidence_summary.trim() === '') {
       return {
         error: 'EVIDENCE_REQUIRED',
         message: 'Task completion requires evidence. Provide an evidence_summary describing what was verified.',
         task_id: task.id, current_status: task.status,
       };
     }
+    const evidencePaths = Array.isArray(args.evidence_paths) ? args.evidence_paths : [];
+    const evidenceErrors = validateEvidencePaths(root, evidencePaths);
+    if (evidenceErrors.length > 0) {
+      return {
+        error: 'EVIDENCE_REQUIRED',
+        message: 'Task completion requires non-empty evidence_paths that exist.',
+        task_id: task.id,
+        evidence_errors: evidenceErrors,
+      };
+    }
 
     // Mark complete
     task.status = 'complete';
     task.completed_at = iso();
-
-    if (!task.evidence_paths) task.evidence_paths = [];
-    const evidenceFile = 'test-runs.md';
-    const evidencePath = path.join(root, '.lazytrae', 'evidence', evidenceFile);
-    fs.mkdirSync(path.dirname(evidencePath), { recursive: true });
-    fs.appendFileSync(evidencePath,
-      '## Task Complete — ' + iso() + '\n\n- **Task ID**: ' + task.id +
-      '\n- **Description**: ' + task.description +
-      '\n- **Evidence**: ' + args.evidence_summary + '\n\n', 'utf-8');
-    task.evidence_paths.push('.lazytrae/evidence/' + evidenceFile);
+    task.evidence_summary = args.evidence_summary;
+    task.evidence_paths = Array.from(new Set([...(task.evidence_paths || []), ...evidencePaths]));
 
     work.updated_at = iso();
     b.updated_at = iso();

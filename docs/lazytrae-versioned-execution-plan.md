@@ -1,7 +1,7 @@
 # LazyTrae Versioned Execution Plan
 
 > **v0.1 — Architecture and Parity Design.** Part of the v0.x series.
-> This plan covers v0.2 through v0.13. All versions use the `v0.x` scheme.
+> This plan covers v0.2 through v0.14. All versions use the `v0.x` scheme.
 
 ## Version Index
 
@@ -18,7 +18,8 @@
 | v0.10 | Model Routing | Approximate OmO category routing | v0.9 |
 | v0.11 | Team Mode | Recreate OmO-style parallelism | v0.10 |
 | v0.12 | Dogfood | Prove LazyTrae can use itself | v0.11 |
-| v0.13 | Final Release | Produce a usable release | v0.12 |
+| v0.13 | Diagnostics & Fixes | Diagnose and fix release-blocking gaps | v0.12 |
+| v0.14 | Final Release | Produce a usable release | v0.13 |
 
 ---
 
@@ -701,7 +702,25 @@ Revert any changes made during dogfood run if they cause issues.
 
 ---
 
-## v0.13 — Final Parity Report and Release
+## v0.13 — Diagnostics & Fixes
+
+### Objective
+Diagnose and fix release-blocking gaps before final release packaging.
+
+### Files to Create/Modify
+- `plan/v0.13-diagnostics-fixes.md` — execute the decision-complete diagnostics and fixes plan
+- `docs/lazytrae-diagnostics-report.md` — record findings, fixes, and verification evidence
+
+### Verification Steps
+1. Run the diagnostics and fixes verification defined in `plan/v0.13-diagnostics-fixes.md`.
+2. Record unresolved gaps for v0.14 release packaging.
+
+### Success Criteria
+Release-blocking gaps are either fixed with evidence or documented for v0.14.
+
+---
+
+## v0.14 — Final Parity Report and Release
 
 ### Objective
 Produce a usable release.

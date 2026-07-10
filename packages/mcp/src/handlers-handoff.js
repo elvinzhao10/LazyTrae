@@ -2,7 +2,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const { assertSafeWrite } = require('./state-access');
 const { getBoulderState, getLoopState, getSessionsState, listEvidence, iso } = require('./state-access');
+const { formatCompletionStatus, getCompletionStatus } = require('../../cli/src/lib/completion-gates');
 
 function handleGenerateHandoff(root) {
   const b = getBoulderState(root);
@@ -12,6 +14,7 @@ function handleGenerateHandoff(root) {
 
   const ts = iso();
   const sessionId = s ? (s.current_session_id || 'unknown') : 'unknown';
+  const completionGate = getCompletionStatus(root);
 
   let activeWork = null;
   if (b && b.active_work_id && b.works) {
@@ -35,6 +38,7 @@ function handleGenerateHandoff(root) {
       loop_iteration: l ? (l.iteration || 0) + '/' + (l.max_iterations || 500) : 'N/A',
     },
     evidence_produced: evidenceFiles.map(f => '.lazytrae/evidence/' + f),
+    completion_gate: completionGate,
     remaining_gaps: [],
     blockers: [],
     next_prompt: '(paste the next prompt to continue)',
@@ -67,6 +71,7 @@ function handleGenerateHandoff(root) {
 
   // Persist to handoff.md
   const handoffPath = path.join(root, '.lazytrae', 'evidence', 'handoff.md');
+  assertSafeWrite(handoffPath);
   const md = [
     '# Session Handoff', '', '## Handoff Summary', '',
     '- **Session ID**: ' + handoff.session_id,
@@ -82,6 +87,10 @@ function handleGenerateHandoff(root) {
       ? handoff.current_state.current_task.id + ' — ' + handoff.current_state.current_task.description : 'None'),
     '- **Active loop**: ' + (handoff.current_state.active_loop ? 'Active' : 'Inactive'),
     '- **Loop iteration**: ' + handoff.current_state.loop_iteration, '',
+    '## Completion Gate', '',
+    '```',
+    formatCompletionStatus(handoff.completion_gate),
+    '```', '',
     '## Evidence Produced', '',
     handoff.evidence_produced.length > 0
       ? handoff.evidence_produced.map(e => '- ' + e).join('\n') : '- (none)', '',

@@ -7,7 +7,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-SESSIONS="$REPO_ROOT/.lazytrae/state/sessions.json"
+RECOVERY="$REPO_ROOT/.trae/hooks/context-recovery.sh"
 
 # Read stdin for hook event JSON
 input=""
@@ -81,17 +81,10 @@ fi
 # Context-pressure detection (mirrors lazycodex/plugins/omo/components/rules/src/context-pressure.ts)
 CONTEXT_MARKERS="context compacted|context_length_exceeded|skill descriptions were shortened|context_too_large|codex ran out of room|your input exceeds the context window|long threads and multiple compactions"
 if echo "$prompt" | grep -qiE "($CONTEXT_MARKERS)" 2>/dev/null; then
-  echo "[LazyTrae] Context pressure detected. Setting post-compact recovery flag."
-  if [ -f "$SESSIONS" ]; then
-    node -e "
-try{
-  const d=require('$SESSIONS');
-  if(!d.compaction_state)d.compaction_state={last_compaction_at:null,compaction_count:0,post_compact_recovery_needed:false};
-  d.compaction_state.post_compact_recovery_needed=true;
-  d.compaction_state.last_compaction_at=new Date().toISOString();
-  d.compaction_state.compaction_count=(d.compaction_state.compaction_count||0)+1;
-  require('fs').writeFileSync('$SESSIONS',JSON.stringify(d,null,2)+'\n');
-}catch(e){}" 2>/dev/null || true
+  if [ -x "$RECOVERY" ]; then
+    bash "$RECOVERY" mark "context-pressure marker in UserPromptSubmit" 2>/dev/null || true
+  else
+    echo "[LazyTrae] Context pressure detected. Recovery helper missing."
   fi
 fi
 

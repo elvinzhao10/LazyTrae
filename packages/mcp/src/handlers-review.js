@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readJSON, writeJSON, iso, withFileLock, getActiveWork } = require('./state-access');
+const { assertSafeWrite, readJSON, writeJSON, iso, withFileLock, getActiveWork } = require('./state-access');
 
 function handleAddBlocker(root, args) {
   const bp = path.join(root, '.lazytrae', 'state', 'boulder.json');
@@ -38,6 +38,7 @@ function handleAddBlocker(root, args) {
 
 function handleRequestReview(root, args) {
   const evidencePath = path.join(root, '.lazytrae', 'evidence', 'oracle-review.md');
+  assertSafeWrite(evidencePath);
   fs.mkdirSync(path.dirname(evidencePath), { recursive: true });
 
   const ts = iso();

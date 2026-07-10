@@ -64,18 +64,24 @@
       "items": { "type": "string" }
     },
     "started_at": {
-      "type": "string",
-      "format": "date-time",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "format": "date-time" }
+      ],
       "description": "Timestamp when the loop started."
     },
     "completed_at": {
-      "type": "string",
-      "format": "date-time",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "format": "date-time" }
+      ],
       "description": "Timestamp when the loop completed (aggregate completion)."
     },
     "cancelled_at": {
-      "type": "string",
-      "format": "date-time",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "format": "date-time" }
+      ],
       "description": "Timestamp when the loop was cancelled."
     },
     "created_at": { "type": "string", "format": "date-time" },
@@ -115,6 +121,22 @@
       "type": "array",
       "description": "List of goals in this loop.",
       "items": { "$ref": "#/definitions/UlwLoopItem" }
+    },
+    "failure_attempts": {
+      "type": "array",
+      "description": "Repeated criterion failures keyed by goal, criterion, and normalized reason.",
+      "items": { "$ref": "#/definitions/FailureAttempt" }
+    },
+    "review_blockers": {
+      "type": "array",
+      "description": "Review blockers created by repeated failures or explicit record-review-blockers calls.",
+      "items": { "$ref": "#/definitions/ReviewBlocker" }
+    },
+    "final_quality_gate": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "object", "description": "Last accepted final quality gate JSON." }
+      ]
     },
     "checkpoints": {
       "type": "array",
@@ -245,6 +267,31 @@
         "completedAt": { "type": "string", "format": "date-time" },
         "evidence": { "type": "string", "description": "Path to completion evidence file." },
         "codexGoal": { "description": "Legacy Codex goal object." }
+      }
+    },
+    "FailureAttempt": {
+      "type": "object",
+      "required": ["key", "goal_id", "criterion_id", "reason", "count"],
+      "properties": {
+        "key": { "type": "string" },
+        "goal_id": { "type": "string" },
+        "criterion_id": { "type": "string" },
+        "reason": { "type": "string" },
+        "count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "ReviewBlocker": {
+      "type": "object",
+      "required": ["goal_id", "created_at"],
+      "properties": {
+        "goal_id": { "type": "string" },
+        "criterion_id": { "type": "string" },
+        "reason": { "type": "string" },
+        "count": { "type": "integer", "minimum": 1 },
+        "title": { "type": "string" },
+        "objective": { "type": "string" },
+        "evidence": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
       }
     },
     "Checkpoint": {

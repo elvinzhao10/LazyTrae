@@ -6,6 +6,14 @@ const { handleGetActivePlan, handleGetBoulderStatus, handleGetNextTask, handleGe
 const { handleRecordEvidence, handleMarkTaskDone } = require('./handlers-evidence');
 const { handleAddBlocker, handleRequestReview } = require('./handlers-review');
 const { handleGenerateHandoff } = require('./handlers-handoff');
+const {
+  handleSymbolSearch,
+  handleFindReferences,
+  handleGotoDefinition,
+  handleDiagnostics,
+  handleDocsLookup,
+  handleDependencyGraph,
+} = require('./handlers-context');
 
 const HANDLERS = {
   'lazytrae.get_active_plan': handleGetActivePlan,
@@ -17,6 +25,12 @@ const HANDLERS = {
   'lazytrae.request_review': handleRequestReview,
   'lazytrae.generate_handoff': handleGenerateHandoff,
   'lazytrae.get_parity_status': handleGetParityStatus,
+  'lazytrae.symbol_search': handleSymbolSearch,
+  'lazytrae.find_references': handleFindReferences,
+  'lazytrae.goto_definition': handleGotoDefinition,
+  'lazytrae.diagnostics': handleDiagnostics,
+  'lazytrae.docs_lookup': handleDocsLookup,
+  'lazytrae.dependency_graph': handleDependencyGraph,
 };
 
 module.exports = { TOOLS, HANDLERS };

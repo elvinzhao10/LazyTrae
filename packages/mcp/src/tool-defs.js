@@ -37,13 +37,15 @@ const TOOLS = [
   },
   {
     name: 'lazytrae.mark_task_done',
-    description: 'Mark a task as complete. Takes task_index or task_description, evidence_summary. Validates that evidence exists before marking done (refuses if no evidence). Returns updated task status.',
+    description: 'Mark a task as complete. Takes task_id, task_index, or task_description plus evidence_summary and evidence_paths. Refuses missing or nonexistent evidence. Returns updated task status.',
     inputSchema: {
       type: 'object',
       properties: {
+        task_id: { type: 'string', description: 'Task ID to mark complete (alternative to task_index or task_description)' },
         task_index: { type: 'integer', description: 'Zero-based index of the task in the active work task list' },
         task_description: { type: 'string', description: 'Task description to match (alternative to task_index)' },
         evidence_summary: { type: 'string', description: 'Summary of evidence proving task completion' },
+        evidence_paths: { type: 'array', items: { type: 'string' }, description: 'Existing non-empty evidence files proving completion' },
       },
     },
   },
@@ -83,6 +85,76 @@ const TOOLS = [
     name: 'lazytrae.get_parity_status',
     description: 'Read docs/lazytrae-parity-ledger.md, parse summary table, return: total, complete, design, gap, deferred, na, coverage_percentage. No mutation.',
     inputSchema: { type: 'object', properties: {} },
+  },
+  {
+    name: 'lazytrae.symbol_search',
+    description: 'Heuristic local symbol/text search across project files. Returns provenance, file, line, and preview.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Symbol or text to search for' },
+        limit: { type: 'integer', description: 'Maximum results to return' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'lazytrae.find_references',
+    description: 'Heuristic local reference search for a symbol. Returns provenance, file, line, and preview.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        symbol: { type: 'string', description: 'Symbol to find references for' },
+        limit: { type: 'integer', description: 'Maximum references to return' },
+      },
+      required: ['symbol'],
+    },
+  },
+  {
+    name: 'lazytrae.goto_definition',
+    description: 'Heuristic local definition search for JavaScript/TypeScript-style declarations. Returns provenance and no_result when not found.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        symbol: { type: 'string', description: 'Symbol to locate' },
+        limit: { type: 'integer', description: 'Maximum definitions to return' },
+      },
+      required: ['symbol'],
+    },
+  },
+  {
+    name: 'lazytrae.diagnostics',
+    description: 'Detect project-native diagnostic commands such as npm test, go test, cargo check, or Python checks. Returns project-tool-backed provenance.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        run: { type: 'boolean', description: 'Reserved for future execution; currently reports detected commands without running them' },
+      },
+    },
+  },
+  {
+    name: 'lazytrae.docs_lookup',
+    description: 'Project-backed lookup across local README, package metadata, and docs files before any external documentation source.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Documentation query' },
+        limit: { type: 'integer', description: 'Maximum matches to return' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'lazytrae.dependency_graph',
+    description: 'Heuristic file-level dependency graph from import/require statements plus reverse text references.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'Project-relative file path to inspect' },
+        limit: { type: 'integer', description: 'Maximum reverse references to return' },
+      },
+      required: ['path'],
+    },
   },
 ];
 

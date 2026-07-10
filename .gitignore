@@ -22,14 +22,14 @@ Thumbs.db
 *.swp
 *.swo
 
-# LazyTrae runtime state (keep schemas, ignore live state)
-.lazytrae/state/*.json
-.lazytrae/logs/
-.lazytrae/evidence/
-
 # OmO compatibility state (keep directory structure, ignore live state)
 .omo/boulder.json
 .omo/ulw-loop/*/goals.json
 .omo/ulw-loop/*/evidence.jsonl
 .omo/ulw-loop/*/checkpoints.jsonl
 lazycodex/
+
+# LazyTrae runtime (managed by lazytrae init)
+.lazytrae/state/
+.lazytrae/logs/
+.lazytrae/evidence/

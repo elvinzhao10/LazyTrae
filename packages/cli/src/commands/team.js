@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 
 const LENSES = ['area', 'ownership', 'perspective'];
 const MIN_MEMBERS = 2;
@@ -16,6 +17,7 @@ function readTeam(root) {
 
 function writeTeam(root, team) {
   team.updatedAt = new Date().toISOString();
+  assertSafeRepoWritePath(root, teamPath(root));
   fs.writeFileSync(teamPath(root), JSON.stringify(team, null, 2) + '\n');
 }
 
@@ -49,8 +51,10 @@ function repoRoot() {
 
 function ensureTeamDirs(root) {
   const td = teamDir(root);
+  assertSafeRepoWritePath(root, td);
   ['', 'members', 'mailbox', 'worktrees'].forEach(d => {
     const dp = path.join(td, d);
+    assertSafeRepoWritePath(root, dp);
     if (!fs.existsSync(dp)) fs.mkdirSync(dp, { recursive: true });
   });
 }
@@ -105,6 +109,7 @@ function cmdSpawn(args, root) {
 
   const memberId = id.trim(), memberFocus = focus.trim();
   const memberName = name.trim() || memberFocus;
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(memberId)) { console.error('Error: --id must use letters, numbers, hyphens, or underscores'); process.exit(1); }
   if (team.members.some(m => m.id === memberId)) { console.error(`Error: Member id "${memberId}" already exists`); process.exit(1); }
   if (team.members.find(m => norm(m.focus) === norm(memberFocus))) { console.error(`Error: Member focus "${memberFocus}" duplicates existing member`); process.exit(1); }
   if (team.members.find(m => norm(m.name || m.focus || '') === norm(memberName))) { console.error(`Error: Member name "${memberName}" duplicates existing member`); process.exit(1); }
@@ -124,8 +129,10 @@ function cmdSpawn(args, root) {
   writeTeam(root, team);
 
   const md = memberDir(root, memberId);
+  assertSafeRepoWritePath(root, md);
   if (!fs.existsSync(md)) fs.mkdirSync(md, { recursive: true });
   const mb = path.join(teamDir(root), 'mailbox', memberId);
+  assertSafeRepoWritePath(root, mb);
   if (!fs.existsSync(mb)) fs.mkdirSync(mb, { recursive: true });
 
   console.log(`Member "${memberName}" (id: ${memberId}) added to "${team.teamName}"`);
@@ -217,6 +224,7 @@ function cmdDelete(args, root) {
     console.error(`Error: ${active.length} member(s) still active. Archive/wait, or use --force.`);
     process.exit(1);
   }
+  assertSafeRepoWritePath(root, teamDir(root));
   fs.rmSync(teamDir(root), { recursive: true, force: true });
   console.log(`Team "${team.teamName}" deleted.`);
 }

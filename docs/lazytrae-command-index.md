@@ -27,6 +27,7 @@
 | 1.7 | `/handoff` | `lazycodex/packages/web/content/docs/` (referenced) | New-session continuation summary | handoff command + CLI | `.trae/commands/handoff.md`, `lazytrae handoff` | COMPLETE | v0.3 |
 | 1.8 | `review-work` | `lazycodex/packages/web/content/docs/` (referenced) | Reviewer/Oracle protocol | review-work command + reviewer skill + Oracle agent | `.trae/commands/review-work.md`, `.trae/skills/reviewer/SKILL.md`, `.trae/agents/oracle.md` | COMPLETE | v0.3 |
 | 1.9 | `remove-ai-slops` | `lazycodex/packages/web/content/docs/` (referenced) | Remove AI-generated slop while preserving behavior | remove-ai-slops command + skill + Cleaner agent | `.trae/commands/remove-ai-slops.md`, `.trae/skills/remove-ai-slops/SKILL.md`, `.trae/agents/cleaner.md` | COMPLETE | v0.3 |
+| 1.10 | Completion gate status | `lazycodex/plugins/omo/components/lazycodex-executor-verify/src/codex-hook.ts` | Hard CLI completion evidence check for advisory Trae hooks | completion-status command + verify --must-pass | `packages/cli/src/commands/completion-status.js`, `lazytrae verify --must-pass` | COMPLETE | v0.13 |
 
 ## 2. Agent Roles
 
@@ -96,6 +97,7 @@
 | 5.5 | Cleanup | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (gate 5) | Remove AI slop, dead code, unused imports | remove-ai-slops skill | `.trae/skills/remove-ai-slops/SKILL.md` | COMPLETE | v0.4 |
 | 5.6 | Completion claim | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | Formal completion with evidence | Completion evidence | `.lazytrae/evidence/completion.md` | COMPLETE | v0.5 |
 | 5.7 | Handoff summary | `lazycodex/packages/web/content/docs/` (handoff workflow) | Session handoff for continuation | Handoff evidence | `.lazytrae/evidence/handoff.md` | COMPLETE | v0.5 |
+| 5.8 | Advisory hook hard gates | `lazycodex/plugins/omo/components/start-work-continuation/src/codex-hook.ts`; `lazycodex/plugins/omo/components/lazycodex-executor-verify/src/codex-hook.ts` | Trae hooks stay advisory, CLI/MCP refuse or warn on incomplete evidence | `lazytrae completion-status`, `lazytrae verify --must-pass`, MCP guarded `mark_task_done`, handoff warnings | `packages/cli/src/lib/completion-gates.js`, `.trae/hooks/stop.sh`, `packages/mcp/src/handlers-evidence.js` | COMPLETE | v0.13 |
 
 ## 6. MCP Servers
 
@@ -106,7 +108,7 @@
 | 6.3 | codegraph MCP | `lazycodex/plugins/omo/.mcp.json` (line 10) | Code graph analysis | Optional external tool | — | GAP | v0.8 |
 | 6.4 | git_bash MCP | `lazycodex/plugins/omo/.mcp.json` (line 17) | Git operations via bash | Optional in .trae/mcp.json | `.trae/mcp.json` | COMPLETE | v0.8 |
 | 6.5 | lsp MCP | `lazycodex/plugins/omo/.mcp.json` (line 25) | Language server protocol | Optional LSP MCP template | `.trae/mcp.json` (lsp server, optional) | COMPLETE (optional) | v0.11 |
-| 6.6 | LazyTrae state MCP | Not in LazyCodex (LazyTrae addition) | LazyTrae state query/mutation | LazyTrae MCP server | `packages/mcp/src/index.js` (9 tools), `packages/mcp/src/tools.js`, `packages/cli/src/commands/mcp.js` (thin wrapper) | COMPLETE | v0.8 |
+| 6.6 | LazyTrae MCP server | Not in LazyCodex (LazyTrae addition) | LazyTrae state, evidence, handoff, and local context query/mutation | LazyTrae MCP server | `packages/mcp/src/index.js` (15 tools), `packages/mcp/src/tools.js`, `packages/mcp/src/handlers-context.js`, `packages/cli/src/commands/mcp.js` (thin wrapper) | COMPLETE | v0.13 |
 
 ## 7. Model Routing
 
@@ -178,7 +180,7 @@
 
 | Category | Total | COMPLETE | DESIGN | GAP | DEFERRED | N/A |
 | --- | --- | --- | --- | --- | --- | --- |
-| Core Commands | 9 | 9 | 0 | 0 | 0 | 0 |
+| Core Commands | 10 | 10 | 0 | 0 | 0 | 0 |
 | Agent Roles | 11 | 11 | 0 | 0 | 0 | 0 |
 | Hooks | 16 | 12 | 1 | 2 | 0 | 1 |
 | State Management | 15 | 15 | 0 | 0 | 0 | 0 |
@@ -189,9 +191,9 @@
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 0 | 1 |
 | Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
 | Team Mode | 7 | 6 | 0 | 0 | 0 | 1 |
-| **TOTAL** | **125** | **114** | **2** | **4** | **0** | **5** |
+| **TOTAL** | **126** | **115** | **2** | **4** | **0** | **5** |
 
-**Coverage**: 114/125 items COMPLETE (91.2%). 1 completed in v0.12 dogfood (coding-agent-sessions skill: DESIGN → COMPLETE).
+**Coverage**: 115/126 items COMPLETE (91.3%). v0.13 adds completion-status as a hard CLI gate for advisory hook evidence.
 
 ## References
 

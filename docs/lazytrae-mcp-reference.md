@@ -30,7 +30,7 @@ Response (stdout): {"jsonrpc":"2.0","id":1,"result":{"content":[{"type":"text","
 
 ## MCP Tool Reference
 
-All 9 tools follow the `lazytrae.` namespace convention. Read tools do not mutate state. Write tools use file-based locks for concurrent safety.
+All 15 tools follow the `lazytrae.` namespace convention. Read tools do not mutate state. Write tools use file-based locks for concurrent safety. Context tools label their results as `heuristic` or `project-tool-backed`; they do not claim semantic codegraph or LSP precision.
 
 ### 1. lazytrae.get_active_plan
 
@@ -145,6 +145,66 @@ Read `docs/lazytrae-parity-ledger.md`, parse summary table. Same logic as `packa
 | Returns | `{ present: true, total, complete, design, gap, deferred, na, coverage_percentage, categories }` |
 | Error | `{ error: "Parity ledger not found" }` if ledger file missing |
 
+### 10. lazytrae.symbol_search
+
+Heuristic local text search for a symbol or string across project files.
+
+| Property | Value |
+| --- | --- |
+| Type | Read-only |
+| Parameters | `query` (required), `limit` (optional) |
+| Returns | `{ provenance: "heuristic", query, results: [{ file, line, preview }] }` |
+
+### 11. lazytrae.find_references
+
+Heuristic local reference search for a symbol.
+
+| Property | Value |
+| --- | --- |
+| Type | Read-only |
+| Parameters | `symbol` (required), `limit` (optional) |
+| Returns | `{ provenance: "heuristic", symbol, references: [{ file, line, preview }] }` |
+
+### 12. lazytrae.goto_definition
+
+Heuristic JavaScript/TypeScript-style definition search. Returns `no_result` instead of throwing when no definition is found.
+
+| Property | Value |
+| --- | --- |
+| Type | Read-only |
+| Parameters | `symbol` (required), `limit` (optional) |
+| Returns | `{ provenance: "heuristic", symbol, results, no_result }` |
+
+### 13. lazytrae.diagnostics
+
+Detects project-native diagnostic commands without running them.
+
+| Property | Value |
+| --- | --- |
+| Type | Read-only |
+| Parameters | `run` (reserved; currently reports commands only) |
+| Returns | `{ provenance: "project-tool-backed", executed: false, commands, note }` |
+
+### 14. lazytrae.docs_lookup
+
+Project-backed lookup across local README, package metadata, and `docs/`.
+
+| Property | Value |
+| --- | --- |
+| Type | Read-only |
+| Parameters | `query` (required), `limit` (optional) |
+| Returns | `{ provenance: "project-tool-backed", query, results: [{ file, line, preview }] }` |
+
+### 15. lazytrae.dependency_graph
+
+Heuristic file-level import graph and reverse text references.
+
+| Property | Value |
+| --- | --- |
+| Type | Read-only |
+| Parameters | `path` (required), `limit` (optional) |
+| Returns | `{ provenance: "heuristic", path, imports, reverse_references, missing }` |
+
 ## Optional MCP Server Templates
 
 The following optional MCP servers are configured in `.trae/mcp.json` with `required: false`. They degrade gracefully when not installed.
@@ -161,7 +221,7 @@ The following optional MCP servers are configured in `.trae/mcp.json` with `requ
 
 ## Security
 
-MCP tools only access `.lazytrae/` state and `docs/lazytrae-parity-ledger.md`. They do not read or write arbitrary files outside the LazyTrae state directory. The `record_evidence` and `mark_task_done` tools only append to or update well-known paths within `.lazytrae/evidence/`.
+State tools access `.lazytrae/` state and evidence paths. Context tools read local project files for search, docs lookup, and dependency inspection, skipping large dependency/reference directories such as `.git`, `node_modules`, `reference`, and `lazycodex`. The `record_evidence` and `mark_task_done` tools only append to or update well-known paths within `.lazytrae/evidence/` and `.lazytrae/state/`.
 
 ## Graceful Degradation
 
@@ -177,7 +237,9 @@ packages/mcp/
   package.json              # @lazytrae/mcp-server, bin: lazytrae-mcp
   src/
     index.js                # JSON-RPC server entry point (stdio loop)
-    tools.js                # 9 tool definitions + 9 handlers
+    tools.js                # handler registry
+    tool-defs.js            # 15 tool definitions
+    handlers-context.js     # 6 local context handlers
     state-access.js         # State file read/write helpers (shared with CLI)
     parity.js               # Parity ledger coverage checker
 ```

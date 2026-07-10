@@ -1,11 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-const { validateAllState } = require('../lib/validator');
+const { validateAllState, checkCompletedTaskEvidence } = require('../lib/validator');
 const { extractBlockNames } = require('../lib/managed-blocks');
 const { checkParityLedger } = require('../lib/parity-check');
 const { checkModelRouting } = require('../lib/model-routing-check');
 const { checkTraeStructure } = require('../lib/trae-checks');
 const { checkTeamMode } = require('../lib/team-check');
+const { checkStaleRecovery } = require('../lib/context-recovery');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -37,6 +38,7 @@ Options:
   }
 
   const checks = [];
+  const sourceTree = fs.existsSync(path.join(repoRoot, 'packages', 'cli', 'src', 'index.js'));
   let pass = 0;
   let fail = 0;
   let warn = 0;
@@ -53,27 +55,26 @@ Options:
     addResult(r.label, r.status, r.detail);
   }
 
-  // MCP server package check
-  const mcpIndexPath = path.join(repoRoot, 'packages', 'mcp', 'src', 'index.js');
-  if (fs.existsSync(mcpIndexPath)) {
-    addResult('packages/mcp/src/index.js', 'PASS');
-  } else {
-    addResult('packages/mcp/src/index.js', 'FAIL', 'MCP server entry point not found');
-  }
+  if (sourceTree) {
+    const mcpIndexPath = path.join(repoRoot, 'packages', 'mcp', 'src', 'index.js');
+    if (fs.existsSync(mcpIndexPath)) addResult('packages/mcp/src/index.js', 'PASS');
+    else addResult('packages/mcp/src/index.js', 'FAIL', 'MCP server entry point not found');
 
-  // MCP server tools check
-  const mcpToolsPath = path.join(repoRoot, 'packages', 'mcp', 'src', 'tools.js');
-  if (fs.existsSync(mcpToolsPath)) {
-    try {
-      const { TOOLS } = require(mcpToolsPath);
-      const toolCount = TOOLS.length;
-      addResult('MCP tools (9 expected)', toolCount >= 9 ? 'PASS' : 'FAIL',
-        `Found ${toolCount} MCP tools, expected 9`);
-    } catch (e) {
-      addResult('MCP tools', 'FAIL', `Cannot load tools.js: ${e.message}`);
+    const mcpToolsPath = path.join(repoRoot, 'packages', 'mcp', 'src', 'tools.js');
+    if (fs.existsSync(mcpToolsPath)) {
+      try {
+        const { TOOLS } = require(mcpToolsPath);
+        const toolCount = TOOLS.length;
+        addResult('MCP tools (15 expected)', toolCount === 15 ? 'PASS' : 'FAIL',
+          `Found ${toolCount} MCP tools, expected 15`);
+      } catch (e) {
+        addResult('MCP tools', 'FAIL', `Cannot load tools.js: ${e.message}`);
+      }
+    } else {
+      addResult('packages/mcp/src/tools.js', 'FAIL', 'MCP tools file not found');
     }
   } else {
-    addResult('packages/mcp/src/tools.js', 'FAIL', 'MCP tools file not found');
+    addResult('MCP runtime', 'WARN', 'Uses the installed lazytrae CLI; source-package checks skipped');
   }
 
   // MCP server runtime check (WARN if not running, expected outside Trae)
@@ -172,27 +173,40 @@ Options:
     }
   }
 
+  const evidenceGate = checkCompletedTaskEvidence(repoRoot);
+  addResult('Completed task evidence gate', evidenceGate.valid ? 'PASS' : 'FAIL',
+    evidenceGate.valid ? 'All completed tasks have evidence paths' : evidenceGate.errors.join('; '));
+
+  const recoveryResult = checkStaleRecovery(repoRoot);
+  addResult(recoveryResult.label, recoveryResult.status, recoveryResult.detail);
+
   // Model routing config check (v0.10)
   const routingResult = checkModelRouting(repoRoot);
   addResult(routingResult.label, routingResult.status, routingResult.detail);
 
   // Team mode check (v0.11)
-  const teamResult = checkTeamMode(repoRoot);
+  const teamResult = sourceTree || fs.existsSync(path.join(repoRoot, '.lazytrae', 'team'))
+    ? checkTeamMode(repoRoot)
+    : { label: 'Team mode', status: 'WARN', detail: 'No team state initialized' };
   addResult(teamResult.label, teamResult.status, teamResult.detail);
 
   // Parity ledger
-  const parityResult = checkParityLedger(repoRoot);
-  if (!parityResult.present) {
-    addResult('Parity ledger', 'FAIL', parityResult.errors.join('; '));
-  } else if (parityResult.errors.length > 0) {
-    addResult('Parity ledger', 'WARN', parityResult.errors.join('; '));
+  if (sourceTree) {
+    const parityResult = checkParityLedger(repoRoot);
+    if (!parityResult.present) {
+      addResult('Parity ledger', 'FAIL', parityResult.errors.join('; '));
+    } else if (parityResult.errors.length > 0) {
+      addResult('Parity ledger', 'WARN', parityResult.errors.join('; '));
+    } else {
+      addResult('Parity ledger', 'PASS',
+        `${parityResult.complete}/${parityResult.total} (${parityResult.coverage}%) complete`);
+    }
   } else {
-    addResult('Parity ledger', 'PASS',
-      `${parityResult.complete}/${parityResult.total} (${parityResult.coverage}%) complete`);
+    addResult('Parity ledger', 'WARN', 'Not included in an initialized consumer project');
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v0.11.0`);
+  console.log(`LazyTrae Doctor v0.8.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);

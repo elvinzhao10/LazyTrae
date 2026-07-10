@@ -7,15 +7,15 @@
 
 LazyTrae recreates the LazyCodex/OmO agent harness experience on Trae IDE. It uses Trae-native mechanisms (Rules, Skills, Commands, Custom Agents, Hooks, MCP, SOLO/Subagents) to deliver the same workflow semantics as LazyCodex does on Codex.
 
-The canonical source of truth is the LazyCodex repo cloned at `lazycodex/`. All LazyCodex behavior must be verified against actual source files, not memory.
+The canonical source of truth is the LazyCodex repo cloned at `reference/lazycodex/` in this worktree. Historical parity tables may still use logical source paths beginning with `lazycodex/...`; resolve those paths under `reference/lazycodex/` before verification. All LazyCodex behavior must be verified against actual source files, not memory.
 
 ## Repository Layout
 
 ```
 lazytrae/
   AGENTS.md              ← You are here
-  plan/                  ← Versioned execution plan (v0.0 through v0.13)
-  lazycodex/             ← Cloned LazyCodex repo (canonical source, read-only reference)
+  plan/                  ← Versioned execution plan (v0.0 through v0.14)
+  reference/lazycodex/   ← Cloned LazyCodex repo (canonical source, read-only reference)
 ```
 
 ## Operating Rules
@@ -23,11 +23,11 @@ lazytrae/
 ### Inspect Before Editing
 - Always read the actual LazyCodex source files before implementing any feature.
 - Never invent LazyCodex behavior from memory.
-- The `lazycodex/` directory is the canonical source of truth.
+- The `reference/lazycodex/` directory is the canonical source of truth in this worktree.
 
 ### Plan Before Multi-File Changes
 - Use the versioned plan files as the execution guide.
-- Follow versions in order: v0.0 -> v0.1 -> ... -> v0.13.
+- Follow versions in order: v0.0 -> v0.1 -> ... -> v0.14.
 - Each version has objective, deliverables, steps, verification, and rollback.
 
 ### Preserve LazyCodex Semantics
@@ -79,19 +79,19 @@ Trae does not have a PostCompact hook event. LazyCodex uses PostCompact for cach
 
 | What | Where |
 | --- | --- |
-| Entry point | `lazycodex/bin/lazycodex-ai.js` |
-| Plugin root | `lazycodex/plugins/omo/` |
-| Components | `lazycodex/plugins/omo/components/` |
-| Agent roles | `lazycodex/plugins/omo/components/ultrawork/agents/*.toml` |
-| Hooks | `lazycodex/plugins/omo/components/*/hooks/hooks.json` |
-| Skills | `lazycodex/plugins/omo/components/*/skills/*/SKILL.md` |
-| Shared skills | `lazycodex/plugins/omo/skills/*/SKILL.md` |
-| MCP config | `lazycodex/plugins/omo/.mcp.json` |
-| Model catalog | `lazycodex/plugins/omo/model-catalog.json` |
-| Web docs | `lazycodex/packages/web/content/docs/*.md` |
-| ulw-loop source | `lazycodex/plugins/omo/components/ulw-loop/src/` |
-| ultrawork source | `lazycodex/plugins/omo/components/ultrawork/src/` |
-| rules source | `lazycodex/plugins/omo/components/rules/src/` |
+| Entry point | `reference/lazycodex/bin/lazycodex-ai.js` |
+| Plugin root | `reference/lazycodex/plugins/omo/` |
+| Components | `reference/lazycodex/plugins/omo/components/` |
+| Agent roles | `reference/lazycodex/plugins/omo/components/ultrawork/agents/*.toml` |
+| Hooks | `reference/lazycodex/plugins/omo/components/*/hooks/hooks.json` |
+| Skills | `reference/lazycodex/plugins/omo/components/*/skills/*/SKILL.md` |
+| Shared skills | `reference/lazycodex/plugins/omo/skills/*/SKILL.md` |
+| MCP config | `reference/lazycodex/plugins/omo/.mcp.json` |
+| Model catalog | `reference/lazycodex/plugins/omo/model-catalog.json` |
+| Web docs | `reference/lazycodex/packages/web/content/docs/*.md` |
+| ulw-loop source | `reference/lazycodex/plugins/omo/components/ulw-loop/src/` |
+| ultrawork source | `reference/lazycodex/plugins/omo/components/ultrawork/src/` |
+| rules source | `reference/lazycodex/plugins/omo/components/rules/src/` |
 
 ## Quick Reference: LazyTrae Docs
 
@@ -107,49 +107,7 @@ Trae does not have a PostCompact hook event. LazyCodex uses PostCompact for cach
 
 ---
 
-<!-- lazytrae:managed:start:version-numbering -->
-
-## Version Numbering
-
-All versions use the `v0.x` scheme. This is the **version 0 build**.
-
-- v0.0 = canonical discovery
-- v0.1 = architecture
-- v0.2 = rules/memory
-- ...
-- v0.13 = final release
-
-Do not use `v1.x`, `v2.x`, etc. The entire 14-step plan is under the v0.x umbrella.
-
-<!-- lazytrae:managed:end:version-numbering -->
-
 ---
-
-<!-- lazytrae:managed:start:plan-files -->
-
-### Plan Files
-
-Each file in `plan/` is one version of the execution plan:
-
-| File | Version | Focus |
-| --- | --- | --- |
-| `v0.0-overview.md` | v0.0 | Product definition, strategy, repo structure, parity map |
-| `v0.0-canonical-discovery.md` | v0.0 | Discover the canonical LazyCodex contract |
-| `v0.1-architecture-parity.md` | v0.1 | Architecture and parity design |
-| `v0.2-rules-memory.md` | v0.2 | Project constitution, rules, and memory |
-| `v0.3-skills-commands.md` | v0.3 | Skills and command workflows |
-| `v0.4-custom-agents.md` | v0.4 | Custom agents and role specialization |
-| `v0.5-state-machine.md` | v0.5 | Runtime state machine |
-| `v0.6-cli-installer.md` | v0.6 | CLI installer and doctor |
-| `v0.7-hooks-enforcement.md` | v0.7 | Hooks and enforcement |
-| `v0.8-mcp-tools.md` | v0.8 | MCP and tool integration |
-| `v0.9-long-horizon-loop.md` | v0.9 | Long-horizon execution loop |
-| `v0.10-model-routing.md` | v0.10 | Model routing and optional runner |
-| `v0.11-team-mode.md` | v0.11 | Team mode / parallel work |
-| `v0.12-dogfood.md` | v0.12 | Dogfood run |
-| `v0.13-final-release.md` | v0.13 | Final parity report and release |
-
-<!-- lazytrae:managed:end:plan-files -->
 
 ---
 
@@ -161,7 +119,7 @@ Each file in `plan/` is one version of the execution plan:
 
 Every LazyTrae execution follows five phases:
 
-1. **Explore** — Understand the codebase before making changes. Use `lazycodex/` as the canonical source of truth. Run read-only subagents for parallel exploration.
+1. **Explore** — Understand the codebase before making changes. Use `reference/lazycodex/` as the canonical source of truth. Run read-only subagents for parallel exploration.
 2. **Plan** — Read the versioned plan file. Generate a decision-complete plan with references, acceptance criteria, and commit boundaries. Never implement during planning.
 3. **Implement** — Execute one checklist item at a time. Read the actual LazyCodex source before implementing. Preserve LazyCodex semantics. Never batch multiple tasks.
 4. **Verify** — Run automated verification (tests, linters, type checks, builds). Produce manual-QA evidence. Pass adversarial QA. Clean up AI slop.
@@ -213,8 +171,60 @@ When handing off a session, produce a summary containing:
 
 ---
 
-<!-- lazytrae:managed:start:command-index -->
+---
 
+## Git Workflow
+
+- Use conventional commits.
+- Keep commits atomic.
+- Each commit's tests and build must pass on its own.
+- Stage only the files you changed.
+- No `git add -A` or `git add .`.
+- No `git commit --no-verify`.
+- No force pushes.
+
+
+<!-- lazytrae:managed:start:version-numbering -->
+## Version Numbering
+
+All versions use the `v0.x` scheme. This is the **version 0 build**.
+
+- v0.0 = canonical discovery
+- v0.1 = architecture
+- v0.2 = rules/memory
+- ...
+- v0.13 = diagnostics/fixes
+- v0.14 = final release
+
+Do not use `v1.x`, `v2.x`, etc. The entire 14-step plan is under the v0.x umbrella.
+<!-- lazytrae:managed:end:version-numbering -->
+
+<!-- lazytrae:managed:start:plan-files -->
+### Plan Files
+
+Each file in `plan/` is one version of the execution plan:
+
+| File | Version | Focus |
+| --- | --- | --- |
+| `v0.0-overview.md` | v0.0 | Product definition, strategy, repo structure, parity map |
+| `v0.0-canonical-discovery.md` | v0.0 | Discover the canonical LazyCodex contract |
+| `v0.1-architecture-parity.md` | v0.1 | Architecture and parity design |
+| `v0.2-rules-memory.md` | v0.2 | Project constitution, rules, and memory |
+| `v0.3-skills-commands.md` | v0.3 | Skills and command workflows |
+| `v0.4-custom-agents.md` | v0.4 | Custom agents and role specialization |
+| `v0.5-state-machine.md` | v0.5 | Runtime state machine |
+| `v0.6-cli-installer.md` | v0.6 | CLI installer and doctor |
+| `v0.7-hooks-enforcement.md` | v0.7 | Hooks and enforcement |
+| `v0.8-mcp-tools.md` | v0.8 | MCP and tool integration |
+| `v0.9-long-horizon-loop.md` | v0.9 | Long-horizon execution loop |
+| `v0.10-model-routing.md` | v0.10 | Model routing and optional runner |
+| `v0.11-team-mode.md` | v0.11 | Team mode / parallel work |
+| `v0.12-dogfood.md` | v0.12 | Dogfood run |
+| `v0.13-diagnostics-fixes.md` | v0.13 | Diagnostics and fixes |
+| `v0.14-final-release.md` | v0.14 | Final parity report and release |
+<!-- lazytrae:managed:end:plan-files -->
+
+<!-- lazytrae:managed:start:command-index -->
 ## Command Index
 
 Every canonical LazyCodex method from v0.0 discovery appears here or is explicitly deferred.
@@ -289,53 +299,19 @@ See `docs/lazytrae-command-index.md` for the full reference table.
 | 38 | Context pressure detection | `lazycodex/plugins/omo/components/rules/src/context-pressure.ts` | SessionStart/UserPromptSubmit detection | COMPLETE | v0.7 |
 | 39 | Post-compact recovery | `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts` | Post-compact state in sessions.json | GAP (mitigated) | v0.7 |
 
-### Model Routing
-
-| # | Method | LazyCodex Source | LazyTrae Equivalent | Status | Version |
-| --- | --- | --- | --- | --- | --- |
-| 40 | Role-based profiles | `lazycodex/plugins/omo/model-catalog.json` | `.lazytrae/config.json` routing section | COMPLETE | v0.10 |
-| 41 | Category routing (quick/deep/ultrabrain/visual/writing/review) | `lazycodex/plugins/omo/model-catalog.json` | Agent prompt routing hints + CLI `run` command | COMPLETE | v0.10 |
-| 42 | Trae mode mapping (Auto/Max) | N/A (Trae-native) | Agent prompts + `docs/lazytrae-model-routing.md` | COMPLETE | v0.10 |
-| 43 | Optional trae-agent backend | N/A (LazyTrae addition) | `packages/cli/src/commands/run.js` | COMPLETE | v0.10 |
-
-### Team Mode
-
-| # | Method | LazyCodex Source | LazyTrae Equivalent | Status | Version |
-| --- | --- | --- | --- | --- | --- |
-| 44 | Team state model | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-state.mjs` | `.lazytrae/team/team.json` + `.lazytrae/schemas/team.schema.json` | COMPLETE | v0.11 |
-| 45 | Team controller CLI | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team.mjs` | `packages/cli/src/commands/team.js` | COMPLETE | v0.11 |
-| 46 | Leader orchestration protocol | `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md` | `docs/lazytrae-team-mode.md` | COMPLETE | v0.11 |
-| 47 | Worktree isolation | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-worktree.mjs` | Documented in `docs/lazytrae-team-mode.md` (Trae worktrees manual) | COMPLETE (simplified) | v0.11 |
-| 48 | Thread title hygiene hook | `lazycodex/plugins/omo/components/teammode/src/codex-hook.ts` | N/A (Trae subagents are ephemeral, no thread titles) | N/A | v0.11 |
-| 49 | Member communication | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-guide.mjs` | `.lazytrae/team/mailbox/` file-based | COMPLETE (adapted) | v0.11 |
-| 50 | Durability across sessions | Codex thread persistence | Durable team.json + member report files | COMPLETE (adapted) | v0.11 |
-
 ### Deferred / Not Applicable
 
 | # | Method | Reason |
 | --- | --- | --- |
 | D1 | Telemetry hook | LazyTrae does not add telemetry — N/A |
 | D2 | Codex marketplace install | Not portable — replaced by `npx lazytrae-ai init` |
-| D3 | LSP daemon | Optional LSP MCP template in `.trae/mcp.json` — COMPLETE (optional) |
+| D3 | LSP daemon | Optional external LSP MCP — GAP |
 | D4 | Codegraph | Optional external code graph tool — GAP |
-| D5 | refactor skill | COMPLETE — `.trae/skills/refactor/SKILL.md` |
-| D6 | programming skill | COMPLETE — `.trae/skills/programming/SKILL.md` |
-| D7 | frontend skill | COMPLETE — `.trae/skills/frontend/SKILL.md` |
-| D8 | git-master skill | COMPLETE — `.trae/skills/git-master/SKILL.md` |
-| D9 | lcx-report-bug skill | COMPLETE — `.trae/skills/lcx-report-bug/SKILL.md` |
-| D10 | ast-grep skill | COMPLETE — `.trae/skills/ast-grep/SKILL.md` + MCP template |
+| D5 | refactor skill | Embedded in start-work — DEFERRED |
+| D6 | programming skill | Embedded in start-work — DEFERRED |
+| D7 | frontend skill | Embedded in start-work — DEFERRED |
+| D8 | git-master skill | Embedded in start-work — DEFERRED |
+| D9 | lcx-report-bug skill | Not ported — DEFERRED |
+| D10 | ast-grep skill | Optional external tool — DEFERRED |
 | D11 | Managed profiles (model routing) | Legacy compatibility — N/A |
-
 <!-- lazytrae:managed:end:command-index -->
-
----
-
-## Git Workflow
-
-- Use conventional commits.
-- Keep commits atomic.
-- Each commit's tests and build must pass on its own.
-- Stage only the files you changed.
-- No `git add -A` or `git add .`.
-- No `git commit --no-verify`.
-- No force pushes.

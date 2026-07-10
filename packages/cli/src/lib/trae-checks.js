@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 /**
  * Runs all .trae/ structural checks (rules, skills, commands, agents, hooks, mcp).
@@ -97,6 +98,18 @@ function checkTraeStructure(repoRoot) {
           ? `${hookScripts.length} scripts executable`
           : `Not executable: ${nonExec.join(', ')}`,
       });
+
+      for (const script of hookScripts) {
+        const rel = `.trae/hooks/${script}`;
+        const syntax = spawnSync('bash', ['-n', path.join(hooksDir, script)], { encoding: 'utf-8' });
+        results.push({
+          label: `${rel} syntax`,
+          status: syntax.status === 0 ? 'PASS' : 'FAIL',
+          detail: syntax.status === 0
+            ? 'bash -n passed'
+            : `${syntax.stderr.trim() || syntax.stdout.trim() || 'Invalid shell syntax'}. Run \`bash -n ${rel}\` to diagnose.`,
+        });
+      }
     } else {
       results.push({ label: '.trae/hooks/', status: 'WARN', detail: 'No hook scripts found' });
     }

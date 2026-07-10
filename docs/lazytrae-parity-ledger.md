@@ -27,6 +27,7 @@
 | 1.7 | `/handoff` | `lazycodex/packages/web/content/docs/` (referenced) | New-session continuation summary | handoff command + CLI | `.trae/commands/handoff.md`, `lazytrae handoff` | COMPLETE |
 | 1.8 | `review-work` | `lazycodex/packages/web/content/docs/` (referenced) | Reviewer/Oracle protocol | review-work command + reviewer skill + Oracle agent | `.trae/commands/review-work.md`, `.trae/skills/reviewer/SKILL.md`, `.trae/agents/oracle.md` | COMPLETE |
 | 1.9 | `remove-ai-slops` | `lazycodex/packages/web/content/docs/` (referenced) | Remove AI-generated slop while preserving behavior | remove-ai-slops command + skill + Cleaner agent | `.trae/commands/remove-ai-slops.md`, `.trae/skills/remove-ai-slops/SKILL.md`, `.trae/agents/cleaner.md` | COMPLETE |
+| 1.10 | Completion gate status | `lazycodex/plugins/omo/components/lazycodex-executor-verify/src/codex-hook.ts` | Hard CLI completion evidence check for advisory Trae hooks | completion-status command + verify --must-pass | `packages/cli/src/commands/completion-status.js`, `lazytrae verify --must-pass` | COMPLETE |
 
 ## 2. Agent Roles
 
@@ -106,7 +107,7 @@
 | 6.3 | codegraph MCP | `lazycodex/plugins/omo/.mcp.json` (line 10) | Code graph analysis | Optional external tool | — | GAP |
 | 6.4 | git_bash MCP | `lazycodex/plugins/omo/.mcp.json` (line 17) | Git operations via bash | Optional in .trae/mcp.json | `.trae/mcp.json` | COMPLETE |
 | 6.5 | lsp MCP | `lazycodex/plugins/omo/.mcp.json` (line 25) | Language server protocol | Optional LSP MCP template | `.trae/mcp.json` (lsp server, optional) | COMPLETE (optional) |
-| 6.6 | LazyTrae state MCP | Not in LazyCodex (LazyTrae addition) | LazyTrae state query/mutation | LazyTrae MCP server | `packages/mcp/src/index.js` (9 tools), `packages/mcp/src/tools.js`, `packages/cli/src/commands/mcp.js` (thin wrapper) | COMPLETE |
+| 6.6 | LazyTrae MCP server | Not in LazyCodex (LazyTrae addition) | LazyTrae state, evidence, handoff, and local context query/mutation | LazyTrae MCP server | `packages/mcp/src/index.js` (15 tools), `packages/mcp/src/tools.js`, `packages/mcp/src/handlers-context.js`, `packages/cli/src/commands/mcp.js` (thin wrapper) | COMPLETE |
 
 ## 7. Model Routing
 
@@ -198,7 +199,7 @@
 
 | Category | Total | COMPLETE | DESIGN | GAP | DEFERRED | N/A |
 | --- | --- | --- | --- | --- | --- | --- |
-| Core Commands | 9 | 9 | 0 | 0 | 0 | 0 |
+| Core Commands | 10 | 10 | 0 | 0 | 0 | 0 |
 | Agent Roles | 11 | 11 | 0 | 0 | 0 | 0 |
 | Hooks | 16 | 12 | 1 | 2 | 0 | 1 |
 | State Management | 15 | 15 | 0 | 0 | 0 | 0 |
@@ -209,10 +210,10 @@
 | Ultrawork/ulw-loop Core | 15 | 14 | 0 | 0 | 0 | 1 |
 | Rules Component | 10 | 7 | 1 | 1 | 0 | 1 |
 | Team Mode | 7 | 6 | 0 | 0 | 0 | 1 |
-| **TOTAL** | **125** | **114** | **2** | **4** | **0** | **5** |
+| **TOTAL** | **126** | **115** | **2** | **4** | **0** | **5** |
 
-**Coverage**: 114/125 (91.2%) are COMPLETE. 2/125 (1.6%) have concrete Trae-native designs.
-- 114 items COMPLETE: 9 core commands + 11 agent roles + 12 hooks + 15 state management + 7 verification gates + 5 MCP servers + 6 model routing + 22 skills + 14 ultrawork core + 7 rules component + 6 team mode.
+**Coverage**: 115/126 (91.3%) are COMPLETE. 2/126 (1.6%) have concrete Trae-native designs.
+- 115 items COMPLETE: 10 core commands + 11 agent roles + 12 hooks + 15 state management + 7 verification gates + 5 MCP servers + 6 model routing + 22 skills + 14 ultrawork core + 7 rules component + 6 team mode.
 - 4 GAPs: PostCompact hook (3.6, fundamental platform gap), codegraph MCP (6.3, no suitable server available), codegraph init hook (3.12, depends on codegraph MCP), post-compact recovery (10.4, mitigated via heuristic detection).
 - 2 DESIGN: ulw-loop goal budget protection (3.10), bundled rules hephaestus (10.10).
 

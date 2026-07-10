@@ -7,10 +7,13 @@
 
 const path = require('path');
 
-function run(_args) {
-  // Find the mcp package relative to the CLI package
-  const mcpIndex = path.resolve(__dirname, '..', '..', 'mcp', 'src', 'index.js');
-  require(mcpIndex).main();
+function resolveMcpIndex() {
+  return path.resolve(__dirname, '..', '..', '..', 'mcp', 'src', 'index.js');
 }
 
-module.exports = { run };
+function run(_args) {
+  // Find the mcp package relative to the CLI package
+  require(resolveMcpIndex()).main();
+}
+
+module.exports = { run, resolveMcpIndex };

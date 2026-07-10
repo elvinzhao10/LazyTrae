@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { assertSafeRepoWritePath } = require('./path-boundary');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'templates');
 
@@ -73,4 +74,57 @@ function copyDir(src, dest) {
   return { created, updated };
 }
 
-module.exports = { TEMPLATES_DIR, readTemplate, readTemplateDir, ensureDir, copyFileIfChanged, copyDir };
+function ensureRepoDir(repoRoot, dirPath) {
+  assertSafeRepoWritePath(repoRoot, dirPath);
+  ensureDir(dirPath);
+}
+
+function copyRepoFileIfChanged(repoRoot, src, dest) {
+  assertSafeRepoWritePath(repoRoot, dest);
+  return copyFileIfChanged(src, dest);
+}
+
+function copyRepoDir(repoRoot, src, dest) {
+  if (!fs.existsSync(src)) return { created: 0, updated: 0 };
+  ensureRepoDir(repoRoot, dest);
+  let created = 0;
+  let updated = 0;
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      const result = copyRepoDir(repoRoot, srcPath, destPath);
+      created += result.created;
+      updated += result.updated;
+    } else {
+      const existed = fs.existsSync(destPath);
+      if (copyRepoFileIfChanged(repoRoot, srcPath, destPath)) {
+        if (existed) updated++;
+        else created++;
+      }
+    }
+  }
+  return { created, updated };
+}
+
+function writeRepoFile(repoRoot, filePath, content, encoding = 'utf-8') {
+  assertSafeRepoWritePath(repoRoot, filePath);
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, content, encoding);
+}
+
+function copyRepoFile(repoRoot, src, dest) {
+  assertSafeRepoWritePath(repoRoot, dest);
+  ensureDir(path.dirname(dest));
+  fs.copyFileSync(src, dest);
+}
+
+function chmodRepoFile(repoRoot, filePath, mode) {
+  assertSafeRepoWritePath(repoRoot, filePath);
+  fs.chmodSync(filePath, mode);
+}
+
+module.exports = {
+  TEMPLATES_DIR, readTemplate, readTemplateDir, ensureDir, copyFileIfChanged, copyDir,
+  ensureRepoDir, copyRepoFileIfChanged, copyRepoDir, writeRepoFile, copyRepoFile, chmodRepoFile,
+};

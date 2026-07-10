@@ -1,10 +1,9 @@
 {
   "mcpServers": {
     "lazytrae": {
-      "command": "node",
-      "args": ["packages/mcp/src/index.js"],
-      "cwd": ".",
-      "description": "LazyTrae state query and mutation MCP server — exposes 9 tools for boulder state, evidence recording, parity checking, and handoff generation"
+      "command": "lazytrae",
+      "args": ["mcp"],
+      "description": "LazyTrae state, evidence, handoff, and local context MCP server — exposes 15 tools including heuristic symbol/reference/docs/dependency helpers"
     },
     "grep_app": {
       "url": "https://mcp.grep.app",
@@ -60,7 +59,7 @@
     }
   },
   "lazytrae": {
-    "description": "LazyTrae MCP configuration template for v0.8. The 'lazytrae' server provides 9 tools to query and mutate LazyTrae state. Optional servers provide additional capabilities and degrade gracefully when not configured.",
+    "description": "LazyTrae MCP configuration template for v0.13. The 'lazytrae' server runs through the installed CLI and provides 15 state, evidence, handoff, and local context tools. Optional servers provide additional capabilities and degrade gracefully when not configured.",
     "note": "Required: false servers are optional and will not cause errors if unavailable. Disable unwanted servers by setting 'disabled': true."
   }
 }

@@ -14,7 +14,7 @@ The canonical source of truth is the LazyCodex repo cloned at `lazycodex/`. All 
 ```
 lazytrae/
   AGENTS.md              ← You are here
-  plan/                  ← Versioned execution plan (v0.0 through v0.13)
+  plan/                  ← Versioned execution plan (v0.0 through v0.14)
   lazycodex/             ← Cloned LazyCodex repo (canonical source, read-only reference)
 ```
 
@@ -27,7 +27,7 @@ lazytrae/
 
 ### Plan Before Multi-File Changes
 - Use the versioned plan files as the execution guide.
-- Follow versions in order: v0.0 -> v0.1 -> ... -> v0.13.
+- Follow versions in order: v0.0 -> v0.1 -> ... -> v0.14.
 - Each version has objective, deliverables, steps, verification, and rollback.
 
 ### Preserve LazyCodex Semantics
@@ -117,7 +117,8 @@ All versions use the `v0.x` scheme. This is the **version 0 build**.
 - v0.1 = architecture
 - v0.2 = rules/memory
 - ...
-- v0.13 = final release
+- v0.13 = diagnostics/fixes
+- v0.14 = final release
 
 Do not use `v1.x`, `v2.x`, etc. The entire 14-step plan is under the v0.x umbrella.
 
@@ -147,7 +148,8 @@ Each file in `plan/` is one version of the execution plan:
 | `v0.10-model-routing.md` | v0.10 | Model routing and optional runner |
 | `v0.11-team-mode.md` | v0.11 | Team mode / parallel work |
 | `v0.12-dogfood.md` | v0.12 | Dogfood run |
-| `v0.13-final-release.md` | v0.13 | Final parity report and release |
+| `v0.13-diagnostics-fixes.md` | v0.13 | Diagnostics and fixes |
+| `v0.14-final-release.md` | v0.14 | Final parity report and release |
 
 <!-- lazytrae:managed:end:plan-files -->
 

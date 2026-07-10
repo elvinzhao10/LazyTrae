@@ -3,9 +3,14 @@
   "current_session_id": null,
   "sessions": {},
   "compaction_state": {
-    "last_compaction_at": "2026-07-09T09:07:11.965Z",
-    "compaction_count": 2,
-    "post_compact_recovery_needed": false
+    "last_compaction_at": null,
+    "compaction_count": 0,
+    "post_compact_recovery_needed": false,
+    "recovery_reason": null,
+    "recovery_detected_at": null,
+    "post_compact_recovered_at": null,
+    "last_injected_rules_hash": null,
+    "recovery_events": []
   },
   "metadata": {
     "description": "LazyTrae Session tracking — mirrors LazyCodex session-state-lock.ts behavior. Tracks active sessions, compaction state, and session-level state for cross-session continuation.",

@@ -26,6 +26,9 @@
   "active_goal_id": null,
   "aggregate_completion": null,
   "goals": [],
+  "failure_attempts": [],
+  "review_blockers": [],
+  "final_quality_gate": null,
   "checkpoints": [],
   "metadata": {
     "description": "LazyTrae Active Loop state — mirrors LazyCodex UlwLoopPlan.",

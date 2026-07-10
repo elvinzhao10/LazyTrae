@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
+const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 
 const CATEGORIES = ['quick', 'deep', 'ultrabrain', 'visual-engineering', 'writing', 'review'];
 
@@ -35,16 +36,12 @@ function resolveCategory(config, agent) {
 }
 
 function checkTraeAgent() {
-  try {
-    execSync('which trae-agent', { stdio: 'pipe' });
-    return true;
-  } catch {
-    return false;
-  }
+  return spawnSync('trae-agent', ['--help'], { stdio: 'ignore' }).status === 0;
 }
 
 function recordTrajectory(repoRoot, entry) {
   const logsDir = path.join(repoRoot, '.lazytrae', 'logs');
+  assertSafeRepoWritePath(repoRoot, logsDir);
   if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
   }
@@ -173,10 +170,7 @@ function run(args) {
 
     try {
       console.log('Running active loop with trae-agent...');
-      const result = execSync(
-        `trae-agent run --trajectory .lazytrae/logs/active-loop.json`,
-        { cwd: repoRoot, stdio: 'inherit' }
-      );
+      const result = spawnSync('trae-agent', ['run', '--trajectory', '.lazytrae/logs/active-loop.json'], { cwd: repoRoot, stdio: 'inherit' });
       process.exit(result.status || 0);
     } catch (e) {
       console.error('trae-agent failed:', e.message);
@@ -204,14 +198,13 @@ function run(args) {
   const effectiveCategory = category || resolved.category;
   const effectiveMode = resolved.traeMode || 'auto';
 
-  const flags = effectiveMode === 'max' ? '--reasoning xhigh' : '';
+  const runArgs = ['run'];
+  if (effectiveMode === 'max') runArgs.push('--reasoning', 'xhigh');
+  runArgs.push('--trajectory', '.lazytrae/logs/', '--input', prompt);
 
   try {
     console.log(`Running with trae-agent: agent=${agent}, category=${effectiveCategory}, mode=${effectiveMode}`);
-    const result = execSync(
-      `trae-agent run ${flags} --trajectory .lazytrae/logs/ --input "${prompt.replace(/"/g, '\\"')}"`,
-      { cwd: repoRoot, stdio: 'inherit' }
-    );
+    const result = spawnSync('trae-agent', runArgs, { cwd: repoRoot, stdio: 'inherit' });
     recordTrajectory(repoRoot, {
       ...trajectoryEntry,
       category: effectiveCategory,

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { removeAllBlocks } = require('../lib/managed-blocks');
+const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -11,14 +12,16 @@ function detectRepoRoot() {
   return process.cwd();
 }
 
-function rimraf(dirPath) {
+function rimraf(repoRoot, dirPath) {
   if (!fs.existsSync(dirPath)) return;
+  assertSafeRepoWritePath(repoRoot, dirPath);
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
   for (const entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory()) {
-      rimraf(fullPath);
+      rimraf(repoRoot, fullPath);
     } else {
+      assertSafeRepoWritePath(repoRoot, fullPath);
       fs.unlinkSync(fullPath);
     }
   }
@@ -55,13 +58,13 @@ Options:
   const repoRoot = detectRepoRoot();
   const summary = { removed: [], preserved: [] };
 
-  console.log(`LazyTrae uninstall v0.6.0`);
+  console.log(`LazyTrae uninstall v0.8.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Remove .trae/ directory
   const traeDir = path.join(repoRoot, '.trae');
   if (fs.existsSync(traeDir)) {
-    rimraf(traeDir);
+    rimraf(repoRoot, traeDir);
     summary.removed.push('.trae/');
   }
 
@@ -73,7 +76,7 @@ Options:
     const lazytraeDir = path.join(repoRoot, '.lazytrae');
     if (fs.existsSync(lazytraeDir)) {
       if (purgeState) {
-        rimraf(lazytraeDir);
+        rimraf(repoRoot, lazytraeDir);
         summary.removed.push('.lazytrae/ (including state/evidence)');
       } else {
         // Preserve evidence and state by default
@@ -87,7 +90,8 @@ Options:
         for (const entry of entries) {
           if (entry.name === 'evidence' || entry.name === 'state') continue;
           const fullPath = path.join(lazytraeDir, entry.name);
-          if (entry.isDirectory()) rimraf(fullPath);
+          assertSafeRepoWritePath(repoRoot, fullPath);
+          if (entry.isDirectory()) rimraf(repoRoot, fullPath);
           else fs.unlinkSync(fullPath);
         }
         summary.removed.push('.lazytrae/ (evidence/state preserved)');
@@ -98,12 +102,12 @@ Options:
     const omoDir = path.join(repoRoot, '.omo');
     if (fs.existsSync(omoDir)) {
       if (purgeState) {
-        rimraf(omoDir);
+        rimraf(repoRoot, omoDir);
         summary.removed.push('.omo/ (including plans)');
       } else {
         const plansDir = path.join(omoDir, 'plans');
         if (fs.existsSync(plansDir)) summary.preserved.push('.omo/plans/');
-        rimraf(omoDir);
+        rimraf(repoRoot, omoDir);
         summary.removed.push('.omo/ (plans preserved)');
       }
     }
@@ -115,6 +119,7 @@ Options:
     let content = fs.readFileSync(agentsPath, 'utf-8');
     const newContent = removeAllBlocks(content);
     if (newContent !== content) {
+      assertSafeRepoWritePath(repoRoot, agentsPath);
       fs.writeFileSync(agentsPath, newContent, 'utf-8');
       summary.removed.push('AGENTS.md managed blocks');
     } else {
@@ -134,6 +139,7 @@ Options:
       if (endIdx === -1) endIdx = content.length;
       content = content.substring(0, idx).trimEnd() + '\n' + content.substring(endIdx);
       content = content.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
+      assertSafeRepoWritePath(repoRoot, gitignorePath);
       fs.writeFileSync(gitignorePath, content, 'utf-8');
       summary.removed.push('.gitignore LazyTrae entries');
     }
