@@ -345,7 +345,7 @@ Package LazyTrae so users do not hand-copy files.
 6. Parity ledger updated.
 
 ### Success Criteria
-A developer can install LazyTrae into any repo safely with `npx lazytrae-ai init`.
+A developer can install LazyTrae into any repo safely with `lazytrae init`.
 
 ### Rollback Strategy
 Use `lazytrae uninstall`. CLI is npm-based, so `npm uninstall -g lazytrae-ai` removes the binary.

@@ -155,13 +155,13 @@
 | --- | --- | --- | --- | --- |
 | PostCompact hook | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 38) | Trae has no PostCompact event | SessionStart + UserPromptSubmit detection | GAP |
 | Dynamic rule matching | `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (PostToolUse) | Trae rules are static | Hook-based PostToolUse extraction | VERIFIED |
-| Codex marketplace install | `lazycodex/bin/lazycodex-ai.js` (install alias) | Trae has no plugin marketplace | `npx lazytrae-ai init` | VERIFIED |
+| Codex marketplace install | `lazycodex/bin/lazycodex-ai.js` (install alias) | Trae has no plugin marketplace | `lazytrae init` | VERIFIED |
 | Hashline edit enforcement | Codex edit tools | Trae edit tools differ | PreToolUse hook + CLI guard | GAP |
 | SubagentStop event | `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 42) | Trae has single Stop event | Single Stop hook | VERIFIED |
 | LSP daemon | `lazycodex/plugins/omo/components/lsp/` | Trae has no built-in LSP MCP | Optional external LSP MCP | GAP |
 | Codegraph | `lazycodex/plugins/omo/components/codegraph/` | Trae has no codegraph equivalent | Optional external tool | GAP |
 | Telemetry | `lazycodex/plugins/omo/components/telemetry/` | Trae has its own telemetry | Not ported | N/A |
-| Auto-update | `lazycodex/plugins/omo/components/bootstrap/` | LazyTrae is npm-based | `npx lazytrae-ai sync` | VERIFIED |
+| Auto-update | `lazycodex/plugins/omo/components/bootstrap/` | LazyTrae is npm-based | `lazytrae sync` | VERIFIED |
 
 ## Summary
 

@@ -34,7 +34,7 @@ lazytrae init [options]
 **Example:**
 ```bash
 cd my-project
-npx lazytrae-ai init
+lazytrae init
 ```
 
 ---

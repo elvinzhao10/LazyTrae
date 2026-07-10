@@ -293,13 +293,13 @@ These LazyCodex features have no direct Trae equivalent and require documented s
 | --- | --- | --- | --- |
 | PostCompact hook | `PostCompact` event in Codex hooks | Trae has no PostCompact event | SessionStart detection of compaction + UserPromptSubmit context-pressure markers |
 | Dynamic rule matching | PostToolUse extracts file paths, fingerprints, loads relevant rules | Trae rules are static (loaded at session start) | Hook-based PostToolUse script extracts file paths and writes to a state file; session-start reads it |
-| Codex marketplace install | `codex plugin marketplace add` + `codex plugin add` | Trae has no plugin marketplace | `npx lazytrae-ai init` replaces marketplace install |
+| Codex marketplace install | `codex plugin marketplace add` + `codex plugin add` | Trae has no plugin marketplace | `lazytrae init` replaces marketplace install |
 | Hashline edit enforcement | Codex edit tools enforce read-before-write with hash lines | Trae edit tools do not use hash lines | PreToolUse hook + CLI guard warns on potential write-before-read; not true native enforcement |
 | SubagentStop event | Separate `SubagentStop` event in Codex | Trae has single `Stop` event | Single `Stop` hook handles both; subagent detection via session state |
 | LSP daemon | Codex LSP component runs persistent daemon | Trae has no built-in LSP MCP equivalent | Optional: configure external LSP MCP server; degrade gracefully |
 | Codegraph | Internal code graph analysis | Trae has no codegraph equivalent | Optional: external code graph tool; degrade gracefully |
 | Telemetry | PostHog-based telemetry component | Trae has its own telemetry | Not ported; LazyTrae does not add telemetry |
-| Auto-update | Bootstrap component checks for updates | LazyTrae is npm-based | `npx lazytrae-ai sync` for manual updates |
+| Auto-update | Bootstrap component checks for updates | LazyTrae is npm-based | `lazytrae sync` for manual updates |
 
 ## 4. Known Gap: PostCompact Handling
 
