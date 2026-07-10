@@ -1,18 +1,20 @@
 # LazyTrae
 
-> **A Trae-native recreation of the [LazyCodex](https://github.com/oh-my-openagent/omo) / OmO agent harness.**
+> **A practice project: realizing [LazyCodex](https://github.com/code-yeongyu/lazycodex) (the OmO agent harness) on the [Trae](https://docs.trae.cn/) platform.**
 >
-> This is a **practice project** that attempts to realize LazyCodex workflows on the [Trae IDE](https://docs.trae.cn/) platform. The entire realization process is open-sourced here to help others study how agent harnesses work and how they can be adapted across platforms.
->
-> **This repo is no longer maintained.** It served its purpose as a learning exercise. The code, docs, and parity analysis remain available for reference.
-
----
+> This repo is **no longer maintained**. It was built as a learning exercise to study how an agent harness like LazyCodex can be adapted to a different host platform. The entire realization process is open-sourced to help others studying agent-harness design and cross-platform adaptation.
 
 ## What This Is
 
-[LazyCodex](https://github.com/oh-my-openagent/omo) (also known as OmO) is an agent harness for OpenAI Codex that provides disciplined long-horizon workflows: planning loops, evidence-gated verification, agent role specialization, and a self-referential execution loop.
+**LazyTrae** is an adaptation of [LazyCodex/omo](https://github.com/code-yeongyu/lazycodex) — the OmO agent harness originally built for OpenAI Codex. It preserves LazyCodex's core workflows (deep init, planning, delegated execution, verification loops, review, durable run state) while reimplementing them on Trae-native surfaces.
 
-**LazyTrae** recreates that experience on Trae IDE using Trae-native mechanisms:
+LazyTrae runs in **three modes**:
+
+- **Trae IDE** — as a plugin (`.trae/` rules, skills, commands, agents, hooks, MCP)
+- **CLI** — `lazytrae init | doctor | verify | loop | team | run | mcp` (Node.js)
+- **Trae Work** — SOLO mode for complex project workflows
+
+**Original project credit:** LazyCodex/omo is Copyright (c) 2026 Yeongyu Kim, licensed under MIT. This project derives concepts and semantics from that work but contains no copied source code, prompts, or protected material (the upstream `reference/lazycodex/` clone is a local read-only reference — gitignored, not distributed). See [NOTICE](NOTICE) for full license provenance.
 
 | LazyCodex (Codex) | LazyTrae (Trae) |
 |---|---|
@@ -22,164 +24,108 @@
 | Agent roles (TOML) | Custom agents (`.trae/agents/*.md`) |
 | Codex hooks (6 events) | Trae hooks (`.trae/hooks/`) |
 | MCP servers | `.trae/mcp.json` |
+| Durable Codex threads | Ephemeral Trae subagents + file-based state |
 | Thread-based team mode | SOLO/subagent delegation + file-based team state |
 
-The canonical LazyCodex source was cloned into `reference/lazycodex/` (MIT-licensed, not included in the repo — see [NOTICE](NOTICE) for provenance).
+## Quick Install (Let Trae configure itself)
 
----
+The easiest way to install: **give this repo to Trae and let an agent handle everything.**
 
-## Repository Structure
+### Option A: Let the agent auto-discover and install
 
-```
-lazytrae/
-├── README.md                # You are here
-├── LICENSE                  # MIT
-├── NOTICE                   # MIT provenance (lazycodex/omo, © 2026 Yeongyu Kim)
-├── AGENTS.md                # Project constitution
-├── .gitignore
-│
-├── lazytrae-plugin/         # The installable plugin
-│   ├── .trae/               # Trae-native config (rules, skills, commands, agents, hooks)
-│   ├── .lazytrae/           # Schemas and config templates
-│   └── packages/            # CLI and MCP server source code
-│       ├── cli/             # Node.js CLI (init, doctor, sync, loop, team, run, ...)
-│       └── mcp/             # MCP server (15 tools over stdio JSON-RPC)
-│
-├── docs/                    # Documentation
-│   ├── design/              # How it works (architecture, state machine, protocols)
-│   ├── reference/           # API/command/MCP/hooks references + parity ledger
-│   ├── archive/             # Superseded/historical docs
-│   ├── lazytrae-versioned-execution-plan.md
-│   ├── lazytrae-dogfood-run.md
-│   └── lazytrae-risk-register.md
-│
-├── plan/                    # Versioned execution plan (v0.0 through v0.14)
-├── prompts/                 # Worker delegation prompts (v0.1–v0.12)
-└── other/                   # Runtime state samples, evidence, .omo mirror
-```
-
----
-
-## How to Install
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) 18+
-- [Trae IDE](https://docs.trae.cn/) (for the agent harness to run in)
-
-### Steps
-
-1. **Clone this repo:**
+1. **Clone this repo** anywhere on your machine:
    ```bash
-   git clone https://github.com/<your-org>/lazytrae.git
-   cd lazytrae
+   git clone https://github.com/elvinzhao10/Trae.git
+   cd Trae
    ```
 
-2. **Install CLI dependencies:**
+2. **Open it in Trae IDE** (or Trae Work) and start a new session in the cloned directory.
+
+3. **Paste this prompt to the agent:**
+   > Install the LazyTrae plugin from `lazytrae-plugin/` in this repo. Read the plugin manifest, copy `.trae/` (rules, skills, commands, agents, hooks) and `.lazytrae/` (schemas, config) into my project, wire `.trae/mcp.json`, then run `lazytrae doctor` to verify.
+
+4. The agent will:
+   - Read the plugin manifest under `lazytrae-plugin/`
+   - Install `.trae/` (rules, skills, commands, agents, hooks) and `.lazytrae/` (schemas, config)
+   - Wire the MCP server (`.trae/mcp.json`)
+   - Run the health check
+
+5. **Verify:**
    ```bash
-   cd lazytrae-plugin/packages/cli
+   cd lazytrae-plugin/packages/cli && npm install
+   node src/index.js doctor
+   ```
+   Expected: all checks PASS (1 WARN for the MCP server is normal).
+
+### Option B: Manual install via CLI
+
+1. **Clone and install the CLI:**
+   ```bash
+   git clone https://github.com/elvinzhao10/Trae.git
+   cd Trae/lazytrae-plugin/packages/cli
    npm install
    ```
 
-3. **Run the installer in your target project:**
+2. **Run the installer in your target project:**
    ```bash
    node src/index.js init
-   ```
-   This copies `.trae/` (rules, skills, commands, agents, hooks), `.lazytrae/` (schemas, config), and sets up the MCP server.
-
-4. **Verify the installation:**
-   ```bash
    node src/index.js doctor
    ```
-   Expected: all checks PASS (1 WARN for MCP server is normal).
 
-5. **(Optional) Install globally:**
+3. **(Optional) Install globally:**
    ```bash
    npm link
    lazytrae doctor
    ```
 
----
-
 ## How to Use
 
-### Core Workflow
+### Core commands
 
-LazyTrae follows five phases, matching LazyCodex:
+| Command | Purpose | When to use |
+|---------|---------|-------------|
+| `$init-deep` | Generate hierarchical project memory | First time in a new workspace |
+| `$ulw-plan` | Create a decision-complete work plan | Before any multi-file or ambiguous change |
+| `$start-work` | Execute a plan one checklist item at a time | When a plan is approved and ready to build |
+| `$ulw-loop` | Verified completion loop (10 states, 13-step cycle) | For open-ended tasks needing evidence-backed done |
+| `$ultrawork` | Binding high-precision mode | When maximum rigor and evidence are required |
+| `$review-work` | 5-agent parallel review gate | After every significant implementation |
+| `/verifier` | Run verification checks | After implementation, before claiming done |
+| `/reviewer` | Review changed files | After verification, before accepting |
+| `/librarian` | Update memory after changes | After accepted changes |
 
-1. **Explore** — Run `$init-deep` to understand the codebase and generate `AGENTS.md`
-2. **Plan** — Run `$ulw-plan` for a Socratic planning interview that produces a decision-complete plan
-3. **Implement** — Run `$start-work` to execute one checklist item at a time
-4. **Verify** — Automated tests + manual-QA + adversarial QA + cleanup
-5. **Manually QA** — Real-surface proof (CLI output, HTTP responses, file contents)
-
-### Long-Horizon Loop
-
-For complex multi-step tasks, run `$ulw-loop`:
+### Quick start workflow
 
 ```
-$ulw-loop "Add authentication with JWT tokens"
+$init-deep                         # generates project memory
+$ulw-plan "implement feature X"   # creates a plan with checkboxes
+$start-work                        # executes plan one item at a time + verification
+$review-work                       # 5-agent review gate (all must pass)
 ```
 
-This starts a self-referential loop with:
-- 10 states (idle → initializing → planning → active → verifying → reviewing → complete)
-- 13-step cycle per task
-- Retry with 3 max retries on verification failure
-- Oracle reviewer with APPROVE/ITERATE/REJECT verdicts
-- Checkpointing and resumption after interruption
-- 500 iteration cap (HEAVY) / 100 (LIGHT)
+### What Trae gets
 
-### CLI Commands
+| Component | Count | What it does |
+|-----------|-------|--------------|
+| Skills | 22 | init-deep, ulw-plan, start-work, ulw-loop, verifier, reviewer, librarian, migration-planner, programming, git-master, debugging, remove-ai-slops, refactor, ast-grep, frontend, lcx-report-bug, coding-agent-sessions, … |
+| Agents | 11 | Sisyphus, Prometheus, Metis, Momus, Atlas, Hephaestus, Oracle, Explorer, Librarian, Cleaner, Migration-Planner |
+| Commands | 10 | Core workflow commands (init-deep → review-work) |
+| Hooks | 12 | SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, Stop, + context-recovery (advisory — Trae can't block) |
+| MCP tools | 15 | 9 state/evidence/review/handoff + 6 context (symbol_search, find_references, goto_definition, diagnostics, docs_lookup, dependency_graph) |
+| CLI | 11 | init, doctor, sync, verify, handoff, loop (status/cancel/pause/resume), team (create/spawn/collect), run, mcp |
 
-```bash
-lazytrae init                    # Install plugin into current project
-lazytrae doctor                  # Health check
-lazytrae sync                    # Sync templates
-lazytrae verify                  # Run verification
-lazytrae verify --must-pass      # Hard completion gate
-lazytrae handoff                 # Generate handoff summary
-lazytrae loop status             # Check loop state
-lazytrae loop cancel             # Cancel active loop
-lazytrae loop pause/resume       # Pause/resume loop
-lazytrae team create             # Create a parallel-work team
-lazytrae team spawn              # Add a team member
-lazytrae team collect            # Collect member reports
-lazytrae run --agent oracle --category ultrabrain "review current diff"
-lazytrae mcp                     # Start MCP server
-```
+### How enforcement works
 
-### Agent Roles
+The harness is **binding, not advisory** — but because **Trae hooks cannot block** (no deny/block contract), enforcement is moved into a **CLI/MCP layer**:
 
-| Agent | Role | Read-only |
-|---|---|---|
-| Sisyphus | Main orchestrator | No |
-| Prometheus | Strategic planner | Yes |
-| Metis | Pre-planning gap analyst | Yes |
-| Momus | Plan reviewer | Yes |
-| Atlas | Task executor (light) | No |
-| Hephaestus | Deep worker (heavy) | No |
-| Oracle | Reviewer/gate keeper | Yes |
-| Explorer | Codebase search | Yes |
-| Librarian | External docs researcher | Yes |
-| Cleaner | AI slop remover | No |
+- **`lazytrae verify --must-pass`** — hard completion gate; refuses to pass until all verification gates are green
+- **`mark_task_done` (MCP)** — evidence-gated; an implementer cannot close a task without a recorded verification artifact in `.lazytrae/evidence/`
+- **Hooks** — advisory only (`exit 0`); log and surface, but the real block lives in the CLI gate
+- **5-agent review** — Goal Verifier, QA Executor, Code Reviewer, Security Auditor, Context Miner — ALL-MUST-PASS
 
-### MCP Tools (15)
+> This is the inverse of the [LazyWorkBuddy](https://github.com/elvinzhao10/LazyWorkBuddy) sibling, which bets on host hook blocking. Both preserve the Sisyphus "no evidence, no done" invariant — they just pick the mechanism their host allows.
 
-The MCP server provides 15 tools over stdio JSON-RPC:
-
-**State tools:** `get_active_plan`, `get_boulder_status`, `get_next_task`, `get_parity_status`
-
-**Evidence tools:** `record_evidence`, `mark_task_done` (evidence-gated)
-
-**Review tools:** `add_blocker`, `request_review`
-
-**Handoff tools:** `generate_handoff`
-
-**Context tools:** `symbol_search`, `find_references`, `goto_definition`, `diagnostics`, `docs_lookup`, `dependency_graph`
-
----
-
-## Evaluation: How Much of LazyCodex Is Achieved?
+## LazyCodex Parity Evaluation
 
 **Overall: 115/126 (91.3%).** Core workflow semantics fully ported; the 4 remaining gaps are all platform-inherent (Trae hook event / external tool), each mitigated. See [lazytrae-evaluation.md](lazytrae-evaluation.md) for the full assessment.
 
@@ -200,13 +146,6 @@ The MCP server provides 15 tools over stdio JSON-RPC:
 | Team Mode | 7 | 6 | 0 | 1 |
 | **Total** | **126** | **115** | **4** | **5** |
 
-### What's fully achieved
-
-- All 10 core commands, 11 agent roles, 7 verification gates, 15 state-management items, 22 skills
-- 15 MCP tools (9 state/evidence/review/handoff + 6 context)
-- Long-horizon loop (10 states, 13-step cycle, retry, checkpointing, steering)
-- Team mode with worktree isolation; model routing (6 categories)
-
 ### 4 known gaps (platform limitations)
 
 1. **Hooks advisory-only** — Trae hooks can't block; gate moved to CLI (`lazytrae verify --must-pass`, `mark_task_done`)
@@ -214,9 +153,55 @@ The MCP server provides 15 tools over stdio JSON-RPC:
 3. **Codegraph MCP unavailable** — heuristic local context tools as fallback
 4. **Post-compact recovery** — heuristic, not a native hook
 
-See [lazytrae-evaluation.md](lazytrae-evaluation.md) for strengths, weaknesses, creative adaptations, and future improvement suggestions.
+See [lazytrae-evaluation.md](lazytrae-evaluation.md) for strengths, weaknesses, and future improvement suggestions.
 
----
+## Version History
+
+| Tag | Phase | Key deliverable |
+|-----|-------|-----------------|
+| `v0.0` | Discovery | LazyCodex method map, Trae host surface map |
+| `v0.1` | Architecture | Three-layer model, plugin design, state ledger |
+| `v0.2` | Rules & memory | AGENTS.md constitution, `.trae/rules/`, command constitution |
+| `v0.3` | Skills & commands | 10 core commands + skills ported from LazyCodex |
+| `v0.4` | Custom agents | 11 agent role definitions (`.trae/agents/*.md`) |
+| `v0.5` | State machine | Boulder/loop/session state, evidence recording |
+| `v0.6` | CLI installer | `lazytrae init` / `doctor` Node CLI |
+| `v0.7` | Hooks & enforcement | 12 lifecycle hooks (advisory) + CLI completion gate |
+| `v0.8` | MCP tools | 15 MCP tools over stdio JSON-RPC |
+| `v0.9` | Long-horizon loop | 10-state, 13-step cycle, retry, checkpointing |
+| `v0.10` | Model routing | 6 model categories → Trae Auto/Max + routing hints |
+| `v0.11` | Team mode | Parallel-work coordination, worktree isolation, mailbox |
+| `v0.12` | Dogfood | End-to-end self-test, 53 tests passing |
+| `v0.13` | Diagnostics | Risk register, diagnostics report, fixes |
+| `v0.14` | Final release | Parity report (115/126), evaluation doc, alignment with sibling |
+
+> **MVP = v0.0–v0.7.** Strong benchmark = v0.0–v0.14.
+
+## Repository Structure
+
+```
+lazytrae/
+├── lazytrae-plugin/         # THE installable Trae plugin + CLI + MCP
+│   ├── .trae/               #   Trae-native config (rules, skills, commands, agents, hooks)
+│   ├── .lazytrae/           #   Schemas and config templates
+│   └── packages/            #   CLI and MCP server source code
+│       ├── cli/             #   Node.js CLI (init, doctor, sync, loop, team, run, ...)
+│       └── mcp/             #   MCP server (15 tools over stdio JSON-RPC)
+├── docs/                    # Documentation
+│   ├── design/              #   How it works (architecture, state machine, protocols)
+│   ├── reference/           #   API/command/MCP/hooks references + parity ledger
+│   ├── archive/             #   Superseded/historical docs
+│   ├── lazytrae-versioned-execution-plan.md
+│   ├── lazytrae-dogfood-run.md
+│   └── lazytrae-risk-register.md
+├── plan/                    # Versioned execution plan (v0.0 → v0.14)
+├── prompts/                 # Worker delegation + dogfood prompts
+├── AGENTS.md                # Project constitution (agent entry point)
+├── lazytrae-evaluation.md   # LazyCodex parity assessment
+├── README.md                # This file
+├── LICENSE                  # MIT
+└── NOTICE                   # MIT provenance for derived works
+```
 
 ## Related
 
@@ -224,28 +209,22 @@ See [lazytrae-evaluation.md](lazytrae-evaluation.md) for strengths, weaknesses, 
 
 ## License
 
-This project is licensed under the **MIT License** — see [LICENSE](LICENSE).
+[MIT](LICENSE) — same license as the original [lazycodex/omo](https://github.com/code-yeongyu/lazycodex).
 
-Portions are derived from [lazycodex / oh-my-openagent (omo)](https://github.com/oh-my-openagent/omo), Copyright (c) 2026 Yeongyu Kim, also licensed under MIT. See [NOTICE](NOTICE) for full provenance.
-
----
+Portions derived from lazycodex/omo, Copyright (c) 2026 Yeongyu Kim. See [NOTICE](NOTICE) for full provenance.
 
 ## Disclaimer
 
-This is a **practice project** created to study how agent harnesses like LazyCodex/OmO work and how they can be adapted to a different platform (Trae IDE). It is **not production-ready** and **will no longer be maintained**.
+**This is a practice project.** It was built to study how LazyCodex's agent-harness design can be adapted to a different host platform (Trae). The repo is **no longer maintained**.
 
-The entire realization process — including the versioned execution plan (14 versions from v0.0 to v0.14), worker delegation prompts, diagnostics reports, and a dogfood run — is open-sourced here to help others learn:
+The entire realization process — including the versioned execution plan (v0.0 → v0.14), worker delegation prompts, diagnostics reports, and a dogfood run — is open-sourced here to help others studying:
+- Agent-harness architecture (planning → execution → verification → review → memory)
+- Cross-platform adaptation (Codex → Trae tool translation)
+- Evidence-based completion (DoneClaim/AdversarialVerify/FullyDone contract)
 
-- How to map agent harness concepts across platforms
-- How to build a Trae-native plugin (rules, skills, commands, agents, hooks, MCP)
-- How to achieve parity verification with an upstream project
-- How to structure a multi-version execution plan
-
-If you want to use LazyCodex in production, use the [original project](https://github.com/oh-my-openagent/omo). If you want to build a Trae-native agent harness, use this repo as a reference and starting point.
-
----
+If you want to use LazyCodex in production, use the [original project](https://github.com/code-yeongyu/lazycodex).
 
 ## Acknowledgments
 
-- **[Yeongyu Kim](https://github.com/yoelkim)** — creator of [lazycodex/OmO](https://github.com/oh-my-openagent/omo), whose MIT-licensed work made this practice project possible
+- **[Yeongyu Kim](https://github.com/code-yeongyu)** — creator of [lazycodex/OmO](https://github.com/code-yeongyu/lazycodex), whose MIT-licensed work made this practice project possible
 - **[Trae IDE](https://docs.trae.cn/)** — the platform this was built for

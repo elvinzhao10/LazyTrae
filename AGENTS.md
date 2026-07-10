@@ -97,12 +97,12 @@ Trae does not have a PostCompact hook event. LazyCodex uses PostCompact for cach
 
 | What | Where |
 | --- | --- |
-| Architecture plan | `docs/lazytrae-architecture-plan.md` |
-| Parity ledger | `docs/lazytrae-parity-ledger.md` |
-| Operating manual | `docs/lazytrae-operating-manual.md` |
-| Command index | `docs/lazytrae-command-index.md` |
+| Architecture plan | `docs/design/lazytrae-architecture-plan.md` |
+| Parity ledger | `docs/reference/lazytrae-parity-ledger.md` |
+| Operating manual | `docs/design/lazytrae-operating-manual.md` |
+| Command index | `docs/reference/lazytrae-command-index.md` |
 | Versioned execution plan | `docs/lazytrae-versioned-execution-plan.md` |
-| Verification matrix | `docs/lazytrae-verification-matrix.md` |
+| Verification matrix | `docs/reference/lazytrae-verification-matrix.md` |
 | Risk register | `docs/lazytrae-risk-register.md` |
 
 ---
@@ -113,7 +113,7 @@ Trae does not have a PostCompact hook event. LazyCodex uses PostCompact for cach
 
 ## LazyTrae Operating Manual
 
-> For detailed operating procedures, see `docs/lazytrae-operating-manual.md`.
+> For detailed operating procedures, see `docs/design/lazytrae-operating-manual.md`.
 
 ### Workflow Phases
 
@@ -137,13 +137,13 @@ Before any step can close, it must pass five gates:
 
 ### How to Use the Command Index
 
-- See `docs/lazytrae-command-index.md` for the full table of canonical LazyCodex commands and their LazyTrae equivalents.
+- See `docs/reference/lazytrae-command-index.md` for the full table of canonical LazyCodex commands and their LazyTrae equivalents.
 - Each command entry includes: original name, source path, LazyTrae equivalent, implementation status, and notes.
 - Before implementing any command, verify its semantics against the LazyCodex source.
 
 ### How to Update the Parity Ledger
 
-- See `docs/lazytrae-parity-ledger.md` for the full ledger.
+- See `docs/reference/lazytrae-parity-ledger.md` for the full ledger.
 - After implementing any feature, update the status in the parity ledger.
 - Statuses: COMPLETE, PARTIAL, DESIGN, DEFERRED, N/A.
 - Every status change must cite evidence (files changed, tests run, verification output).
@@ -228,7 +228,7 @@ Each file in `plan/` is one version of the execution plan:
 ## Command Index
 
 Every canonical LazyCodex method from v0.0 discovery appears here or is explicitly deferred.
-See `docs/lazytrae-command-index.md` for the full reference table.
+See `docs/reference/lazytrae-command-index.md` for the full reference table.
 
 ### Core Commands
 
