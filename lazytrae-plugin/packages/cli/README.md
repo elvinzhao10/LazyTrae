@@ -16,6 +16,10 @@ lazytrae doctor
 # Update managed templates and managed blocks
 lazytrae sync
 
+# Install or check global Trae Work skills on macOS
+lazytrae work install
+lazytrae work status
+
 # Remove LazyTrae from current repo
 lazytrae uninstall
 
@@ -44,6 +48,8 @@ This will:
 - Copy all templates (rules, skills, commands, agents)
 - Merge managed blocks into `AGENTS.md` without overwriting user content
 - Add `.gitignore` entries for runtime state
+
+For Trae Work, run `lazytrae work install` after installing the CLI. It copies the bundled `lazy-*` skills to `~/.trae-cn/skills/` on macOS. Trae Work has no global command registry, and MCP still must be registered manually in **Settings → MCP** using command `lazytrae` and argument `mcp`.
 
 ## What Gets Installed
 

@@ -11,7 +11,7 @@ LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning �
 1. Copy or clone [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae) into a local folder.
 2. Open that folder in your Trae host and type `onboard`.
 
-The agent reads `AGENTS.md`, asks which installed version you are using (**Trae IDE**, **Trae Work**, or **Trae CLI**), then performs the matching safe setup steps. It reports what it started and configured, verifies the expected result, and gives exact manual directions for anything it cannot perform. For Trae Work, it reminds you to add the LazyTrae MCP server manually in **Settings → MCP**.
+The agent reads `AGENTS.md`, asks which installed version you are using (**Trae IDE**, **Trae Work**, or **Trae CLI**), then performs the matching safe setup steps. It reports what it started and configured, verifies the expected result, and gives exact manual directions for anything it cannot perform. For Trae Work, it installs the global skills with `lazytrae work install`, explains that Trae Work has no global command registry, and reminds you to add the LazyTrae MCP server manually in **Settings → MCP**.
 
 After onboarding, you can delete the copied repository if you only needed the installed setup, or keep it to explore and study how LazyTrae works.
 
@@ -52,7 +52,7 @@ The mindset is simple: choose the **smallest** workflow that matches the risk, m
 
 ## Commands
 
-All commands are `lazy-` prefixed. The main controls are `/lazy-init-deep`, `/lazy-ulw-plan`, `/lazy-start-work`, `/lazy-ulw-loop`, and `/lazy-review-work`. Supporting skills such as `lazy-verifier`, `lazy-reviewer`, `lazy-librarian`, and `lazy-migration-planner` are selected from natural-language requests for verification, review, memory, and platform adaptation.
+All workflow commands are `lazy-` prefixed. The main controls are `/lazy-init-deep`, `/lazy-ulw-plan`, `/lazy-start-work`, `/lazy-ulw-loop`, and `/lazy-review-work`. Supporting skills such as `lazy-verifier`, `lazy-reviewer`, `lazy-librarian`, and `lazy-migration-planner` are selected from natural-language requests for verification, review, memory, and platform adaptation. On Trae Work, run `lazytrae work install` once to install those skills globally, then use skills or natural language because the host has no global command registry.
 
 ## Enforcement
 
@@ -87,7 +87,7 @@ Practice repo; contributions welcome as learning exercises.
 ```
 lazytrae/
 ├── lazytrae-plugin/         # installable Trae plugin + CLI + MCP
-│   ├── .trae/               #   Trae IDE config; skills source for Trae Work
+│   ├── .trae/               #   Trae IDE config; source for Trae Work global skills
 │   ├── .lazytrae/           #   LazyTrae schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
 ├── docs/                    # user-facing: design/, reference/, archive/, plan/, prompts/, setup-guide, versioned plan

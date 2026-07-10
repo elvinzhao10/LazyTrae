@@ -23,8 +23,15 @@ Open the initialized project in Trae IDE. Its project `.trae/` configuration pro
 ## Trae Work
 
 1. Open the project locally in Trae Work Desktop. Local tasks can use workspace files and local MCP servers; cloud-only tasks cannot run a local `lazytrae mcp` process.
-2. In the Skills UI, import the required `SKILL.md` bundles from `.trae/skills/`. Trae Work supports skills, slash-command workflows, rules, and MCP; do not assume that every project file is auto-registered by every app build.
-3. Trae Work requires manual MCP registration. Open **Settings → MCP** and add this server:
+2. Install the 17 bundled skills globally, then restart or reload Trae Work:
+
+   ```bash
+   lazytrae work install
+   lazytrae work status
+   ```
+
+   On macOS, `work install` copies each `lazy-*` `SKILL.md` bundle to `~/.trae-cn/skills/`, which Trae Work discovers globally. Trae Work has no global command registry: use the installed skills or natural-language requests instead of expecting `.trae/commands/` to appear globally.
+3. Trae Work requires manual MCP registration. It does **not** auto-load the project `.trae/mcp.json`. Open **Settings → MCP** and add this server:
 
    ```json
    {
@@ -34,7 +41,7 @@ Open the initialized project in Trae IDE. Its project `.trae/` configuration pro
    }
    ```
 
-4. Confirm the server connects, then invoke `/lazy-init-deep`, `/lazy-ulw-plan`, `/lazy-start-work`, and `/lazy-review-work`, or ask the agent to select the corresponding skill. Run `lazytrae verify --must-pass` before declaring a task complete.
+4. Confirm the server connects, then invoke the installed skills or ask the agent to select the corresponding workflow. Run `lazytrae verify --must-pass` before declaring a task complete.
 
 ## Trae CLI
 
@@ -80,6 +87,8 @@ lazytrae loop status             # Check loop state
 lazytrae loop cancel             # Cancel active loop
 lazytrae loop pause/resume       # Pause/resume loop
 lazytrae team create             # Create parallel-work team
+lazytrae work install            # Install global Trae Work skills (macOS)
+lazytrae work status             # Check global Trae Work skills
 lazytrae run --agent oracle --category ultrabrain "review current diff"
 lazytrae mcp                     # Start MCP server
 ```

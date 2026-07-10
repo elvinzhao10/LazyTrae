@@ -24,6 +24,6 @@ lazytrae init
 lazytrae doctor
 ```
 
-For Trae Work, import the skills from `.trae/skills/` through the Skills UI, then manually add an MCP server in **Settings → MCP** with command `lazytrae` and argument `mcp`. The generated `.trae/mcp.json` remains the Trae IDE project configuration.
+For Trae Work, run `lazytrae work install` to copy the skills globally into `~/.trae-cn/skills/` on macOS, then restart or reload Trae Work. The host has no global command registry, so use skills or natural-language requests. Add the MCP server manually in **Settings → MCP** with command `lazytrae` and argument `mcp`; Trae Work does not auto-load `.trae/mcp.json`.
 
 See the repository [setup guide](../AGENTS.md) for the full workflow.

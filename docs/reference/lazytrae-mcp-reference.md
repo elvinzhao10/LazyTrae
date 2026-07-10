@@ -8,7 +8,7 @@ LazyTrae's MCP server is a pure Node.js stdio JSON-RPC server implementing the M
 
 ### How Trae Discovers MCP
 
-Trae IDE and local Trae Work tasks can use `.trae/mcp.json` at project root; Trae Work can also be configured through its MCP settings. Trae CLI can start the same process directly. When a `lazytrae` server entry is configured with `command` and `args`, the host spawns the process and connects to it via stdio JSON-RPC. The server responds to `initialize` and `tools/list` requests, and the host makes the tools available to agents.
+Trae IDE reads `.trae/mcp.json` at project root. Trae Work requires its MCP settings UI and does not auto-load that project file; Trae CLI can register the same process directly. When a `lazytrae` server entry is configured with `command` and `args`, the host spawns the process and connects to it via stdio JSON-RPC. The server responds to `initialize` and `tools/list` requests, and the host makes the tools available to agents.
 
 ### How to Start the MCP Server Manually
 

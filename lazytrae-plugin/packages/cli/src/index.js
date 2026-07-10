@@ -16,6 +16,7 @@ const commands = {
   loop: () => require('./commands/loop').run,
   run: () => require('./commands/run').run,
   team: () => require('./commands/team').run,
+  work: () => require('./commands/work').run,
 };
 
 const aliases = {
@@ -49,6 +50,7 @@ Commands:
   loop        Long-horizon execution loop status and control
   run         Execute a task with explicit model routing (optional trae-agent backend)
   team        Team mode / parallel-work coordination
+  work        Install or inspect global Trae Work skills
 
 Aliases: i, d, s, rm, v, h, l, r, t
 
