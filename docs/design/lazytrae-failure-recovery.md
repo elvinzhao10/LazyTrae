@@ -65,10 +65,10 @@ From `directive.md` Stop rules: "After 2 identical failed attempts at one step, 
 
 When a session crashes or disconnects:
 
-1. **Durable state survives** — All state is in `.lazytrae/state/` and `.lazytrae/logs/`, not in conversation memory.
+1. **Durable state survives** — All state is in `.lazytraework/state/` and `.lazytraework/logs/`, not in conversation memory.
 2. **Recovery procedure**:
-   a. Read `.lazytrae/state/active-loop.json` — get `loop_state`, `run_id`, `current_task_index`, `iteration`.
-   b. Read `.lazytrae/logs/loop-events.ndjson` — get the last event to determine the exact position in the cycle.
+   a. Read `.lazytraework/state/active-loop.json` — get `loop_state`, `run_id`, `current_task_index`, `iteration`.
+   b. Read `.lazytraework/logs/loop-events.ndjson` — get the last event to determine the exact position in the cycle.
    c. Read the notepad — get current `## Now`, `## Todo`, and `## Findings` sections.
    d. Determine next action based on `loop_state`:
       - `idle`/`cancelled`: Await user instruction.
@@ -86,7 +86,7 @@ Trae may compact context (equivalent to LazyCodex PostCompact). When this happen
 
 1. The `SessionStart` hook detects compaction via `sessions.json` `compaction_state` field.
 2. After compaction, STOP and re-read the whole notepad FIRST before any action.
-3. Recover state from the notepad and `.lazytrae/state/` — do not re-plan from scratch.
+3. Recover state from the notepad and `.lazytraework/state/` — do not re-plan from scratch.
 4. Resume from `## Now` in the notepad.
 
 Source: `directive.md` notepad recovery section (line 154-160), LazyCodex PostCompact gap documented in `AGENTS.md`.

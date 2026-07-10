@@ -17,7 +17,7 @@ LazyTrae reads Markdown plan files (`.omo/plans/*.md`) and extracts checklist it
    - Extract the description text after the checkbox.
    - Assign a unique task ID.
    - Map `- [ ]` → `status: "pending"`, `- [x]` → `status: "complete"`.
-4. Write the extracted tasks to `.lazytrae/state/boulder.json` under the work entry.
+4. Write the extracted tasks to `.lazytraework/state/boulder.json` under the work entry.
 
 **Example:**
 
@@ -77,14 +77,14 @@ pending → in_progress → complete
 
 ### Boulder State File Structure
 
-The boulder state is stored in `.lazytrae/state/boulder.json` with `schema_version: 2` (matching LazyCodex).
+The boulder state is stored in `.lazytraework/state/boulder.json` with `schema_version: 2` (matching LazyCodex).
 
 **Key fields:**
 - `active_work_id`: The currently active work (or null).
 - `works`: Map of work IDs to work entries.
 - Each work entry contains: `active_plan`, `plan_name`, `session_ids`, `status`, `tasks`, `blockers`.
 
-**Schema**: `.lazytrae/schemas/boulder.schema.json`
+**Schema**: `.lazytraework/schemas/boulder.schema.json`
 
 ## 3. Loop State Lifecycle
 
@@ -169,11 +169,11 @@ Before any step can close, it must pass five evidence gates:
 
 | # | Gate | Evidence Type | Template |
 |---|------|---------------|----------|
-| 1 | Plan reread | Confirmation that plan was re-read | `.lazytrae/evidence/reviewer.md` |
-| 2 | Automated verification | Commands, outputs, exit status, changed files | `.lazytrae/evidence/test-runs.md` |
-| 3 | Manual-QA | Real-surface proof (HTTP, CLI, browser, data) | `.lazytrae/evidence/verifier.md` |
-| 4 | Adversarial QA | Edge cases, regression, adversarial inputs | `.lazytrae/evidence/reviewer.md` |
-| 5 | Cleanup | QA resources torn down, receipts recorded | `.lazytrae/evidence/reviewer.md` |
+| 1 | Plan reread | Confirmation that plan was re-read | `.lazytraework/evidence/reviewer.md` |
+| 2 | Automated verification | Commands, outputs, exit status, changed files | `.lazytraework/evidence/test-runs.md` |
+| 3 | Manual-QA | Real-surface proof (HTTP, CLI, browser, data) | `.lazytraework/evidence/verifier.md` |
+| 4 | Adversarial QA | Edge cases, regression, adversarial inputs | `.lazytraework/evidence/reviewer.md` |
+| 5 | Cleanup | QA resources torn down, receipts recorded | `.lazytraework/evidence/reviewer.md` |
 
 ### Evidence Record Structure
 
@@ -186,7 +186,7 @@ Each evidence record contains:
 - `manual_checks`: Manual-QA scenario results (channel, invocation, expected, actual, verdict).
 - `reviewer_findings`: Adversarial QA findings (category, finding, severity).
 
-**Schema**: `.lazytrae/schemas/evidence.schema.json`
+**Schema**: `.lazytraework/schemas/evidence.schema.json`
 
 ### Evidence is Non-Negotiable
 
@@ -203,10 +203,10 @@ From LazyCodex `evidence.ts`:
 Completion is **blocked** unless ALL of the following conditions are true:
 
 1. **All tasks done**: Every task in the plan is marked `complete` (not `pending`, `in_progress`, `failed`, or `blocked`).
-2. **Evidence exists**: Concrete evidence is recorded for each task in `.lazytrae/evidence/`.
+2. **Evidence exists**: Concrete evidence is recorded for each task in `.lazytraework/evidence/`.
 3. **Verification passed**: All five evidence gates have passed, or waivers are documented.
 4. **Reviewer passed**: Oracle/reviewer has issued APPROVE, or caveats are accepted.
-5. **Handoff exists**: A handoff summary exists at `.lazytrae/evidence/handoff.md`.
+5. **Handoff exists**: A handoff summary exists at `.lazytraework/evidence/handoff.md`.
 
 ### Completion is Invalid Without Evidence
 
@@ -257,7 +257,7 @@ From LazyCodex `domain-types.ts` (UlwLoopItem):
 
 ### Session Handoff
 
-When handing off a session, produce a summary at `.lazytrae/evidence/handoff.md` containing:
+When handing off a session, produce a summary at `.lazytraework/evidence/handoff.md` containing:
 
 1. **What was accomplished this session** — list of completed deliverables.
 2. **Current state of the plan** — tasks completed, current task, active loop status.
@@ -268,7 +268,7 @@ When handing off a session, produce a summary at `.lazytrae/evidence/handoff.md`
 
 ### Handoff Template
 
-See `.lazytrae/evidence/handoff.md` for the full template.
+See `.lazytraework/evidence/handoff.md` for the full template.
 
 ## 8. .omo Compatibility Mirror
 
@@ -279,12 +279,12 @@ LazyTrae maintains a `.omo/` compatibility mirror so that LazyCodex tooling can 
 | LazyCodex Path | LazyTrae Equivalent | Mirror Direction |
 |----------------|---------------------|------------------|
 | `.omo/plans/*.md` | `.omo/plans/*.md` | Direct read/write (same path) |
-| `.omo/boulder.json` | `.lazytrae/state/boulder.json` | Mirror from primary |
-| `.omo/ulw-loop/goals.json` | `.lazytrae/state/active-loop.json` (goals array) | Mirror from primary |
+| `.omo/boulder.json` | `.lazytraework/state/boulder.json` | Mirror from primary |
+| `.omo/ulw-loop/goals.json` | `.lazytraework/state/active-loop.json` (goals array) | Mirror from primary |
 | `.omo/ulw-loop/brief.md` | `.omo/ulw-loop/brief.md` | Direct read/write (same path) |
-| `.omo/ulw-loop/ledger.jsonl` | `.lazytrae/logs/loop-events.ndjson` | Mirror from primary |
+| `.omo/ulw-loop/ledger.jsonl` | `.lazytraework/logs/loop-events.ndjson` | Mirror from primary |
 
-**Design principle**: `.lazytrae/state/` is the primary source of truth. `.omo/` is a compatibility mirror for LazyCodex tooling. Write operations go to `.lazytrae/` first, then mirror to `.omo/`.
+**Design principle**: `.lazytraework/state/` is the primary source of truth. `.omo/` is a compatibility mirror for LazyCodex tooling. Write operations go to `.lazytraework/` first, then mirror to `.omo/`.
 
 ## 9. State File Locking
 

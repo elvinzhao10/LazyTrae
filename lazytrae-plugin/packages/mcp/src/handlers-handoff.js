@@ -37,7 +37,7 @@ function handleGenerateHandoff(root) {
       active_loop: activeLoop,
       loop_iteration: l ? (l.iteration || 0) + '/' + (l.max_iterations || 500) : 'N/A',
     },
-    evidence_produced: evidenceFiles.map(f => '.lazytrae/evidence/' + f),
+    evidence_produced: evidenceFiles.map(f => '.lazytraework/evidence/' + f),
     completion_gate: completionGate,
     remaining_gaps: [],
     blockers: [],
@@ -70,7 +70,7 @@ function handleGenerateHandoff(root) {
   }
 
   // Persist to handoff.md
-  const handoffPath = path.join(root, '.lazytrae', 'evidence', 'handoff.md');
+  const handoffPath = path.join(root, '.lazytraework', 'evidence', 'handoff.md');
   assertSafeWrite(handoffPath);
   const md = [
     '# Session Handoff', '', '## Handoff Summary', '',

@@ -14,7 +14,7 @@ Re-read the plan and compare against the implementation.
 | Frontmatter has name + triggers | `name: coding-agent-sessions` with trigger keywords | Line 2-3: present with 10+ trigger keywords | PASS |
 | Canonical source reference | Cites `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` | Line 12: exact citation | PASS |
 | Procedure uses Trae-native tools | SearchCodebase, Grep, Read (not Python scripts) | Lines 30-65: uses Read, Grep, Glob | PASS |
-| Procedure references sessions.json | `.lazytrae/state/sessions.json` as primary store | Lines 20, 30-36: clear reference | PASS |
+| Procedure references sessions.json | `.lazytraework/state/sessions.json` as primary store | Lines 20, 30-36: clear reference | PASS |
 | Procedure covers all operations | List, search, read, reconstruct | Sections 1-5 cover all four | PASS |
 | Standard sections present | 6 required sections | All present: Allowed Edits, Forbidden Behavior, Verification Gates, Failure Handling, Output Format, Handoff Target | PASS |
 | Line count (body) | 60-100 lines | 129 lines (slightly over, well within 250 LOC hard limit) | MINOR |
@@ -57,7 +57,7 @@ Concrete surface proof:
 2. **Frontmatter valid**: YAML frontmatter with `name` and `description` fields
 3. **Content coverage**: All sections present — Canonical Source, Purpose, Required Context, Procedure (5 sub-sections), Allowed Edits, Forbidden Behavior, Verification Gates, Failure Handling, Output Format, Handoff Target
 4. **Tool references**: Uses LazyTrae-native tools (Read, Grep, Glob) — no Python script references in procedure
-5. **State references**: References `.lazytrae/state/sessions.json`, `.lazytrae/state/boulder.json`, `.lazytrae/state/active-loop.json`, `.lazytrae/evidence/`
+5. **State references**: References `.lazytraework/state/sessions.json`, `.lazytraework/state/boulder.json`, `.lazytraework/state/active-loop.json`, `.lazytraework/evidence/`
 6. **Cross-platform**: Section 4 covers Codex, Claude, OpenCode with actual paths
 7. **Output format**: Concrete template with placeholders
 

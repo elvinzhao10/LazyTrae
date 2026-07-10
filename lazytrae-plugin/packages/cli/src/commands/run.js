@@ -15,7 +15,7 @@ function detectRepoRoot() {
 }
 
 function loadConfig(repoRoot) {
-  const configPath = path.join(repoRoot, '.lazytrae', 'config.json');
+  const configPath = path.join(repoRoot, '.lazytraework', 'config.json');
   if (!fs.existsSync(configPath)) return null;
   try {
     return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
@@ -40,7 +40,7 @@ function checkTraeAgent() {
 }
 
 function recordTrajectory(repoRoot, entry) {
-  const logsDir = path.join(repoRoot, '.lazytrae', 'logs');
+  const logsDir = path.join(repoRoot, '.lazytraework', 'logs');
   assertSafeRepoWritePath(repoRoot, logsDir);
   if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
@@ -155,7 +155,7 @@ function run(args) {
   const hasTraeAgent = checkTraeAgent();
 
   if (useLoop) {
-    const activeLoopPath = path.join(repoRoot, '.lazytrae', 'state', 'active-loop.json');
+    const activeLoopPath = path.join(repoRoot, '.lazytraework', 'state', 'active-loop.json');
     if (!fs.existsSync(activeLoopPath)) {
       console.error('lazytrae run: No active loop found. Start a loop first.');
       process.exit(1);
@@ -164,13 +164,13 @@ function run(args) {
     if (!hasTraeAgent) {
       console.log(`\ntrae-agent is not installed. Cannot run loop directly.\n`);
       console.log('Use the Trae IDE with the ulw-loop command to continue the active loop.');
-      console.log('See .lazytrae/state/active-loop.json for current loop state.\n');
+      console.log('See .lazytraework/state/active-loop.json for current loop state.\n');
       process.exit(0);
     }
 
     try {
       console.log('Running active loop with trae-agent...');
-      const result = spawnSync('trae-agent', ['run', '--trajectory', '.lazytrae/logs/active-loop.json'], { cwd: repoRoot, stdio: 'inherit' });
+      const result = spawnSync('trae-agent', ['run', '--trajectory', '.lazytraework/logs/active-loop.json'], { cwd: repoRoot, stdio: 'inherit' });
       process.exit(result.status || 0);
     } catch (e) {
       console.error('trae-agent failed:', e.message);
@@ -200,7 +200,7 @@ function run(args) {
 
   const runArgs = ['run'];
   if (effectiveMode === 'max') runArgs.push('--reasoning', 'xhigh');
-  runArgs.push('--trajectory', '.lazytrae/logs/', '--input', prompt);
+  runArgs.push('--trajectory', '.lazytraework/logs/', '--input', prompt);
 
   try {
     console.log(`Running with trae-agent: agent=${agent}, category=${effectiveCategory}, mode=${effectiveMode}`);

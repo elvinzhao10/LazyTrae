@@ -21,8 +21,10 @@ function runCli(args, options = {}) {
 function makeFixture(prefix = 'lazytrae-cli-test-') {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
   fs.mkdirSync(path.join(root, '.git'));
-  fs.cpSync(path.join(REPO_ROOT, '.trae'), path.join(root, '.trae'), { recursive: true });
-  fs.cpSync(path.join(REPO_ROOT, '.lazytrae'), path.join(root, '.lazytrae'), { recursive: true });
+  fs.cpSync(path.join(REPO_ROOT, '.lazytraecode'), path.join(root, '.trae'), { recursive: true });
+  fs.cpSync(path.join(REPO_ROOT, '.lazytraework'), path.join(root, '.lazytraework'), { recursive: true });
+  fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'state'), path.join(root, '.lazytraework', 'state'), { recursive: true });
+  fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'evidence'), path.join(root, '.lazytraework', 'evidence'), { recursive: true });
   fs.mkdirSync(path.join(root, 'packages', 'mcp', 'src'), { recursive: true });
   fs.cpSync(path.join(REPO_ROOT, 'packages', 'mcp', 'src'), path.join(root, 'packages', 'mcp', 'src'), { recursive: true });
   fs.mkdirSync(path.join(root, 'packages', 'cli', 'src', 'lib'), { recursive: true });
@@ -41,7 +43,7 @@ function makeFixture(prefix = 'lazytrae-cli-test-') {
 }
 
 function writeActiveWork(root, task) {
-  const boulderPath = path.join(root, '.lazytrae', 'state', 'boulder.json');
+  const boulderPath = path.join(root, '.lazytraework', 'state', 'boulder.json');
   const now = '2026-07-09T00:00:00Z';
   const boulder = {
     schema_version: 2,
@@ -68,9 +70,9 @@ function makeCompletionFixture(prefix, complete) {
   const root = makeFixture(prefix);
   const task = { id: 'task-1', description: 'Gate task', status: complete ? 'complete' : 'in_progress', evidence_paths: [] };
   if (complete) {
-    fs.mkdirSync(path.join(root, '.lazytrae', 'evidence'), { recursive: true });
-    fs.writeFileSync(path.join(root, '.lazytrae', 'evidence', 'task-1.md'), 'proof\n');
-    task.evidence_paths = ['.lazytrae/evidence/task-1.md'];
+    fs.mkdirSync(path.join(root, '.lazytraework', 'evidence'), { recursive: true });
+    fs.writeFileSync(path.join(root, '.lazytraework', 'evidence', 'task-1.md'), 'proof\n');
+    task.evidence_paths = ['.lazytraework/evidence/task-1.md'];
     task.completed_at = '2026-07-09T00:00:00Z';
   }
   writeActiveWork(root, task);
@@ -79,11 +81,11 @@ function makeCompletionFixture(prefix, complete) {
 
 function makeLoopFixture(prefix = 'lazytrae-loop-test-') {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
-  fs.mkdirSync(path.join(root, '.lazytrae', 'state'), { recursive: true });
-  fs.mkdirSync(path.join(root, '.lazytrae', 'schemas'), { recursive: true });
+  fs.mkdirSync(path.join(root, '.lazytraework', 'state'), { recursive: true });
+  fs.mkdirSync(path.join(root, '.lazytraework', 'schemas'), { recursive: true });
   fs.mkdirSync(path.join(root, '.omo', 'evidence'), { recursive: true });
-  fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'state', 'active-loop.json'), path.join(root, '.lazytrae', 'state', 'active-loop.json'));
-  fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'schemas', 'active-loop.schema.json'), path.join(root, '.lazytrae', 'schemas', 'active-loop.schema.json'));
+  fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'state', 'active-loop.json'), path.join(root, '.lazytraework', 'state', 'active-loop.json'));
+  fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'schemas', 'active-loop.schema.json'), path.join(root, '.lazytraework', 'schemas', 'active-loop.schema.json'));
   fs.writeFileSync(path.join(root, '.omo', 'evidence', 'brief.md'), 'Ship the T1 loop runtime\n');
   fs.writeFileSync(path.join(root, '.omo', 'evidence', 'proof.txt'), 'observable proof\n');
   writeCanonicalQualityGate(root, QUALITY_GATE_PATH);
@@ -174,7 +176,7 @@ function writeJson(root, relativePath, value) {
 }
 
 function readLoopState(root) {
-  return JSON.parse(fs.readFileSync(path.join(root, '.lazytrae', 'state', 'active-loop.json'), 'utf-8'));
+  return JSON.parse(fs.readFileSync(path.join(root, '.lazytraework', 'state', 'active-loop.json'), 'utf-8'));
 }
 
 module.exports = {

@@ -14,10 +14,10 @@ const MONOREPO_ROOT = path.resolve(SOURCE_ROOT, '..');
 
 function makeRepoRoot() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-mcp-smoke-'));
-  fs.mkdirSync(path.join(root, '.lazytrae', 'state'), { recursive: true });
+  fs.mkdirSync(path.join(root, '.lazytraework', 'state'), { recursive: true });
   fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
   fs.copyFileSync(path.join(MONOREPO_ROOT, 'docs', 'reference', 'lazytrae-parity-ledger.md'), path.join(root, 'docs', 'lazytrae-parity-ledger.md'));
-  fs.writeFileSync(path.join(root, '.lazytrae', 'state', 'boulder.json'), JSON.stringify({
+  fs.writeFileSync(path.join(root, '.lazytraework', 'state', 'boulder.json'), JSON.stringify({
     schema_version: 2,
     active_work_id: 'work-1',
     works: {

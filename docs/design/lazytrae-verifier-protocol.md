@@ -71,7 +71,7 @@ Source: `lazycodex/plugins/omo/components/ultrawork/directive.md` Manual-QA chan
 
 ## 3. Evidence Recording Format
 
-Each verification run produces evidence at `.lazytrae/evidence/test-runs.md`:
+Each verification run produces evidence at `.lazytraework/evidence/test-runs.md`:
 
 ```markdown
 ## Verification Run — <timestamp>

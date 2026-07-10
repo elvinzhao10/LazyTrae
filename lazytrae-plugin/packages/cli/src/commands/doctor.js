@@ -79,65 +79,65 @@ Options:
 
   addResult('MCP server running', 'WARN', 'Started on demand by Trae IDE, Trae Work, or Trae CLI via lazytrae mcp');
 
-  // .lazytrae/config.json
-  const configPath = path.join(repoRoot, '.lazytrae', 'config.json');
+  // .lazytraework/config.json
+  const configPath = path.join(repoRoot, '.lazytraework', 'config.json');
   if (fs.existsSync(configPath)) {
     try {
       JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-      addResult('.lazytrae/config.json', 'PASS');
+      addResult('.lazytraework/config.json', 'PASS');
     } catch (e) {
-      addResult('.lazytrae/config.json', 'FAIL', e.message);
+      addResult('.lazytraework/config.json', 'FAIL', e.message);
     }
   } else {
-    addResult('.lazytrae/config.json', 'FAIL');
+    addResult('.lazytraework/config.json', 'FAIL');
   }
 
-  // .lazytrae/state/*.json
-  const stateDir = path.join(repoRoot, '.lazytrae', 'state');
+  // .lazytraework/state/*.json
+  const stateDir = path.join(repoRoot, '.lazytraework', 'state');
   if (fs.existsSync(stateDir)) {
     const stateFiles = fs.readdirSync(stateDir).filter(f => f.endsWith('.json'));
     for (const sf of stateFiles) {
       try {
         JSON.parse(fs.readFileSync(path.join(stateDir, sf), 'utf-8'));
-        addResult(`.lazytrae/state/${sf}`, 'PASS');
+        addResult(`.lazytraework/state/${sf}`, 'PASS');
       } catch (e) {
-        addResult(`.lazytrae/state/${sf}`, 'FAIL', e.message);
+        addResult(`.lazytraework/state/${sf}`, 'FAIL', e.message);
       }
     }
     if (stateFiles.length === 0) {
-      addResult('.lazytrae/state/', 'FAIL', 'No state files found');
+      addResult('.lazytraework/state/', 'FAIL', 'No state files found');
     }
   } else {
-    addResult('.lazytrae/state/', 'FAIL', 'Directory not found');
+    addResult('.lazytraework/state/', 'FAIL', 'Directory not found');
   }
 
-  // .lazytrae/schemas/*.json
-  const schemaDir = path.join(repoRoot, '.lazytrae', 'schemas');
+  // .lazytraework/schemas/*.json
+  const schemaDir = path.join(repoRoot, '.lazytraework', 'schemas');
   if (fs.existsSync(schemaDir)) {
     const schemaFiles = fs.readdirSync(schemaDir).filter(f => f.endsWith('.json'));
     for (const sf of schemaFiles) {
       try {
         JSON.parse(fs.readFileSync(path.join(schemaDir, sf), 'utf-8'));
-        addResult(`.lazytrae/schemas/${sf}`, 'PASS');
+        addResult(`.lazytraework/schemas/${sf}`, 'PASS');
       } catch (e) {
-        addResult(`.lazytrae/schemas/${sf}`, 'FAIL', e.message);
+        addResult(`.lazytraework/schemas/${sf}`, 'FAIL', e.message);
       }
     }
     if (schemaFiles.length === 0) {
-      addResult('.lazytrae/schemas/', 'FAIL', 'No schema files found');
+      addResult('.lazytraework/schemas/', 'FAIL', 'No schema files found');
     }
   } else {
-    addResult('.lazytrae/schemas/', 'FAIL', 'Directory not found');
+    addResult('.lazytraework/schemas/', 'FAIL', 'Directory not found');
   }
 
-  // .lazytrae/evidence/*.md
-  const evidenceDir = path.join(repoRoot, '.lazytrae', 'evidence');
+  // .lazytraework/evidence/*.md
+  const evidenceDir = path.join(repoRoot, '.lazytraework', 'evidence');
   if (fs.existsSync(evidenceDir)) {
     const evidenceFiles = fs.readdirSync(evidenceDir).filter(f => f.endsWith('.md'));
-    addResult(`.lazytrae/evidence/ (${evidenceFiles.length} files)`, evidenceFiles.length >= 6 ? 'PASS' : 'WARN',
+    addResult(`.lazytraework/evidence/ (${evidenceFiles.length} files)`, evidenceFiles.length >= 6 ? 'PASS' : 'WARN',
       `Found ${evidenceFiles.length} evidence files, expected at least 6`);
   } else {
-    addResult('.lazytrae/evidence/', 'WARN', 'Directory not found');
+    addResult('.lazytraework/evidence/', 'WARN', 'Directory not found');
   }
 
   // .omo/ directories
@@ -184,7 +184,7 @@ Options:
   addResult(routingResult.label, routingResult.status, routingResult.detail);
 
   // Team mode check (v0.11)
-  const teamResult = sourceTree || fs.existsSync(path.join(repoRoot, '.lazytrae', 'team'))
+  const teamResult = sourceTree || fs.existsSync(path.join(repoRoot, '.lazytraework', 'team'))
     ? checkTeamMode(repoRoot)
     : { label: 'Team mode', status: 'WARN', detail: 'No team state initialized' };
   addResult(teamResult.label, teamResult.status, teamResult.detail);

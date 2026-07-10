@@ -7,7 +7,7 @@
     "updated_at": "2026-07-09T00:00:00Z",
     "description": "LazyTrae Boulder state — durable plan task tracker. Mirrors LazyCodex .omo/boulder.json behavior. Each work entry tracks an active plan, its tasks, evidence, blockers, and session ids."
   },
-  "_schema": "See .lazytrae/schemas/boulder.schema.json for validation rules.",
+  "_schema": "See .lazytraework/schemas/boulder.schema.json for validation rules.",
   "_example": {
     "schema_version": 2,
     "active_work_id": "work-001",
@@ -24,7 +24,7 @@
             "id": "task-1",
             "description": "Create project structure",
             "status": "complete",
-            "evidence_paths": [".lazytrae/evidence/test-runs.md"],
+            "evidence_paths": [".lazytraework/evidence/test-runs.md"],
             "completed_at": "2026-07-09T10:00:00Z",
             "completed_by": "session-abc123"
           },

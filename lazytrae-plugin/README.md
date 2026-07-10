@@ -6,15 +6,12 @@ This is the release package for LazyTrae's three supported surfaces: Trae IDE, T
 
 | Path | Purpose |
 | --- | --- |
-| `agents/`, `commands/`, `hooks/`, `rules/`, `skills/`, `.mcp.json` | Top-level navigation aliases for the Trae project configuration. Each points to the canonical file in `.trae/`. |
-| `config.json`, `schemas/` | Top-level navigation aliases for the versioned LazyTrae defaults in `.lazytrae/`. Runtime state is excluded by `.gitignore`. |
-| `templates/` | Top-level navigation alias for the CLI installer templates. |
-| `.trae/` | Canonical Trae project configuration, retained because Trae IDE and Trae Work use this exact path. |
-| `.lazytrae/` | Canonical versioned schema and default configuration assets. |
+| `.lazytraecode/` | Canonical Trae IDE and Trae CLI source configuration: skills, commands, agents, rules, hooks, and MCP settings. |
+| `.lazytraework/` | Canonical Trae Work workflow configuration, schemas, and defaults. Runtime state is excluded by `.gitignore`. |
 | `packages/cli/` | Installable `lazytrae` command, including the installer, doctor, verification gate, and MCP launcher. |
 | `packages/mcp/` | The Node stdio MCP implementation used by `lazytrae mcp`. |
 
-The aliases make the plugin easy to browse while avoiding duplicate configuration. The CLI template tree in `packages/cli/templates/` remains the installation source of truth. Run `npm test` from `packages/cli/` after changing it.
+The CLI template tree in `packages/cli/templates/` mirrors `.lazytraecode/` and is the installation source of truth. `lazytrae init` materializes the host-required `.trae/` directory in a consumer project; that generated directory is not a release artifact. Run `npm test` from `packages/cli/` after changing it.
 
 ## Install
 
@@ -27,6 +24,6 @@ lazytrae init
 lazytrae doctor
 ```
 
-For Trae Work, import the skills from `.trae/skills/` through the Skills UI. The generated project `.trae/mcp.json` launches the globally installed `lazytrae mcp` server; use the MCP Settings UI as a fallback when your Trae Work build does not load project configuration.
+For Trae Work, import the skills from `.lazytraecode/skills/` through the Skills UI. The generated project `.trae/mcp.json` launches the globally installed `lazytrae mcp` server for Trae IDE and CLI; use the MCP Settings UI as a fallback when your Trae Work build does not load project configuration.
 
 See the repository [setup guide](../AGENTS.md) for the full workflow.

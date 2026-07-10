@@ -3,22 +3,22 @@
 const TOOLS = [
   {
     name: 'lazytrae.get_active_plan',
-    description: 'Read .lazytrae/state/boulder.json, return active plan name, plan path, task list with statuses. No mutation.',
+    description: 'Read .lazytraework/state/boulder.json, return active plan name, plan path, task list with statuses. No mutation.',
     inputSchema: { type: 'object', properties: {} },
   },
   {
     name: 'lazytrae.get_boulder_status',
-    description: 'Read .lazytrae/state/boulder.json, return summary: total tasks, completed, pending, in_progress, blocked, blockers list, active work ID. No mutation.',
+    description: 'Read .lazytraework/state/boulder.json, return summary: total tasks, completed, pending, in_progress, blocked, blockers list, active work ID. No mutation.',
     inputSchema: { type: 'object', properties: {} },
   },
   {
     name: 'lazytrae.get_next_task',
-    description: 'Read .lazytrae/state/boulder.json, find the first task with status "pending" or "in_progress", return its description, index, and any blockers. No mutation.',
+    description: 'Read .lazytraework/state/boulder.json, find the first task with status "pending" or "in_progress", return its description, index, and any blockers. No mutation.',
     inputSchema: { type: 'object', properties: {} },
   },
   {
     name: 'lazytrae.record_evidence',
-    description: 'Record verification evidence. Takes parameters: gate_type, commands, outputs, exit_status, changed_files, manual_checks, reviewer_findings. Writes to .lazytrae/evidence/{gate_type}.md. Returns confirmation with file path.',
+    description: 'Record verification evidence. Takes parameters: gate_type, commands, outputs, exit_status, changed_files, manual_checks, reviewer_findings. Writes to .lazytraework/evidence/{gate_type}.md. Returns confirmation with file path.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -51,7 +51,7 @@ const TOOLS = [
   },
   {
     name: 'lazytrae.add_blocker',
-    description: 'Add a blocker to the active work. Updates .lazytrae/state/boulder.json. Returns confirmation.',
+    description: 'Add a blocker to the active work. Updates .lazytraework/state/boulder.json. Returns confirmation.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -64,7 +64,7 @@ const TOOLS = [
   },
   {
     name: 'lazytrae.request_review',
-    description: 'Create a review request entry in .lazytrae/evidence/oracle-review.md. Does NOT perform the review — that is the Oracle agent\'s job. Returns review request details.',
+    description: 'Create a review request entry in .lazytraework/evidence/oracle-review.md. Does NOT perform the review — that is the Oracle agent\'s job. Returns review request details.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -78,7 +78,7 @@ const TOOLS = [
   },
   {
     name: 'lazytrae.generate_handoff',
-    description: 'Read boulder.json, active-loop.json, evidence directory. Return a handoff summary matching the CLI handoff command format. Also persists to .lazytrae/evidence/handoff.md.',
+    description: 'Read boulder.json, active-loop.json, evidence directory. Return a handoff summary matching the CLI handoff command format. Also persists to .lazytraework/evidence/handoff.md.',
     inputSchema: { type: 'object', properties: {} },
   },
   {

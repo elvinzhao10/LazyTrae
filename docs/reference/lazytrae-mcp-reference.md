@@ -34,7 +34,7 @@ All 15 tools follow the `lazytrae.` namespace convention. Read tools do not muta
 
 ### 1. lazytrae.get_active_plan
 
-Read `.lazytrae/state/boulder.json`, return active plan name, plan path, task list with statuses.
+Read `.lazytraework/state/boulder.json`, return active plan name, plan path, task list with statuses.
 
 | Property | Value |
 | --- | --- |
@@ -45,7 +45,7 @@ Read `.lazytrae/state/boulder.json`, return active plan name, plan path, task li
 
 ### 2. lazytrae.get_boulder_status
 
-Read `.lazytrae/state/boulder.json`, return summary of all works, tasks, and blockers.
+Read `.lazytraework/state/boulder.json`, return summary of all works, tasks, and blockers.
 
 | Property | Value |
 | --- | --- |
@@ -56,7 +56,7 @@ Read `.lazytrae/state/boulder.json`, return summary of all works, tasks, and blo
 
 ### 3. lazytrae.get_next_task
 
-Read `.lazytrae/state/boulder.json`, find the first task with status "pending" or "in_progress".
+Read `.lazytraework/state/boulder.json`, find the first task with status "pending" or "in_progress".
 
 | Property | Value |
 | --- | --- |
@@ -67,7 +67,7 @@ Read `.lazytrae/state/boulder.json`, find the first task with status "pending" o
 
 ### 4. lazytrae.record_evidence
 
-Record verification evidence. Writes to `.lazytrae/evidence/{gate_type}.md`.
+Record verification evidence. Writes to `.lazytraework/evidence/{gate_type}.md`.
 
 | Property | Value |
 | --- | --- |
@@ -113,7 +113,7 @@ Add a blocker to the active work. If `task_index` is provided, also blocks that 
 
 ### 7. lazytrae.request_review
 
-Create a review request entry in `.lazytrae/evidence/oracle-review.md`. Does **NOT** perform the review — that is the Oracle agent's job.
+Create a review request entry in `.lazytraework/evidence/oracle-review.md`. Does **NOT** perform the review — that is the Oracle agent's job.
 
 | Property | Value |
 | --- | --- |
@@ -221,7 +221,7 @@ The following optional MCP servers are configured in `.trae/mcp.json` with `requ
 
 ## Security
 
-State tools access `.lazytrae/` state and evidence paths. Context tools read local project files for search, docs lookup, and dependency inspection, skipping large dependency/reference directories such as `.git`, `node_modules`, `reference`, and `lazycodex`. The `record_evidence` and `mark_task_done` tools only append to or update well-known paths within `.lazytrae/evidence/` and `.lazytrae/state/`.
+State tools access `.lazytraework/` state and evidence paths. Context tools read local project files for search, docs lookup, and dependency inspection, skipping large dependency/reference directories such as `.git`, `node_modules`, `reference`, and `lazycodex`. The `record_evidence` and `mark_task_done` tools only append to or update well-known paths within `.lazytraework/evidence/` and `.lazytraework/state/`.
 
 ## Graceful Degradation
 

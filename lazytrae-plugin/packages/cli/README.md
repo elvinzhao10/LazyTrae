@@ -35,7 +35,7 @@ npx lazytrae-ai init
 
 This will:
 - Detect repo root (finds `.git`)
-- Create directory structure: `.trae/`, `.lazytrae/`, `.omo/`
+- Create directory structure: `.trae/`, `.lazytraework/`, `.omo/`
 - Copy all templates (rules, skills, commands, agents)
 - Merge managed blocks into `AGENTS.md` without overwriting user content
 - Add `.gitignore` entries for runtime state
@@ -50,10 +50,10 @@ This will:
 | `.trae/agents/*.md` | 11 custom agent role definitions |
 | `.trae/hooks.json` | Hooks configuration (for v0.7) |
 | `.trae/mcp.json` | MCP configuration (for v0.8) |
-| `.lazytrae/config.json` | LazyTrae configuration |
-| `.lazytrae/state/` | Durable runtime state (boulder, active-loop, sessions) |
-| `.lazytrae/schemas/` | JSON schemas for state validation |
-| `.lazytrae/evidence/` | Evidence templates for verification gates |
+| `.lazytraework/config.json` | LazyTrae configuration |
+| `.lazytraework/state/` | Durable runtime state (boulder, active-loop, sessions) |
+| `.lazytraework/schemas/` | JSON schemas for state validation |
+| `.lazytraework/evidence/` | Evidence templates for verification gates |
 | `.omo/plans/` | Compatibility mirror for plans |
 | `.omo/ulw-loop/` | Compatibility mirror for loop state |
 

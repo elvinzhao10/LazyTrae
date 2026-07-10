@@ -6,7 +6,7 @@ function detectRepoRoot() {
   let dir = process.cwd();
   while (dir !== path.dirname(dir)) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;
-    if (fs.existsSync(path.join(dir, '.lazytrae'))) return dir;
+    if (fs.existsSync(path.join(dir, '.lazytraework'))) return dir;
     dir = path.dirname(dir);
   }
   return process.cwd();
@@ -37,11 +37,11 @@ Options:
   const repoRoot = detectRepoRoot();
   const asJson = args.includes('--json');
 
-  const boulder = safeReadJSON(path.join(repoRoot, '.lazytrae', 'state', 'boulder.json'));
-  const loop = safeReadJSON(path.join(repoRoot, '.lazytrae', 'state', 'active-loop.json'));
-  const sessions = safeReadJSON(path.join(repoRoot, '.lazytrae', 'state', 'sessions.json'));
+  const boulder = safeReadJSON(path.join(repoRoot, '.lazytraework', 'state', 'boulder.json'));
+  const loop = safeReadJSON(path.join(repoRoot, '.lazytraework', 'state', 'active-loop.json'));
+  const sessions = safeReadJSON(path.join(repoRoot, '.lazytraework', 'state', 'sessions.json'));
 
-  const evidenceDir = path.join(repoRoot, '.lazytrae', 'evidence');
+  const evidenceDir = path.join(repoRoot, '.lazytraework', 'evidence');
   const evidenceFiles = fs.existsSync(evidenceDir)
     ? fs.readdirSync(evidenceDir).filter(f => f.endsWith('.md'))
     : [];
@@ -75,7 +75,7 @@ Options:
       activeLoop,
       loopIteration: loop ? `${loop.iteration || 0}/${loop.max_iterations || 500}` : 'N/A',
     },
-    evidenceProduced: evidenceFiles.map(f => `.lazytrae/evidence/${f}`),
+    evidenceProduced: evidenceFiles.map(f => `.lazytraework/evidence/${f}`),
     completionGate,
     remainingGaps: [],
     blockers: [],

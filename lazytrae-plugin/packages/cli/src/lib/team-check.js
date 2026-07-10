@@ -10,12 +10,12 @@ const MIN_MEMBERS = 2;
  * @returns {{ label: string, status: 'PASS'|'FAIL'|'WARN', detail?: string }}
  */
 function checkTeamMode(repoRoot) {
-  const teamDir = path.join(repoRoot, '.lazytrae', 'team');
-  const schemaPath = path.join(repoRoot, '.lazytrae', 'schemas', 'team.schema.json');
+  const teamDir = path.join(repoRoot, '.lazytraework', 'team');
+  const schemaPath = path.join(repoRoot, '.lazytraework', 'schemas', 'team.schema.json');
   const teamPath = path.join(teamDir, 'team.json');
 
   if (!fs.existsSync(schemaPath)) {
-    return { label: 'Team mode', status: 'FAIL', detail: 'Schema .lazytrae/schemas/team.schema.json not found' };
+    return { label: 'Team mode', status: 'FAIL', detail: 'Schema .lazytraework/schemas/team.schema.json not found' };
   }
 
   let schema;

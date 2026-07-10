@@ -37,7 +37,7 @@ Remove LazyTrae from the current repo.
 Options:
   --help, -h       Show this help message
   --yes, -y        Skip confirmation prompt
-  --soft           Only remove managed files (preserve .lazytrae/ and .omo/)
+  --soft           Only remove managed files (preserve .lazytraework/ and .omo/)
   --purge-state    Remove everything including plans/evidence
 `);
     return;
@@ -49,7 +49,7 @@ Options:
 
   if (!yes) {
     console.log('This will remove LazyTrae from the current repo.');
-    if (soft) console.log('Mode: --soft (preserve .lazytrae/ and .omo/)');
+    if (soft) console.log('Mode: --soft (preserve .lazytraework/ and .omo/)');
     if (purgeState) console.log('Mode: --purge-state (remove everything)');
     console.log('Are you sure? Run with --yes to confirm.');
     process.exit(0);
@@ -69,21 +69,21 @@ Options:
   }
 
   if (soft) {
-    summary.preserved.push('.lazytrae/ (--soft)');
+    summary.preserved.push('.lazytraework/ (--soft)');
     summary.preserved.push('.omo/ (--soft)');
   } else {
-    // Remove .lazytrae/ directory
-    const lazytraeDir = path.join(repoRoot, '.lazytrae');
+    // Remove .lazytraework/ directory
+    const lazytraeDir = path.join(repoRoot, '.lazytraework');
     if (fs.existsSync(lazytraeDir)) {
       if (purgeState) {
         rimraf(repoRoot, lazytraeDir);
-        summary.removed.push('.lazytrae/ (including state/evidence)');
+        summary.removed.push('.lazytraework/ (including state/evidence)');
       } else {
         // Preserve evidence and state by default
         const evidenceDir = path.join(lazytraeDir, 'evidence');
         const stateDir = path.join(lazytraeDir, 'state');
-        if (fs.existsSync(evidenceDir)) summary.preserved.push('.lazytrae/evidence/');
-        if (fs.existsSync(stateDir)) summary.preserved.push('.lazytrae/state/');
+        if (fs.existsSync(evidenceDir)) summary.preserved.push('.lazytraework/evidence/');
+        if (fs.existsSync(stateDir)) summary.preserved.push('.lazytraework/state/');
 
         // Remove everything else
         const entries = fs.readdirSync(lazytraeDir, { withFileTypes: true });
@@ -94,7 +94,7 @@ Options:
           if (entry.isDirectory()) rimraf(repoRoot, fullPath);
           else fs.unlinkSync(fullPath);
         }
-        summary.removed.push('.lazytrae/ (evidence/state preserved)');
+        summary.removed.push('.lazytraework/ (evidence/state preserved)');
       }
     }
 

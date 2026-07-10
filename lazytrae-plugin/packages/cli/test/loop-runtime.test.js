@@ -5,13 +5,13 @@ const test = require('node:test');
 const { QUALITY_GATE_PATH, makeLoopFixture, readLoopState, runCli } = require('./test-helpers');
 
 function eventTypes(root) {
-  const log = path.join(root, '.lazytrae', 'logs', 'loop-events.ndjson');
+  const log = path.join(root, '.lazytraework', 'logs', 'loop-events.ndjson');
   return fs.readFileSync(log, 'utf-8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line).event_type);
 }
 
 test('loop pause rejects idle state without mutating active-loop state', () => {
   const fixture = makeLoopFixture('lazytrae-loop-idle-pause-');
-  const statePath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
+  const statePath = path.join(fixture, '.lazytraework', 'state', 'active-loop.json');
   const before = fs.readFileSync(statePath, 'utf-8');
 
   const result = runCli(['loop', 'pause'], { cwd: fixture });
@@ -50,7 +50,7 @@ test('loop record-review-blockers appends a pending blocker-resolution goal and 
 test('loop record-review-blockers rejects pending goals without mutating state or events', () => {
   const fixture = makeLoopFixture('lazytrae-loop-pending-review-blockers-');
   assert.equal(runCli(['loop', 'create-goals', '--brief', '.omo/evidence/brief.md', '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: fixture }).status, 0);
-  const statePath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
+  const statePath = path.join(fixture, '.lazytraework', 'state', 'active-loop.json');
   const beforeState = fs.readFileSync(statePath, 'utf-8');
   const beforeEvents = eventTypes(fixture);
 
@@ -79,7 +79,7 @@ test('loop record-evidence pass rejects review-blocked goals without contradicti
   for (const reason of ['Same Criterion Failure', ' same criterion   failure ', 'same criterion failure']) {
     assert.equal(runCli(['loop', 'record-evidence', 'goal-1', 'crit-1', '.omo/evidence/proof.txt', '--status', 'fail', '--reason', reason], { cwd: fixture }).status, 0);
   }
-  const statePath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
+  const statePath = path.join(fixture, '.lazytraework', 'state', 'active-loop.json');
   const beforeState = fs.readFileSync(statePath, 'utf-8');
   const beforeEvents = eventTypes(fixture);
 
@@ -102,7 +102,7 @@ test('loop record-evidence pass rejects completed goals without reopening the lo
   assert.equal(runCli(['loop', 'complete-goals'], { cwd: fixture }).status, 0);
   assert.equal(runCli(['loop', 'record-evidence', 'goal-1', 'crit-1', '.omo/evidence/proof.txt', '--status', 'pass'], { cwd: fixture }).status, 0);
   assert.equal(runCli(['loop', 'checkpoint', '--quality-gate-json', QUALITY_GATE_PATH], { cwd: fixture }).status, 0);
-  const statePath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
+  const statePath = path.join(fixture, '.lazytraework', 'state', 'active-loop.json');
   const beforeState = fs.readFileSync(statePath, 'utf-8');
   const beforeEvents = eventTypes(fixture);
 

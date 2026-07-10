@@ -76,10 +76,10 @@ Key v0.13-generated paths:
 - `.trae/hooks/session-start.sh`
 - `.trae/hooks/user-prompt-submit.sh`
 - `.trae/mcp.json`
-- `.lazytrae/schemas/active-loop.schema.json`
-- `.lazytrae/schemas/sessions.schema.json`
-- `.lazytrae/state/active-loop.json`
-- `.lazytrae/state/sessions.json`
+- `.lazytraework/schemas/active-loop.schema.json`
+- `.lazytraework/schemas/sessions.schema.json`
+- `.lazytraework/state/active-loop.json`
+- `.lazytraework/state/sessions.json`
 - `docs/lazytrae-cli-reference.md`
 - `docs/lazytrae-command-index.md`
 - `docs/lazytrae-diagnostics-report.md`

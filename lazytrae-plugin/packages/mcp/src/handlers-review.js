@@ -5,7 +5,7 @@ const path = require('path');
 const { assertSafeWrite, readJSON, writeJSON, iso, withFileLock, getActiveWork } = require('./state-access');
 
 function handleAddBlocker(root, args) {
-  const bp = path.join(root, '.lazytrae', 'state', 'boulder.json');
+  const bp = path.join(root, '.lazytraework', 'state', 'boulder.json');
 
   return withFileLock(bp, () => {
     const b = readJSON(bp);
@@ -37,7 +37,7 @@ function handleAddBlocker(root, args) {
 }
 
 function handleRequestReview(root, args) {
-  const evidencePath = path.join(root, '.lazytrae', 'evidence', 'oracle-review.md');
+  const evidencePath = path.join(root, '.lazytraework', 'evidence', 'oracle-review.md');
   assertSafeWrite(evidencePath);
   fs.mkdirSync(path.dirname(evidencePath), { recursive: true });
 
@@ -68,7 +68,7 @@ function handleRequestReview(root, args) {
 
   return {
     review_requested: true, review_type: reviewType,
-    file: '.lazytrae/evidence/oracle-review.md', timestamp: ts, task_id: taskId,
+    file: '.lazytraework/evidence/oracle-review.md', timestamp: ts, task_id: taskId,
     message: 'Review request created. The Oracle agent should now perform the review.',
   };
 }

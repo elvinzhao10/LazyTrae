@@ -39,7 +39,7 @@ Options:
   // Create directory structure
   const dirs = [
     '.trae/rules', '.trae/skills', '.trae/commands', '.trae/agents', '.trae/hooks',
-    '.lazytrae/state', '.lazytrae/evidence', '.lazytrae/schemas', '.lazytrae/logs',
+    '.lazytraework/state', '.lazytraework/evidence', '.lazytraework/schemas', '.lazytraework/logs',
     '.omo/plans', '.omo/ulw-loop',
   ];
   for (const dir of dirs) {
@@ -123,37 +123,37 @@ Options:
     }
   }
 
-  // Copy .lazytrae/config.json
-  if (!fs.existsSync(path.join(repoRoot, '.lazytrae', 'config.json'))) {
+  // Copy .lazytraework/config.json
+  if (!fs.existsSync(path.join(repoRoot, '.lazytraework', 'config.json'))) {
     copyRepoFileIfChanged(repoRoot,
       path.join(templatesDir, 'config.json'),
-      path.join(repoRoot, '.lazytrae', 'config.json')
+      path.join(repoRoot, '.lazytraework', 'config.json')
     );
-    summary.created.push('.lazytrae/config.json');
+    summary.created.push('.lazytraework/config.json');
   } else {
-    summary.skipped.push('.lazytrae/config.json (already exists)');
+    summary.skipped.push('.lazytraework/config.json (already exists)');
   }
 
-  // Copy .lazytrae/schemas/
+  // Copy .lazytraework/schemas/
   const schemasResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'schemas'),
-    path.join(repoRoot, '.lazytrae', 'schemas')
+    path.join(repoRoot, '.lazytraework', 'schemas')
   );
   if (schemasResult.created > 0) summary.created.push(`${schemasResult.created} schema files`);
   if (schemasResult.updated > 0) summary.updated.push(`${schemasResult.updated} schema files`);
 
-  // Copy .lazytrae/evidence/
+  // Copy .lazytraework/evidence/
   const evidenceResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'evidence'),
-    path.join(repoRoot, '.lazytrae', 'evidence')
+    path.join(repoRoot, '.lazytraework', 'evidence')
   );
   if (evidenceResult.created > 0) summary.created.push(`${evidenceResult.created} evidence files`);
   if (evidenceResult.updated > 0) summary.updated.push(`${evidenceResult.updated} evidence files`);
 
-  // Copy .lazytrae/state/
+  // Copy .lazytraework/state/
   const stateResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'state'),
-    path.join(repoRoot, '.lazytrae', 'state')
+    path.join(repoRoot, '.lazytraework', 'state')
   );
   if (stateResult.created > 0) summary.created.push(`${stateResult.created} state files`);
   if (stateResult.updated > 0) summary.updated.push(`${stateResult.updated} state files`);
@@ -203,9 +203,9 @@ Options:
   const gitignoreEntries = [
     '',
     '# LazyTrae runtime (managed by lazytrae init)',
-    '.lazytrae/state/',
-    '.lazytrae/logs/',
-    '.lazytrae/evidence/',
+    '.lazytraework/state/',
+    '.lazytraework/logs/',
+    '.lazytraework/evidence/',
   ].join('\n');
 
   if (fs.existsSync(gitignorePath)) {

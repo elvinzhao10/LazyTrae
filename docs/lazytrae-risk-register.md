@@ -37,7 +37,7 @@
 - **LazyCodex reference**: LazyCodex does not auto-merge AGENTS.md (it uses `.codex/rules/` directory); this is a LazyTrae-specific concern.
 - **Mitigation**:
   1. Use HTML comment markers (`<!-- LAZYTRAE:START -->` / `<!-- LAZYTRAE:END -->`) for managed blocks
-  2. Always create backup before merge (`.AGENTS.md.lazytrae.bak`)
+  2. Always create backup before merge (`.AGENTS.md.lazytraework.bak`)
   3. Extensive testing with various AGENTS.md formats (empty, existing content, conflicting markers)
   4. Doctor check validates managed block integrity
 - **Acceptance criteria**: `lazytrae init` succeeds idempotently on repos with: no AGENTS.md, empty AGENTS.md, AGENTS.md with existing content, AGENTS.md with existing LazyTrae blocks.
@@ -179,7 +179,7 @@
 - **LazyCodex reference**: `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 38: PostCompact hook), `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts`
 - **Mitigation**:
   1. Detect compaction heuristically via SessionStart source field and UserPromptSubmit transcript markers
-  2. Maintain compaction state in `.lazytrae/state/sessions.json`
+  2. Maintain compaction state in `.lazytraework/state/sessions.json`
   3. SessionStart hook checks for post-compact recovery flag and re-injects context
   4. UserPromptSubmit hook scans for compaction markers and sets recovery flag
   5. Document the limitation clearly — detection may miss some compaction events

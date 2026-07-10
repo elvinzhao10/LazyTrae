@@ -49,7 +49,7 @@ Before any task can be marked complete, it must pass ALL five evidence gates:
 - Exact commands run, exact invocations recorded.
 - PASS/FAIL observable clearly documented.
 - Artifacts captured (screenshots, transcripts, HTTP dumps, data diffs).
-- Evidence: Manual-QA scenarios with captured artifacts at `.lazytrae/evidence/verifier.md`.
+- Evidence: Manual-QA scenarios with captured artifacts at `.lazytraework/evidence/verifier.md`.
 
 ### Gate 4: Adversarial QA
 
@@ -57,7 +57,7 @@ Before any task can be marked complete, it must pass ALL five evidence gates:
 - Edge cases tested.
 - Regression scenarios verified.
 - Adversarial inputs attempted.
-- Evidence: Adversarial QA findings at `.lazytrae/evidence/reviewer.md`.
+- Evidence: Adversarial QA findings at `.lazytraework/evidence/reviewer.md`.
 
 ### Gate 5: Cleanup
 
@@ -65,7 +65,7 @@ Before any task can be marked complete, it must pass ALL five evidence gates:
 - Cleanup receipts recorded for each resource.
 - No leftover QA state.
 - AI slop removed (dead code, unused imports, stale comments).
-- Evidence: Cleanup receipts at `.lazytrae/evidence/reviewer.md`.
+- Evidence: Cleanup receipts at `.lazytraework/evidence/reviewer.md`.
 
 Source: `lazycodex/packages/web/content/docs/hooks-lifecycle.md`, `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts`.
 

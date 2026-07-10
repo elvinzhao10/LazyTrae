@@ -21,8 +21,8 @@ function formatAjvError(error) {
 }
 
 function validateStateFile(repoRoot, stateFileName, schemaFileName) {
-  const statePath = path.join(repoRoot, '.lazytrae', 'state', stateFileName);
-  const schemaPath = path.join(repoRoot, '.lazytrae', 'schemas', schemaFileName);
+  const statePath = path.join(repoRoot, '.lazytraework', 'state', stateFileName);
+  const schemaPath = path.join(repoRoot, '.lazytraework', 'schemas', schemaFileName);
 
   if (!fs.existsSync(statePath)) {
     return { valid: false, errors: [`State file not found: ${statePath}`] };
@@ -67,8 +67,8 @@ function validateStateFile(repoRoot, stateFileName, schemaFileName) {
 
 function validateAllState(repoRoot) {
   const results = {};
-  const stateDir = path.join(repoRoot, '.lazytrae', 'state');
-  const schemaDir = path.join(repoRoot, '.lazytrae', 'schemas');
+  const stateDir = path.join(repoRoot, '.lazytraework', 'state');
+  const schemaDir = path.join(repoRoot, '.lazytraework', 'schemas');
 
   if (!fs.existsSync(stateDir) || !fs.existsSync(schemaDir)) {
     return results;
@@ -89,7 +89,7 @@ function validateAllState(repoRoot) {
 }
 
 function checkCompletedTaskEvidence(repoRoot) {
-  const boulderPath = path.join(repoRoot, '.lazytrae', 'state', 'boulder.json');
+  const boulderPath = path.join(repoRoot, '.lazytraework', 'state', 'boulder.json');
   if (!fs.existsSync(boulderPath)) {
     return { valid: true, errors: [] };
   }

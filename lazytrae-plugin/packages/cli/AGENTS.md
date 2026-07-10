@@ -13,7 +13,7 @@
 | Health gates | `src/commands/doctor.js`, `src/commands/verify.js`, `src/lib/*.js` | `verify` is strict doctor behavior. |
 | Hooks | `src/commands/hook.js`, `templates/hooks/` | Trae hooks are advisory; hard gates belong in CLI/MCP. |
 | Loop runtime | `src/commands/loop.js`, `templates/state/active-loop.json` | v0.13 expands this from status/control into goal/evidence operations. |
-| Team mode | `src/commands/team.js`, `src/lib/team-check.js` | State lives under `.lazytrae/team/`. |
+| Team mode | `src/commands/team.js`, `src/lib/team-check.js` | State lives under `.lazytraework/team/`. |
 | MCP bridge | `src/commands/mcp.js`, `../mcp/src/` | CLI command delegates to the MCP package entry point. |
 | Tests | `test/` | Currently thin: one MCP smoke script plus hook fixtures. |
 
@@ -30,7 +30,7 @@
 - Do not leave `npm test` as a placeholder once adding runtime behavior.
 - Do not claim hook blocking parity; Trae hooks exit 0, so completion blocking must be enforced by CLI/MCP.
 - Do not add command behavior without a real CLI/manual surface proof.
-- Do not update templates without also checking the installed `.trae/` or `.lazytrae/` counterpart expectation.
+- Do not update templates without also checking the installed `.trae/` or `.lazytraework/` counterpart expectation.
 
 ## COMMANDS
 

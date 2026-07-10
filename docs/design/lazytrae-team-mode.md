@@ -59,7 +59,7 @@ These agent roles are read-only by default and are suitable for parallel team me
 Trae subagents are **ephemeral** — they have independent context but no durable thread persistence. Durability lives in files:
 
 ```
-.lazytrae/team/
+.lazytraework/team/
   team.json              ← Durable team state (schema version 2)
   members/<id>/
     report.md            ← Member's deliverable report
@@ -74,8 +74,8 @@ Trae subagents are **ephemeral** — they have independent context but no durabl
 When invoking a team member:
 1. The leader creates a team with `lazytrae team create`
 2. Members are spawned with `lazytrae team spawn`
-3. Each member writes its deliverable to `.lazytrae/team/members/<id>/report.md`
-4. Heartbeat markers go in `.lazytrae/team/mailbox/<id>/outbox.md`
+3. Each member writes its deliverable to `.lazytraework/team/members/<id>/report.md`
+4. Heartbeat markers go in `.lazytraework/team/mailbox/<id>/outbox.md`
 5. The leader runs `lazytrae team collect` to synthesize all reports
 
 ## Parent Synthesis Procedure
@@ -89,7 +89,7 @@ After all members report:
 
 ## Worktree Isolation
 
-When two members would edit the same files, give each a separate git worktree via `lazytrae team spawn --branch <branch>`. The team.json `worktree.enabled` flag flips to `true` on the first worktree assignment. Worktrees are created under `.lazytrae/team/worktrees/<id>/`.
+When two members would edit the same files, give each a separate git worktree via `lazytrae team spawn --branch <branch>`. The team.json `worktree.enabled` flag flips to `true` on the first worktree assignment. Worktrees are created under `.lazytraework/team/worktrees/<id>/`.
 
 Decide mid-run when a file collision appears, not only at init.
 
@@ -122,8 +122,8 @@ lazytrae team delete <team-id> [--force]
 | LazyCodex (Codex) | LazyTrae (Trae-native) |
 |---|---|
 | `codex_app.create_thread` (durable threads) | Subagent invocation (ephemeral, independent context) |
-| `codex_app.send_message_to_thread` | Mailbox file: `.lazytrae/team/mailbox/<id>/outbox.md` |
-| `codex_app.read_thread` | Member report: `.lazytrae/team/members/<id>/report.md` |
+| `codex_app.send_message_to_thread` | Mailbox file: `.lazytraework/team/mailbox/<id>/outbox.md` |
+| `codex_app.read_thread` | Member report: `.lazytraework/team/members/<id>/report.md` |
 | `codex_app.set_thread_title` | N/A — title lives in team.json `threadTitle` field as a record |
 | `codex_app.set_thread_archived` | Mark member status: `"archived"` in team.json |
 | Thread durability across sessions | Durable team.json + member report files |

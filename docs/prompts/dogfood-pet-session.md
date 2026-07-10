@@ -11,7 +11,7 @@ You are running an **autonomous dogfood session** for the LazyTrae agent harness
 
 ### What the pet is
 
-A **Trae Pet** is a live dashboard pet that reads `.lazytrae/` state and renders a beautiful terminal visualization. Think of it as a tamagotchi crossed with a system monitor — the pet's mood and stats reflect what's actually happening in the agent harness.
+A **Trae Pet** is a live dashboard pet that reads `.lazytraework/` state and renders a beautiful terminal visualization. Think of it as a tamagotchi crossed with a system monitor — the pet's mood and stats reflect what's actually happening in the agent harness.
 
 The pet is NOT just decorative. It's a **real consumer of the LazyTrae state ledger** — it reads events.jsonl, state.json, and the run directory to derive its state. If the harness is healthy (tasks completing, verification passing, reviews accepted), the pet thrives. If things are broken (failures, drift, stuck tasks), the pet suffers.
 
@@ -22,7 +22,7 @@ A small **Python package** — not a 350-line god-file. Separate the concerns so
 ```
 pet/
 ├── __main__.py   # CLI entry — argparse, dispatches the commands below (thin, no logic)
-├── state.py      # reads .lazytrae/: run ledger, events.jsonl, plan.md → raw signal dict
+├── state.py      # reads .lazytraework/: run ledger, events.jsonl, plan.md → raw signal dict
 ├── metrics.py    # PURE functions: raw signals → System Vitals + pet stats + mood (no I/O)
 ├── art.py        # MOOD_FRAMES: Trae robot art + animation frames (data + small compositor)
 ├── spark.py      # tiny sparkline helper: buckets events → ▁▂▃▅▇█
@@ -84,7 +84,7 @@ Pure stdlib only (`argparse`, `json`, `pathlib`, `time`, `unittest.mock`) — ru
 
 #### Pet states (derive from state)
 
-The pet shows **two layers of numbers** — both read from `.lazytrae/`, never faked:
+The pet shows **two layers of numbers** — both read from `.lazytraework/`, never faked:
 
 **System Vitals** (the useful part — real harness metrics, shown as bars in the top panel):
 | Vital | Derived from | What it tells you |
@@ -262,7 +262,7 @@ The pet isn't the only living thing on the panel. Render the other sections as *
 
 The pet must read and display REAL data from the LazyTrae state:
 
-1. **Run status** — read `.lazytrae/runs/<run_id>/state.json`:
+1. **Run status** — read `.lazytraework/runs/<run_id>/state.json`:
    - run_id, status, objective, created_at (compute duration)
    - tasks[] with id, title, status, changed_files, evidence
    - review_status, verification_gates
@@ -297,7 +297,7 @@ The pet must read and display REAL data from the LazyTrae state:
 
 #### Pet state persistence
 
-`.lazytrae/pet-state.json`:
+`.lazytraework/pet-state.json`:
 ```json
 {
   "health": 80,
@@ -371,15 +371,15 @@ Honest answer.
 ## Artifacts
 - pet/ (package — N lines across 6 modules)
 - tests/test_pet.py (N lines)
-- .lazytrae/runs/dogfood-pet/ (full run records)
-- .lazytrae/pet-state.json
+- .lazytraework/runs/dogfood-pet/ (full run records)
+- .lazytraework/pet-state.json
 ```
 
 ### Rules
 
 1. **Be honest.** Record real errors, real friction.
 2. **The whole panel must be visual.** Animated Trae robot + real System Vitals bars + progress bars + sparklines — not walls of text. This is the visual payoff.
-3. **The pet must read real state.** Don't fake the data — parse actual files. The bars and sparklines must reflect real `.lazytrae/` values.
+3. **The pet must read real state.** Don't fake the data — parse actual files. The bars and sparklines must reflect real `.lazytraework/` values.
 4. **Tests must pass.** Run pytest and prove it.
 5. **No artificial time cap.** This is a small project — it shouldn't need long to execute. Keep scope tight (modular package as specced, ~8 tests) but don't rush or cut quality to hit a clock. Just run it, watch the pet, write the report.
 6. **Don't fix harness bugs during the run.** Note and continue.

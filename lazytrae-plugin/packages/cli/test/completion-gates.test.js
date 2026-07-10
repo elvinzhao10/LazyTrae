@@ -55,26 +55,26 @@ test('MCP mark_task_done requires summary and existing evidence paths', () => {
   const missingPath = HANDLERS['lazytrae.mark_task_done'](fixture, {
     task_id: 'task-1',
     evidence_summary: 'proof',
-    evidence_paths: ['.lazytrae/evidence/missing.md'],
+    evidence_paths: ['.lazytraework/evidence/missing.md'],
   });
   assert.equal(missingPath.error, 'EVIDENCE_REQUIRED');
   assert.match(missingPath.evidence_errors.join('\n'), /evidence missing/);
 
-  fs.writeFileSync(path.join(fixture, '.lazytrae', 'evidence', 'task-1.md'), 'proof\n');
+  fs.writeFileSync(path.join(fixture, '.lazytraework', 'evidence', 'task-1.md'), 'proof\n');
   const done = HANDLERS['lazytrae.mark_task_done'](fixture, {
     task_id: 'task-1',
     evidence_summary: 'proof',
-    evidence_paths: ['.lazytrae/evidence/task-1.md'],
+    evidence_paths: ['.lazytraework/evidence/task-1.md'],
   });
   assert.equal(done.marked_complete, true);
-  assert.deepEqual(done.evidence_paths, ['.lazytrae/evidence/task-1.md']);
+  assert.deepEqual(done.evidence_paths, ['.lazytraework/evidence/task-1.md']);
 
-  const persisted = JSON.parse(fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'boulder.json'), 'utf-8'));
+  const persisted = JSON.parse(fs.readFileSync(path.join(fixture, '.lazytraework', 'state', 'boulder.json'), 'utf-8'));
   const persistedTask = persisted.works[persisted.active_work_id].tasks[0];
   assert.equal(persistedTask.status, 'complete');
   assert.equal(typeof persistedTask.completed_at, 'string');
   assert.equal(persistedTask.evidence_summary, 'proof');
-  assert.deepEqual(persistedTask.evidence_paths, ['.lazytrae/evidence/task-1.md']);
+  assert.deepEqual(persistedTask.evidence_paths, ['.lazytraework/evidence/task-1.md']);
 });
 
 test('handoff includes completion gate warning for incomplete fixtures', () => {

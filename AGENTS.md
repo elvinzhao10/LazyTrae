@@ -20,7 +20,7 @@ LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supp
 
 **Option A — let an agent install it (recommended).** Open this repo in your Trae surface and paste:
 
-> Install the LazyTrae plugin from `lazytrae-plugin/`. Read the plugin manifest, copy `.trae/` (rules, skills, commands, agents, hooks) and `.lazytrae/` (schemas, config) into my project, wire `.trae/mcp.json`, then run `lazytrae doctor` to verify.
+> Install the LazyTrae package from `lazytrae-plugin/`. Use `.lazytraecode/` (rules, skills, commands, agents, hooks) and `.lazytraework/` (schemas, workflow defaults) as sources, run `lazytrae init` to generate the host-required `.trae/` project directory, then run `lazytrae doctor` to verify.
 
 **Option B — manual CLI install:**
 ```bash
@@ -56,7 +56,7 @@ lazytrae doctor    # expect 0 FAIL (WARNs are environmental: empty evidence, etc
 
 ## What gets installed
 
-`.trae/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, hooks), `.lazytrae/` (schemas, config), `.trae/mcp.json` (15 MCP tools), and this `AGENTS.md` (setup guide). All skills/commands are `lazy-` prefixed.
+`.lazytraecode/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, hooks), `.lazytraework/` (schemas, workflow defaults), generated `.trae/mcp.json` (15 MCP tools), and this `AGENTS.md` (setup guide). All skills/commands are `lazy-` prefixed.
 
 ## Reference
 

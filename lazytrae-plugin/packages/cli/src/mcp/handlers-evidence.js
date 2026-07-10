@@ -16,7 +16,7 @@ const GATE_FILE_MAP = {
 function handleRecordEvidence(root, args) {
   const gateType = args.gate_type;
   const fileName = GATE_FILE_MAP[gateType] || 'general.md';
-  const evidenceDir = path.join(root, '.lazytrae', 'evidence');
+  const evidenceDir = path.join(root, '.lazytraework', 'evidence');
   assertSafeWrite(path.join(evidenceDir, fileName));
   fs.mkdirSync(evidenceDir, { recursive: true });
 
@@ -79,13 +79,13 @@ function handleRecordEvidence(root, args) {
 
   return {
     recorded: true, gate_type: gateType, file: fileName,
-    file_path: '.lazytrae/evidence/' + fileName, timestamp: ts,
+    file_path: '.lazytraework/evidence/' + fileName, timestamp: ts,
     verdict: args.verdict || null,
   };
 }
 
 function handleMarkTaskDone(root, args) {
-  const bp = path.join(root, '.lazytrae', 'state', 'boulder.json');
+  const bp = path.join(root, '.lazytraework', 'state', 'boulder.json');
 
   return withFileLock(bp, () => {
     const b = readJSON(bp);

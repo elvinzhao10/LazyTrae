@@ -19,7 +19,7 @@ test('persistent mutators reject symlink escapes and member traversal', () => {
     fs.mkdirSync(path.join(outside, 'team'), { recursive: true });
     fs.writeFileSync(path.join(outside, 'team', 'team.json'), JSON.stringify({ teamName: 'team', status: 'archived', members: [] }));
     fs.writeFileSync(path.join(outside, 'team', 'sentinel'), 'outside team sentinel\n');
-    fs.symlinkSync(outside, path.join(root, '.lazytrae'));
+    fs.symlinkSync(outside, path.join(root, '.lazytraework'));
 
     const deleted = runCli(['team', 'delete', 'ignored', '--force'], { cwd: root });
     assert.equal(deleted.status, 1, deleted.stdout + deleted.stderr);
@@ -31,13 +31,13 @@ test('persistent mutators reject symlink escapes and member traversal', () => {
     assert.match(uninstalled.stderr, /outside the repo root/);
     assert.equal(fs.existsSync(path.join(outside, 'team', 'sentinel')), true);
 
-    fs.unlinkSync(path.join(root, '.lazytrae'));
+    fs.unlinkSync(path.join(root, '.lazytraework'));
     assert.equal(runCli(['team', 'create', '--name', 'team'], { cwd: root }).status, 0);
     const traversal = runCli(['team', 'spawn', 'ignored', '--id', `../../../../${path.basename(escaped)}`, '--focus', 'escape', '--lens', 'area'], { cwd: root });
     assert.equal(traversal.status, 1, traversal.stdout + traversal.stderr);
     assert.equal(fs.existsSync(escaped), false);
     assert.equal(runCli(['team', 'spawn', 'ignored', '--id', 'member-1', '--focus', 'safe', '--lens', 'area'], { cwd: root }).status, 0);
-    assert.equal(fs.existsSync(path.join(root, '.lazytrae', 'team', 'members', 'member-1')), true);
+    assert.equal(fs.existsSync(path.join(root, '.lazytraework', 'team', 'members', 'member-1')), true);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
     fs.rmSync(outside, { recursive: true, force: true });

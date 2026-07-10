@@ -21,13 +21,13 @@ The architecture is organized into three layers:
 
 ### Layer 2 — LazyTrae project runtime (state + CLI)
 ```
-.lazytrae/config.json          # LazyTrae configuration
-.lazytrae/state/boulder.json   # Active plan task tracker
-.lazytrae/state/active-loop.json  # Long-horizon loop state
-.lazytrae/state/sessions.json     # Session tracking
-.lazytrae/evidence/               # Verification evidence files
-.lazytrae/logs/                   # Event and hook logs
-.lazytrae/schemas/                # JSON schemas for state validation
+.lazytraework/config.json          # LazyTrae configuration
+.lazytraework/state/boulder.json   # Active plan task tracker
+.lazytraework/state/active-loop.json  # Long-horizon loop state
+.lazytraework/state/sessions.json     # Session tracking
+.lazytraework/evidence/               # Verification evidence files
+.lazytraework/logs/                   # Event and hook logs
+.lazytraework/schemas/                # JSON schemas for state validation
 CLI: lazytrae init / doctor / sync / verify / handoff / uninstall
 ```
 
@@ -193,7 +193,7 @@ Six LazyCodex hook events:
 - LazyCodex MCP servers use local `node` commands with relative paths — LazyTrae can use similar patterns
 - Optional MCP templates: filesystem, git, playwright/browser, docs/context lookup, ast-grep, LSP diagnostics
 
-### 2.7 Long-Running Loop → .lazytrae/state + .omo Compatibility Mirror
+### 2.7 Long-Running Loop → .lazytraework/state + .omo Compatibility Mirror
 
 **LazyCodex source**: `plugins/omo/components/ulw-loop/src/` — full implementation
 - `constants.ts` (lines 1-64): state directory `.omo/ulw-loop`, statuses (pending, in_progress, complete, failed, blocked, review_blocked, needs_user_decision), steering mutations, criterion user models, ledger event kinds
@@ -206,10 +206,10 @@ Six LazyCodex hook events:
 - `cli.ts`: CLI commands for plan CRUD, evidence recording, steering
 
 **LazyTrae mapping**:
-- `.lazytrae/state/active-loop.json` — loop state (status, goals, criteria, iteration, checkpoints)
-- `.lazytrae/state/boulder.json` — active plan task tracker
-- `.lazytrae/state/sessions.json` — session tracking
-- `.lazytrae/logs/loop-events.ndjson` — event log
+- `.lazytraework/state/active-loop.json` — loop state (status, goals, criteria, iteration, checkpoints)
+- `.lazytraework/state/boulder.json` — active plan task tracker
+- `.lazytraework/state/sessions.json` — session tracking
+- `.lazytraework/logs/loop-events.ndjson` — event log
 - `.omo/ulw-loop/<run-id>/goals.json` — compatibility mirror of ulw-loop goals
 - `.omo/ulw-loop/<run-id>/ledger.jsonl` — compatibility mirror of audit trail
 - `.omo/ulw-loop/<run-id>/brief.md` — compatibility mirror of brief
@@ -249,12 +249,12 @@ Five evidence gates:
 5. **Cleanup** — remove AI slop, dead code, unused imports
 
 **LazyTrae mapping**:
-- `.lazytrae/evidence/test-runs.md` — automated test run results
-- `.lazytrae/evidence/verifier.md` — verifier agent output
-- `.lazytrae/evidence/reviewer.md` — reviewer agent output
-- `.lazytrae/evidence/oracle-review.md` — oracle review output
-- `.lazytrae/evidence/completion.md` — completion claim with evidence
-- `.lazytrae/evidence/handoff.md` — session handoff summary
+- `.lazytraework/evidence/test-runs.md` — automated test run results
+- `.lazytraework/evidence/verifier.md` — verifier agent output
+- `.lazytraework/evidence/reviewer.md` — reviewer agent output
+- `.lazytraework/evidence/oracle-review.md` — oracle review output
+- `.lazytraework/evidence/completion.md` — completion claim with evidence
+- `.lazytraework/evidence/handoff.md` — session handoff summary
 - CLI commands: `lazytrae verify`, `lazytrae handoff`
 
 **Reviewer/Oracle protocol**:
@@ -271,7 +271,7 @@ Five evidence gates:
 
 **LazyTrae mapping**:
 - Native Trae: Auto mode (standard), Max mode (large context/tool-heavy), custom model selection
-- Routing guidance in `.lazytrae/config.json`:
+- Routing guidance in `.lazytraework/config.json`:
   - quick → Auto mode, atlas agent
   - deep → Max mode, hephaestus agent
   - ultrabrain → Max mode + strongest reasoning model, oracle agent
@@ -308,7 +308,7 @@ These LazyCodex features have no direct Trae equivalent and require documented s
 **Strategy**:
 1. **SessionStart detection**: When Trae's SessionStart hook fires, inspect the session source. If the session is a resume of a previously compacted session, detect compaction markers in the transcript.
 2. **UserPromptSubmit context-pressure markers**: Before each user prompt, scan the transcript for context-pressure markers (e.g., "[Context has been compacted]" or similar signals). If detected, emit a re-injection directive.
-3. **State file tracking**: Maintain a `.lazytrae/state/post-compact.json` file that tracks when compaction was detected, so subsequent hooks know to re-inject rules and reset caches.
+3. **State file tracking**: Maintain a `.lazytraework/state/post-compact.json` file that tracks when compaction was detected, so subsequent hooks know to re-inject rules and reset caches.
 
 **Implementation**: This will be handled in v0.7 (hooks).
 
@@ -323,13 +323,13 @@ These LazyCodex features have no direct Trae equivalent and require documented s
 | `.trae/agents/*.md` | Layer 1 | Custom agent role definitions |
 | `.trae/hooks/*.sh` | Layer 1 | Hook shell scripts |
 | `.trae/mcp.json` | Layer 1 | MCP server configuration |
-| `.lazytrae/config.json` | Layer 2 | LazyTrae configuration |
-| `.lazytrae/state/boulder.json` | Layer 2 | Active plan task tracker |
-| `.lazytrae/state/active-loop.json` | Layer 2 | Long-horizon loop state |
-| `.lazytrae/state/sessions.json` | Layer 2 | Session tracking |
-| `.lazytrae/evidence/*.md` | Layer 2 | Verification evidence |
-| `.lazytrae/logs/*.ndjson` | Layer 2 | Event and hook logs |
-| `.lazytrae/schemas/*.json` | Layer 2 | JSON schemas for state validation |
+| `.lazytraework/config.json` | Layer 2 | LazyTrae configuration |
+| `.lazytraework/state/boulder.json` | Layer 2 | Active plan task tracker |
+| `.lazytraework/state/active-loop.json` | Layer 2 | Long-horizon loop state |
+| `.lazytraework/state/sessions.json` | Layer 2 | Session tracking |
+| `.lazytraework/evidence/*.md` | Layer 2 | Verification evidence |
+| `.lazytraework/logs/*.ndjson` | Layer 2 | Event and hook logs |
+| `.lazytraework/schemas/*.json` | Layer 2 | JSON schemas for state validation |
 | `.omo/plans/` | Layer 3 | Plan files (compatibility mirror) |
 | `.omo/boulder.json` | Layer 3 | Boulder state mirror |
 | `.omo/ulw-loop/` | Layer 3 | ulw-loop state mirror |

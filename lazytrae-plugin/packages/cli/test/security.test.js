@@ -32,7 +32,7 @@ test('post-tool-use hook does not eval JSON-derived file paths', () => {
 
 test('session-start hook treats Boulder active_work_id as data', () => {
   const fixture = makeFixture('lazytrae-session-id-injection-');
-  const boulderPath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
+  const boulderPath = path.join(fixture, '.lazytraework', 'state', 'boulder.json');
   const boulder = JSON.parse(fs.readFileSync(boulderPath, 'utf-8'));
   boulder.active_work_id = "x'];require('fs').writeFileSync('pwned-session','x');//";
   boulder.works = {};
@@ -100,13 +100,13 @@ test('completion and loop evidence reject absolute paths outside the repo', () =
   fs.rmSync(outside, { force: true });
 });
 
-test('persistent CLI and hook writers reject a symlinked .lazytrae directory', () => {
+test('persistent CLI and hook writers reject a symlinked .lazytraework directory', () => {
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-symlink-writers-'));
   const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-symlink-target-'));
   const snapshots = new Map();
   try {
     fs.mkdirSync(path.join(fixture, '.git'));
-    fs.cpSync(path.join(__dirname, '..', '..', '..', '.trae'), path.join(fixture, '.trae'), { recursive: true });
+    fs.cpSync(path.join(__dirname, '..', '..', '..', '.lazytraecode'), path.join(fixture, '.trae'), { recursive: true });
     fs.cpSync(path.join(__dirname, '..', '..', '..', 'packages'), path.join(fixture, 'packages'), { recursive: true });
     fs.mkdirSync(path.join(fixture, '.omo', 'evidence'), { recursive: true });
     fs.writeFileSync(path.join(fixture, '.omo', 'evidence', 'brief.md'), 'brief\n');
@@ -119,7 +119,7 @@ test('persistent CLI and hook writers reject a symlinked .lazytrae directory', (
     for (const relative of ['state/active-loop.json', 'state/sessions.json', 'logs/loop-events.ndjson', 'evidence-sentinel.md']) {
       snapshots.set(relative, fs.readFileSync(path.join(outside, relative), 'utf-8'));
     }
-    fs.symlinkSync(outside, path.join(fixture, '.lazytrae'));
+    fs.symlinkSync(outside, path.join(fixture, '.lazytraework'));
 
     const init = runCli(['init'], { cwd: fixture });
     const loop = runCli(['loop', 'create-goals', '--brief', '.omo/evidence/brief.md', '--goal-id', 'g', '--criterion-id', 'c'], { cwd: fixture });
@@ -170,7 +170,7 @@ test('init and sync reject a symlinked .trae directory without touching its targ
 
 test('doctor and default verify reject completed task evidence outside the repo or blank', () => {
   const fixture = makeCompletionFixture('lazytrae-doctor-evidence-boundary-', true);
-  const boulderPath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
+  const boulderPath = path.join(fixture, '.lazytraework', 'state', 'boulder.json');
   const outside = path.join(path.dirname(fixture), `${path.basename(fixture)}-outside.md`);
   try {
     fs.writeFileSync(outside, 'outside proof\n');
@@ -191,7 +191,7 @@ test('doctor and default verify reject completed task evidence outside the repo 
     assert.equal(blankDoctor.status, 1, blankDoctor.stdout);
     assert.match(blankDoctor.stdout, /path must be a non-empty string/);
 
-    task.evidence_paths = ['.lazytrae/evidence/task-1.md'];
+    task.evidence_paths = ['.lazytraework/evidence/task-1.md'];
     fs.writeFileSync(boulderPath, JSON.stringify(boulder, null, 2) + '\n');
     const inRootDoctor = runCli(['doctor'], { cwd: fixture });
     assert.equal(inRootDoctor.status, 0, inRootDoctor.stdout);

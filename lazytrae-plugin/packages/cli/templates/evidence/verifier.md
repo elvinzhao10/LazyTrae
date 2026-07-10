@@ -58,7 +58,7 @@ For each QA scenario in the plan, execute through the specified channel and capt
 
 - **Plan file**: `.omo/plans/v0.5-state-machine.md`
 - **Task ID**: `task-1`
-- **Task description**: Create `.lazytrae/config.json`
+- **Task description**: Create `.lazytraework/config.json`
 
 ### Manual-QA Scenarios
 
@@ -67,7 +67,7 @@ For each QA scenario in the plan, execute through the specified channel and capt
 | Field | Value |
 |-------|-------|
 | **Channel** | `cli` |
-| **Invocation** | `python3 -m json.tool .lazytrae/config.json` |
+| **Invocation** | `python3 -m json.tool .lazytraework/config.json` |
 | **Expected** | Valid JSON output, no errors |
 | **Actual** | Valid JSON output, no errors |
 | **Verdict** | PASS |
@@ -87,7 +87,7 @@ For each QA scenario in the plan, execute through the specified channel and capt
 | Field | Value |
 |-------|-------|
 | **Channel** | `cli` |
-| **Invocation** | `ls .lazytrae/state/` |
+| **Invocation** | `ls .lazytraework/state/` |
 | **Expected** | boulder.json, active-loop.json, sessions.json |
 | **Actual** | boulder.json, active-loop.json, sessions.json |
 | **Verdict** | PASS |

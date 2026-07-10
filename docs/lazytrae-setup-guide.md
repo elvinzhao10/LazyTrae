@@ -14,7 +14,7 @@ lazytrae init
 lazytrae doctor
 ```
 
-`lazytrae init` creates the project-local `.trae/` and `.lazytrae/` trees plus an `AGENTS.md` setup guide. Keep the global `lazytrae` executable installed, because `.trae/mcp.json` launches its `mcp` subcommand.
+`lazytrae init` creates the project-local `.trae/` and `.lazytraework/` trees plus an `AGENTS.md` setup guide. Keep the global `lazytrae` executable installed, because `.trae/mcp.json` launches its `mcp` subcommand.
 
 ## Trae IDE
 
