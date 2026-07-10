@@ -23,13 +23,14 @@ test('CLI command routing shows help and rejects unknown commands', () => {
 });
 
 test('hook fixtures execute through the CLI dispatcher', () => {
+  const fixture = makeFixture('lazytrae-hook-dispatch-');
   const preToolFixture = fs.readFileSync(path.join(__dirname, 'fixtures', 'pre-tool-use-git.json'), 'utf-8');
-  const preTool = runCli(['hook', 'pre-tool-use'], { input: preToolFixture });
+  const preTool = runCli(['hook', 'pre-tool-use'], { cwd: fixture, input: preToolFixture });
   assert.equal(preTool.status, 0);
   assert.match(preTool.stdout, /Destructive git command detected/);
 
   const promptFixture = fs.readFileSync(path.join(__dirname, 'fixtures', 'user-prompt-submit.json'), 'utf-8');
-  const prompt = runCli(['hook', 'user-prompt-submit'], { input: promptFixture });
+  const prompt = runCli(['hook', 'user-prompt-submit'], { cwd: fixture, input: promptFixture });
   assert.equal(prompt.status, 0);
   assert.match(prompt.stdout, /ULTRAWORK MODE ENABLED/);
 });
@@ -206,20 +207,21 @@ test('validator accepts nullable active-loop lifecycle timestamps', () => {
 });
 
 test('doctor and verify expose expected health-check behavior', () => {
-  const doctor = runCli(['doctor']);
+  const fixture = makeFixture('lazytrae-doctor-verify-');
+  const doctor = runCli(['doctor'], { cwd: fixture });
   assert.equal(doctor.status, 0);
   assert.match(doctor.stdout, /LazyTrae Doctor/);
   assert.match(doctor.stdout, /0 FAIL/);
 
-  const verifyHelp = runCli(['verify', '--help']);
+  const verifyHelp = runCli(['verify', '--help'], { cwd: fixture });
   assert.equal(verifyHelp.status, 0);
   assert.match(verifyHelp.stdout, /lazytrae verify/);
 
-  const verify = runCli(['verify']);
+  const verify = runCli(['verify'], { cwd: fixture });
   assert.equal(verify.status, 0);
   assert.match(verify.stdout, /0 FAIL/);
 
-  const strictVerify = runCli(['verify', '--strict']);
+  const strictVerify = runCli(['verify', '--strict'], { cwd: fixture });
   assert.equal(strictVerify.status, 1);
   assert.match(strictVerify.stdout, /\d+ WARN, 0 FAIL/);
 });

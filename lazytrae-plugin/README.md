@@ -6,15 +6,12 @@ This is the release package for LazyTrae's three supported surfaces: Trae IDE, T
 
 | Path | Purpose |
 | --- | --- |
-| `agents/`, `commands/`, `hooks/`, `rules/`, `skills/`, `.mcp.json` | Top-level navigation aliases for the Trae project configuration. Each points to the canonical file in `.trae/`. |
-| `config.json`, `schemas/` | Top-level navigation aliases for the versioned LazyTrae defaults in `.lazytrae/`. Runtime state is excluded by `.gitignore`. |
-| `templates/` | Top-level navigation alias for the CLI installer templates. |
-| `.trae/` | Canonical Trae project configuration, retained because Trae IDE and Trae Work use this exact path. |
-| `.lazytrae/` | Canonical versioned schema and default configuration assets. |
+| `.trae/` | Trae project configuration: skills, commands, agents, rules, hooks, and MCP configuration. |
+| `.lazytrae/` | Versioned schema and default configuration assets. Runtime state is excluded by `.gitignore`. |
 | `packages/cli/` | Installable `lazytrae` command, including the installer, doctor, verification gate, and MCP launcher. |
 | `packages/mcp/` | The Node stdio MCP implementation used by `lazytrae mcp`. |
 
-The aliases make the plugin easy to browse while avoiding duplicate configuration. The CLI template tree in `packages/cli/templates/` remains the installation source of truth. Run `npm test` from `packages/cli/` after changing it.
+The CLI template tree in `packages/cli/templates/` is the installation source of truth. Run `npm test` from `packages/cli/` after changing it.
 
 ## Install
 
