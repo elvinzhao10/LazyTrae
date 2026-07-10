@@ -2,7 +2,7 @@
 
 ## Usage
 
-`/ulw-loop [task brief]`
+`/lazy-ulw-loop [task brief]`
 
 Triggers: `ulw-loop`, `ulw`, `ultrawork`, `durable execution`, `evidence-led work`, `run long-horizon task`
 
@@ -28,7 +28,7 @@ Triggers: `ulw-loop`, `ulw`, `ultrawork`, `durable execution`, `evidence-led wor
 
 ## Linked Skill
 
-[ulw-loop](../skills/ulw-loop/SKILL.md)
+[lazy-ulw-loop](../skills/lazy-ulw-loop/SKILL.md)
 
 ## Workflow Phase
 

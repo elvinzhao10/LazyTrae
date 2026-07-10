@@ -2,7 +2,7 @@
 
 ## Usage
 
-`/init-deep [--create-new]`
+`/lazy-init-deep [--create-new]`
 
 Triggers: `init-deep`, `initialize repo`, `generate AGENTS.md`, `understand this codebase`, `explore this repo`
 
@@ -27,7 +27,7 @@ Triggers: `init-deep`, `initialize repo`, `generate AGENTS.md`, `understand this
 
 ## Linked Skill
 
-[init-deep](../skills/init-deep/SKILL.md)
+[lazy-init-deep](../skills/lazy-init-deep/SKILL.md)
 
 ## Workflow Phase
 

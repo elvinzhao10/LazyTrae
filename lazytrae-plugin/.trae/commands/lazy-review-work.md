@@ -2,7 +2,7 @@
 
 ## Usage
 
-`/review-work [branch or diff range]`
+`/lazy-review-work [branch or diff range]`
 
 Triggers: `review-work`, `review my work`, `review changes`, `post-implementation review`, `QA my work`, `check my work`
 
@@ -27,7 +27,7 @@ Triggers: `review-work`, `review my work`, `review changes`, `post-implementatio
 
 ## Linked Skill
 
-[reviewer](../skills/reviewer/SKILL.md) + [verifier](../skills/verifier/SKILL.md)
+[lazy-reviewer](../skills/lazy-reviewer/SKILL.md) + [lazy-verifier](../skills/lazy-verifier/SKILL.md)
 
 ## Workflow Phase
 

@@ -2,7 +2,7 @@
 
 ## Usage
 
-`/ulw-plan [user request]`
+`/lazy-ulw-plan [user request]`
 
 Triggers: `ulw-plan`, `plan this`, `make a plan`, `plan before coding`, `plan this request`
 
@@ -29,7 +29,7 @@ Triggers: `ulw-plan`, `plan this`, `make a plan`, `plan before coding`, `plan th
 
 ## Linked Skill
 
-[ulw-plan](../skills/ulw-plan/SKILL.md)
+[lazy-ulw-plan](../skills/lazy-ulw-plan/SKILL.md)
 
 ## Workflow Phase
 

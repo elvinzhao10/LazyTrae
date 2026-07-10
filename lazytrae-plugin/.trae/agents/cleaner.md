@@ -54,7 +54,7 @@ Removes AI-generated code smells (slop) from branch changes or explicit file lis
 - The changed files (from git diff or branch comparison)
 - `AGENTS.md` — project constitution for style guidance
 - Test files for the changed code
-- `.trae/skills/remove-ai-slops/SKILL.md` — the slop removal skill
+- `.trae/skills/lazy-remove-ai-slops/SKILL.md` — the slop removal skill
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — find slop patterns

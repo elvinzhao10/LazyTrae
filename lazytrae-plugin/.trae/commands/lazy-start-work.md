@@ -2,7 +2,7 @@
 
 ## Usage
 
-`/start-work [plan-name]`
+`/lazy-start-work [plan-name]`
 
 Triggers: `start-work`, `execute plan`, `continue plan`, `resume plan`, `start executing`, `continue executing`
 
@@ -27,7 +27,7 @@ Triggers: `start-work`, `execute plan`, `continue plan`, `resume plan`, `start e
 
 ## Linked Skill
 
-[start-work](../skills/start-work/SKILL.md)
+[lazy-start-work](../skills/lazy-start-work/SKILL.md)
 
 ## Workflow Phase
 

@@ -2,7 +2,7 @@
 
 ## Usage
 
-`/handoff`
+`/lazy-handoff`
 
 Triggers: `handoff`, `finish session`, `complete work`, `produce summary`
 

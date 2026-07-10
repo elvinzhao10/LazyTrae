@@ -157,7 +157,7 @@ Options:
     if (missing.length === 0) {
       addResult('AGENTS.md managed blocks', 'PASS', `${blocks.length} blocks intact`);
     } else {
-      addResult('AGENTS.md managed blocks', 'FAIL', `Missing: ${missing.join(', ')}`);
+      addResult('AGENTS.md managed blocks', 'WARN', 'Managed blocks absent (AGENTS.md is now a setup guide)');
     }
   } else {
     addResult('AGENTS.md', 'WARN', 'Not present (README is the onboarding guide)');

@@ -140,11 +140,11 @@ In Trae Work, type `/` in the dialog and select a skill. The LazyTrae skills are
 | `/lazy-ulw-plan` | `$ulw-plan` | Socratic planning interview |
 | `/lazy-start-work` | `$start-work` | Execute one checklist item |
 | `/lazy-ulw-loop` | `$ulw-loop` | Start long-horizon loop |
-| `/reviewer` | `review-work` | Run Oracle reviewer (5 evidence gates) |
-| `/verifier` | — | Automated + manual QA verification |
+| `/lazy-reviewer` | `review-work` | Run Oracle reviewer (5 evidence gates) |
+| `/lazy-verifier` | — | Automated + manual QA verification |
 | `/lazy-remove-ai-slops` | `remove-ai-slops` | Clean up AI-generated slop |
-| `/librarian` | — | Research external documentation |
-| `/migration-planner` | — | Plan framework migrations |
+| `/lazy-librarian` | — | Research external documentation |
+| `/lazy-migration-planner` | — | Plan framework migrations |
 
 Skills are auto-loaded by Trae Work from `.trae/skills/`. No manual creation needed.
 

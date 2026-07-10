@@ -2,7 +2,7 @@
 
 ## Usage
 
-`/ralph-loop [task brief]`
+`/lazy-ralph-loop [task brief]`
 
 Triggers: `ralph-loop`, `ralph`, `ralph mode`
 
@@ -22,7 +22,7 @@ Triggers: `ralph-loop`, `ralph`, `ralph mode`
 
 ## Linked Skill
 
-[ulw-loop](../skills/ulw-loop/SKILL.md)
+[lazy-ulw-loop](../skills/lazy-ulw-loop/SKILL.md)
 
 ## Workflow Phase
 

@@ -2,7 +2,7 @@
 
 ## Usage
 
-`/remove-ai-slops [file1 file2 ... | --branch]`
+`/lazy-remove-ai-slops [file1 file2 ... | --branch]`
 
 Triggers: `remove-ai-slops`, `clean ai code`, `deslop`, `cleanup ai generated`, `remove ai slop`, `strip slop`
 
@@ -28,7 +28,7 @@ Triggers: `remove-ai-slops`, `clean ai code`, `deslop`, `cleanup ai generated`, 
 
 ## Linked Skill
 
-[remove-ai-slops](../skills/remove-ai-slops/SKILL.md)
+[lazy-remove-ai-slops](../skills/lazy-remove-ai-slops/SKILL.md)
 
 ## Workflow Phase
 

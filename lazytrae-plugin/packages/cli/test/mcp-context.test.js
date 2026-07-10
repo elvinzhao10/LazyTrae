@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { TOOLS, HANDLERS } = require('../../mcp/src/tools');
-const { REPO_ROOT } = require('./test-helpers');
+const { REPO_ROOT, MONOREPO_ROOT } = require('./test-helpers');
 
 function emptyRepo() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-empty-context-'));
@@ -43,7 +43,7 @@ test('MCP context tools return provenance and local repo evidence', () => {
   assert.equal(definition.results[0].file, 'packages/mcp/src/handlers-read.js');
   assert.notEqual(definition.no_result, true);
 
-  const docs = HANDLERS['lazytrae.docs_lookup'](REPO_ROOT, { query: 'ulw-loop' });
+  const docs = HANDLERS['lazytrae.docs_lookup'](MONOREPO_ROOT, { query: 'ulw-loop' });
   assert.equal(docs.provenance, 'project-tool-backed');
   assert.equal(docs.results.some(result => result.file.startsWith('docs/')), true);
 

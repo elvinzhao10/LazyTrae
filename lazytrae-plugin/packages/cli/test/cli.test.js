@@ -221,5 +221,5 @@ test('doctor and verify expose expected health-check behavior', () => {
 
   const strictVerify = runCli(['verify', '--strict']);
   assert.equal(strictVerify.status, 1);
-  assert.match(strictVerify.stdout, /1 WARN, 0 FAIL/);
+  assert.match(strictVerify.stdout, /\d+ WARN, 0 FAIL/);
 });

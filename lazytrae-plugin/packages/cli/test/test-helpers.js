@@ -4,6 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
+const MONOREPO_ROOT = path.resolve(REPO_ROOT, '..');
 const CLI = path.join(REPO_ROOT, 'packages', 'cli', 'src', 'index.js');
 const QUALITY_GATE_PATH = '.omo/evidence/quality.json';
 const BAD_QUALITY_GATE_PATH = '.omo/evidence/bad-quality.json';
@@ -34,7 +35,7 @@ function makeFixture(prefix = 'lazytrae-cli-test-') {
     path.join(root, 'packages', 'cli', 'src', 'lib', 'path-boundary.js'),
   );
   fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
-  fs.copyFileSync(path.join(REPO_ROOT, 'docs', 'lazytrae-parity-ledger.md'), path.join(root, 'docs', 'lazytrae-parity-ledger.md'));
+  fs.copyFileSync(path.join(MONOREPO_ROOT, 'docs', 'reference', 'lazytrae-parity-ledger.md'), path.join(root, 'docs', 'lazytrae-parity-ledger.md'));
   fs.copyFileSync(path.join(__dirname, '..', 'templates', 'AGENTS.md'), path.join(root, 'AGENTS.md'));
   return root;
 }
@@ -179,6 +180,7 @@ function readLoopState(root) {
 module.exports = {
   BAD_QUALITY_GATE_PATH,
   CLI,
+  MONOREPO_ROOT,
   OLD_QUALITY_GATE_PATH,
   QUALITY_GATE_PATH,
   REPO_ROOT,

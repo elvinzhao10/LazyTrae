@@ -2,7 +2,7 @@
 
 ## Usage
 
-`/stop-continuation`
+`/lazy-stop-continuation`
 
 Triggers: `stop-continuation`, `stop now`, `cancel loop`, `halt execution`
 
