@@ -2,18 +2,18 @@
 
 > **Agent:** this file is the **setup** guide. It tells you how to install and configure LazyTrae. For *how to use* the harness once installed, see [README.md](README.md).
 
-LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It runs on three surfaces; setup differs.
+LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supports Trae IDE, Trae Work, and Trae CLI; the `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
 
 ## Step 0 — Which platform are you on?
 
 | Platform | Skills | Commands | Rules / Agents / Hooks | MCP server |
 |---|---|---|---|---|
-| **Trae IDE** | auto | auto | auto | auto (`.trae/mcp.json`) |
-| **Trae Work** | auto | manual | not supported | **manual** (Settings UI) |
-| **Trae CLI** (no IDE) | — | via `lazytrae` CLI | — | via `lazytrae mcp` |
+| **Trae IDE** | project `.trae/skills/` | project commands | project hooks | project `.trae/mcp.json` |
+| **Trae Work** | install from the Skills UI | invoke skills or natural language | CLI verification gates | project `.trae/mcp.json` or Settings UI |
+| **Trae CLI** | local project configuration | `trae` agent session + `lazytrae` gates | CLI verification gates | via `lazytrae mcp` |
 
-- **Trae IDE** → [Step A](#step-a--install) only.
-- **Trae Work** → Step A **then [Step B (manual MCP)](#step-b--mcp-server-trae-work-only--manual)** — full detail in [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md).
+- **Trae IDE** → Step A, then open the project in Trae IDE.
+- **Trae Work** → Step A, then follow the Work setup in [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md).
 - **Trae CLI** → [Step C](#step-c--trae-cli-no-ide).
 
 ## Step A — Install
@@ -25,28 +25,19 @@ LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It runs
 **Option B — manual CLI install:**
 ```bash
 git clone https://github.com/elvinzhao10/Trae.git
-cd Trae/lazytrae-plugin/packages/cli && npm install
-node src/index.js init     # copies .trae/, .lazytrae/, wires MCP, generates AGENTS.md
-node src/index.js doctor   # verify
+cd Trae/lazytrae-plugin/packages/cli
+npm install
+npm install -g .
+cd /path/to/your/project
+lazytrae init
+lazytrae doctor
 ```
 
-> Once installed into your project, the source repo can be deleted — your project retains its generated `.trae/`, `.lazytrae/`, and `AGENTS.md`.
+> Keep the global CLI installed: `.trae/mcp.json` starts the `lazytrae mcp` command. The generated project files are portable, but the local MCP server is supplied by that CLI.
 
-## Step B — MCP server (Trae Work only — manual)
+## Step B — Trae Work setup
 
-Trae Work does **not** read `.trae/mcp.json`. An agent cannot automate this; you must paste it:
-
-1. **Settings → MCP → Create → Manual configuration.**
-2. Paste (uses `${workspaceFolder}`, auto-replaced by Trae Work):
-```json
-{
-  "mcpServers": {
-    "lazytrae": { "command": "node", "args": ["${workspaceFolder}/lazytrae-plugin/packages/mcp/src/index.js"] }
-  }
-}
-```
-
-> Trae IDE and Trae CLI load MCP automatically — **skip this step**. Full Trae Work steps: [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md).
+Trae IDE automatically uses project configuration. Trae Work supports local Skills and MCP servers: import the `SKILL.md` bundles from `.trae/skills/`, then open the project locally so `.trae/mcp.json` can supply the `lazytrae` server. If your installation does not load the project MCP configuration, add the same `lazytrae mcp` command through **Settings → MCP**. Full steps: [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md).
 
 ## Step C — Trae CLI (no IDE)
 
@@ -69,6 +60,6 @@ lazytrae doctor    # expect 0 FAIL (WARNs are environmental: empty evidence, etc
 
 ## Reference
 
-- Full setup detail (Trae IDE vs Work, screenshots): [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md)
+- Full setup detail (Trae Work + CLI): [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md)
 - How to use the harness: [README.md](README.md)
 - Parity assessment: [lazytrae-evaluation.md](lazytrae-evaluation.md)

@@ -2,7 +2,7 @@
 
 > **A practice project:** realizing [LazyCodex](https://github.com/code-yeongyu/lazycodex) (the OmO harness) on the [Trae](https://docs.trae.cn/) platform. No longer maintained; open-sourced for learning.
 
-LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning → delegated execution → evidence-gated verification → review → durable run state) to Trae. It runs in **Trae IDE**, **Trae Work**, and via the **Trae CLI**.
+LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning → delegated execution → evidence-gated verification → review → durable run state) to **Trae IDE**, **Trae Work**, and **Trae CLI**.
 
 > **Setup?** See [AGENTS.md](AGENTS.md) (the setup guide). This README is about **how to use** the harness once installed.
 
@@ -37,7 +37,7 @@ Binding, not advisory — but because **Trae hooks can't block**, the completion
 - `lazytrae verify --must-pass` — refuses to pass until all gates are green.
 - `mark_task_done` (MCP) — evidence-gated; no evidence, no done.
 
-> This is the inverse of the [LazyWorkBuddy](https://github.com/elvinzhao10/LazyWorkBuddy) sibling, which bets on host hook blocking. Both preserve the Sisyphus "no evidence, no done" invariant.
+> This is the inverse of the [LazyBuddy](https://github.com/elvinzhao10/LazyBuddy) sibling, which bets on host hook blocking. Both preserve the Sisyphus "no evidence, no done" invariant.
 
 ## What's included
 
@@ -64,8 +64,8 @@ Practice repo; contributions welcome as learning exercises.
 ```
 lazytrae/
 ├── lazytrae-plugin/         # installable Trae plugin + CLI + MCP
-│   ├── .trae/               #   rules, skills (lazy-*), commands (lazy-*), agents, hooks
-│   ├── .lazytrae/           #   schemas and config templates
+│   ├── .trae/               #   Trae Work project config, skills (lazy-*), commands, agents, hooks
+│   ├── .lazytrae/           #   schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
 ├── docs/                    # user-facing: design/, reference/, archive/, plan/, prompts/, setup-guide, versioned plan
 ├── lazytrae-evaluation.md   # LazyCodex parity assessment (115/126, 91.3%)
@@ -78,7 +78,7 @@ lazytrae/
 
 ## Related
 
-- **[LazyWorkBuddy](https://github.com/elvinzhao10/LazyWorkBuddy)** — the sibling: the same harness on WorkBuddy. LazyTrae gates via CLI (Trae hooks can't block); LazyWorkBuddy gates via host hooks.
+- **[LazyBuddy](https://github.com/elvinzhao10/LazyBuddy)** — the sibling: the same harness on WorkBuddy. LazyTrae gates via CLI (Trae hooks can't block); LazyBuddy gates via host hooks.
 
 ## License
 

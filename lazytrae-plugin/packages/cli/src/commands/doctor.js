@@ -77,8 +77,7 @@ Options:
     addResult('MCP runtime', 'WARN', 'Uses the installed lazytrae CLI; source-package checks skipped');
   }
 
-  // MCP server runtime check (WARN if not running, expected outside Trae)
-  addResult('MCP server running', 'WARN', 'Server runs inside Trae IDE; not expected standalone');
+  addResult('MCP server running', 'WARN', 'Started on demand by Trae IDE, Trae Work, or Trae CLI via lazytrae mcp');
 
   // .lazytrae/config.json
   const configPath = path.join(repoRoot, '.lazytrae', 'config.json');

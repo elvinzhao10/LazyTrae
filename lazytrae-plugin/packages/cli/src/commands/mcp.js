@@ -6,9 +6,12 @@
  */
 
 const path = require('path');
+const fs = require('fs');
 
 function resolveMcpIndex() {
-  return path.resolve(__dirname, '..', '..', '..', 'mcp', 'src', 'index.js');
+  const sourceMcp = path.resolve(__dirname, '..', '..', '..', 'mcp', 'src', 'index.js');
+  if (fs.existsSync(sourceMcp)) return sourceMcp;
+  return path.resolve(__dirname, '..', 'mcp', 'index.js');
 }
 
 function run(_args) {

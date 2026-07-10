@@ -117,7 +117,7 @@ Key v0.13-generated paths:
 Pre-existing/out-of-scope dirty state:
 
 - `plan/v0.13-final-release.md` is deleted in the worktree and has not been restored.
-- `plan/v0.13-diagnostics-fixes.md`, `plan/v0.14-final-release.md`, and `docs/lazytrae-diagnosis-evaluation-vs-lazycodex-lazyworkbuddy.md` were present as untracked planning inputs.
+- `plan/v0.13-diagnostics-fixes.md`, `plan/v0.14-final-release.md`, and `docs/lazytrae-diagnosis-evaluation-vs-lazycodex-lazybuddy.md` were present as untracked planning inputs.
 
 ## Remaining Issues
 

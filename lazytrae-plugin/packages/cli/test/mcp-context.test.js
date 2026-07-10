@@ -40,7 +40,10 @@ test('MCP context tools return provenance and local repo evidence', () => {
 
   const definition = HANDLERS['lazytrae.goto_definition'](REPO_ROOT, { symbol: 'handleGetActivePlan' });
   assert.equal(definition.provenance, 'heuristic');
-  assert.equal(definition.results[0].file, 'packages/mcp/src/handlers-read.js');
+  assert.equal([
+    'packages/mcp/src/handlers-read.js',
+    'packages/cli/src/mcp/handlers-read.js',
+  ].includes(definition.results[0].file), true);
   assert.notEqual(definition.no_result, true);
 
   const docs = HANDLERS['lazytrae.docs_lookup'](MONOREPO_ROOT, { query: 'ulw-loop' });

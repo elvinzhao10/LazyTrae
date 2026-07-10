@@ -1,6 +1,6 @@
 # LazyTrae Evaluation: LazyCodex Parity Assessment
 
-> Comprehensive evaluation of how well LazyTrae realizes LazyCodex/OmO semantics on the Trae IDE platform.
+> Comprehensive evaluation of how well LazyTrae realizes LazyCodex/OmO semantics on its Trae Work and CLI release surfaces.
 > Last updated: v0.14 (2026-07-10)
 
 ## Overall Assessment

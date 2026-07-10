@@ -45,3 +45,10 @@ dev/
 
 # Host-specific symlink (non-portable)
 .codegraph
+
+# Local LazyTrae installation generated while developing the release package.
+/.trae/
+/.lazytrae/
+/.omo/
+/.trae
+/.lazytrae

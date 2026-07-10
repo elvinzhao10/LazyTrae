@@ -230,7 +230,7 @@
   3. Agent instructions (ulw-loop skill) require evidence before claiming completion
   4. Document this as the defining structural deficit vs LazyCodex
 - **Acceptance criteria**: Non-blocking limitation is documented in hooks reference, risk register, and parity ledger. Soft enforcement via agent discipline is the accepted mitigation.
-- **Fundamental limitation**: Trae would need to support non-zero exit codes in hooks to block operations. This is not currently available. This is the **single sharpest differentiator** between LazyTrae and LazyCodex/LazyWorkBuddy — LazyWorkBuddy can block; Trae cannot.
+- **Fundamental limitation**: Trae would need to support non-zero exit codes in hooks to block operations. This is not currently available. This is the **single sharpest differentiator** between LazyTrae and LazyCodex/LazyBuddy — LazyBuddy can block; Trae cannot.
 
 ## Risk Matrix by Version
 

@@ -4,11 +4,11 @@
 
 ## MCP Architecture
 
-LazyTrae's MCP server is a pure Node.js stdio JSON-RPC server implementing the Model Context Protocol (MCP) specification. It runs inside Trae IDE as a child process, communicating via stdin/stdout.
+LazyTrae's MCP server is a pure Node.js stdio JSON-RPC server implementing the Model Context Protocol (MCP) specification. Trae IDE, Trae Work, and Trae CLI can each start it through `lazytrae mcp`; it communicates via stdin/stdout.
 
 ### How Trae Discovers MCP
 
-Trae reads `.trae/mcp.json` at project root. When a `lazytrae` server entry is configured with `command` and `args`, Trae spawns the process and connects to it via stdio JSON-RPC. The server responds to `initialize` and `tools/list` requests, and Trae makes the tools available to agents.
+Trae IDE and local Trae Work tasks can use `.trae/mcp.json` at project root; Trae Work can also be configured through its MCP settings. Trae CLI can start the same process directly. When a `lazytrae` server entry is configured with `command` and `args`, the host spawns the process and connects to it via stdio JSON-RPC. The server responds to `initialize` and `tools/list` requests, and the host makes the tools available to agents.
 
 ### How to Start the MCP Server Manually
 

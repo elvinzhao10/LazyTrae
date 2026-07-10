@@ -24,13 +24,13 @@ LazyCodex reference paths:
 - `lazycodex/plugins/omo/skills/start-work/SKILL.md`
 - `lazycodex/plugins/omo/skills/ulw-loop/SKILL.md`
 
-Lazyworkbuddy comparison paths:
+LazyBuddy comparison paths:
 
-- `../lazyworkbuddy/lazyworkbuddy-plugin/scripts/hooks/stop-gate.sh`
-- `../lazyworkbuddy/lazyworkbuddy-plugin/scripts/hooks/pre-compact.sh`
-- `../lazyworkbuddy/lazyworkbuddy-plugin/.mcp.json`
-- `../lazyworkbuddy/lazyworkbuddy-plugin/scripts/state/`
-- `../lazyworkbuddy/.lazyworkbuddy/runs/dogfood-v0.11/`
+- `../lazybuddy/lazybuddy-plugin/scripts/hooks/stop-gate.sh`
+- `../lazybuddy/lazybuddy-plugin/scripts/hooks/pre-compact.sh`
+- `../lazybuddy/lazybuddy-plugin/.mcp.json`
+- `../lazybuddy/lazybuddy-plugin/scripts/state/`
+- `../lazybuddy/.lazybuddy/runs/dogfood-v0.11/`
 
 ## Platform Constraints
 
