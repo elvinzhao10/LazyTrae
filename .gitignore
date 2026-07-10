@@ -41,7 +41,7 @@ other/omo/ulw-loop/*/evidence.jsonl
 other/omo/ulw-loop/*/checkpoints.jsonl
 
 # Reference clone (MIT-licensed upstream, too large for repo)
-reference/
+dev/
 
 # Host-specific symlink (non-portable)
 .codegraph

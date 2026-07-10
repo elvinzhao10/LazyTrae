@@ -123,6 +123,6 @@ Pre-existing/out-of-scope dirty state:
 
 No v0.13 blocker remains after the final verification wave passes. The following are documented non-blockers:
 
-- The local canonical LazyCodex path is now documented as `reference/lazycodex/`; legacy logical references beginning with `lazycodex/...` resolve under that directory.
+- The local canonical LazyCodex path is now documented as `dev/reference/lazycodex/`; legacy logical references beginning with `lazycodex/...` resolve under that directory.
 - Codegraph remains an optional external gap. The new MCP context tools are heuristic/local and do not claim semantic codegraph parity.
 - Trae has no native PostCompact hook. v0.13 mitigates context recovery through SessionStart/UserPromptSubmit detection and an explicit recover-context command.

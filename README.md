@@ -55,7 +55,7 @@ Practice repo; contributions welcome as learning exercises.
 
 1. **Two copies, keep in sync:** `lazytrae-plugin/.trae/` (live plugin) and `lazytrae-plugin/packages/cli/templates/` (installer source). Edit one, run `lazytrae sync` to regenerate the other.
 2. **Naming discipline:** all skills & commands are `lazy-` prefixed. Keep new ones prefixed.
-3. **Test:** `cd lazytrae-plugin/packages/cli && node --test` (56 tests; 54 pass, 2 are brittle doctor/MCP-output assertions).
+3. **Test:** `cd lazytrae-plugin/packages/cli && node --test` (56 tests, all passing).
 4. **Verify:** `lazytrae doctor` (0 FAIL expected) + `node --test`.
 5. **Commit:** conventional, atomic, stage only files you changed, no `--no-verify`.
 
@@ -67,14 +67,13 @@ lazytrae/
 │   ├── .trae/               #   rules, skills (lazy-*), commands (lazy-*), agents, hooks
 │   ├── .lazytrae/           #   schemas and config templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
-├── docs/                    # design/ reference/ archive/ + setup-guide + versioned plan
-├── plan/                    # versioned execution plan (v0.0 → v0.14)
-├── prompts/                 # worker delegation + dogfood prompts
+├── docs/                    # user-facing: design/, reference/, archive/, plan/, prompts/, setup-guide, versioned plan
 ├── lazytrae-evaluation.md   # LazyCodex parity assessment (115/126, 91.3%)
 ├── AGENTS.md                # setup guide
 ├── README.md                # this file (how to use)
 ├── LICENSE                  # MIT
 └── NOTICE                   # omo/lazycodex provenance
+# dev/ (gitignored) — behind-the-scenes: reference/lazycodex clone + other/ runtime samples
 ```
 
 ## Related
