@@ -38,18 +38,18 @@ Open the initialized project in Trae IDE. Its project `.trae/` configuration pro
 
 ## Trae CLI
 
-Install Trae CLI from the official TRAE installer, then use `trae` for the agent session and `lazytrae` for the companion workflow gates:
+Install Trae CLI from the official TRAE installer, then use `trae-cli` for the agent session and `lazytrae` for the companion workflow gates:
 
 ```bash
-trae
+trae-cli
 lazytrae init
 lazytrae doctor
 lazytrae verify --must-pass
 lazytrae loop status
-lazytrae mcp
+trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'
 ```
 
-The last command starts the local stdio MCP server. It is the same command referenced by the generated `.trae/mcp.json`.
+The last command registers the local stdio MCP server. It uses the same `lazytrae mcp` process referenced by the generated `.trae/mcp.json`.
 
 ---
 

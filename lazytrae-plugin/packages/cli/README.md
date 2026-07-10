@@ -2,35 +2,40 @@
 
 LazyTrae CLI — Trae-native recreation of LazyCodex/OmO workflows.
 
-A developer can install LazyTrae into any repo via `npx lazytrae-ai init` to get the full LazyTrae experience.
+A developer installs LazyTrae from this repository, then uses the local `lazytrae` command in any project.
 
 ## Commands
 
 ```bash
 # Install LazyTrae into current repo
-npx lazytrae-ai init
+lazytrae init
 
 # Check installation health
-npx lazytrae-ai doctor
+lazytrae doctor
 
 # Update managed templates and managed blocks
-npx lazytrae-ai sync
+lazytrae sync
 
 # Remove LazyTrae from current repo
-npx lazytrae-ai uninstall
+lazytrae uninstall
 
 # Same as doctor --strict (treats WARNs as FAILs)
-npx lazytrae-ai verify
+lazytrae verify
 
 # Print handoff summary from current state
-npx lazytrae-ai handoff
+lazytrae handoff
 ```
 
 ## Install
 
 ```bash
-# One-step install into current repo
-npx lazytrae-ai init
+# From the cloned LazyTrae repository
+cd lazytrae-plugin/packages/cli
+npm install
+npm install -g .
+
+# Then, in the project that should use LazyTrae
+lazytrae init
 ```
 
 This will:
