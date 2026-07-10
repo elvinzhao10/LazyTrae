@@ -58,7 +58,7 @@ Options:
   const repoRoot = detectRepoRoot();
   const summary = { removed: [], preserved: [] };
 
-  console.log(`LazyTrae uninstall v0.8.0`);
+  console.log(`LazyTrae uninstall v0.15.0-alpha.1`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Remove .trae/ directory

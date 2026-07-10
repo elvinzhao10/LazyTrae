@@ -17,6 +17,7 @@ const commands = {
   run: () => require('./commands/run').run,
   team: () => require('./commands/team').run,
   work: () => require('./commands/work').run,
+  'load-check': () => require('./commands/load-check').run,
 };
 
 const aliases = {
@@ -32,7 +33,7 @@ const aliases = {
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v0.8.0 — Trae-native LazyCodex/OmO workflows
+  console.log(`LazyTrae CLI v0.15.0-alpha.1 — Trae-native LazyCodex/OmO workflows
 
 Usage: lazytrae <command> [options]
 
@@ -51,6 +52,7 @@ Commands:
   run         Execute a task with explicit model routing (optional trae-agent backend)
   team        Team mode / parallel-work coordination
   work        Install or inspect global Trae Work skills
+  load-check  Verify every host component is ready after init
 
 Aliases: i, d, s, rm, v, h, l, r, t
 
@@ -82,7 +84,8 @@ function main() {
 
   const cmdArgs = args.slice(1);
   const run = commands[resolved]();
-  run(cmdArgs);
+  const exitCode = run(cmdArgs);
+  if (typeof exitCode === 'number') process.exitCode = exitCode;
 }
 
 main();

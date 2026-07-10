@@ -10,11 +10,11 @@ cd Trae/lazytrae-plugin/packages/cli
 npm install
 npm install -g .
 cd /path/to/your/project
-lazytrae init
+lazytrae init --host ide
 lazytrae doctor
 ```
 
-`lazytrae init` creates the project-local `.trae/` and `.lazytrae/` trees plus an `AGENTS.md` setup guide. Keep the global `lazytrae` executable installed, because `.trae/mcp.json` launches its `mcp` subcommand.
+`lazytrae init --host ide|work|cli` creates the project-local `.trae/` and `.lazytrae/` trees plus an `AGENTS.md` setup guide, then runs an exact tool load check. It verifies every bundled skill, command, agent, hook, and MCP declaration before asking you to reload the host. Keep the global `lazytrae` executable installed, because `.trae/mcp.json` launches its `mcp` subcommand.
 
 ## Trae IDE
 
@@ -49,7 +49,7 @@ Install Trae CLI from the official TRAE installer, then use `trae-cli` for the a
 
 ```bash
 trae-cli
-lazytrae init
+lazytrae init --host cli
 lazytrae doctor
 lazytrae verify --must-pass
 lazytrae loop status
@@ -89,6 +89,7 @@ lazytrae loop pause/resume       # Pause/resume loop
 lazytrae team create             # Create parallel-work team
 lazytrae work install            # Install global Trae Work skills (macOS)
 lazytrae work status             # Check global Trae Work skills
+lazytrae load-check --host ide   # Re-check every host component after reload
 lazytrae run --agent oracle --category ultrabrain "review current diff"
 lazytrae mcp                     # Start MCP server
 ```

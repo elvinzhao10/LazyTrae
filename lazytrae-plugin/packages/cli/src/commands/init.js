@@ -23,6 +23,7 @@ Install LazyTrae into the current repo.
 Options:
   --help, -h   Show this help message
   --force      Force re-copy all files (even if unchanged)
+  --host <id>  Run the final load check for ide, work, or cli
 `);
     return;
   }
@@ -33,7 +34,7 @@ Options:
 
   const summary = { created: [], updated: [], skipped: [], merged: [] };
 
-  console.log(`LazyTrae init v0.8.0`);
+  console.log(`LazyTrae init v0.15.0-alpha.1`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Create directory structure
@@ -238,6 +239,15 @@ Options:
     summary.skipped.forEach(s => console.log(`  - ${s}`));
   }
   console.log('\nDone.');
+  const hostIndex = args.indexOf('--host');
+  const host = hostIndex === -1 ? 'ide' : args[hostIndex + 1];
+  if (host === 'work') {
+    const work = require('./work');
+    work.install(work.readSkillsDir([]));
+  }
+  const loadCheckArgs = hostIndex === -1 ? [] : ['--host', host];
+  const loadStatus = require('./load-check').run(loadCheckArgs);
+  if (loadStatus !== 0) process.exitCode = loadStatus;
 }
 
 module.exports = { run };

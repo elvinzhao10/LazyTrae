@@ -11,7 +11,7 @@ LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning �
 1. Copy or clone [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae) into a local folder.
 2. Open that folder in your Trae host and type `onboard`.
 
-The agent reads `AGENTS.md`, asks which installed version you are using (**Trae IDE**, **Trae Work**, or **Trae CLI**), then performs the matching safe setup steps. It reports what it started and configured, verifies the expected result, and gives exact manual directions for anything it cannot perform. For Trae Work, it installs the global skills with `lazytrae work install`, explains that Trae Work has no global command registry, and reminds you to add the LazyTrae MCP server manually in **Settings → MCP**.
+The agent reads `AGENTS.md`, asks which installed version you are using (**Trae IDE**, **Trae Work**, or **Trae CLI**), then runs `lazytrae init --host <host>` and reports its exact load check: 17 skills, 9 commands, 11 agents, 5 hooks, and 10 MCP declarations. It gives exact manual directions for anything it cannot perform. For Trae Work, it also installs the global skills with `lazytrae work install`, explains that Trae Work has no global command registry, and reminds you to add the LazyTrae MCP server manually in **Settings → MCP**.
 
 After onboarding, you can delete the copied repository if you only needed the installed setup, or keep it to explore and study how LazyTrae works.
 

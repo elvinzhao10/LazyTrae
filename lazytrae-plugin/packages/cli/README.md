@@ -10,6 +10,9 @@ A developer installs LazyTrae from this repository, then uses the local `lazytra
 # Install LazyTrae into current repo
 lazytrae init
 
+# Verify all host components after a fresh init or reload
+lazytrae load-check --host ide
+
 # Check installation health
 lazytrae doctor
 
@@ -39,7 +42,7 @@ npm install
 npm install -g .
 
 # Then, in the project that should use LazyTrae
-lazytrae init
+lazytrae init --host ide
 ```
 
 This will:

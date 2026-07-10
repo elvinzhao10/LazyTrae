@@ -29,7 +29,7 @@ Options:
 
   const summary = { updated: [], skipped: [] };
 
-  console.log(`LazyTrae sync v0.8.0`);
+  console.log(`LazyTrae sync v0.15.0-alpha.1`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Update .trae/agents/

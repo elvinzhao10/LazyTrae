@@ -54,6 +54,8 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
   try {
     const init = runCli(['init'], { cwd: fixture });
     assert.equal(init.status, 0, init.stderr);
+    assert.match(init.stdout, /LazyTrae Tool Load Check/);
+    assert.match(init.stdout, /Load check passed/);
     for (const relativePath of readFiles(path.join(REPO_ROOT, '.trae'))) {
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
@@ -61,6 +63,14 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
         `${relativePath} was not installed from the template`,
       );
     }
+
+    fs.rmSync(path.join(fixture, '.trae', 'commands', 'lazy-start-work.md'));
+    const incompleteLoad = runCli(['load-check'], { cwd: fixture });
+    assert.equal(incompleteLoad.status, 1);
+    assert.match(incompleteLoad.stdout, /FAIL commands: 8\/9/);
+
+    const repairBeforeDoctor = runCli(['sync'], { cwd: fixture });
+    assert.equal(repairBeforeDoctor.status, 0, repairBeforeDoctor.stderr);
 
     const doctor = runCli(['doctor'], { cwd: fixture });
     assert.equal(doctor.status, 0, doctor.stdout);

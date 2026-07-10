@@ -9,7 +9,7 @@ LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supp
 When the user types `onboard`:
 
 1. Read this guide and ask which installed host/version they are using: **Trae IDE**, **Trae Work**, or **Trae CLI**.
-2. Follow only that host's setup path. Perform safe repository and CLI steps automatically. For Trae Work, run `lazytrae work install` and `lazytrae work status` to install and verify global skills.
+2. Follow only that host's setup path. Perform safe repository and CLI steps automatically. Run `lazytrae init --host ide|work|cli` so it reports the complete load check. For Trae Work, run `lazytrae work install` and `lazytrae work status` to install and verify global skills.
 3. Report each completed action and its observed result, including the final verification output.
 4. Stop before account, marketplace, model, or app-setting changes. Give exact manual directions for those steps. For Trae Work, manual **Settings → MCP** registration is required.
 5. End by explaining that the copied repository can be deleted after installation, or retained to explore and study the project.
@@ -37,7 +37,7 @@ cd Trae/lazytrae-plugin/packages/cli
 npm install
 npm install -g .
 cd /path/to/your/project
-lazytrae init
+lazytrae init --host ide
 lazytrae doctor
 ```
 
@@ -51,7 +51,7 @@ Trae Work does not auto-load project configuration. Install the 17 global LazyTr
 
 ```bash
 trae-cli                          # start a Trae CLI agent session
-lazytrae init && lazytrae doctor      # install + verify
+lazytrae init --host cli && lazytrae doctor  # install + exact load check + verify
 lazytrae verify --must-pass           # hard completion gate
 lazytrae loop status                  # long-horizon loop state
 trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'

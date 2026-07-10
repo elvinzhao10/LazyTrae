@@ -1,6 +1,6 @@
 {
   "name": "lazytrae-ai",
-  "version": "0.8.0",
+  "version": "0.15.0-alpha.1",
   "description": "LazyTrae CLI installer and doctor — Trae-native LazyCodex/OmO workflows with MCP support",
   "main": "src/index.js",
   "bin": {

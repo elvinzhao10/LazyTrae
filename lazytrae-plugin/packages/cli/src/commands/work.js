@@ -118,4 +118,4 @@ function run(args) {
   else process.exitCode = status(skillsDir);
 }
 
-module.exports = { listSkills, readSkillsDir, run, skillState };
+module.exports = { install, listSkills, readSkillsDir, run, skillState, status };

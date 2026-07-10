@@ -16,6 +16,7 @@ test('CLI command routing shows help and rejects unknown commands', () => {
   assert.equal(help.status, 0);
   assert.match(help.stdout, /Commands:/);
   assert.match(help.stdout, /doctor/);
+  assert.match(help.stdout, /load-check/);
 
   const unknown = runCli(['does-not-exist']);
   assert.equal(unknown.status, 1);

@@ -20,10 +20,10 @@ cd packages/cli
 npm install
 npm install -g .
 cd /path/to/your/project
-lazytrae init
+lazytrae init --host ide
 lazytrae doctor
 ```
 
-For Trae Work, run `lazytrae work install` to copy the skills globally into `~/.trae-cn/skills/` on macOS, then restart or reload Trae Work. The host has no global command registry, so use skills or natural-language requests. Add the MCP server manually in **Settings → MCP** with command `lazytrae` and argument `mcp`; Trae Work does not auto-load `.trae/mcp.json`.
+For Trae Work, run `lazytrae init --host work`; it verifies the full project and global skill surface. Then restart or reload Trae Work. The host has no global command registry, so use skills or natural-language requests. Add the MCP server manually in **Settings → MCP** with command `lazytrae` and argument `mcp`; Trae Work does not auto-load `.trae/mcp.json`.
 
 See the repository [setup guide](../AGENTS.md) for the full workflow.
