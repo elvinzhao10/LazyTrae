@@ -6,7 +6,7 @@ const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 const LENSES = ['area', 'ownership', 'perspective'];
 const MIN_MEMBERS = 2;
 
-function teamDir(root) { return path.join(root, '.lazytraework', 'team'); }
+function teamDir(root) { return path.join(root, '.lazytrae', 'team'); }
 function teamPath(root) { return path.join(teamDir(root), 'team.json'); }
 function memberDir(root, id) { return path.join(teamDir(root), 'members', id); }
 

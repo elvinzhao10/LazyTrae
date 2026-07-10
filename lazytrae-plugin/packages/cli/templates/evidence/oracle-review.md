@@ -17,9 +17,9 @@
 | # | Gate | Status | Evidence |
 |---|------|--------|----------|
 | 1 | Plan Reread | PASS / FAIL | `<path or summary>` |
-| 2 | Automated Verification | PASS / FAIL | `.lazytraework/evidence/test-runs.md` |
-| 3 | Manual-QA | PASS / FAIL | `.lazytraework/evidence/verifier.md` |
-| 4 | Adversarial QA | PASS / FAIL | `.lazytraework/evidence/reviewer.md` |
+| 2 | Automated Verification | PASS / FAIL | `.lazytrae/evidence/test-runs.md` |
+| 3 | Manual-QA | PASS / FAIL | `.lazytrae/evidence/verifier.md` |
+| 4 | Adversarial QA | PASS / FAIL | `.lazytrae/evidence/reviewer.md` |
 | 5 | Cleanup | PASS / FAIL | `<receipt path>` |
 
 ### Verdict
@@ -66,9 +66,9 @@
 | # | Gate | Status | Evidence |
 |---|------|--------|----------|
 | 1 | Plan Reread | PASS | All deliverables listed in plan/v0.5-state-machine.md have been created. |
-| 2 | Automated Verification | PASS | `.lazytraework/evidence/test-runs.md` — all state files are valid JSON. |
-| 3 | Manual-QA | PASS | `.lazytraework/evidence/verifier.md` — config file is valid, state files exist. |
-| 4 | Adversarial QA | PASS | `.lazytraework/evidence/reviewer.md` — malformed input probe passed, 8 classes N/A. |
+| 2 | Automated Verification | PASS | `.lazytrae/evidence/test-runs.md` — all state files are valid JSON. |
+| 3 | Manual-QA | PASS | `.lazytrae/evidence/verifier.md` — config file is valid, state files exist. |
+| 4 | Adversarial QA | PASS | `.lazytrae/evidence/reviewer.md` — malformed input probe passed, 8 classes N/A. |
 | 5 | Cleanup | PASS | No QA resources to tear down. No AI slop in generated files. |
 
 ### Verdict

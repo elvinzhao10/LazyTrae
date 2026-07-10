@@ -103,7 +103,7 @@ Before any step can close, it must pass five gates (from LazyCodex `hooks-lifecy
 
 ## 5. How to Record Evidence
 
-- Evidence goes in `.lazytraework/evidence/` (once the runtime is implemented in v0.5).
+- Evidence goes in `.lazytrae/evidence/` (once the runtime is implemented in v0.5).
 - For now (v0.2), evidence is recorded in:
   - The version plan file (e.g., `plan/v0.2-rules-memory.md` verification notes).
   - Commit messages.
@@ -172,7 +172,7 @@ When handing off a session, produce a summary containing:
 ## 9. Architecture Reference
 
 - **Layer 1** (Trae-native interface): `.trae/rules/`, `.trae/skills/`, `.trae/commands/`, `.trae/agents/`, `.trae/mcp.json`, `.trae/hooks/`
-- **Layer 2** (LazyTrae runtime): `.lazytraework/config.json`, `.lazytraework/state/`, `.lazytraework/evidence/`, `.lazytraework/logs/`, `.lazytraework/schemas/`, CLI
+- **Layer 2** (LazyTrae runtime): `.lazytrae/config.json`, `.lazytrae/state/`, `.lazytrae/evidence/`, `.lazytrae/logs/`, `.lazytrae/schemas/`, CLI
 - **Layer 3** (OmO compatibility): `.omo/plans/`, `.omo/boulder.json`, `.omo/ulw-loop/`
 
 See `docs/lazytrae-architecture-plan.md` for the full architecture design.

@@ -11,14 +11,14 @@ const EXPECTED_CATEGORIES = [
 ];
 
 /**
- * Checks the .lazytraework/config.json routing section for the 6 v0.10 categories.
+ * Checks the .lazytrae/config.json routing section for the 6 v0.10 categories.
  * Returns a result object compatible with doctor's addResult shape.
  *
  * @param {string} repoRoot - Absolute path to the repo root.
  * @returns {{ checked: boolean, label: string, status: 'PASS'|'FAIL'|'WARN', detail?: string }}
  */
 function checkModelRouting(repoRoot) {
-  const configPath = path.join(repoRoot, '.lazytraework', 'config.json');
+  const configPath = path.join(repoRoot, '.lazytrae', 'config.json');
   if (!fs.existsSync(configPath)) {
     return { checked: false, label: 'Model routing', status: 'WARN', detail: 'config.json not found' };
   }

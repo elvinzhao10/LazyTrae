@@ -101,17 +101,17 @@
 
 | Criterion | LazyCodex source | LazyTrae target | Status |
 | --- | --- | --- | --- |
-| Boulder state | `lazycodex/packages/web/content/docs/start-work.md` (conceptual) | `.lazytraework/state/boulder.json` | VERIFIED |
-| Ulw-loop plan state | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` (UlwLoopPlan) | `.lazytraework/state/active-loop.json` | VERIFIED |
+| Boulder state | `lazycodex/packages/web/content/docs/start-work.md` (conceptual) | `.lazytrae/state/boulder.json` | VERIFIED |
+| Ulw-loop plan state | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` (UlwLoopPlan) | `.lazytrae/state/active-loop.json` | VERIFIED |
 | Goal statuses | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` (UlwLoopStatus) | Active-loop goal statuses | VERIFIED |
 | Criterion statuses | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` (UlwLoopCriterionStatus) | Active-loop criterion statuses | VERIFIED |
 | Steering mutations | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` (ULW_LOOP_STEERING_MUTATION_KINDS) | Active-loop steering mutations | VERIFIED |
-| Ledger events | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` (ULW_LOOP_LEDGER_EVENT_KINDS) | `.lazytraework/logs/loop-events.ndjson` | VERIFIED |
+| Ledger events | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` (ULW_LOOP_LEDGER_EVENT_KINDS) | `.lazytrae/logs/loop-events.ndjson` | VERIFIED |
 | Quality gate | `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` | Evidence files + reviewer protocol | VERIFIED |
-| Evidence recording | `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts` | `.lazytraework/evidence/*.md` | VERIFIED |
+| Evidence recording | `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts` | `.lazytrae/evidence/*.md` | VERIFIED |
 | Plan CRUD | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` | CLI + plan parser | VERIFIED |
 | Mutation lock | `lazycodex/plugins/omo/components/ulw-loop/src/plan-io.ts` (withUlwLoopMutationLock) | File-based locking | VERIFIED |
-| Session tracking | `lazycodex/plugins/omo/components/rules/src/session-state-lock.ts` | `.lazytraework/state/sessions.json` | VERIFIED |
+| Session tracking | `lazycodex/plugins/omo/components/rules/src/session-state-lock.ts` | `.lazytrae/state/sessions.json` | VERIFIED |
 | .omo mirror | `lazycodex/.omo/` (evidence directory) | `.omo/plans/`, `.omo/ulw-loop/` | VERIFIED |
 
 ## 8. Verification Gates
@@ -119,9 +119,9 @@
 | Criterion | LazyCodex source | LazyTrae target | Status |
 | --- | --- | --- | --- |
 | Plan reread | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (five evidence gates) | Reviewer protocol step 1 | VERIFIED |
-| Automated verification | `lazycodex/packages/web/content/docs/tdd.md` | `.lazytraework/evidence/test-runs.md` | VERIFIED |
-| Manual-QA (real-surface proof) | `lazycodex/plugins/omo/components/ultrawork/directive.md` (Manual-QA channels) | `.lazytraework/evidence/verifier.md` | VERIFIED |
-| Adversarial QA | `lazycodex/packages/web/content/docs/manual-qa.md` | `.lazytraework/evidence/reviewer.md` | VERIFIED |
+| Automated verification | `lazycodex/packages/web/content/docs/tdd.md` | `.lazytrae/evidence/test-runs.md` | VERIFIED |
+| Manual-QA (real-surface proof) | `lazycodex/plugins/omo/components/ultrawork/directive.md` (Manual-QA channels) | `.lazytrae/evidence/verifier.md` | VERIFIED |
+| Adversarial QA | `lazycodex/packages/web/content/docs/manual-qa.md` | `.lazytrae/evidence/reviewer.md` | VERIFIED |
 | Cleanup | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (cleanup gate) | remove-ai-slops skill | VERIFIED |
 | Quality gate validation | `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` | Reviewer/Oracle protocol | VERIFIED |
 | Reviewer roles | `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` (REVIEWER_ROLES) | Oracle agent + reviewer skill | VERIFIED |
@@ -130,7 +130,7 @@
 
 | Criterion | LazyCodex source | LazyTrae target | Status |
 | --- | --- | --- | --- |
-| Role-based model profiles | `lazycodex/plugins/omo/model-catalog.json` | `.lazytraework/config.json` routing section | VERIFIED |
+| Role-based model profiles | `lazycodex/plugins/omo/model-catalog.json` | `.lazytrae/config.json` routing section | VERIFIED |
 | Default model | `lazycodex/plugins/omo/model-catalog.json` (line 4) | Trae Auto mode | VERIFIED |
 | Plan mode reasoning | `lazycodex/plugins/omo/model-catalog.json` (line 7: xhigh) | Trae Max mode | VERIFIED |
 | Worker model | `lazycodex/plugins/omo/model-catalog.json` (line 17) | Trae Auto mode | VERIFIED |

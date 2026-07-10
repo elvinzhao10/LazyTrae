@@ -6,7 +6,7 @@ function detectRepoRoot() {
   let dir = process.cwd();
   while (dir !== path.dirname(dir)) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;
-    if (fs.existsSync(path.join(dir, '.lazytraework'))) return dir;
+    if (fs.existsSync(path.join(dir, '.lazytrae'))) return dir;
     dir = path.dirname(dir);
   }
   return process.cwd();
@@ -55,7 +55,7 @@ function addReason(reasons, gate, message) {
 }
 
 function inspectBoulder(repoRoot, reasons) {
-  const boulder = readJSON(path.join(repoRoot, '.lazytraework', 'state', 'boulder.json'));
+  const boulder = readJSON(path.join(repoRoot, '.lazytrae', 'state', 'boulder.json'));
   if (!boulder || !boulder.active_work_id) return;
   const work = boulder.works && boulder.works[boulder.active_work_id];
   if (!work) {
@@ -83,7 +83,7 @@ function inspectBoulder(repoRoot, reasons) {
 }
 
 function inspectLoop(repoRoot, reasons) {
-  const loop = readJSON(path.join(repoRoot, '.lazytraework', 'state', 'active-loop.json'));
+  const loop = readJSON(path.join(repoRoot, '.lazytrae', 'state', 'active-loop.json'));
   if (!loop) return;
   const goals = Array.isArray(loop.goals) ? loop.goals : [];
   const unfinished = goals.filter(goal => goal.status !== 'complete');

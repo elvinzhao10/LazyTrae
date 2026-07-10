@@ -38,9 +38,9 @@ Trae fires 6 hook events. LazyTrae implements 5 of them directly. The sixth (Not
 
 **Behavior:**
 
-1. Reads `.lazytraework/state/boulder.json` — extracts `active_work_id`, finds the work, lists the current task (in_progress first, then pending, then blocked), counts blockers.
-2. Reads `.lazytraework/state/active-loop.json` — finds the in-progress goal and iteration count.
-3. Checks `.lazytraework/state/sessions.json` for `post_compact_recovery_needed` flag. If true:
+1. Reads `.lazytrae/state/boulder.json` — extracts `active_work_id`, finds the work, lists the current task (in_progress first, then pending, then blocked), counts blockers.
+2. Reads `.lazytrae/state/active-loop.json` — finds the in-progress goal and iteration count.
+3. Checks `.lazytrae/state/sessions.json` for `post_compact_recovery_needed` flag. If true:
    - Emits recovery notice: "Post-compact recovery needed. Re-injecting project rules and state context."
    - Resets the flag to `false`.
 4. Prints all collected info to stdout.
@@ -71,7 +71,7 @@ Trae fires 6 hook events. LazyTrae implements 5 of them directly. The sixth (Not
    
    Then:
    - Emits note: "Context pressure detected. Setting post-compact recovery flag."
-   - Sets `post_compact_recovery_needed=true` in `.lazytraework/state/sessions.json`, increments compaction count.
+   - Sets `post_compact_recovery_needed=true` in `.lazytrae/state/sessions.json`, increments compaction count.
 6. Always exits 0.
 
 ---

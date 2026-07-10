@@ -57,9 +57,9 @@ lazytrae doctor [options]
 - At least 9 skills found (`.trae/skills/`)
 - At least 9 commands found (`.trae/commands/`)
 - At least 11 agents found (`.trae/agents/`)
-- `.lazytraework/config.json` is valid JSON
-- All state files (`.lazytraework/state/`) are valid JSON
-- All schema files (`.lazytraework/schemas/`) are valid JSON
+- `.lazytrae/config.json` is valid JSON
+- All state files (`.lazytrae/state/`) are valid JSON
+- All schema files (`.lazytrae/schemas/`) are valid JSON
 - Validate state against schemas (if `ajv` is installed)
 - `AGENTS.md` has all required managed blocks
 - `.omo/` compatibility directories exist
@@ -87,7 +87,7 @@ lazytrae sync [options]
 - Overwrites managed templates if they changed
 - Preserves user edits outside managed blocks
 - Updates managed blocks in `AGENTS.md`
-- Migrates schema version in `.lazytraework/config.json` if needed
+- Migrates schema version in `.lazytrae/config.json` if needed
 - Prints summary of what was updated/skipped
 
 ---
@@ -104,12 +104,12 @@ lazytrae uninstall [options]
 **Options:**
 - `--help`, `-h` — Show help
 - `--yes`, `-y` — Skip confirmation prompt
-- `--soft` — Only remove managed files (preserve `.lazytraework/` and `.omo/`)
+- `--soft` — Only remove managed files (preserve `.lazytrae/` and `.omo/`)
 - `--purge-state` — Remove everything including plans and evidence
 
 **Behavior:**
 - Removes `.trae/` directory
-- By default, preserves `.lazytraework/evidence/` and `.lazytraework/state/` and `.omo/plans/`
+- By default, preserves `.lazytrae/evidence/` and `.lazytrae/state/` and `.omo/plans/`
 - With `--purge-state`, removes everything
 - Removes all managed blocks from `AGENTS.md` (leaves user content intact)
 - Removes `.gitignore` entries added by `init`
@@ -211,7 +211,7 @@ packages/cli/
     ├── skills/                 # 9 skill SKILL.md templates
     ├── rules/
     │   └── lazytrae.md         # rules template
-    ├── config.json             # .lazytraework/config.json template
+    ├── config.json             # .lazytrae/config.json template
     ├── mcp.json                # .trae/mcp.json template
     ├── hooks.json              # .trae/hooks.json template
     ├── schemas/                # 3 JSON schema files

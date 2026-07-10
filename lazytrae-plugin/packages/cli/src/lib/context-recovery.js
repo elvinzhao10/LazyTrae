@@ -4,7 +4,7 @@ const path = require('path');
 const STALE_RECOVERY_MS = 24 * 60 * 60 * 1000;
 
 function checkStaleRecovery(repoRoot, now = new Date()) {
-  const sessionsPath = path.join(repoRoot, '.lazytraework', 'state', 'sessions.json');
+  const sessionsPath = path.join(repoRoot, '.lazytrae', 'state', 'sessions.json');
   if (!fs.existsSync(sessionsPath)) {
     return { label: 'Post-compact recovery state', status: 'PASS', detail: 'No sessions state found' };
   }

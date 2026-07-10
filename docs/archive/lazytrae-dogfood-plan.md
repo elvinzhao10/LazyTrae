@@ -11,10 +11,10 @@ Fix parity-ledger item 8.15: **coding-agent-sessions skill**, currently DESIGN, 
 
 ## Background
 
-The LazyCodex `coding-agent-sessions` skill (`lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md`) is a cross-platform session finder that uses a Python script (`scripts/find-agent-sessions.py`) to search transcripts across Codex, Claude, OpenCode, Senpi, and other coding agents. In LazyTrae, the equivalent is session tracking via `.lazytraework/state/sessions.json`, which is simpler but lacks a formal skill definition.
+The LazyCodex `coding-agent-sessions` skill (`lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md`) is a cross-platform session finder that uses a Python script (`scripts/find-agent-sessions.py`) to search transcripts across Codex, Claude, OpenCode, Senpi, and other coding agents. In LazyTrae, the equivalent is session tracking via `.lazytrae/state/sessions.json`, which is simpler but lacks a formal skill definition.
 
 The LazyTrae SKILL.md will adapt the LazyCodex concept for the Trae environment:
-- Document how to use Trae session tracking (`.lazytraework/state/sessions.json`)
+- Document how to use Trae session tracking (`.lazytrae/state/sessions.json`)
 - Provide guidance on searching/reconstructing past work from Trae sessions
 - Reference the LazyCodex canonical source for parity documentation
 - Follow the same structure as other LazyTrae skills (frontmatter, canonical source, purpose, procedure, etc.)
@@ -54,7 +54,7 @@ The SKILL.md must follow the LazyTrae convention established by existing skills 
 - [ ] Frontmatter has `name: coding-agent-sessions` and triggers line matching LazyCodex description
 - [ ] Canonical source reference cites `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md`
 - [ ] Procedure references LazyTrae-native tools (SearchCodebase, Grep, Read) instead of Python scripts
-- [ ] Procedure references `.lazytraework/state/sessions.json` as the LazyTrae session store
+- [ ] Procedure references `.lazytrae/state/sessions.json` as the LazyTrae session store
 - [ ] Procedure covers: listing, searching, reading, and exporting sessions
 - [ ] All five standard sections present (Allowed Edits, Forbidden Behavior, Verification Gates, Failure Handling, Output Format, Handoff Target)
 - [ ] File is 60-100 lines (not counting frontmatter)
@@ -119,7 +119,7 @@ If the SKILL.md is found to be incorrect or incomplete:
 ## References
 
 - LazyCodex canonical source: `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md`
-- LazyTrae session state: `.lazytraework/state/sessions.json`
+- LazyTrae session state: `.lazytrae/state/sessions.json`
 - Existing skill templates: `.trae/skills/librarian/SKILL.md`, `.trae/skills/verifier/SKILL.md`
 - Parity ledger: `docs/lazytrae-parity-ledger.md`
 - Command index: `docs/lazytrae-command-index.md`

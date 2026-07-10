@@ -103,7 +103,7 @@ lazytrae run --loop active
 
 When `trae-agent` is installed:
 - Routes to the appropriate provider/model based on the routing config
-- Records trajectory to `.lazytraework/logs/`
+- Records trajectory to `.lazytrae/logs/`
 
 When `trae-agent` is NOT installed:
 - Prints a graceful fallback message with routing recommendations
@@ -111,7 +111,7 @@ When `trae-agent` is NOT installed:
 
 ## 8. Trajectory Recording
 
-When the runner is used, each invocation logs a trajectory entry to `.lazytraework/logs/` with:
+When the runner is used, each invocation logs a trajectory entry to `.lazytrae/logs/` with:
 - Timestamp
 - Agent name
 - Category
@@ -128,7 +128,7 @@ The routing system degrades gracefully:
 
 ## 10. Config Schema
 
-The routing section in `.lazytraework/config.json`:
+The routing section in `.lazytrae/config.json`:
 
 ```json
 {
@@ -149,5 +149,5 @@ Six categories required: `quick`, `deep`, `ultrabrain`, `visual-engineering`, `w
 - LazyCodex model catalog: `lazycodex/plugins/omo/model-catalog.json`
 - LazyCodex agent TOML files: `lazycodex/plugins/omo/components/ultrawork/agents/*.toml`
 - Trae modes: https://docs.trae.cn/ide_auto-mode, https://docs.trae.cn/enterprise_max-mode
-- LazyTrae routing config: `.lazytraework/config.json` (routing section)
+- LazyTrae routing config: `.lazytrae/config.json` (routing section)
 - LazyTrae agent files: `.trae/agents/*.md`

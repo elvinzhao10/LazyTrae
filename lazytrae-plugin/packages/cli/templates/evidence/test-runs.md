@@ -53,31 +53,31 @@
 
 - **Plan file**: `.omo/plans/v0.5-state-machine.md`
 - **Task ID**: `task-1`
-- **Task description**: Create `.lazytraework/config.json`
+- **Task description**: Create `.lazytrae/config.json`
 
 ### Commands Executed
 
 | Command | Exit Code | Output Summary |
 |---------|-----------|----------------|
-| `python3 -m json.tool .lazytraework/config.json > /dev/null` | `0` | Valid JSON |
-| `ls -la .lazytraework/state/` | `0` | 3 files exist |
+| `python3 -m json.tool .lazytrae/config.json > /dev/null` | `0` | Valid JSON |
+| `ls -la .lazytrae/state/` | `0` | 3 files exist |
 
 ### Full Output
 
 ```
-$ python3 -m json.tool .lazytraework/config.json > /dev/null && echo "VALID"
+$ python3 -m json.tool .lazytrae/config.json > /dev/null && echo "VALID"
 VALID
-$ ls -la .lazytraework/state/
+$ ls -la .lazytrae/state/
 boulder.json    active-loop.json    sessions.json
 ```
 
 ### Changed Files
 
 ```
-.lazytraework/config.json
-.lazytraework/state/boulder.json
-.lazytraework/state/active-loop.json
-.lazytraework/state/sessions.json
+.lazytrae/config.json
+.lazytrae/state/boulder.json
+.lazytrae/state/active-loop.json
+.lazytrae/state/sessions.json
 ```
 
 ### Verdict
@@ -90,7 +90,7 @@ boulder.json    active-loop.json    sessions.json
 
 ### Evidence Artifacts
 
-- `.lazytraework/config.json`
-- `.lazytraework/state/boulder.json`
-- `.lazytraework/state/active-loop.json`
-- `.lazytraework/state/sessions.json`
+- `.lazytrae/config.json`
+- `.lazytrae/state/boulder.json`
+- `.lazytrae/state/active-loop.json`
+- `.lazytrae/state/sessions.json`

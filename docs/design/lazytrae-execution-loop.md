@@ -20,7 +20,7 @@ A loop is always in exactly one of 10 states:
 | 9 | `complete` | All goals completed. Aggregate completion declared with evidence. |
 | 10 | `cancelled` | Loop was cancelled by user via `lazytrae loop cancel`. |
 
-State is persisted in `.lazytraework/state/active-loop.json` field `loop_state`.
+State is persisted in `.lazytrae/state/active-loop.json` field `loop_state`.
 
 ## 2. State Transitions
 
@@ -98,7 +98,7 @@ Valid transitions between loop states:
 
 From plan/v0.9-long-horizon-loop.md, verified against LazyCodex `directive.md`:
 
-1. **Load project memory** — Read `AGENTS.md`, `.trae/rules/`, `.lazytraework/state/active-loop.json`.
+1. **Load project memory** — Read `AGENTS.md`, `.trae/rules/`, `.lazytrae/state/active-loop.json`.
 2. **Expand user goal** — Normalize goal text into a completion promise. Record in `completion_promise` field.
 3. **Run init-deep** — If project memory is missing or stale, run init-deep first.
 4. **Generate or load plan** — HEAVY tier: delegate to Prometheus. LIGHT tier: plan directly. Write to `.omo/plans/<slug>.md`.
@@ -139,8 +139,8 @@ An iteration is one pass through steps 5-12 of the loop cycle. If the cap is rea
 
 State is persisted after each step so the loop survives restarts:
 
-- **NDJSON event log**: `.lazytraework/logs/loop-events.ndjson` — every state transition produces an event line.
-- **JSON state**: `.lazytraework/state/active-loop.json` — full loop state, updated on every transition.
+- **NDJSON event log**: `.lazytrae/logs/loop-events.ndjson` — every state transition produces an event line.
+- **JSON state**: `.lazytrae/state/active-loop.json` — full loop state, updated on every transition.
 - **Checkpoints**: The `checkpoints` array in `active-loop.json` records snapshots at key points (task completion, verification pass, reviewer approval).
 
 **Checkpoint structure:**
@@ -152,7 +152,7 @@ State is persisted after each step so the loop survives restarts:
   "goal_id": "G001",
   "status": "checkpointed",
   "summary": "Completed task 1 of 3. State saved.",
-  "evidence_paths": [".lazytraework/evidence/test-runs.md"]
+  "evidence_paths": [".lazytrae/evidence/test-runs.md"]
 }
 ```
 
@@ -162,13 +162,13 @@ Source: checkpoint structure from `lazycodex/plugins/omo/components/ulw-loop/src
 
 The loop resumes after interruption by reading durable state:
 
-1. Read `.lazytraework/state/active-loop.json` — get `loop_state`, `current_task_index`, `iteration`, `run_id`.
-2. Read `.lazytraework/logs/loop-events.ndjson` — get last event to determine exact position in cycle.
+1. Read `.lazytrae/state/active-loop.json` — get `loop_state`, `current_task_index`, `iteration`, `run_id`.
+2. Read `.lazytrae/logs/loop-events.ndjson` — get last event to determine exact position in cycle.
 3. If `loop_state` is `paused` or `active`, resume from the step after the last completed event.
 4. If `loop_state` is `idle` or `cancelled`, do not resume — await user instruction.
 5. If `loop_state` is `complete`, print completion summary — no further work.
 
-The notepad (`.lazytraework/notepad.md` for the LazyTrae adaptation of the ultrawork `mktemp` notepad) provides conversation-level recovery after context compaction.
+The notepad (`.lazytrae/notepad.md` for the LazyTrae adaptation of the ultrawork `mktemp` notepad) provides conversation-level recovery after context compaction.
 
 ## 8. Concurrency
 
@@ -202,12 +202,12 @@ All 7 mutation types from `lazycodex/plugins/omo/components/ulw-loop/src/constan
 
 | LazyTrae Path | .omo Mirror | Description |
 |---------------|-------------|-------------|
-| `.lazytraework/state/active-loop.json` | `.omo/ulw-loop/<run-id>/goals.json` | Plan with goals, criteria, statuses |
-| `.lazytraework/logs/loop-events.ndjson` | `.omo/ulw-loop/<run-id>/ledger.jsonl` | Audit trail |
+| `.lazytrae/state/active-loop.json` | `.omo/ulw-loop/<run-id>/goals.json` | Plan with goals, criteria, statuses |
+| `.lazytrae/logs/loop-events.ndjson` | `.omo/ulw-loop/<run-id>/ledger.jsonl` | Audit trail |
 | `.omo/ulw-loop/<run-id>/brief.md` | `.omo/ulw-loop/<run-id>/brief.md` | Task brief (same path) |
-| `.lazytraework/evidence/` | `.omo/ulw-loop/<run-id>/evidence.jsonl` | Evidence entries |
+| `.lazytrae/evidence/` | `.omo/ulw-loop/<run-id>/evidence.jsonl` | Evidence entries |
 
-Design principle: `.lazytraework/state/` is the primary source of truth. `.omo/` is a compatibility mirror. Write to `.lazytraework/` first, mirror to `.omo/`.
+Design principle: `.lazytrae/state/` is the primary source of truth. `.omo/` is a compatibility mirror. Write to `.lazytrae/` first, mirror to `.omo/`.
 
 ## 11. Event Types
 

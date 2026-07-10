@@ -21,7 +21,7 @@
 | 1.1 | `$init-deep` | `lazycodex/packages/web/content/docs/init-deep.md` | Hierarchical repo understanding, AGENTS.md generation | init-deep command + skill | `.trae/commands/init-deep.md`, `.trae/skills/init-deep/SKILL.md` | COMPLETE | v0.3 |
 | 1.2 | `$ulw-plan` | `lazycodex/packages/web/content/docs/ulw-plan.md` | Socratic planning interview, parallel exploration, plan generation | ulw-plan command + skill + Prometheus agent | `.trae/commands/ulw-plan.md`, `.trae/skills/ulw-plan/SKILL.md`, `.trae/agents/prometheus.md` | COMPLETE | v0.3 |
 | 1.3 | `$start-work` | `lazycodex/packages/web/content/docs/start-work.md` | Execute approved plan one task at a time | start-work command + skill + Atlas agent | `.trae/commands/start-work.md`, `.trae/skills/start-work/SKILL.md`, `.trae/agents/atlas.md` | COMPLETE | v0.3 |
-| 1.4 | `$ulw-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` | Self-referential long-horizon execution loop | ulw-loop command + skill + loop state machine | `.trae/commands/ulw-loop.md`, `.trae/skills/ulw-loop/SKILL.md`, `.lazytraework/state/active-loop.json` | COMPLETE | v0.3 |
+| 1.4 | `$ulw-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` | Self-referential long-horizon execution loop | ulw-loop command + skill + loop state machine | `.trae/commands/ulw-loop.md`, `.trae/skills/ulw-loop/SKILL.md`, `.lazytrae/state/active-loop.json` | COMPLETE | v0.3 |
 | 1.5 | `$ralph-loop` | `lazycodex/packages/web/content/docs/ulw-loop.md` (alias) | Alias for ulw-loop | ralph-loop command | `.trae/commands/ralph-loop.md` | COMPLETE | v0.3 |
 | 1.6 | `/stop-continuation` | `lazycodex/packages/web/content/docs/` (referenced) | Pause/cancel active loop | stop-continuation command + CLI | `.trae/commands/stop-continuation.md`, `lazytrae loop cancel` | COMPLETE | v0.3 |
 | 1.7 | `/handoff` | `lazycodex/packages/web/content/docs/` (referenced) | New-session continuation summary | handoff command + CLI | `.trae/commands/handoff.md`, `lazytrae handoff` | COMPLETE | v0.3 |
@@ -70,33 +70,33 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 4.1 | Boulder state | `lazycodex/packages/web/content/docs/start-work.md` | Durable plan task tracker | Boulder state | `.lazytraework/state/boulder.json` | COMPLETE | v0.5 |
-| 4.2 | UlwLoop plan | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | Plan with goals, criteria, statuses | Active loop state | `.lazytraework/state/active-loop.json` | COMPLETE | v0.5 |
+| 4.1 | Boulder state | `lazycodex/packages/web/content/docs/start-work.md` | Durable plan task tracker | Boulder state | `.lazytrae/state/boulder.json` | COMPLETE | v0.5 |
+| 4.2 | UlwLoop plan | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | Plan with goals, criteria, statuses | Active loop state | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
 | 4.3 | UlwLoop brief | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Original task brief | Loop brief | `.omo/ulw-loop/<run-id>/brief.md` | COMPLETE | v0.5 |
-| 4.4 | UlwLoop ledger | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Audit trail of all mutations | Loop event log | `.lazytraework/logs/loop-events.ndjson`, `.omo/ulw-loop/<run-id>/ledger.jsonl` | COMPLETE | v0.5 |
-| 4.5 | Goal statuses | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Goal lifecycle tracking | Goal statuses in active-loop.json | `.lazytraework/state/active-loop.json` | COMPLETE | v0.5 |
-| 4.6 | Criterion statuses | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Success criterion tracking | Criterion statuses in active-loop.json | `.lazytraework/state/active-loop.json` | COMPLETE | v0.5 |
-| 4.7 | Steering mutations | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Runtime plan adjustments | Steering mutations in active-loop.json | `.lazytraework/state/active-loop.json` | COMPLETE | v0.5 |
-| 4.8 | Criterion user models | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Criterion classification | Criterion user models in active-loop.json | `.lazytraework/state/active-loop.json` | COMPLETE | v0.5 |
-| 4.9 | Ledger event kinds | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Event classification for audit trail | Ledger event kinds | `.lazytraework/logs/loop-events.ndjson`, `.lazytraework/schemas/active-loop.schema.json` | COMPLETE | v0.5 |
-| 4.10 | Plan CRUD operations | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` | Create, read, update, start-next, summarize plans | Plan parser + boulder state | `docs/lazytrae-state-machine.md`, `.lazytraework/state/boulder.json`, `.omo/plans/` | COMPLETE | v0.5 |
-| 4.11 | Evidence recording | `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts` | Record evidence against criteria | Evidence recording via CLI + MCP | `.lazytraework/evidence/*.md`, `lazytrae verify` | COMPLETE | v0.5 |
-| 4.12 | Quality gate validation | `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` | Validate completion quality gate | Reviewer/Oracle protocol | `.lazytraework/evidence/reviewer.md`, `.lazytraework/evidence/oracle-review.md` | COMPLETE | v0.5 |
+| 4.4 | UlwLoop ledger | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Audit trail of all mutations | Loop event log | `.lazytrae/logs/loop-events.ndjson`, `.omo/ulw-loop/<run-id>/ledger.jsonl` | COMPLETE | v0.5 |
+| 4.5 | Goal statuses | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Goal lifecycle tracking | Goal statuses in active-loop.json | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
+| 4.6 | Criterion statuses | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Success criterion tracking | Criterion statuses in active-loop.json | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
+| 4.7 | Steering mutations | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Runtime plan adjustments | Steering mutations in active-loop.json | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
+| 4.8 | Criterion user models | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Criterion classification | Criterion user models in active-loop.json | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
+| 4.9 | Ledger event kinds | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Event classification for audit trail | Ledger event kinds | `.lazytrae/logs/loop-events.ndjson`, `.lazytrae/schemas/active-loop.schema.json` | COMPLETE | v0.5 |
+| 4.10 | Plan CRUD operations | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` | Create, read, update, start-next, summarize plans | Plan parser + boulder state | `docs/lazytrae-state-machine.md`, `.lazytrae/state/boulder.json`, `.omo/plans/` | COMPLETE | v0.5 |
+| 4.11 | Evidence recording | `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts` | Record evidence against criteria | Evidence recording via CLI + MCP | `.lazytrae/evidence/*.md`, `lazytrae verify` | COMPLETE | v0.5 |
+| 4.12 | Quality gate validation | `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` | Validate completion quality gate | Reviewer/Oracle protocol | `.lazytrae/evidence/reviewer.md`, `.lazytrae/evidence/oracle-review.md` | COMPLETE | v0.5 |
 | 4.13 | Mutation lock | `lazycodex/plugins/omo/components/ulw-loop/src/plan-io.ts` | Prevent concurrent state mutations | In-memory promise-chain lock (plan) + mkdir-based lock (session) | `docs/lazytrae-state-machine.md` §9 | COMPLETE | v0.5 |
-| 4.14 | Session state | `lazycodex/plugins/omo/components/rules/src/session-state-lock.ts` | Track session for continuation | Session tracking | `.lazytraework/state/sessions.json` | COMPLETE | v0.5 |
-| 4.15 | Checkpointing | `lazycodex/plugins/omo/components/ulw-loop/src/checkpoint.ts` | Save progress for resumption | Checkpointing in loop state | `.lazytraework/state/active-loop.json` (checkpoints field) | COMPLETE | v0.5 |
+| 4.14 | Session state | `lazycodex/plugins/omo/components/rules/src/session-state-lock.ts` | Track session for continuation | Session tracking | `.lazytrae/state/sessions.json` | COMPLETE | v0.5 |
+| 4.15 | Checkpointing | `lazycodex/plugins/omo/components/ulw-loop/src/checkpoint.ts` | Save progress for resumption | Checkpointing in loop state | `.lazytrae/state/active-loop.json` (checkpoints field) | COMPLETE | v0.5 |
 
 ## 5. Verification Gates
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 5.1 | Plan reread | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (gate 1) | Re-read plan before claiming completion | Reviewer protocol step 1 | `.lazytraework/evidence/reviewer.md` | COMPLETE | v0.5 |
-| 5.2 | Automated verification | `lazycodex/packages/web/content/docs/tdd.md` (gate 2) | Tests, linters, type checks, builds | Test run evidence | `.lazytraework/evidence/test-runs.md` | COMPLETE | v0.5 |
-| 5.3 | Manual-QA | `lazycodex/plugins/omo/components/ultrawork/directive.md` (Manual-QA channels) | Real-surface proof through channels | Verifier evidence | `.lazytraework/evidence/verifier.md` | COMPLETE | v0.5 |
-| 5.4 | Adversarial QA | `lazycodex/packages/web/content/docs/manual-qa.md` (gate 4) | Edge cases, regression, adversarial scenarios | Reviewer evidence | `.lazytraework/evidence/reviewer.md` | COMPLETE | v0.5 |
+| 5.1 | Plan reread | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (gate 1) | Re-read plan before claiming completion | Reviewer protocol step 1 | `.lazytrae/evidence/reviewer.md` | COMPLETE | v0.5 |
+| 5.2 | Automated verification | `lazycodex/packages/web/content/docs/tdd.md` (gate 2) | Tests, linters, type checks, builds | Test run evidence | `.lazytrae/evidence/test-runs.md` | COMPLETE | v0.5 |
+| 5.3 | Manual-QA | `lazycodex/plugins/omo/components/ultrawork/directive.md` (Manual-QA channels) | Real-surface proof through channels | Verifier evidence | `.lazytrae/evidence/verifier.md` | COMPLETE | v0.5 |
+| 5.4 | Adversarial QA | `lazycodex/packages/web/content/docs/manual-qa.md` (gate 4) | Edge cases, regression, adversarial scenarios | Reviewer evidence | `.lazytrae/evidence/reviewer.md` | COMPLETE | v0.5 |
 | 5.5 | Cleanup | `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (gate 5) | Remove AI slop, dead code, unused imports | remove-ai-slops skill | `.trae/skills/remove-ai-slops/SKILL.md` | COMPLETE | v0.4 |
-| 5.6 | Completion claim | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | Formal completion with evidence | Completion evidence | `.lazytraework/evidence/completion.md` | COMPLETE | v0.5 |
-| 5.7 | Handoff summary | `lazycodex/packages/web/content/docs/` (handoff workflow) | Session handoff for continuation | Handoff evidence | `.lazytraework/evidence/handoff.md` | COMPLETE | v0.5 |
+| 5.6 | Completion claim | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | Formal completion with evidence | Completion evidence | `.lazytrae/evidence/completion.md` | COMPLETE | v0.5 |
+| 5.7 | Handoff summary | `lazycodex/packages/web/content/docs/` (handoff workflow) | Session handoff for continuation | Handoff evidence | `.lazytrae/evidence/handoff.md` | COMPLETE | v0.5 |
 | 5.8 | Advisory hook hard gates | `lazycodex/plugins/omo/components/start-work-continuation/src/codex-hook.ts`; `lazycodex/plugins/omo/components/lazycodex-executor-verify/src/codex-hook.ts` | Trae hooks stay advisory, CLI/MCP refuse or warn on incomplete evidence | `lazytrae completion-status`, `lazytrae verify --must-pass`, MCP guarded `mark_task_done`, handoff warnings | `packages/cli/src/lib/completion-gates.js`, `.trae/hooks/stop.sh`, `packages/mcp/src/handlers-evidence.js` | COMPLETE | v0.13 |
 
 ## 6. MCP Servers
@@ -114,7 +114,7 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 7.1 | Role-based model profiles | `lazycodex/plugins/omo/model-catalog.json` | Different models for different roles | Routing config | `.lazytraework/config.json` (routing section) | COMPLETE | v0.10 |
+| 7.1 | Role-based model profiles | `lazycodex/plugins/omo/model-catalog.json` | Different models for different roles | Routing config | `.lazytrae/config.json` (routing section) | COMPLETE | v0.10 |
 | 7.2 | Default model profile | `lazycodex/plugins/omo/model-catalog.json` (line 4) | Baseline model for most tasks | Trae Auto mode | Native Trae | COMPLETE | v0.10 |
 | 7.3 | Plan mode profile | `lazycodex/plugins/omo/model-catalog.json` (line 7) | Strong reasoning for planning | Trae Max mode | Native Trae | COMPLETE | v0.10 |
 | 7.4 | Worker model profile | `lazycodex/plugins/omo/model-catalog.json` (line 17) | Fast capable coding model | Trae Auto mode | Native Trae | COMPLETE | v0.10 |
@@ -168,13 +168,13 @@
 
 | # | LazyCodex Method | LazyCodex Source | Purpose | LazyTrae Equivalent | LazyTrae Artifact | Status | Version |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 10.1 | Team state model | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-state.mjs` | Durable team state shape and persistence | Team JSON schema + sample team | `.lazytraework/team/team.json`, `.lazytraework/schemas/team.schema.json` | COMPLETE | v0.11 |
+| 10.1 | Team state model | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-state.mjs` | Durable team state shape and persistence | Team JSON schema + sample team | `.lazytrae/team/team.json`, `.lazytrae/schemas/team.schema.json` | COMPLETE | v0.11 |
 | 10.2 | Team controller CLI | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team.mjs` | CLI for init/add-member/bind-thread/archive/delete/status | Team CLI commands | `packages/cli/src/commands/team.js` | COMPLETE | v0.11 |
 | 10.3 | Leader orchestration protocol | `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md` | Team-vs-subagent decision, leader protocol | Team mode documentation | `docs/lazytrae-team-mode.md` | COMPLETE | v0.11 |
 | 10.4 | Worktree isolation | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-worktree.mjs` | Git worktree provisioning | Documented (manual git worktrees on Trae) | `docs/lazytrae-team-mode.md` | COMPLETE (simplified) | v0.11 |
 | 10.5 | Thread title hygiene hook | `lazycodex/plugins/omo/components/teammode/src/codex-hook.ts` | PostToolUse hook for thread title enforcement | Not applicable (Trae subagents are ephemeral) | — | N/A | — |
-| 10.6 | Member communication | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-guide.mjs` | `codex_app.send_message_to_thread` / `codex_app.read_thread` | Mailbox file-based communication | `.lazytraework/team/mailbox/` | COMPLETE (adapted) | v0.11 |
-| 10.7 | Durability across sessions | Codex thread persistence | Durable threads across session close | Durable team.json + member report files | `.lazytraework/team/team.json`, `.lazytraework/team/members/<id>/report.md` | COMPLETE (adapted) | v0.11 |
+| 10.6 | Member communication | `lazycodex/plugins/omo/components/teammode/skills/teammode/scripts/team-guide.mjs` | `codex_app.send_message_to_thread` / `codex_app.read_thread` | Mailbox file-based communication | `.lazytrae/team/mailbox/` | COMPLETE (adapted) | v0.11 |
+| 10.7 | Durability across sessions | Codex thread persistence | Durable threads across session close | Durable team.json + member report files | `.lazytrae/team/team.json`, `.lazytrae/team/members/<id>/report.md` | COMPLETE (adapted) | v0.11 |
 
 ## Summary
 

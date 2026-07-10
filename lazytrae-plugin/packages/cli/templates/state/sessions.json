@@ -16,7 +16,7 @@
     "description": "LazyTrae Session tracking — mirrors LazyCodex session-state-lock.ts behavior. Tracks active sessions, compaction state, and session-level state for cross-session continuation.",
     "lock_mechanism": "File-based mutation lock (mkdir-based, 20 retries, 5ms delay). Mirrors LazyCodex withSessionStateLock pattern from lazycodex/plugins/omo/components/rules/src/session-state-lock.ts."
   },
-  "_schema": "See .lazytraework/schemas/ for validation rules.",
+  "_schema": "See .lazytrae/schemas/ for validation rules.",
   "_example": {
     "current_session_id": "trae:session-abc123",
     "sessions": {

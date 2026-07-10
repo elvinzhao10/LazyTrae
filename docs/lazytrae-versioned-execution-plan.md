@@ -221,19 +221,19 @@ Remove `.trae/agents/` directory and generated orchestration doc.
 Stop relying on prompts alone; add durable long-horizon state.
 
 ### Files to Create/Modify
-- `.lazytraework/config.json` — create
-- `.lazytraework/state/boulder.json` — create (empty initial state)
-- `.lazytraework/state/active-loop.json` — create (empty initial state)
-- `.lazytraework/state/sessions.json` — create (empty initial state)
-- `.lazytraework/evidence/test-runs.md` — create (template)
-- `.lazytraework/evidence/verifier.md` — create (template)
-- `.lazytraework/evidence/reviewer.md` — create (template)
-- `.lazytraework/evidence/oracle-review.md` — create (template)
-- `.lazytraework/evidence/completion.md` — create (template)
-- `.lazytraework/evidence/handoff.md` — create (template)
-- `.lazytraework/schemas/boulder.schema.json` — create
-- `.lazytraework/schemas/active-loop.schema.json` — create
-- `.lazytraework/schemas/evidence.schema.json` — create
+- `.lazytrae/config.json` — create
+- `.lazytrae/state/boulder.json` — create (empty initial state)
+- `.lazytrae/state/active-loop.json` — create (empty initial state)
+- `.lazytrae/state/sessions.json` — create (empty initial state)
+- `.lazytrae/evidence/test-runs.md` — create (template)
+- `.lazytrae/evidence/verifier.md` — create (template)
+- `.lazytrae/evidence/reviewer.md` — create (template)
+- `.lazytrae/evidence/oracle-review.md` — create (template)
+- `.lazytrae/evidence/completion.md` — create (template)
+- `.lazytrae/evidence/handoff.md` — create (template)
+- `.lazytrae/schemas/boulder.schema.json` — create
+- `.lazytrae/schemas/active-loop.schema.json` — create
+- `.lazytrae/schemas/evidence.schema.json` — create
 - `.omo/plans/` — create directory
 - `.omo/ulw-loop/` — create directory
 - `docs/lazytrae-parity-ledger.md` — update
@@ -247,7 +247,7 @@ Stop relying on prompts alone; add durable long-horizon state.
 - Boulder docs: `lazycodex/packages/web/content/docs/start-work.md`, `discipline-agents.md`
 
 ### Implementation Steps
-1. Create `.lazytraework/config.json` with LazyTrae version, routing config, and feature flags.
+1. Create `.lazytrae/config.json` with LazyTrae version, routing config, and feature flags.
 2. Define boulder state schema: plan reference, tasks (id, title, status, evidence, assignee, started/completed timestamps), blockers, active task.
 3. Define active-loop schema: status (idle/initializing/planning/active/verifying/reviewing/blocked/paused/complete/cancelled), goals, criteria, iteration counter, checkpoints, completion promise.
 4. Define evidence schema: kind (test-run/verifier/reviewer/oracle/completion/handoff), timestamp, content, file references, verdict.
@@ -268,7 +268,7 @@ Stop relying on prompts alone; add durable long-horizon state.
 LazyTrae can resume work across sessions and cannot honestly mark long-horizon work complete without evidence.
 
 ### Rollback Strategy
-Remove `.lazytraework/state/`, `.lazytraework/schemas/`, `.lazytraework/evidence/`, `.lazytraework/config.json`, `.omo/` directories. Preserve docs.
+Remove `.lazytrae/state/`, `.lazytrae/schemas/`, `.lazytrae/evidence/`, `.lazytrae/config.json`, `.omo/` directories. Preserve docs.
 
 ### Risks
 - **Low**: Schema design may need revision after implementation experience. Mitigation: version schemas from the start (include `version` field).
@@ -308,7 +308,7 @@ Package LazyTrae so users do not hand-copy files.
 1. Implement `lazytrae init`:
    - Detect repo root (search for `.git`, `package.json`, etc.)
    - Create `.trae/` artifacts (rules, commands, skills, agents, hooks, MCP)
-   - Create `.lazytraework/` runtime directories (state, evidence, logs, schemas)
+   - Create `.lazytrae/` runtime directories (state, evidence, logs, schemas)
    - Create `.omo/` compatibility directories
    - Generate or merge AGENTS.md with managed blocks
    - Never overwrite user content outside managed blocks
@@ -368,8 +368,8 @@ Approximate LazyCodex's lifecycle enforcement using Trae hooks.
 - `.trae/hooks/post-tool-use.sh` — create
 - `.trae/hooks/stop.sh` — create
 - `packages/cli/src/commands/hook.ts` — create (hook dispatcher)
-- `.lazytraework/state/post-compact.json` — create (PostCompact detection state)
-- `.lazytraework/logs/hooks.ndjson` — create (hook event log)
+- `.lazytrae/state/post-compact.json` — create (PostCompact detection state)
+- `.lazytrae/logs/hooks.ndjson` — create (hook event log)
 - `docs/lazytrae-parity-ledger.md` — update
 
 ### LazyCodex Reference
@@ -407,7 +407,7 @@ Approximate LazyCodex's lifecycle enforcement using Trae hooks.
 2. Confirm active boulder status is injected on session-start.
 3. Confirm ulw keyword detection on user-prompt-submit.
 4. Confirm incomplete loop produces continuation reminder on stop.
-5. Confirm hook logs are written to `.lazytraework/logs/hooks.ndjson`.
+5. Confirm hook logs are written to `.lazytrae/logs/hooks.ndjson`.
 6. Parity ledger updated.
 
 ### Success Criteria
@@ -419,7 +419,7 @@ Disable hook config in `.trae/hooks/` or remove hook files entirely.
 ### Risks
 - **Medium**: PostCompact detection is heuristic and may miss some compaction events. Mitigation: combine multiple detection strategies (SessionStart source, transcript markers, state file tracking).
 - **Medium**: Hook scripts may add latency to Trae operations. Mitigation: keep hook scripts fast (<1s), use timeout in hook config, make comment-checker optional.
-- **Low**: Hook scripts may fail silently. Mitigation: log all hook output to `.lazytraework/logs/hooks.ndjson`, doctor checks hook exit codes.
+- **Low**: Hook scripts may fail silently. Mitigation: log all hook output to `.lazytrae/logs/hooks.ndjson`, doctor checks hook exit codes.
 
 ---
 
@@ -493,8 +493,8 @@ Implement the real LazyTrae equivalent of ulw-loop.
 - `packages/core/src/loop-state.ts` — create (loop state machine)
 - `packages/core/src/plan-parser.ts` — create (plan parsing)
 - `packages/cli/src/commands/loop.ts` — create (loop CLI)
-- `.lazytraework/state/active-loop.json` — update with real behavior
-- `.lazytraework/logs/loop-events.ndjson` — create
+- `.lazytrae/state/active-loop.json` — update with real behavior
+- `.lazytrae/logs/loop-events.ndjson` — create
 - `.omo/ulw-loop/<run-id>/goals.json` — create (compatibility mirror)
 - `.omo/ulw-loop/<run-id>/ledger.jsonl` — create (compatibility mirror)
 - `docs/lazytrae-execution-loop.md` — create
@@ -551,7 +551,7 @@ Run `lazytrae loop cancel` or set active-loop status to cancelled through CLI.
 Approximate OmO category routing.
 
 ### Files to Create/Modify
-- `.lazytraework/config.json` — update with routing section
+- `.lazytrae/config.json` — update with routing section
 - `docs/lazytrae-model-routing.md` — create
 - `.trae/agents/*.md` — update with routing hints
 - `packages/cli/src/commands/run.ts` — create (optional runner)
@@ -562,7 +562,7 @@ Approximate OmO category routing.
 - Web docs: `lazycodex/packages/web/content/docs/model-routing.md`
 
 ### Implementation Steps
-1. Add routing section to `.lazytraework/config.json`:
+1. Add routing section to `.lazytrae/config.json`:
    - quick → Auto mode, atlas agent
    - deep → Max mode, hephaestus agent
    - ultrabrain → Max mode + strongest reasoning, oracle agent
@@ -574,7 +574,7 @@ Approximate OmO category routing.
 4. Optional: implement `lazytrae run` command with trae-agent backend:
    - `lazytrae run --agent oracle --category ultrabrain "Review the current diff"`
    - `lazytrae run --agent explorer --category quick "Map the auth flow"`
-   - `lazytrae run --loop active --trajectory .lazytraework/logs/active-loop.json`
+   - `lazytrae run --loop active --trajectory .lazytrae/logs/active-loop.json`
 
 ### Verification Steps
 1. Confirm native prompts include routing guidance.
@@ -587,7 +587,7 @@ Approximate OmO category routing.
 Native Trae users get practical routing guidance; power users can get explicit routing through the optional CLI backend.
 
 ### Rollback Strategy
-Disable runner config in `.lazytraework/config.json`; native LazyTrae continues working.
+Disable runner config in `.lazytrae/config.json`; native LazyTrae continues working.
 
 ### Risks
 - **Low**: Trae does not support programmatic model switching mid-session. Mitigation: routing is advisory only; document this limitation clearly.
@@ -602,10 +602,10 @@ Recreate OmO-style parallelism creatively.
 
 ### Files to Create/Modify
 - `docs/lazytrae-team-mode.md` — create
-- `.lazytraework/team/team.json` — create (optional runtime)
-- `.lazytraework/team/members/` — create (optional)
-- `.lazytraework/team/mailbox/` — create (optional)
-- `.lazytraework/team/tasklist.jsonl` — create (optional)
+- `.lazytrae/team/team.json` — create (optional runtime)
+- `.lazytrae/team/members/` — create (optional)
+- `.lazytrae/team/mailbox/` — create (optional)
+- `.lazytrae/team/tasklist.jsonl` — create (optional)
 - `packages/cli/src/commands/team.ts` — create (optional)
 - `docs/lazytrae-parity-ledger.md` — update
 
@@ -622,7 +622,7 @@ Recreate OmO-style parallelism creatively.
    - Parallel read-heavy tasks allowed
    - Parallel write-heavy tasks require separate worktrees
 2. Optional runtime version:
-   - `.lazytraework/team/` directory structure
+   - `.lazytrae/team/` directory structure
    - `lazytrae team create` — initialize team
    - `lazytrae team spawn <role>` — spawn worker
    - `lazytrae team status` — show team status
@@ -643,7 +643,7 @@ Recreate OmO-style parallelism creatively.
 LazyTrae can parallelize exploration/review without corrupting implementation state.
 
 ### Rollback Strategy
-Disable team config in `.lazytraework/config.json` and remove `.lazytraework/team/` runtime state.
+Disable team config in `.lazytrae/config.json` and remove `.lazytrae/team/` runtime state.
 
 ### Risks
 - **Medium**: Parallel write-heavy tasks may conflict without worktree isolation. Mitigation: enforce worktree requirement for write-heavy parallel tasks.

@@ -15,8 +15,8 @@ function readFiles(directory, prefix = '') {
   }).sort();
 }
 
-test('templates mirror every repository .lazytraecode artifact', () => {
-  const source = readFiles(path.join(REPO_ROOT, '.lazytraecode'));
+test('templates mirror every repository .trae artifact', () => {
+  const source = readFiles(path.join(REPO_ROOT, '.trae'));
   const templates = readFiles(path.join(REPO_ROOT, 'packages', 'cli', 'templates'))
     .filter(relativePath => !['AGENTS.md', 'config.json'].includes(relativePath))
     .filter(relativePath => !['evidence', 'schemas', 'state'].includes(relativePath.split(path.sep)[0]));
@@ -25,8 +25,8 @@ test('templates mirror every repository .lazytraecode artifact', () => {
   for (const relativePath of source) {
     assert.equal(
       fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
-      fs.readFileSync(path.join(REPO_ROOT, '.lazytraecode', relativePath), 'utf8'),
-      `${relativePath} diverges from .lazytraecode`,
+      fs.readFileSync(path.join(REPO_ROOT, '.trae', relativePath), 'utf8'),
+      `${relativePath} diverges from .trae`,
     );
   }
 });
@@ -54,10 +54,10 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
   try {
     const init = runCli(['init'], { cwd: fixture });
     assert.equal(init.status, 0, init.stderr);
-    for (const relativePath of readFiles(path.join(REPO_ROOT, '.lazytraecode'))) {
+    for (const relativePath of readFiles(path.join(REPO_ROOT, '.trae'))) {
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
-        fs.readFileSync(path.join(REPO_ROOT, '.lazytraecode', relativePath), 'utf8'),
+        fs.readFileSync(path.join(REPO_ROOT, '.trae', relativePath), 'utf8'),
         `${relativePath} was not installed from the template`,
       );
     }
@@ -79,20 +79,20 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
     fs.rmSync(path.join(fixture, '.trae', 'hooks', 'context-recovery.sh'));
     fs.rmSync(path.join(fixture, '.trae', 'hooks.json'));
     fs.rmSync(path.join(fixture, '.trae', 'mcp.json'));
-    fs.rmSync(path.join(fixture, '.lazytraework', 'state', 'active-loop.json'));
-    const sessionsBeforeSync = fs.readFileSync(path.join(fixture, '.lazytraework', 'state', 'sessions.json'), 'utf8');
+    fs.rmSync(path.join(fixture, '.lazytrae', 'state', 'active-loop.json'));
+    const sessionsBeforeSync = fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'sessions.json'), 'utf8');
     const sync = runCli(['sync'], { cwd: fixture });
     assert.equal(sync.status, 0, sync.stderr);
     for (const relativePath of [
       '.trae/hooks/context-recovery.sh',
       '.trae/hooks.json',
       '.trae/mcp.json',
-      '.lazytraework/state/active-loop.json',
+      '.lazytrae/state/active-loop.json',
     ]) {
       assert.equal(fs.existsSync(path.join(fixture, relativePath)), true, `${relativePath} was not restored`);
     }
     assert.equal(
-      fs.readFileSync(path.join(fixture, '.lazytraework', 'state', 'sessions.json'), 'utf8'),
+      fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'sessions.json'), 'utf8'),
       sessionsBeforeSync,
       'sync must not overwrite consumer session state',
     );

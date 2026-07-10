@@ -6,7 +6,7 @@ Goal: make LazyTrae a working Trae-native LazyCodex replica, using Trae-native a
 
 ## Current Read
 
-LazyTrae is a real implementation: `.trae/` agents/commands/hooks/rules exist, `.lazytraework/` state exists, `packages/cli` exists, and `packages/mcp` exposes tools. It is not yet LazyCodex-level because Trae cannot currently provide blocking Stop hooks or PostCompact hooks, and the loop runtime is still much thinner than LazyCodex `ulw-loop`.
+LazyTrae is a real implementation: `.trae/` agents/commands/hooks/rules exist, `.lazytrae/` state exists, `packages/cli` exists, and `packages/mcp` exposes tools. It is not yet LazyCodex-level because Trae cannot currently provide blocking Stop hooks or PostCompact hooks, and the loop runtime is still much thinner than LazyCodex `ulw-loop`.
 
 Target operating model: do not pretend Trae can enforce what the host cannot enforce. Build stronger CLI/MCP gates, recovery state, and explicit evidence checks so the agent workflow behaves like LazyCodex even when the platform hook is advisory.
 
@@ -52,13 +52,13 @@ Files:
 - `packages/cli/src/lib/validator.js`
 - `packages/cli/test/`
 - `.trae/hooks.json`
-- `.lazytraework/state/*.json`
+- `.lazytrae/state/*.json`
 
 TODO:
 
 - [ ] Validate `.trae/hooks.json` shape and every referenced script path.
 - [ ] Run hook fixtures for SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, Stop.
-- [ ] Validate `.lazytraework/state/boulder.json`, `active-loop.json`, and `sessions.json` against schemas.
+- [ ] Validate `.lazytrae/state/boulder.json`, `active-loop.json`, and `sessions.json` against schemas.
 - [ ] Start MCP in-process or via stdio and confirm `tools/list` returns all expected tools.
 - [ ] Run `lazytrae loop status`, `lazytrae loop checkpoint`, and `lazytrae handoff` against fixture state.
 - [ ] Fail doctor if evidence files are missing for a completed task.
@@ -78,8 +78,8 @@ Files:
 
 - `packages/cli/src/commands/loop.js`
 - `packages/cli/src/lib/`
-- `.lazytraework/state/active-loop.json`
-- `.lazytraework/schemas/active-loop.schema.json`
+- `.lazytrae/state/active-loop.json`
+- `.lazytrae/schemas/active-loop.schema.json`
 - `packages/mcp/src/handlers-evidence.js`
 - `packages/mcp/src/handlers-review.js`
 
@@ -93,7 +93,7 @@ TODO:
 - [ ] Add `steer` with LazyCodex-style mutation kinds: add, remove, split, merge, reorder, pause, resume.
 - [ ] Add `checkpoint --quality-gate-json <file>` and validate all required quality-gate sections.
 - [ ] Enforce per-goal and repeated-failure caps before creating more work.
-- [ ] Append every mutation to `.lazytraework/logs/loop-events.ndjson`.
+- [ ] Append every mutation to `.lazytrae/logs/loop-events.ndjson`.
 
 Acceptance:
 
@@ -134,7 +134,7 @@ Files:
 
 - `.trae/hooks/session-start.sh`
 - `.trae/hooks/user-prompt-submit.sh`
-- `.lazytraework/state/sessions.json`
+- `.lazytrae/state/sessions.json`
 - `packages/cli/src/commands/hook.js`
 
 TODO:
@@ -181,9 +181,9 @@ Purpose: prove this is a working harness, not a simulation.
 
 Files:
 
-- `.lazytraework/evidence/`
-- `.lazytraework/logs/loop-events.ndjson`
-- `.lazytraework/state/`
+- `.lazytrae/evidence/`
+- `.lazytrae/logs/loop-events.ndjson`
+- `.lazytrae/state/`
 - `docs/lazytrae-dogfood-run.md`
 
 TODO:

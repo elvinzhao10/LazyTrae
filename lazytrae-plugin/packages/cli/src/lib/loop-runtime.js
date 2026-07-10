@@ -39,8 +39,8 @@ function pause(repoRoot) { transition(repoRoot, 'paused', 'Loop paused. Use `laz
 function resume(repoRoot) { transition(repoRoot, 'active', 'Loop resumed.', ['paused'], 'resume'); }
 
 function log(repoRoot, args) {
-  const logFile = path.join(repoRoot, '.lazytraework', 'logs', 'loop-events.ndjson');
-  if (!fs.existsSync(logFile)) { console.log('No event log found at .lazytraework/logs/loop-events.ndjson'); return; }
+  const logFile = path.join(repoRoot, '.lazytrae', 'logs', 'loop-events.ndjson');
+  if (!fs.existsSync(logFile)) { console.log('No event log found at .lazytrae/logs/loop-events.ndjson'); return; }
   const { flags } = parseArgs(args);
   const nIndex = args.indexOf('-n');
   const count = Number(flags['--n'] || (nIndex >= 0 ? args[nIndex + 1] : 20));

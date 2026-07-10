@@ -17,17 +17,17 @@ test('loop CLI completes a goal only after evidence and canonical quality gate s
   assert.equal(runCli(['loop', 'complete-goals'], { cwd: fixture }).status, 0);
   assert.equal(runCli(['loop', 'criteria', 'goal-1'], { cwd: fixture }).status, 0);
   assert.equal(runCli(['loop', 'record-evidence', 'goal-1', 'crit-1', '.omo/evidence/proof.txt'], { cwd: fixture }).status, 0);
-  const beforeBadGate = fs.readFileSync(path.join(fixture, '.lazytraework', 'state', 'active-loop.json'), 'utf-8');
+  const beforeBadGate = fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'active-loop.json'), 'utf-8');
 
   const oldGate = runCli(['loop', 'checkpoint', '--quality-gate-json', OLD_QUALITY_GATE_PATH], { cwd: fixture });
   assert.equal(oldGate.status, 1);
   assert.match(oldGate.stderr, /codeReview/);
-  assert.equal(fs.readFileSync(path.join(fixture, '.lazytraework', 'state', 'active-loop.json'), 'utf-8'), beforeBadGate);
+  assert.equal(fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'active-loop.json'), 'utf-8'), beforeBadGate);
 
   const badGate = runCli(['loop', 'checkpoint', '--quality-gate-json', BAD_QUALITY_GATE_PATH], { cwd: fixture });
   assert.equal(badGate.status, 1);
   assert.match(badGate.stderr, /manualQa\.surfaceEvidence/);
-  assert.equal(fs.readFileSync(path.join(fixture, '.lazytraework', 'state', 'active-loop.json'), 'utf-8'), beforeBadGate);
+  assert.equal(fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'active-loop.json'), 'utf-8'), beforeBadGate);
 
   const checkpoint = runCli(['loop', 'checkpoint', '--quality-gate-json', QUALITY_GATE_PATH], { cwd: fixture });
   assert.equal(checkpoint.status, 0);
@@ -40,7 +40,7 @@ test('loop CLI completes a goal only after evidence and canonical quality gate s
   const completion = runCli(['completion-status'], { cwd: fixture });
   assert.equal(completion.status, 0);
   assert.match(completion.stdout, /^ready/m);
-  const events = fs.readFileSync(path.join(fixture, '.lazytraework', 'logs', 'loop-events.ndjson'), 'utf-8');
+  const events = fs.readFileSync(path.join(fixture, '.lazytrae', 'logs', 'loop-events.ndjson'), 'utf-8');
   assert.match(events, /create_goals/);
   assert.match(events, /complete_goals/);
   assert.match(events, /record_evidence/);
@@ -67,7 +67,7 @@ test('loop CLI creates a review blocker after three normalized same-criterion fa
 test('loop checkpoint retains the active goal as checkpoint provenance', () => {
   const fixture = makeLoopFixture('lazytrae-loop-checkpoint-provenance-');
   assert.equal(runCli(['loop', 'create-goals', '--brief', '.omo/evidence/brief.md', '--goal-id', 'goal-1', '--criterion-id', 'goal-1-criterion'], { cwd: fixture }).status, 0);
-  const statePath = path.join(fixture, '.lazytraework', 'state', 'active-loop.json');
+  const statePath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
   const state = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
   const goal = structuredClone(state.goals[0]);
   goal.id = 'goal-2';
@@ -95,6 +95,6 @@ test('loop steer supports audit-only annotate_ledger with evidence and rationale
   assert.match(rejected.stderr, /Missing --evidence/);
   const result = runCli(['loop', 'steer', '--kind', 'annotate_ledger', '--evidence', '.omo/evidence/proof.txt', '--rationale', 'audit note'], { cwd: fixture });
   assert.equal(result.status, 0);
-  const events = fs.readFileSync(path.join(fixture, '.lazytraework', 'logs', 'loop-events.ndjson'), 'utf-8');
+  const events = fs.readFileSync(path.join(fixture, '.lazytrae', 'logs', 'loop-events.ndjson'), 'utf-8');
   assert.match(events, /"kind":"annotate_ledger"/);
 });

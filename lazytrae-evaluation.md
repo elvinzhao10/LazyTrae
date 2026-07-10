@@ -33,7 +33,7 @@ All 10 canonical commands (`init-deep`, `ulw-plan`, `start-work`, `ulw-loop`, `r
 plan reread → automated verification → manual-QA → adversarial QA → cleanup → completion claim → handoff. The completion gate is hardened via a CLI/MCP layer (`lazytrae verify --must-pass`, `mark_task_done` refuses completion without evidence), because Trae hooks cannot block.
 
 ### 3. Durable run state with checkpointing
-`.lazytraework/state/` holds boulder state, active-loop state, session tracking, evidence, and checkpoints. The long-horizon loop runs a 10-state machine with a 13-step cycle, 3-retry on verification failure, steering mutations, and resumption after interruption (500-iteration cap HEAVY / 100 LIGHT).
+`.lazytrae/state/` holds boulder state, active-loop state, session tracking, evidence, and checkpoints. The long-horizon loop runs a 10-state machine with a 13-step cycle, 3-retry on verification failure, steering mutations, and resumption after interruption (500-iteration cap HEAVY / 100 LIGHT).
 
 ### 4. Evidence-based completion (Sisyphus contract)
 DoneClaim → AdversarialVerify → FullyDone preserved. `mark_task_done` is evidence-gated: an implementer cannot close a task without a recorded verification artifact.

@@ -52,7 +52,7 @@ Examples:
   const repoRoot = detectRepoRoot();
   if (['post-tool-use', 'recover-context', 'user-prompt-submit'].includes(eventName)) {
     try {
-      assertSafeRepoWritePath(repoRoot, path.join(repoRoot, '.lazytraework', 'state', 'sessions.json'));
+      assertSafeRepoWritePath(repoRoot, path.join(repoRoot, '.lazytrae', 'state', 'sessions.json'));
     } catch (error) {
       process.stderr.write(`[LazyTrae hook warning] ${error.message}\n`);
       return;

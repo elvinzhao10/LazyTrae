@@ -23,14 +23,13 @@ test('CLI command routing shows help and rejects unknown commands', () => {
 });
 
 test('hook fixtures execute through the CLI dispatcher', () => {
-  const fixture = makeFixture('lazytrae-hook-dispatch-');
   const preToolFixture = fs.readFileSync(path.join(__dirname, 'fixtures', 'pre-tool-use-git.json'), 'utf-8');
-  const preTool = runCli(['hook', 'pre-tool-use'], { cwd: fixture, input: preToolFixture });
+  const preTool = runCli(['hook', 'pre-tool-use'], { input: preToolFixture });
   assert.equal(preTool.status, 0);
   assert.match(preTool.stdout, /Destructive git command detected/);
 
   const promptFixture = fs.readFileSync(path.join(__dirname, 'fixtures', 'user-prompt-submit.json'), 'utf-8');
-  const prompt = runCli(['hook', 'user-prompt-submit'], { cwd: fixture, input: promptFixture });
+  const prompt = runCli(['hook', 'user-prompt-submit'], { input: promptFixture });
   assert.equal(prompt.status, 0);
   assert.match(prompt.stdout, /ULTRAWORK MODE ENABLED/);
 });
@@ -44,7 +43,7 @@ test('hook user-prompt-submit records context recovery state when compaction mar
 
   assert.equal(prompt.status, 0);
   assert.match(prompt.stdout, /Context pressure detected/);
-  const sessions = JSON.parse(fs.readFileSync(path.join(fixture, '.lazytraework', 'state', 'sessions.json'), 'utf-8'));
+  const sessions = JSON.parse(fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'sessions.json'), 'utf-8'));
   const state = sessions.compaction_state;
   assert.equal(state.post_compact_recovery_needed, true);
   assert.equal(state.recovery_reason, 'context-pressure marker in UserPromptSubmit');
@@ -65,7 +64,7 @@ test('hook recover-context emits recovery text and clears pending context state'
   assert.equal(recovered.status, 0);
   assert.match(recovered.stdout, /Post-compact recovery needed/);
   assert.match(recovered.stdout, /re-read AGENTS\.md/);
-  const sessions = JSON.parse(fs.readFileSync(path.join(fixture, '.lazytraework', 'state', 'sessions.json'), 'utf-8'));
+  const sessions = JSON.parse(fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'sessions.json'), 'utf-8'));
   const state = sessions.compaction_state;
   assert.equal(state.post_compact_recovery_needed, false);
   assert.equal(typeof state.post_compact_recovered_at, 'string');
@@ -83,13 +82,13 @@ test('hook session-start clears pending context recovery after emitting recovery
 
   assert.equal(sessionStart.status, 0);
   assert.match(sessionStart.stdout, /Post-compact recovery needed/);
-  const sessions = JSON.parse(fs.readFileSync(path.join(fixture, '.lazytraework', 'state', 'sessions.json'), 'utf-8'));
+  const sessions = JSON.parse(fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'sessions.json'), 'utf-8'));
   assert.equal(sessions.compaction_state.post_compact_recovery_needed, false);
 });
 
 test('doctor reports stale pending context recovery with manual recovery command', () => {
   const fixture = makeFixture('lazytrae-stale-recovery-');
-  const sessionsPath = path.join(fixture, '.lazytraework', 'state', 'sessions.json');
+  const sessionsPath = path.join(fixture, '.lazytrae', 'state', 'sessions.json');
   const sessions = JSON.parse(fs.readFileSync(sessionsPath, 'utf-8'));
   sessions.compaction_state.post_compact_recovery_needed = true;
   sessions.compaction_state.recovery_detected_at = '2026-01-01T00:00:00.000Z';
@@ -153,7 +152,7 @@ test('doctor reports broken hook syntax with an actionable fix', () => {
 
 test('doctor fails completed Boulder tasks that do not have evidence paths', () => {
   const fixture = makeFixture('lazytrae-missing-evidence-');
-  const boulderPath = path.join(fixture, '.lazytraework', 'state', 'boulder.json');
+  const boulderPath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
   const boulder = JSON.parse(fs.readFileSync(boulderPath, 'utf-8'));
   boulder.active_work_id = 'work-1';
   boulder.works = {
@@ -180,7 +179,7 @@ test('doctor fails completed Boulder tasks that do not have evidence paths', () 
 
 test('validator rejects malformed state against schemas', () => {
   const fixture = makeFixture('lazytrae-invalid-state-');
-  const boulderPath = path.join(fixture, '.lazytraework', 'state', 'boulder.json');
+  const boulderPath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
   const boulder = JSON.parse(fs.readFileSync(boulderPath, 'utf-8'));
   boulder.schema_version = 99;
   fs.writeFileSync(boulderPath, JSON.stringify(boulder, null, 2) + '\n');
@@ -196,7 +195,7 @@ test('validator accepts nullable active-loop lifecycle timestamps', () => {
   const valid = validateStateFile(fixture, 'active-loop.json', 'active-loop.schema.json');
   assert.equal(valid.valid, true, valid.errors.join('; '));
 
-  const activeLoopPath = path.join(fixture, '.lazytraework', 'state', 'active-loop.json');
+  const activeLoopPath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
   const activeLoop = JSON.parse(fs.readFileSync(activeLoopPath, 'utf-8'));
   activeLoop.started_at = 42;
   fs.writeFileSync(activeLoopPath, JSON.stringify(activeLoop, null, 2) + '\n');
@@ -207,21 +206,20 @@ test('validator accepts nullable active-loop lifecycle timestamps', () => {
 });
 
 test('doctor and verify expose expected health-check behavior', () => {
-  const fixture = makeFixture('lazytrae-doctor-verify-');
-  const doctor = runCli(['doctor'], { cwd: fixture });
+  const doctor = runCli(['doctor']);
   assert.equal(doctor.status, 0);
   assert.match(doctor.stdout, /LazyTrae Doctor/);
   assert.match(doctor.stdout, /0 FAIL/);
 
-  const verifyHelp = runCli(['verify', '--help'], { cwd: fixture });
+  const verifyHelp = runCli(['verify', '--help']);
   assert.equal(verifyHelp.status, 0);
   assert.match(verifyHelp.stdout, /lazytrae verify/);
 
-  const verify = runCli(['verify'], { cwd: fixture });
+  const verify = runCli(['verify']);
   assert.equal(verify.status, 0);
   assert.match(verify.stdout, /0 FAIL/);
 
-  const strictVerify = runCli(['verify', '--strict'], { cwd: fixture });
+  const strictVerify = runCli(['verify', '--strict']);
   assert.equal(strictVerify.status, 1);
   assert.match(strictVerify.stdout, /\d+ WARN, 0 FAIL/);
 });

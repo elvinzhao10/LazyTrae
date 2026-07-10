@@ -12,9 +12,9 @@ Run LazyTrae against itself with a real three-subtask workflow, prove completion
 
 | Task | Description | Completion surface | Evidence |
 | --- | --- | --- | --- |
-| dogfood-1 | Seed three-task work item and prove missing evidence blocks completion | `lazytrae verify --must-pass` | `.lazytraework/evidence/dogfood-task-1.md` |
-| dogfood-2 | Use MCP `mark_task_done` with artifact-backed evidence | JSON-RPC `lazytrae.mark_task_done` | `.lazytraework/evidence/dogfood-task-2.md` |
-| dogfood-3 | Run final verifier and handoff after all task evidence exists | `lazytrae verify --must-pass`, `lazytrae handoff` | `.lazytraework/evidence/dogfood-task-3.md`, `.lazytraework/evidence/dogfood-manual-qa.md` |
+| dogfood-1 | Seed three-task work item and prove missing evidence blocks completion | `lazytrae verify --must-pass` | `.lazytrae/evidence/dogfood-task-1.md` |
+| dogfood-2 | Use MCP `mark_task_done` with artifact-backed evidence | JSON-RPC `lazytrae.mark_task_done` | `.lazytrae/evidence/dogfood-task-2.md` |
+| dogfood-3 | Run final verifier and handoff after all task evidence exists | `lazytrae verify --must-pass`, `lazytrae handoff` | `.lazytrae/evidence/dogfood-task-3.md`, `.lazytrae/evidence/dogfood-manual-qa.md` |
 
 ## CLI Output
 
@@ -88,7 +88,7 @@ exit=0
   "work_id": "dogfood-work",
   "task_id": "dogfood-2",
   "task_index": 1,
-  "evidence_paths": [".lazytraework/evidence/dogfood-task-2.md"]
+  "evidence_paths": [".lazytrae/evidence/dogfood-task-2.md"]
 }
 ```
 
@@ -103,8 +103,8 @@ exit=0
   "task_id": "dogfood-3",
   "task_index": 2,
   "evidence_paths": [
-    ".lazytraework/evidence/dogfood-task-3.md",
-    ".lazytraework/evidence/dogfood-manual-qa.md"
+    ".lazytrae/evidence/dogfood-task-3.md",
+    ".lazytrae/evidence/dogfood-manual-qa.md"
   ]
 }
 ```
@@ -118,8 +118,8 @@ exit=0
   "provenance": "heuristic",
   "query": "completion",
   "results": [
-    { "file": ".lazytraework/config.json", "line": 33 },
-    { "file": ".lazytraework/evidence/completion.md", "line": 1 }
+    { "file": ".lazytrae/config.json", "line": 33 },
+    { "file": ".lazytrae/evidence/completion.md", "line": 1 }
   ]
 }
 ```
@@ -132,20 +132,20 @@ The dogfood fixture started with this active work item:
 {
   "active_work_id": "dogfood-work",
   "tasks": [
-    { "id": "dogfood-1", "status": "complete", "evidence_paths": [".lazytraework/evidence/dogfood-task-1.md"] },
+    { "id": "dogfood-1", "status": "complete", "evidence_paths": [".lazytrae/evidence/dogfood-task-1.md"] },
     { "id": "dogfood-2", "status": "in_progress", "evidence_paths": [] },
     { "id": "dogfood-3", "status": "pending", "evidence_paths": [] }
   ]
 }
 ```
 
-After repair and MCP completion, all three tasks were complete with non-empty evidence paths. Deleting `.lazytraework/evidence/dogfood-task-2.md` inside the fixture changed the completion status back to blocked:
+After repair and MCP completion, all three tasks were complete with non-empty evidence paths. Deleting `.lazytrae/evidence/dogfood-task-2.md` inside the fixture changed the completion status back to blocked:
 
 ```text
 $ node packages/cli/src/index.js completion-status
 exit=1
 blocked
-- [boulder_task_evidence] Boulder task dogfood-2: evidence missing: .lazytraework/evidence/dogfood-task-2.md
+- [boulder_task_evidence] Boulder task dogfood-2: evidence missing: .lazytrae/evidence/dogfood-task-2.md
 Next command: lazytrae verify --must-pass
 ```
 
@@ -173,7 +173,7 @@ Hook syntax was also covered by `doctor`, which reported all 8 scripts executabl
 | --- | --- |
 | Missing task-1 evidence | `verify --must-pass` blocked completion |
 | Restored task-1 evidence | `verify --must-pass` still blocked unfinished task 2 and task 3 |
-| Closed task 2 through MCP | JSON-RPC accepted only after `.lazytraework/evidence/dogfood-task-2.md` existed |
+| Closed task 2 through MCP | JSON-RPC accepted only after `.lazytrae/evidence/dogfood-task-2.md` existed |
 | Closed task 3 through MCP | JSON-RPC accepted final evidence plus manual-QA artifact |
 | Ran final verify | `verify --must-pass` exited 0 |
 | Ran handoff | Handoff generated with ready completion gate |

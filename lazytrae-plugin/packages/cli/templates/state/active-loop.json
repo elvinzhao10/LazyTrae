@@ -46,5 +46,5 @@
     "manual_qa_artifact_kinds": ["cli-transcript", "log", "screenshot", "image", "http-dump", "data-diff"],
     "reviewer_verdicts": ["APPROVE", "ITERATE", "REJECT"]
   },
-  "_schema": "See .lazytraework/schemas/active-loop.schema.json for validation rules."
+  "_schema": "See .lazytrae/schemas/active-loop.schema.json for validation rules."
 }

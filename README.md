@@ -53,7 +53,7 @@ Binding, not advisory — but because **Trae hooks can't block**, the completion
 
 Practice repo; contributions welcome as learning exercises.
 
-1. **Two host-oriented source trees:** work in `lazytrae-plugin/.lazytraecode/` for Trae IDE/CLI assets and `lazytrae-plugin/.lazytraework/` for Trae Work workflow defaults. `lazytrae init` generates the host-required `.trae/` directory in a consumer project; it is ignored rather than shipped as a second source tree.
+1. **One canonical config tree:** work in `lazytrae-plugin/.trae/` and `lazytrae-plugin/.lazytrae/`; root-level `skills/`, `commands/`, `agents/`, and related entries are navigation aliases. `lazytrae-plugin/packages/cli/templates/` remains the installer source; run `lazytrae sync` to regenerate the live project tree.
 2. **Naming discipline:** all skills & commands are `lazy-` prefixed. Keep new ones prefixed.
 3. **Test:** `cd lazytrae-plugin/packages/cli && node --test` (56 tests, all passing).
 4. **Verify:** `lazytrae doctor` (0 FAIL expected) + `node --test`.
@@ -64,8 +64,9 @@ Practice repo; contributions welcome as learning exercises.
 ```
 lazytrae/
 ├── lazytrae-plugin/         # installable Trae plugin + CLI + MCP
-│   ├── .lazytraecode/       #   canonical Trae IDE / CLI source configuration
-│   ├── .lazytraework/       #   canonical Trae Work workflow defaults
+│   ├── skills/, commands/, agents/ #   clean top-level navigation aliases
+│   ├── .trae/               #   canonical Trae IDE/Work project config
+│   ├── .lazytrae/           #   canonical schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
 ├── docs/                    # user-facing: design/, reference/, archive/, plan/, prompts/, setup-guide, versioned plan
 ├── lazytrae-evaluation.md   # LazyCodex parity assessment (115/126, 91.3%)

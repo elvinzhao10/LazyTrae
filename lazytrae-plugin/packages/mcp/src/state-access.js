@@ -11,7 +11,7 @@ function detectRepoRoot() {
   let dir = process.cwd();
   while (dir !== path.dirname(dir)) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;
-    if (fs.existsSync(path.join(dir, '.lazytraework'))) return dir;
+    if (fs.existsSync(path.join(dir, '.lazytrae'))) return dir;
     dir = path.dirname(dir);
   }
   return process.cwd();
@@ -35,9 +35,9 @@ function writeJSON(filePath, data) {
 }
 
 function assertSafeWrite(filePath) {
-  const marker = `${path.sep}.lazytraework${path.sep}`;
+  const marker = `${path.sep}.lazytrae${path.sep}`;
   const index = filePath.indexOf(marker);
-  if (index < 0) throw new Error('write path must be inside .lazytraework');
+  if (index < 0) throw new Error('write path must be inside .lazytrae');
   assertSafeRepoWritePath(filePath.slice(0, index), filePath);
 }
 
@@ -75,7 +75,7 @@ function withFileLock(filePath, fn) {
  * Ensures works exists as an object.
  */
 function getBoulderState(repoRoot) {
-  const bp = path.join(repoRoot, '.lazytraework', 'state', 'boulder.json');
+  const bp = path.join(repoRoot, '.lazytrae', 'state', 'boulder.json');
   const b = readJSON(bp);
   if (!b) return null;
   if (!b.works) b.works = {};
@@ -87,21 +87,21 @@ function getBoulderState(repoRoot) {
  * Get the active loop state.
  */
 function getLoopState(repoRoot) {
-  return readJSON(path.join(repoRoot, '.lazytraework', 'state', 'active-loop.json'));
+  return readJSON(path.join(repoRoot, '.lazytrae', 'state', 'active-loop.json'));
 }
 
 /**
  * Get the sessions state.
  */
 function getSessionsState(repoRoot) {
-  return readJSON(path.join(repoRoot, '.lazytraework', 'state', 'sessions.json'));
+  return readJSON(path.join(repoRoot, '.lazytrae', 'state', 'sessions.json'));
 }
 
 /**
  * List evidence files in the evidence directory.
  */
 function listEvidence(repoRoot) {
-  const ed = path.join(repoRoot, '.lazytraework', 'evidence');
+  const ed = path.join(repoRoot, '.lazytrae', 'evidence');
   if (!fs.existsSync(ed)) return [];
   return fs.readdirSync(ed).filter(f => f.endsWith('.md'));
 }

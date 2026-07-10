@@ -84,24 +84,24 @@ Options:
     summary.skipped.push('hooks (no changes)');
   }
 
-  // Update .lazytraework/schemas/
+  // Update .lazytrae/schemas/
   const schemasResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'schemas'),
-    path.join(repoRoot, '.lazytraework', 'schemas')
+    path.join(repoRoot, '.lazytrae', 'schemas')
   );
   if (schemasResult.updated > 0) summary.updated.push(`${schemasResult.updated} schema files`);
   else summary.skipped.push('schemas (no changes)');
 
-  // Update .lazytraework/evidence/ (only if missing, never overwrite)
+  // Update .lazytrae/evidence/ (only if missing, never overwrite)
   const evidenceResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'evidence'),
-    path.join(repoRoot, '.lazytraework', 'evidence')
+    path.join(repoRoot, '.lazytrae', 'evidence')
   );
   if (evidenceResult.created > 0) summary.updated.push(`${evidenceResult.created} evidence files (created)`);
   else summary.skipped.push('evidence (no changes)');
 
   const stateTemplateDir = path.join(templatesDir, 'state');
-  const stateDir = path.join(repoRoot, '.lazytraework', 'state');
+  const stateDir = path.join(repoRoot, '.lazytrae', 'state');
   let createdStateFiles = 0;
   for (const name of fs.readdirSync(stateTemplateDir)) {
     const destinationPath = path.join(stateDir, name);
@@ -144,7 +144,7 @@ Options:
   }
 
   // Schema version migration
-  const configPath = path.join(repoRoot, '.lazytraework', 'config.json');
+  const configPath = path.join(repoRoot, '.lazytrae', 'config.json');
   if (fs.existsSync(configPath)) {
     const templateConfig = JSON.parse(
       fs.readFileSync(path.join(templatesDir, 'config.json'), 'utf-8')
@@ -153,9 +153,9 @@ Options:
     if (config.schema_version !== templateConfig.schema_version) {
       config.schema_version = templateConfig.schema_version;
       writeRepoFile(repoRoot, configPath, JSON.stringify(config, null, 2) + '\n');
-      summary.updated.push(`.lazytraework/config.json (schema_version: ${config.schema_version})`);
+      summary.updated.push(`.lazytrae/config.json (schema_version: ${config.schema_version})`);
     } else {
-      summary.skipped.push('.lazytraework/config.json (schema_version unchanged)');
+      summary.skipped.push('.lazytrae/config.json (schema_version unchanged)');
     }
   }
 

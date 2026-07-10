@@ -30,9 +30,9 @@ desktop.ini
 npm-debug.log*
 
 # Runtime state (samples live in other/)
-lazytrae-plugin/.lazytraework/state/
-lazytrae-plugin/.lazytraework/logs/
-lazytrae-plugin/.lazytraework/evidence/
+lazytrae-plugin/.lazytrae/state/
+lazytrae-plugin/.lazytrae/logs/
+lazytrae-plugin/.lazytrae/evidence/
 
 # OmO compatibility state (samples live in other/)
 other/omo/boulder.json
@@ -48,9 +48,7 @@ dev/
 
 # Local LazyTrae installation generated while developing the release package.
 /.trae/
-/.lazytraecode/
-/.lazytraework/
+/.lazytrae/
 /.omo/
 /.trae
-/.lazytraecode
-/.lazytraework
+/.lazytrae

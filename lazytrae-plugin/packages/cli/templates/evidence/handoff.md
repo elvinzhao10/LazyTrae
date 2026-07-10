@@ -27,11 +27,11 @@
 
 ### Evidence Produced
 
-- `.lazytraework/evidence/test-runs.md`
-- `.lazytraework/evidence/verifier.md`
-- `.lazytraework/evidence/reviewer.md`
-- `.lazytraework/evidence/oracle-review.md`
-- `.lazytraework/evidence/completion.md`
+- `.lazytrae/evidence/test-runs.md`
+- `.lazytrae/evidence/verifier.md`
+- `.lazytrae/evidence/reviewer.md`
+- `.lazytrae/evidence/oracle-review.md`
+- `.lazytrae/evidence/completion.md`
 
 ### Remaining Gaps
 
@@ -62,12 +62,12 @@
 
 ### What Was Accomplished
 
-- Created `.lazytraework/config.json` with LazyTrae configuration (version, features, paths, model routing, iteration caps).
-- Created `.lazytraework/state/boulder.json` — durable plan task tracker with schema_version 2.
-- Created `.lazytraework/state/active-loop.json` — loop state tracking with all 7 goal statuses, 7 steering mutations, and 500 iteration cap.
-- Created `.lazytraework/state/sessions.json` — session tracking with compaction state.
-- Created 6 evidence templates in `.lazytraework/evidence/` (test-runs, verifier, reviewer, oracle-review, completion, handoff).
-- Created 3 JSON Schemas in `.lazytraework/schemas/` (boulder, active-loop, evidence).
+- Created `.lazytrae/config.json` with LazyTrae configuration (version, features, paths, model routing, iteration caps).
+- Created `.lazytrae/state/boulder.json` — durable plan task tracker with schema_version 2.
+- Created `.lazytrae/state/active-loop.json` — loop state tracking with all 7 goal statuses, 7 steering mutations, and 500 iteration cap.
+- Created `.lazytrae/state/sessions.json` — session tracking with compaction state.
+- Created 6 evidence templates in `.lazytrae/evidence/` (test-runs, verifier, reviewer, oracle-review, completion, handoff).
+- Created 3 JSON Schemas in `.lazytrae/schemas/` (boulder, active-loop, evidence).
 - Created `.omo/` compatibility mirror directories.
 - Created `docs/lazytrae-state-machine.md` — comprehensive state machine documentation.
 - Created `.omo/plans/sample-plan.md` — sample plan for verification.
@@ -83,11 +83,11 @@
 
 ### Evidence Produced
 
-- `.lazytraework/evidence/test-runs.md`
-- `.lazytraework/evidence/verifier.md`
-- `.lazytraework/evidence/reviewer.md`
-- `.lazytraework/evidence/oracle-review.md`
-- `.lazytraework/evidence/completion.md`
+- `.lazytrae/evidence/test-runs.md`
+- `.lazytrae/evidence/verifier.md`
+- `.lazytrae/evidence/reviewer.md`
+- `.lazytrae/evidence/oracle-review.md`
+- `.lazytrae/evidence/completion.md`
 
 ### Remaining Gaps
 

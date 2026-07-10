@@ -5,7 +5,7 @@ const { assertSafeRepoWritePath } = require('./path-boundary');
 function detectRepoRoot() {
   let dir = process.cwd();
   while (dir !== path.dirname(dir)) {
-    if (fs.existsSync(path.join(dir, '.git')) || fs.existsSync(path.join(dir, '.lazytraework'))) return dir;
+    if (fs.existsSync(path.join(dir, '.git')) || fs.existsSync(path.join(dir, '.lazytrae'))) return dir;
     dir = path.dirname(dir);
   }
   return process.cwd();
@@ -26,11 +26,11 @@ function writeJSON(repoRoot, filePath, data) {
 }
 
 function statePath(repoRoot) {
-  return path.join(repoRoot, '.lazytraework', 'state', 'active-loop.json');
+  return path.join(repoRoot, '.lazytrae', 'state', 'active-loop.json');
 }
 
 function logPath(repoRoot) {
-  return path.join(repoRoot, '.lazytraework', 'logs', 'loop-events.ndjson');
+  return path.join(repoRoot, '.lazytrae', 'logs', 'loop-events.ndjson');
 }
 
 function loadLoop(repoRoot) {
