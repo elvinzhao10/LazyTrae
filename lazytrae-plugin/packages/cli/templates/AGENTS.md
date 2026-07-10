@@ -9,7 +9,7 @@ LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supp
 | Platform | Skills | Commands | Rules / Agents / Hooks | MCP server |
 |---|---|---|---|---|
 | **Trae IDE** | project `.trae/skills/` | project commands | project hooks | project `.trae/mcp.json` |
-| **Trae Work** | install from the Skills UI | invoke skills or natural language | CLI verification gates | project `.trae/mcp.json` or Settings UI |
+| **Trae Work** | install from the Skills UI | invoke skills or natural language | CLI verification gates | manually add `lazytrae mcp` in Settings → MCP |
 | **Trae CLI** | local project configuration | `trae-cli` agent session + `lazytrae` gates | CLI verification gates | registered with `trae-cli mcp add-json` |
 
 - **Trae IDE** → Step A, then open the project in Trae IDE.
@@ -37,7 +37,7 @@ lazytrae doctor
 
 ## Step B — Trae Work setup
 
-Trae IDE automatically uses project configuration. Trae Work supports local Skills and MCP servers: import the `SKILL.md` bundles from `.trae/skills/`, then open the project locally so `.trae/mcp.json` can supply the `lazytrae` server. If your installation does not load the project MCP configuration, add the same `lazytrae mcp` command through **Settings → MCP**. Full steps: [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md).
+Trae IDE uses project configuration. In Trae Work, import the `SKILL.md` bundles from `.trae/skills/` through the Skills UI, then manually add the LazyTrae server through **Settings → MCP**. Use `lazytrae` as the command with `mcp` as its argument. Full steps: [docs/lazytrae-setup-guide.md](docs/lazytrae-setup-guide.md).
 
 ## Step C — Trae CLI (no IDE)
 

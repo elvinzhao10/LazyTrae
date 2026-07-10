@@ -6,6 +6,12 @@ LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning �
 
 > **Setup?** See [AGENTS.md](AGENTS.md) (the setup guide). This README is about **how to use** the harness once installed.
 
+## Start with AI
+
+Open this repository in Trae and ask:
+
+> Read `AGENTS.md`. I am using **Trae IDE**, **Trae Work**, or **Trae CLI**. Guide me through only that host's setup, verify each step, and stop before changing any account or app setting. For Trae Work, remind me to add the LazyTrae MCP server manually in Settings → MCP.
+
 ## Commands
 
 All commands are `lazy-` prefixed.
@@ -64,7 +70,7 @@ Practice repo; contributions welcome as learning exercises.
 ```
 lazytrae/
 ├── lazytrae-plugin/         # installable Trae plugin + CLI + MCP
-│   ├── .trae/               #   Trae IDE/Work project config
+│   ├── .trae/               #   Trae IDE config; skills source for Trae Work
 │   ├── .lazytrae/           #   LazyTrae schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
 ├── docs/                    # user-facing: design/, reference/, archive/, plan/, prompts/, setup-guide, versioned plan

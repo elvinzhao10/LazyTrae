@@ -24,6 +24,6 @@ lazytrae init
 lazytrae doctor
 ```
 
-For Trae Work, import the skills from `.trae/skills/` through the Skills UI. The generated project `.trae/mcp.json` launches the globally installed `lazytrae mcp` server; use the MCP Settings UI as a fallback when your Trae Work build does not load project configuration.
+For Trae Work, import the skills from `.trae/skills/` through the Skills UI, then manually add an MCP server in **Settings → MCP** with command `lazytrae` and argument `mcp`. The generated `.trae/mcp.json` remains the Trae IDE project configuration.
 
 See the repository [setup guide](../AGENTS.md) for the full workflow.

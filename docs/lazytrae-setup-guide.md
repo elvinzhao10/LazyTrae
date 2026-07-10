@@ -24,7 +24,7 @@ Open the initialized project in Trae IDE. Its project `.trae/` configuration pro
 
 1. Open the project locally in Trae Work Desktop. Local tasks can use workspace files and local MCP servers; cloud-only tasks cannot run a local `lazytrae mcp` process.
 2. In the Skills UI, import the required `SKILL.md` bundles from `.trae/skills/`. Trae Work supports skills, slash-command workflows, rules, and MCP; do not assume that every project file is auto-registered by every app build.
-3. Keep the generated `.trae/mcp.json` in the project. Trae Work supports project MCP configuration for local work. If your installed build does not discover it, add this equivalent server through **Settings → MCP**:
+3. Trae Work requires manual MCP registration. Open **Settings → MCP** and add this server:
 
    ```json
    {
@@ -34,7 +34,7 @@ Open the initialized project in Trae IDE. Its project `.trae/` configuration pro
    }
    ```
 
-4. Invoke `/lazy-init-deep`, `/lazy-ulw-plan`, `/lazy-start-work`, and `/lazy-review-work`, or ask the agent to select the corresponding skill. Run `lazytrae verify --must-pass` before declaring a task complete.
+4. Confirm the server connects, then invoke `/lazy-init-deep`, `/lazy-ulw-plan`, `/lazy-start-work`, and `/lazy-review-work`, or ask the agent to select the corresponding skill. Run `lazytrae verify --must-pass` before declaring a task complete.
 
 ## Trae CLI
 
