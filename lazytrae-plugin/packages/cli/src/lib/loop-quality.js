@@ -11,9 +11,9 @@ const REQUIRED_SECTIONS = [
 ];
 const PLACEHOLDER = /^(?:placeholder|todo|tbd|n\/a|stub)$/i;
 const ROLES = {
-  codeReview: 'lazycodex-code-reviewer',
-  manualQa: 'lazycodex-qa-executor',
-  gateReview: 'lazycodex-gate-reviewer',
+  codeReview: 'lazytrae-code-reviewer',
+  manualQa: 'lazytrae-qa-executor',
+  gateReview: 'lazytrae-gate-reviewer',
 };
 const SURFACES = new Set(['cli', 'http', 'tmux', 'browser', 'gui', 'data']);
 const KINDS = new Set(['cli-transcript', 'log', 'screenshot', 'image', 'http-dump', 'data-diff']);

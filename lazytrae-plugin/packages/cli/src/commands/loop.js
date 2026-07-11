@@ -15,7 +15,7 @@ Subcommands:
   criteria <goal>                Print success criteria for a goal
   record-evidence <goal> <criterion> <artifact> [--status pass|fail|blocked] [--reason text]
   record-review-blockers <goal> --title <title> --objective <text> --evidence <text>
-  steer --kind <mutation> [...]   Apply a canonical LazyCodex steering mutation
+  steer --kind <mutation> [...]   Apply a canonical steering mutation
   checkpoint --quality-gate-json <file>
 
 Canonical steering mutations:

@@ -1,6 +1,6 @@
 # lazytrae-ai
 
-LazyTrae CLI — Trae-native recreation of LazyCodex/OmO workflows.
+LazyTrae CLI — Trae-native workflow installer and runtime.
 
 A developer installs LazyTrae from this repository, then uses the local `lazytrae` command in any project.
 

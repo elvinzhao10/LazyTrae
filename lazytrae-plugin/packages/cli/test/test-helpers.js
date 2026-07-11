@@ -103,7 +103,7 @@ function makeLoopFixture(prefix = 'lazytrae-loop-test-') {
 function makeCanonicalQualityGate() {
   return {
     codeReview: {
-      by: 'lazycodex-code-reviewer',
+      by: 'lazytrae-code-reviewer',
       recommendation: 'APPROVE',
       codeQualityStatus: 'CLEAR',
       reportPath: '.lazytrae/evidence/code-review.md',
@@ -111,7 +111,7 @@ function makeCanonicalQualityGate() {
       blockers: [],
     },
     manualQa: {
-      by: 'lazycodex-qa-executor',
+      by: 'lazytrae-qa-executor',
       status: 'passed',
       evidence: 'CLI checkpoint scenarios passed with captured artifacts.',
       surfaceEvidence: [{
@@ -136,7 +136,7 @@ function makeCanonicalQualityGate() {
       ],
     },
     gateReview: {
-      by: 'lazycodex-gate-reviewer',
+      by: 'lazytrae-gate-reviewer',
       recommendation: 'APPROVE',
       reportPath: '.lazytrae/evidence/gate-review.md',
       evidence: 'Gate reviewer approved the artifact-backed completion.',
@@ -151,7 +151,7 @@ function makeCanonicalQualityGate() {
     criteriaCoverage: {
       totalCriteria: 1,
       passCount: 1,
-      originalIntent: 'Validate canonical LazyCodex quality gates.',
+      originalIntent: 'Validate canonical LazyTrae quality gates.',
       desiredOutcome: 'Only artifact-backed canonical gates complete the loop.',
       userOutcomeReview: 'The checkpoint behavior matches the requested user-visible contract.',
       adversarialClassesCovered: ['old_local_gate', 'missing_artifact'],

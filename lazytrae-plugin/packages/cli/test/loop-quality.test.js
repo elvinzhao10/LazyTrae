@@ -14,13 +14,13 @@ function assertQualityGateError(root, relativePath, pattern) {
   assert.throws(() => validateQualityGate(root, relativePath), pattern);
 }
 
-test('validateQualityGate accepts canonical LazyCodex quality gate JSON', () => {
+test('validateQualityGate accepts canonical LazyTrae quality gate JSON', () => {
   const fixture = makeLoopFixture('lazytrae-quality-canonical-');
 
   const result = validateQualityGate(fixture, QUALITY_GATE_PATH);
 
   assert.equal(result.path, QUALITY_GATE_PATH);
-  assert.equal(result.gate.codeReview.by, 'lazycodex-code-reviewer');
+  assert.equal(result.gate.codeReview.by, 'lazytrae-code-reviewer');
   assert.equal(result.gate.manualQa.surfaceEvidence[0].surface, 'cli');
 });
 
