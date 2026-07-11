@@ -61,6 +61,42 @@ test('fresh init keeps runtime state exclusively under .lazytrae', () => {
   }
 });
 
+test('uninstall preserves canonical runtime state unless explicitly purged', () => {
+  const fixture = makeRepo('lazytrae-namespace-uninstall-');
+
+  try {
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+    const planPath = path.join(fixture, '.lazytrae', 'plans', 'preserve.md');
+    const loopPath = path.join(fixture, '.lazytrae', 'loop', 'run-1', 'ledger.json');
+    const evidencePath = path.join(fixture, '.lazytrae', 'evidence', 'proof.txt');
+    const statePath = path.join(fixture, '.lazytrae', 'state', 'custom.json');
+    const foreignOmo = path.join(fixture, '.omo', 'keep');
+    for (const [filePath, content] of [
+      [planPath, 'plan\n'],
+      [loopPath, 'loop\n'],
+      [evidencePath, 'evidence\n'],
+      [statePath, 'state\n'],
+      [foreignOmo, 'foreign namespace\n'],
+    ]) {
+      fs.mkdirSync(path.dirname(filePath), { recursive: true });
+      fs.writeFileSync(filePath, content);
+    }
+
+    const normal = runCli(['uninstall', '--yes'], { cwd: fixture });
+    assert.equal(normal.status, 0, normal.stderr);
+    for (const filePath of [planPath, loopPath, evidencePath, statePath]) {
+      assert.equal(fs.existsSync(filePath), true, `${filePath} must survive normal uninstall`);
+    }
+
+    const purged = runCli(['uninstall', '--yes', '--purge-state'], { cwd: fixture });
+    assert.equal(purged.status, 0, purged.stderr);
+    assert.equal(fs.existsSync(path.join(fixture, '.lazytrae')), false);
+    assert.equal(fs.readFileSync(foreignOmo, 'utf8'), 'foreign namespace\n');
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
 test('loop create-goals persists external brief input as canonical run artifacts', () => {
   const fixture = makeRepo('lazytrae-namespace-loop-artifacts-');
 

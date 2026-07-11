@@ -38,7 +38,7 @@ Options:
   --help, -h       Show this help message
   --yes, -y        Skip confirmation prompt
   --soft           Only remove managed files (preserve .lazytrae/)
-  --purge-state    Remove everything including plans/evidence
+  --purge-state    Remove all LazyTrae runtime state
 `);
     return;
   }
@@ -76,24 +76,27 @@ Options:
     if (fs.existsSync(lazytraeDir)) {
       if (purgeState) {
         rimraf(repoRoot, lazytraeDir);
-        summary.removed.push('.lazytrae/ (including state/evidence)');
+        summary.removed.push('.lazytrae/ (including runtime state)');
       } else {
-        // Preserve evidence and state by default
         const evidenceDir = path.join(lazytraeDir, 'evidence');
+        const plansDir = path.join(lazytraeDir, 'plans');
+        const loopDir = path.join(lazytraeDir, 'loop');
         const stateDir = path.join(lazytraeDir, 'state');
         if (fs.existsSync(evidenceDir)) summary.preserved.push('.lazytrae/evidence/');
+        if (fs.existsSync(plansDir)) summary.preserved.push('.lazytrae/plans/');
+        if (fs.existsSync(loopDir)) summary.preserved.push('.lazytrae/loop/');
         if (fs.existsSync(stateDir)) summary.preserved.push('.lazytrae/state/');
 
         // Remove everything else
         const entries = fs.readdirSync(lazytraeDir, { withFileTypes: true });
         for (const entry of entries) {
-          if (entry.name === 'evidence' || entry.name === 'state') continue;
+          if (['evidence', 'plans', 'loop', 'state'].includes(entry.name)) continue;
           const fullPath = path.join(lazytraeDir, entry.name);
           assertSafeRepoWritePath(repoRoot, fullPath);
           if (entry.isDirectory()) rimraf(repoRoot, fullPath);
           else fs.unlinkSync(fullPath);
         }
-        summary.removed.push('.lazytrae/ (evidence/state preserved)');
+        summary.removed.push('.lazytrae/ (runtime state preserved)');
       }
     }
   }
