@@ -99,19 +99,18 @@
   5. Provide `lazytrae doctor --repair-state` for recovery
 - **Acceptance criteria**: Kill process during state write; state is recoverable from ledger; doctor detects and reports corruption.
 
-### R-007: .omo Mirror Format Divergence
+### R-007: Retired .omo Mirror Format Divergence
 
 - **Severity**: LOW
 - **Category**: Compatibility
-- **Affected versions**: v0.5, v0.9
-- **Description**: The .omo compatibility mirror may diverge from LazyCodex's actual format if LazyCodex updates its schema or if LazyTrae implements the mirror incorrectly.
-- **LazyCodex reference**: `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` (UlwLoopPlan, UlwLoopItem, etc.), `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` (ULW_LOOP_DIR = ".omo/ulw-loop")
+- **Affected versions**: v0.5, v0.9; retired in v0.15
+- **Description**: The `.omo` compatibility mirror was retired in v0.15, eliminating the risk of a LazyTrae-managed mirror diverging from LazyCodex's format.
+- **Canonical state**: Active LazyTrae state is stored only in `.lazytrae`. Any pre-existing `.omo` data is foreign or legacy data and is not read or managed by LazyTrae.
 - **Mitigation**:
-  1. Reference LazyCodex type definitions directly when implementing mirror
-  2. Include schema version in mirror files
-  3. Run compatibility tests against LazyCodex fixtures
-  4. Document any intentional deviations
-- **Acceptance criteria**: LazyCodex ulw-loop CLI can read LazyTrae .omo mirror files without errors.
+  1. Maintain `.lazytrae` as the only active canonical state location.
+  2. Do not add `.omo` migration, mirror, read, or management behavior.
+  3. Keep historical references to the retired mirror clearly marked as historical.
+- **Acceptance criteria**: Active LazyTrae documentation and runtime behavior provide no `.omo` compatibility-mirror instruction or management path.
 
 ### R-008: Loop Infinite Retry Cycles
 
