@@ -1,9 +1,7 @@
 // LazyTrae MCP — Handoff handler (generate_handoff)
 
-const fs = require('fs');
 const path = require('path');
-const { assertSafeWrite } = require('./state-access');
-const { getBoulderState, getLoopState, getSessionsState, listEvidence, iso } = require('./state-access');
+const { assertSafeWrite, getBoulderState, getLoopState, getSessionsState, listEvidence, iso, writeText } = require('./state-access');
 const { formatCompletionStatus, getCompletionStatus } = require('../lib/completion-gates');
 
 function handleGenerateHandoff(root) {
@@ -98,8 +96,7 @@ function handleGenerateHandoff(root) {
     handoff.blockers.length > 0 ? handoff.blockers.map(b => '- ' + b).join('\n') : '- None.', '',
     '## Next Prompt', '', '```', handoff.next_prompt, '```', '',
   ].join('\n');
-  fs.mkdirSync(path.dirname(handoffPath), { recursive: true });
-  fs.writeFileSync(handoffPath, md, 'utf-8');
+  writeText(handoffPath, md);
 
   return handoff;
 }

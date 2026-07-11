@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { assertSafeRepoWritePath } = require('../lib/path-boundary');
+const { atomicAppendFile, atomicWriteFile } = require('../lib/safe-write');
 
 /**
  * State file read/write helpers for MCP tools and CLI.
@@ -27,31 +28,26 @@ function readJSON(filePath) {
 }
 
 function writeJSON(filePath, data) {
-  assertSafeWrite(filePath);
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  const tmp = filePath + '.' + process.pid + '.' + Date.now() + '.tmp';
-  assertSafeWrite(tmp);
-  let descriptor;
-  let created = false;
-  try {
-    descriptor = fs.openSync(tmp, 'wx', 0o600);
-    created = true;
-    fs.writeFileSync(descriptor, JSON.stringify(data, null, 2) + '\n', 'utf-8');
-    fs.closeSync(descriptor);
-    descriptor = undefined;
-    assertSafeWrite(filePath);
-    fs.renameSync(tmp, filePath);
-  } finally {
-    if (descriptor !== undefined) fs.closeSync(descriptor);
-    if (created) fs.rmSync(tmp, { force: true });
-  }
+  atomicWriteFile(repoRootFor(filePath), filePath, JSON.stringify(data, null, 2) + '\n');
 }
 
 function assertSafeWrite(filePath) {
+  assertSafeRepoWritePath(repoRootFor(filePath), filePath);
+}
+
+function repoRootFor(filePath) {
   const marker = `${path.sep}.lazytrae${path.sep}`;
   const index = filePath.indexOf(marker);
   if (index < 0) throw new Error('write path must be inside .lazytrae');
-  assertSafeRepoWritePath(filePath.slice(0, index), filePath);
+  return filePath.slice(0, index);
+}
+
+function appendText(filePath, content) {
+  atomicAppendFile(repoRootFor(filePath), filePath, content);
+}
+
+function writeText(filePath, content) {
+  atomicWriteFile(repoRootFor(filePath), filePath, content);
 }
 
 function iso() {
@@ -133,6 +129,8 @@ module.exports = {
   readJSON,
   writeJSON,
   assertSafeWrite,
+  appendText,
+  writeText,
   iso,
   withFileLock,
   getBoulderState,

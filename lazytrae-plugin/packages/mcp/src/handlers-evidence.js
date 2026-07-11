@@ -1,8 +1,7 @@
 // LazyTrae MCP — Evidence and task handlers (record_evidence, mark_task_done)
 
-const fs = require('fs');
 const path = require('path');
-const { assertSafeWrite, readJSON, writeJSON, iso, withFileLock } = require('./state-access');
+const { appendText, assertSafeWrite, readJSON, writeJSON, iso, withFileLock } = require('./state-access');
 const { validateEvidencePaths } = require('../../cli/src/lib/completion-gates');
 
 const GATE_FILE_MAP = {
@@ -18,7 +17,6 @@ function handleRecordEvidence(root, args) {
   const fileName = GATE_FILE_MAP[gateType] || 'general.md';
   const evidenceDir = path.join(root, '.lazytrae', 'evidence');
   assertSafeWrite(path.join(evidenceDir, fileName));
-  fs.mkdirSync(evidenceDir, { recursive: true });
 
   const filePath = path.join(evidenceDir, fileName);
   const ts = iso();
@@ -75,7 +73,7 @@ function handleRecordEvidence(root, args) {
   if (args.notes) lines.push('', '### Notes', '', args.notes);
 
   lines.push('');
-  fs.appendFileSync(filePath, lines.join('\n'), 'utf-8');
+  appendText(filePath, lines.join('\n'));
 
   return {
     recorded: true, gate_type: gateType, file: fileName,

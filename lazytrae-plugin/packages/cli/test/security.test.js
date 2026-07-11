@@ -6,7 +6,30 @@ const path = require('node:path');
 const test = require('node:test');
 const { HANDLERS } = require('../../mcp/src/tools');
 const { defaultLoop, saveLoop } = require('../src/lib/loop-store');
+const { copyRepoFile, copyRepoFileIfChanged, writeRepoFile } = require('../src/lib/templates');
 const { CLI, makeCompletionFixture, makeFixture, makeLoopFixture, runCli } = require('./test-helpers');
+
+function swapTargetWithSymlinkDuringFinalWrite(targetPath, outsidePath, call) {
+  const methodNames = ['appendFileSync', 'copyFileSync', 'renameSync', 'writeFileSync'];
+  const originals = new Map(methodNames.map(methodName => [methodName, fs[methodName]]));
+  let swapped = false;
+  for (const methodName of methodNames) {
+    fs[methodName] = function patchedWrite(...args) {
+      const writesTarget = args.some(value => typeof value === 'string' && path.resolve(value) === path.resolve(targetPath));
+      if (!swapped && writesTarget) {
+        fs.symlinkSync(outsidePath, targetPath);
+        swapped = true;
+      }
+      return originals.get(methodName).apply(this, args);
+    };
+  }
+  try {
+    call();
+  } finally {
+    for (const methodName of methodNames) fs[methodName] = originals.get(methodName);
+  }
+  return swapped;
+}
 
 test('hook dispatcher does not shell-expand hook script paths', () => {
   const fixture = makeFixture('lazytrae-hook-$(touch pwned-hook)-');
@@ -230,7 +253,7 @@ test('public MCP state writes reject a predictable atomic temporary symlink with
   const statePath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
   const frozenPid = 4242;
   const frozenNow = 1700000000000;
-  const tempPath = `${statePath}.${frozenPid}.${frozenNow}.tmp`;
+  const tempPath = `${statePath}.${frozenPid}.${frozenNow}.0.tmp`;
   const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-mcp.json`);
   const sentinel = 'outside MCP sentinel\n';
   const pidDescriptor = Object.getOwnPropertyDescriptor(process, 'pid');
@@ -263,6 +286,110 @@ test('public MCP state writes reject a predictable atomic temporary symlink with
   } finally {
     Date.now = originalNow;
     Object.defineProperty(process, 'pid', pidDescriptor);
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('MCP source and fallback evidence writers do not follow a symlink swapped at their final write path', () => {
+  const fixture = makeCompletionFixture('lazytrae-mcp-final-symlink-', false);
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-evidence.md`);
+  const target = path.join(fixture, '.lazytrae', 'evidence', 'general.md');
+  const sentinel = 'outside evidence sentinel\n';
+  const fallback = require('../src/mcp/handlers-evidence');
+  const source = require('../../mcp/src/handlers-evidence');
+  try {
+    fs.writeFileSync(outside, sentinel);
+
+    for (const handler of [source.handleRecordEvidence, fallback.handleRecordEvidence]) {
+      fs.rmSync(target, { force: true });
+      const swapped = swapTargetWithSymlinkDuringFinalWrite(target, outside, () => {
+        handler(fixture, { gate_type: 'unknown', notes: 'final path race' });
+      });
+
+      assert.equal(swapped, true);
+      assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+      assert.equal(fs.lstatSync(target).isSymbolicLink(), false);
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('MCP source and fallback review and handoff writers do not follow a symlink swapped at their final write path', () => {
+  const fixture = makeCompletionFixture('lazytrae-mcp-review-handoff-symlink-', false);
+  const sourceReview = require('../../mcp/src/handlers-review');
+  const fallbackReview = require('../src/mcp/handlers-review');
+  const sourceHandoff = require('../../mcp/src/handlers-handoff');
+  const fallbackHandoff = require('../src/mcp/handlers-handoff');
+  const cases = [
+    {
+      target: path.join(fixture, '.lazytrae', 'evidence', 'oracle-review.md'),
+      handlers: [sourceReview.handleRequestReview, fallbackReview.handleRequestReview],
+      args: { review_type: 'security', context: 'final path race' },
+    },
+    {
+      target: path.join(fixture, '.lazytrae', 'evidence', 'handoff.md'),
+      handlers: [sourceHandoff.handleGenerateHandoff, fallbackHandoff.handleGenerateHandoff],
+      args: undefined,
+    },
+  ];
+  try {
+    for (const writer of cases) {
+      for (const handler of writer.handlers) {
+        const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-${path.basename(writer.target)}-outside`);
+        const sentinel = `outside ${path.basename(writer.target)} sentinel\n`;
+        fs.rmSync(writer.target, { force: true });
+        fs.writeFileSync(outside, sentinel);
+        const swapped = swapTargetWithSymlinkDuringFinalWrite(writer.target, outside, () => {
+          handler(fixture, writer.args);
+        });
+
+        assert.equal(swapped, true);
+        assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+        assert.equal(fs.lstatSync(writer.target).isSymbolicLink(), false);
+        fs.rmSync(outside, { force: true });
+      }
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('CLI template writers do not follow a symlink swapped at their final write path', () => {
+  const fixture = makeFixture('lazytrae-template-final-symlink-');
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-template.txt`);
+  const target = path.join(fixture, '.lazytrae', 'state', 'race-safe.txt');
+  const source = path.join(fixture, 'source.txt');
+  const sentinel = 'outside template sentinel\n';
+  try {
+    fs.writeFileSync(outside, sentinel);
+    fs.writeFileSync(source, 'template content\n');
+
+    const writeSwapped = swapTargetWithSymlinkDuringFinalWrite(target, outside, () => {
+      writeRepoFile(fixture, target, 'template content\n');
+    });
+    assert.equal(writeSwapped, true);
+    assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+    assert.equal(fs.lstatSync(target).isSymbolicLink(), false);
+
+    fs.rmSync(target, { force: true });
+    const changedSwapped = swapTargetWithSymlinkDuringFinalWrite(target, outside, () => {
+      assert.equal(copyRepoFileIfChanged(fixture, source, target), true);
+    });
+    assert.equal(changedSwapped, true);
+    assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+    assert.equal(fs.lstatSync(target).isSymbolicLink(), false);
+
+    fs.rmSync(target, { force: true });
+    const copySwapped = swapTargetWithSymlinkDuringFinalWrite(target, outside, () => {
+      copyRepoFile(fixture, source, target);
+    });
+    assert.equal(copySwapped, true);
+    assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+    assert.equal(fs.lstatSync(target).isSymbolicLink(), false);
+  } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
     fs.rmSync(outside, { force: true });
   }

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { assertSafeRepoWritePath } = require('./path-boundary');
+const { atomicWriteFile, readExistingFile } = require('./safe-write');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'templates');
 
@@ -81,7 +82,11 @@ function ensureRepoDir(repoRoot, dirPath) {
 
 function copyRepoFileIfChanged(repoRoot, src, dest) {
   assertSafeRepoWritePath(repoRoot, dest);
-  return copyFileIfChanged(src, dest);
+  const sourceContent = fs.readFileSync(src, 'utf-8');
+  const existing = readExistingFile(repoRoot, dest, 'utf-8');
+  if (existing.exists && existing.content === sourceContent) return false;
+  atomicWriteFile(repoRoot, dest, sourceContent);
+  return true;
 }
 
 function copyRepoDir(repoRoot, src, dest) {
@@ -108,15 +113,11 @@ function copyRepoDir(repoRoot, src, dest) {
 }
 
 function writeRepoFile(repoRoot, filePath, content, encoding = 'utf-8') {
-  assertSafeRepoWritePath(repoRoot, filePath);
-  ensureDir(path.dirname(filePath));
-  fs.writeFileSync(filePath, content, encoding);
+  atomicWriteFile(repoRoot, filePath, content, encoding);
 }
 
 function copyRepoFile(repoRoot, src, dest) {
-  assertSafeRepoWritePath(repoRoot, dest);
-  ensureDir(path.dirname(dest));
-  fs.copyFileSync(src, dest);
+  atomicWriteFile(repoRoot, dest, fs.readFileSync(src));
 }
 
 function chmodRepoFile(repoRoot, filePath, mode) {
