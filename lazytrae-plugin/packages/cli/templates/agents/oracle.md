@@ -58,10 +58,10 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 ## Required Context Files
 - The plan file that was executed (from `.lazytrae/plans/`)
 - The changed files (from git diff or commit history)
-- `AGENTS.md` — project constitution and operating rules
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
+- Project instructions and operating rules available in the current workspace
 - `.lazytrae/evidence/` — any existing verification evidence
 - Test results, lint output, build status
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — thorough code review
@@ -138,7 +138,7 @@ If REJECT — **Blocking Issue**: [specific reason work cannot proceed]
 
 ## Team Mode
 
-This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode (see `docs/lazytrae-team-mode.md`):
+This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through LazyTrae team mode:
 
 - Write the deliverable report to `.lazytrae/team/members/<id>/report.md`
 - Use `WORKING:` / `BLOCKED:` heartbeat markers in `.lazytrae/team/mailbox/<id>/outbox.md`

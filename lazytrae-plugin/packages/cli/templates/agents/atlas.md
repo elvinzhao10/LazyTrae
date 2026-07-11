@@ -52,10 +52,11 @@ Executes approved checklist items from a plan one at a time, following the bould
 
 ## Required Context Files
 - The plan file being executed (from `.lazytrae/plans/`)
-- `.lazytrae/state/boulder.json` — current boulder state
-- `AGENTS.md` — project constitution and operating rules
+- `.lazytrae/state/boulder.json` — current boulder state, if it exists
+- Project instructions and referenced files available in the current workspace
 - All reference files listed in the current task
-- `docs/lazytrae-command-index.md` — for command semantics
+- Relevant installed command definitions or current code when command semantics matter
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — codebase exploration

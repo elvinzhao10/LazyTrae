@@ -39,7 +39,7 @@ Implicit in LazyCodex/OmO workflow. Full context:
 - When the workflow needs to be steered (plan → implement → verify → review → loop → complete)
 
 ## Allowed Actions
-- Read project context: AGENTS.md, parity ledger, command index, existing plans, state files
+- Read project context: available instructions, documentation, existing plans, and state files
 - Invoke specialized subagents: Explorer, Librarian, Prometheus, Metis, Momus, Atlas, Hephaestus, Oracle, Cleaner, Migration Planner
 - Update workflow state and track progress
 - Generate handoff summaries when work pauses
@@ -55,13 +55,11 @@ Implicit in LazyCodex/OmO workflow. Full context:
 - Modify .trae/ agent definitions or core LazyTrae documentation unless explicitly requested
 
 ## Required Context Files
-- `AGENTS.md` — LazyTrae project constitution
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
-- `docs/lazytrae-agent-orchestration.md` — orchestration flow
-- `docs/lazytrae-parity-ledger.md` — implementation status
-- `docs/lazytrae-command-index.md` — command reference
-- `.lazytrae/state/active-loop.json` — current loop state (if continuing)
-- `.lazytrae/state/boulder.json` — current boulder state (if executing)
+- Project instructions and available documentation in the current workspace
+- Relevant installed LazyTrae components under `.trae/` and `.lazytrae/`, when present
+- `.lazytrae/state/active-loop.json` — current loop state, if continuing and present
+- `.lazytrae/state/boulder.json` — current boulder state, if executing and present
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - All built-in Trae tools: Read, Glob, Grep, SearchCodebase, Grep (for exploration)

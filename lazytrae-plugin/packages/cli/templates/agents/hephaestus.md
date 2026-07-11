@@ -56,11 +56,11 @@ Goal-oriented deep autonomous worker for complex implementation, debugging, and 
 - Modify the plan without Sisyphus approval
 
 ## Required Context Files
-- `AGENTS.md` — project constitution and operating rules
 - The task objective or plan file
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
-- `.lazytrae/state/boulder.json` — if executing under a plan
+- Project instructions and relevant code available in the current workspace
+- `.lazytrae/state/boulder.json` — if it exists and work is executing under a plan
 - All relevant codebase files discovered during exploration
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — thorough exploration

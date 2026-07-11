@@ -50,10 +50,10 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 
 ## Required Context Files
 - The draft plan file (from `.lazytrae/plans/`)
-- `AGENTS.md` — project constitution and constraints
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
+- Project instructions and constraints available in the current workspace
 - The user's original request or brief
 - Any referenced specification files
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — verify referenced files and patterns

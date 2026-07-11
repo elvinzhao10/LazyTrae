@@ -40,8 +40,7 @@ Maintains project memory, external documentation research, command index, and pa
 - Read the entire codebase (Read, Glob, Grep, SearchCodebase)
 - Web search and web fetch for external documentation
 - Clone external repositories to `${TMPDIR:-/tmp}` for source research (never into working tree)
-- Update documentation files: AGENTS.md, command index, parity ledger, operating manual
-- Update project memory and parity ledger statuses
+- Update existing project documentation and memory records when they are present
 - Write to `.lazytrae/evidence/` for research findings
 - Run git operations (add, commit — only for documentation changes)
 
@@ -53,11 +52,10 @@ Maintains project memory, external documentation research, command index, and pa
 - Alter code behavior or implementation
 
 ## Required Context Files
-- `AGENTS.md` — project constitution (read before updating)
-- `docs/lazytrae-parity-ledger.md` — parity status (read before updating)
-- `docs/lazytrae-command-index.md` — command reference (read before updating)
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
-- `docs/lazytrae-operating-manual.md` — operating procedures
+- Project instructions and documentation available in the current workspace
+- The documentation or memory record the task asks to update, if it already exists
+- Relevant installed LazyTrae components under `.trae/` and `.lazytrae/`, when present
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — codebase and documentation search
@@ -136,7 +134,7 @@ When memory is updated:
 
 ## Team Mode
 
-This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode (see `docs/lazytrae-team-mode.md`):
+This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through LazyTrae team mode:
 
 - Write the deliverable report to `.lazytrae/team/members/<id>/report.md`
 - Use `WORKING:` / `BLOCKED:` heartbeat markers in `.lazytrae/team/mailbox/<id>/outbox.md`

@@ -14,7 +14,6 @@ tools:
   - RunCommand
 disallowed:
   - Edit
-  - Write
 isolation: true
 ---
 
@@ -28,8 +27,8 @@ Converts LazyCodex workflows and methods to other host platforms. Analyzes sourc
 
 ## LazyCodex/OmO Source Reference
 - LazyTrae addition — not present in LazyCodex
-- Built on the LazyTrae `migration-planner` skill: `.trae/skills/migration-planner/SKILL.md`
-- Informed by the LazyTrae architecture plan: `docs/lazytrae-architecture-plan.md`
+- Built on the installed LazyTrae `migration-planner` skill: `.trae/skills/lazy-migration-planner/SKILL.md`
+- Historical LazyCodex/OmO material is attribution only; do not require a LazyCodex checkout
 
 ## When to Call
 - When adapting LazyCodex/LazyTrae workflows to a different IDE, tool, or platform
@@ -40,7 +39,7 @@ Converts LazyCodex workflows and methods to other host platforms. Analyzes sourc
 
 ## Allowed Actions
 - Read the entire codebase (Read, Glob, Grep, SearchCodebase)
-- Read LazyCodex source files for reference
+- Read available installed LazyTrae components (skills, commands, agents, hooks, MCP configuration, and state files)
 - Read target platform documentation (WebSearch, WebFetch)
 - Write migration plan files to `.lazytrae/plans/migration-<target>.md`
 - Ask the user clarifying questions about the target platform
@@ -54,12 +53,11 @@ Converts LazyCodex workflows and methods to other host platforms. Analyzes sourc
 - Skip the gap analysis — every migration plan must identify what is non-portable
 
 ## Required Context Files
-- `AGENTS.md` — LazyTrae project constitution
-- `docs/lazytrae-architecture-plan.md` — architecture decisions and gap analysis
-- `docs/lazytrae-parity-ledger.md` — current implementation status
-- `docs/lazytrae-command-index.md` — command reference
-- `.trae/skills/migration-planner/SKILL.md` — the migration planning skill
+- The current project's available LazyTrae components (skills, commands, agents, hooks, MCP configuration, and state files)
+- `.trae/skills/lazy-migration-planner/SKILL.md` — the installed migration planning skill, when present
 - Target platform documentation (to be researched)
+- An optional user-provided LazyCodex checkout, when one is available for comparison
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — source analysis

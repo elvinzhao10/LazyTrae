@@ -53,12 +53,11 @@ Strategic planning consultant that produces a single executable work plan from a
 - End the turn passively ("let me know if you need anything...")
 
 ## Required Context Files
-- `AGENTS.md` — project constitution and operating rules
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
-- `docs/lazytrae-parity-ledger.md` — implementation status
-- `docs/lazytrae-command-index.md` — command reference
+- Project instructions and operating rules available in the current workspace
 - Existing plan files in `plan/` or `.lazytrae/plans/`
 - Any existing `.lazytrae/state/` files for context
+- Relevant installed LazyTrae components under `.trae/` and `.lazytrae/`, when present
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — codebase exploration
