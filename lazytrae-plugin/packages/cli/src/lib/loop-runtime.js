@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { applySteering } = require('./loop-steering');
 const { validateQualityGate } = require('./loop-quality');
-const { appendEvent, defaultLoop, loadLoop, parseArgs, requireLoop, saveLoop } = require('./loop-store');
+const { appendEvent, defaultLoop, loadLoop, parseArgs, persistBrief, requireLoop, saveLoop } = require('./loop-store');
 const { requireRepoFile, resolveRepoPath } = require('./path-boundary');
 
 function goalCounts(loop) {
@@ -64,7 +64,7 @@ function createGoals(repoRoot, args) {
   const criterionId = flags['--criterion-id'] || `${goalId}-crit-1`;
   const brief = readBrief(repoRoot, flags['--brief']);
   const loop = loadLoop(repoRoot) || defaultLoop();
-  Object.assign(loop, { loop_state: 'active', started_at: loop.started_at || now, brief_path: String(flags['--brief']), active_goal_id: goalId });
+  Object.assign(loop, { loop_state: 'active', started_at: loop.started_at || now, active_goal_id: goalId });
   loop.goals = [{
     id: goalId,
     title: brief.trim().split('\n')[0].slice(0, 80) || goalId,
@@ -83,6 +83,7 @@ function createGoals(repoRoot, args) {
     createdAt: now,
     updatedAt: now,
   }];
+  persistBrief(repoRoot, loop, brief);
   saveLoop(repoRoot, loop);
   appendEvent(repoRoot, loop, 'create_goals', { goal_id: goalId, criterion_id: criterionId });
   console.log(`Loop goals created: ${goalId}/${criterionId}`);

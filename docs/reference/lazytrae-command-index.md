@@ -35,7 +35,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2.1 | Explorer | `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` | Codebase search specialist, read-only, parallel tool calls | Explorer agent | `.trae/agents/explorer.md` | COMPLETE | v0.4 |
 | 2.2 | Librarian | `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` | External docs/library researcher, SHA-pinned citations | Librarian agent + skill | `.trae/agents/librarian.md`, `.trae/skills/librarian/SKILL.md` | COMPLETE | v0.4 |
-| 2.3 | Plan (Prometheus) | `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml` | Strategic planning, writes `.omo/plans/<slug>.md`, never implements | Prometheus agent | `.trae/agents/prometheus.md` | COMPLETE | v0.4 |
+| 2.3 | Plan (Prometheus) | `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml` | Strategic planning, writes a structured plan, never implements | Prometheus agent | `.trae/agents/prometheus.md`, `.lazytrae/plans/<slug>.md` | COMPLETE | v0.4 |
 | 2.4 | Metis | `lazycodex/plugins/omo/components/ultrawork/agents/metis.toml` | Pre-planning gap analyst, detects contradictions and ambiguity | Metis agent | `.trae/agents/metis.md` | COMPLETE | v0.4 |
 | 2.5 | Momus | `lazycodex/plugins/omo/components/ultrawork/agents/momus.toml` | Plan reviewer, issues OKAY/ITERATE/REJECT | Momus agent | `.trae/agents/momus.md` | COMPLETE | v0.4 |
 | 2.6 | lazycodex-executor (Atlas) | `lazycodex/packages/web/content/docs/discipline-agents.md` | Executes one task unit at a time | Atlas agent | `.trae/agents/atlas.md` | COMPLETE | v0.4 |
@@ -72,14 +72,14 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 4.1 | Boulder state | `lazycodex/packages/web/content/docs/start-work.md` | Durable plan task tracker | Boulder state | `.lazytrae/state/boulder.json` | COMPLETE | v0.5 |
 | 4.2 | UlwLoop plan | `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` | Plan with goals, criteria, statuses | Active loop state | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
-| 4.3 | UlwLoop brief | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Original task brief | Loop brief | `.omo/ulw-loop/<run-id>/brief.md` | COMPLETE | v0.5 |
-| 4.4 | UlwLoop ledger | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Audit trail of all mutations | Loop event log | `.lazytrae/logs/loop-events.ndjson`, `.omo/ulw-loop/<run-id>/ledger.jsonl` | COMPLETE | v0.5 |
+| 4.3 | UlwLoop brief | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Original task brief | Loop brief | `.lazytrae/loop/<run-id>/brief.md` | COMPLETE | v0.5 |
+| 4.4 | UlwLoop ledger | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Audit trail of all mutations | Loop event log | `.lazytrae/logs/loop-events.ndjson`, `.lazytrae/loop/<run-id>/ledger.jsonl` | COMPLETE | v0.5 |
 | 4.5 | Goal statuses | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Goal lifecycle tracking | Goal statuses in active-loop.json | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
 | 4.6 | Criterion statuses | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Success criterion tracking | Criterion statuses in active-loop.json | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
 | 4.7 | Steering mutations | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Runtime plan adjustments | Steering mutations in active-loop.json | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
 | 4.8 | Criterion user models | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Criterion classification | Criterion user models in active-loop.json | `.lazytrae/state/active-loop.json` | COMPLETE | v0.5 |
 | 4.9 | Ledger event kinds | `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` | Event classification for audit trail | Ledger event kinds | `.lazytrae/logs/loop-events.ndjson`, `.lazytrae/schemas/active-loop.schema.json` | COMPLETE | v0.5 |
-| 4.10 | Plan CRUD operations | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` | Create, read, update, start-next, summarize plans | Plan parser + boulder state | `docs/lazytrae-state-machine.md`, `.lazytrae/state/boulder.json`, `.omo/plans/` | COMPLETE | v0.5 |
+| 4.10 | Plan CRUD operations | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` | Create, read, update, start-next, summarize plans | Plan parser + boulder state | `docs/lazytrae-state-machine.md`, `.lazytrae/state/boulder.json`, `.lazytrae/plans/` | COMPLETE | v0.5 |
 | 4.11 | Evidence recording | `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts` | Record evidence against criteria | Evidence recording via CLI + MCP | `.lazytrae/evidence/*.md`, `lazytrae verify` | COMPLETE | v0.5 |
 | 4.12 | Quality gate validation | `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` | Validate completion quality gate | Reviewer/Oracle protocol | `.lazytrae/evidence/reviewer.md`, `.lazytrae/evidence/oracle-review.md` | COMPLETE | v0.5 |
 | 4.13 | Mutation lock | `lazycodex/plugins/omo/components/ulw-loop/src/plan-io.ts` | Prevent concurrent state mutations | In-memory promise-chain lock (plan) + mkdir-based lock (session) | `docs/lazytrae-state-machine.md` §9 | COMPLETE | v0.5 |

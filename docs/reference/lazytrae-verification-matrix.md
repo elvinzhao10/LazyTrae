@@ -112,7 +112,7 @@
 | Plan CRUD | `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` | CLI + plan parser | VERIFIED |
 | Mutation lock | `lazycodex/plugins/omo/components/ulw-loop/src/plan-io.ts` (withUlwLoopMutationLock) | File-based locking | VERIFIED |
 | Session tracking | `lazycodex/plugins/omo/components/rules/src/session-state-lock.ts` | `.lazytrae/state/sessions.json` | VERIFIED |
-| .omo mirror | `lazycodex/.omo/` (evidence directory) | `.omo/plans/`, `.omo/ulw-loop/` | VERIFIED |
+| Canonical runtime namespace | LazyTrae runtime | `.lazytrae/plans/`, `.lazytrae/loop/<run-id>/` | VERIFIED |
 
 ## 8. Verification Gates
 

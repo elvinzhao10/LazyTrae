@@ -60,3 +60,31 @@ test('fresh init keeps runtime state exclusively under .lazytrae', () => {
     fs.rmSync(fixture, { recursive: true, force: true });
   }
 });
+
+test('loop create-goals persists external brief input as canonical run artifacts', () => {
+  const fixture = makeRepo('lazytrae-namespace-loop-artifacts-');
+
+  try {
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+    const sourceBrief = path.join(fixture, 'external-brief.md');
+    fs.writeFileSync(sourceBrief, 'Persist this loop brief.\n', 'utf8');
+
+    const result = runCli([
+      'loop', 'create-goals', '--brief', 'external-brief.md', '--goal-id', 'goal-1', '--criterion-id', 'goal-1-crit-1',
+    ], { cwd: fixture });
+    assert.equal(result.status, 0, result.stderr);
+
+    const loop = JSON.parse(fs.readFileSync(
+      path.join(fixture, '.lazytrae', 'state', 'active-loop.json'),
+      'utf8',
+    ));
+    const runPrefix = `.lazytrae/loop/${loop.run_id}/`;
+    for (const artifactPath of [loop.brief_path, loop.goals_path, loop.ledger_path]) {
+      assert.equal(artifactPath.startsWith(runPrefix), true, `${artifactPath} must use ${runPrefix}`);
+      assert.equal(fs.existsSync(path.join(fixture, artifactPath)), true, `${artifactPath} must exist`);
+    }
+    assert.equal(fs.readFileSync(path.join(fixture, loop.brief_path), 'utf8'), 'Persist this loop brief.\n');
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});

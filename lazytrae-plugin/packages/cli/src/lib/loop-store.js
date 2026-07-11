@@ -33,6 +33,25 @@ function logPath(repoRoot) {
   return path.join(repoRoot, '.lazytrae', 'logs', 'loop-events.ndjson');
 }
 
+function loopArtifactPaths(loop) {
+  const runId = loop.run_id;
+  if (typeof runId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(runId)) {
+    throw new Error('Loop run_id must be a safe path segment.');
+  }
+  const loopDir = `.lazytrae/loop/${runId}`;
+  return {
+    brief_path: `${loopDir}/brief.md`,
+    goals_path: `${loopDir}/goals.json`,
+    ledger_path: `${loopDir}/ledger.jsonl`,
+  };
+}
+
+function writeText(repoRoot, filePath, text) {
+  assertSafeRepoWritePath(repoRoot, filePath);
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, text, 'utf-8');
+}
+
 function loadLoop(repoRoot) {
   return readJSON(statePath(repoRoot));
 }
@@ -40,7 +59,7 @@ function loadLoop(repoRoot) {
 function defaultLoop() {
   const now = new Date().toISOString();
   const runId = `run-${Date.now()}`;
-  const loopDir = `.lazytrae/loop/${runId}`;
+  const artifacts = loopArtifactPaths({ run_id: runId });
   return {
     version: 1,
     run_id: runId,
@@ -57,9 +76,7 @@ function defaultLoop() {
     cancelled_at: null,
     created_at: now,
     updated_at: now,
-    brief_path: `${loopDir}/brief.md`,
-    goals_path: `${loopDir}/goals.json`,
-    ledger_path: `${loopDir}/ledger.jsonl`,
+    ...artifacts,
     codex_goal_mode: 'aggregate',
     codex_objective: null,
     codex_objective_aliases: [],
@@ -83,8 +100,10 @@ function requireLoop(repoRoot) {
 }
 
 function saveLoop(repoRoot, loop) {
+  Object.assign(loop, loopArtifactPaths(loop));
   loop.updated_at = new Date().toISOString();
   writeJSON(repoRoot, statePath(repoRoot), loop);
+  writeJSON(repoRoot, path.join(repoRoot, loop.goals_path), loop.goals);
 }
 
 function appendEvent(repoRoot, loop, mutation, details = {}) {
@@ -101,7 +120,18 @@ function appendEvent(repoRoot, loop, mutation, details = {}) {
   assertSafeRepoWritePath(repoRoot, filePath);
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.appendFileSync(filePath, JSON.stringify(entry) + '\n', 'utf-8');
+  const artifacts = loopArtifactPaths(loop);
+  const ledgerFile = path.join(repoRoot, artifacts.ledger_path);
+  assertSafeRepoWritePath(repoRoot, ledgerFile);
+  fs.mkdirSync(path.dirname(ledgerFile), { recursive: true });
+  fs.appendFileSync(ledgerFile, JSON.stringify(entry) + '\n', 'utf-8');
   return entry;
+}
+
+function persistBrief(repoRoot, loop, brief) {
+  const artifacts = loopArtifactPaths(loop);
+  Object.assign(loop, artifacts);
+  writeText(repoRoot, path.join(repoRoot, artifacts.brief_path), brief);
 }
 
 function parseArgs(args) {
@@ -126,7 +156,9 @@ module.exports = {
   defaultLoop,
   detectRepoRoot,
   loadLoop,
+  loopArtifactPaths,
   parseArgs,
+  persistBrief,
   requireLoop,
   saveLoop,
   statePath,
