@@ -10,6 +10,7 @@ const HISTORICAL_ARCHIVES = new Set([
   'docs/archive/lazytrae-dogfood-plan.md',
   'docs/archive/lazytrae-dogfood-review.md',
 ]);
+const HISTORICAL_BANNER = /^> \*\*Historical record \(non-operational\):\*\*/m;
 
 function walkFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -21,6 +22,50 @@ function walkFiles(directory) {
 function relativeFromRepo(filePath) {
   return path.relative(MONOREPO_ROOT, filePath).split(path.sep).join('/');
 }
+
+function legacyReferenceOffenders(records) {
+  return records
+    .filter(({ relativePath, content }) => LEGACY_REFERENCE.test(content) && !isHistoricalArchiveRecord(relativePath, content))
+    .map(({ relativePath }) => relativePath)
+    .sort();
+}
+
+function isHistoricalArchiveRecord(relativePath, content) {
+  return HISTORICAL_ARCHIVES.has(relativePath) && HISTORICAL_BANNER.test(content);
+}
+
+function inventoryRecords(entries) {
+  return entries
+    .flatMap((entry) => fs.statSync(entry).isDirectory() ? walkFiles(entry) : [entry])
+    .map((filePath) => ({
+      relativePath: relativeFromRepo(filePath),
+      content: fs.readFileSync(filePath, 'utf8'),
+    }));
+}
+
+test('legacy-reference inventory rejects active guidance and unlabeled archives', () => {
+  const activeInstruction = {
+    relativePath: 'docs/current-setup.md',
+    content: 'Follow the LazyCodex workflow for this project.',
+  };
+  const unlabeledArchive = {
+    relativePath: 'docs/archive/lazytrae-dogfood-plan.md',
+    content: 'This plan was adapted from OmO guidance.',
+  };
+  const namedHistoricalArchive = {
+    relativePath: 'docs/archive/lazytrae-dogfood-plan.md',
+    content: '> **Historical record (non-operational):** Archived for study only.\nAdapted from OmO guidance.',
+  };
+  const unlistedHistoricalArchive = {
+    relativePath: 'docs/archive/newly-added-record.md',
+    content: '> **Historical record (non-operational):** Archived for study only.\nAdapted from OmO guidance.',
+  };
+
+  assert.deepEqual(legacyReferenceOffenders([activeInstruction]), ['docs/current-setup.md']);
+  assert.deepEqual(legacyReferenceOffenders([unlabeledArchive]), ['docs/archive/lazytrae-dogfood-plan.md']);
+  assert.deepEqual(legacyReferenceOffenders([namedHistoricalArchive]), []);
+  assert.deepEqual(legacyReferenceOffenders([unlistedHistoricalArchive]), ['docs/archive/newly-added-record.md']);
+});
 
 const OPERATIONAL_SOURCES = [
   'packages/cli/package.json',
@@ -49,34 +94,19 @@ test('operational CLI and MCP sources use LazyTrae-native names', () => {
   }
 });
 
-test('active installable surfaces and current guides contain no legacy harness references', () => {
-  const activeFiles = [
+test('active installable surfaces, documentation, and runtime source allow only named historical records', () => {
+  const inventory = inventoryRecords([
     path.join(MONOREPO_ROOT, 'AGENTS.md'),
     path.join(MONOREPO_ROOT, 'README.md'),
     path.join(MONOREPO_ROOT, 'lazytrae-evaluation.md'),
+    path.join(MONOREPO_ROOT, 'docs'),
     path.join(REPO_ROOT, '.trae'),
     path.join(REPO_ROOT, '.lazytrae'),
     path.join(REPO_ROOT, 'packages/cli/AGENTS.md'),
     path.join(REPO_ROOT, 'packages/cli/templates'),
-  ].flatMap((entry) => fs.statSync(entry).isDirectory() ? walkFiles(entry) : [entry]);
+    path.join(REPO_ROOT, 'packages/cli/src'),
+    path.join(REPO_ROOT, 'packages/mcp/src'),
+  ]);
 
-  const currentGuideFiles = walkFiles(path.join(MONOREPO_ROOT, 'docs'))
-    .filter((filePath) => !relativeFromRepo(filePath).startsWith('docs/archive/'));
-
-  const offenders = [...new Set([...activeFiles, ...currentGuideFiles])]
-    .filter((filePath) => LEGACY_REFERENCE.test(fs.readFileSync(filePath, 'utf8')))
-    .map(relativeFromRepo)
-    .sort();
-
-  assert.deepEqual(offenders, []);
-
-  const matchingArchives = walkFiles(path.join(MONOREPO_ROOT, 'docs/archive'))
-    .filter((filePath) => LEGACY_REFERENCE.test(fs.readFileSync(filePath, 'utf8')))
-    .map(relativeFromRepo)
-    .sort();
-
-  assert.deepEqual(matchingArchives, [...HISTORICAL_ARCHIVES].sort());
-  for (const archive of matchingArchives) {
-    assert.match(fs.readFileSync(path.join(MONOREPO_ROOT, archive), 'utf8'), /historical/i, archive);
-  }
+  assert.deepEqual(legacyReferenceOffenders(inventory), []);
 });
