@@ -1,0 +1,203 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const test = require('node:test');
+const { REPO_ROOT, runCli } = require('./test-helpers');
+
+function makeRepo(prefix) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  fs.mkdirSync(path.join(root, '.git'));
+  return root;
+}
+
+function writeFile(root, relativePath, contents) {
+  const target = path.join(root, relativePath);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, contents, 'utf8');
+  return target;
+}
+
+function readFile(root, relativePath) {
+  return fs.readFileSync(path.join(root, relativePath), 'utf8');
+}
+
+test('uninstall preserves unknown project files in every mode', () => {
+  const modes = [
+    { args: [], configExists: false },
+    { args: ['--soft'], configExists: true },
+    { args: ['--purge-state'], configExists: false },
+  ];
+
+  for (const mode of modes) {
+    const fixture = makeRepo(`lazytrae-uninstall-${mode.args.join('-') || 'normal'}-`);
+    try {
+      // Given: an initialized project with caller-owned files nested in every managed namespace.
+      assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+      writeFile(fixture, '.trae/foreign.txt', 'keep user Trae file\n');
+      writeFile(fixture, '.trae/foreign-dir/child.txt', 'keep user Trae directory\n');
+      writeFile(fixture, '.lazytrae/foreign.txt', 'keep user LazyTrae file\n');
+      writeFile(fixture, '.lazytrae/state/foreign-state.json', '{"keep":true}\n');
+      writeFile(fixture, '.lazytrae/evidence/foreign-proof.md', 'keep user evidence\n');
+      writeFile(fixture, '.omo/foreign.txt', 'foreign namespace\n');
+
+      // When: the exact source CLI uninstalls using each supported mode.
+      const uninstall = runCli(['uninstall', '--yes', ...mode.args], { cwd: fixture });
+
+      // Then: only verified LazyTrae assets change; unknown content remains byte-for-byte intact.
+      assert.equal(uninstall.status, 0, uninstall.stderr);
+      assert.equal(fs.existsSync(path.join(fixture, '.trae', 'rules', 'lazytrae.md')), false);
+      assert.equal(readFile(fixture, '.trae/foreign.txt'), 'keep user Trae file\n');
+      assert.equal(readFile(fixture, '.trae/foreign-dir/child.txt'), 'keep user Trae directory\n');
+      assert.equal(fs.existsSync(path.join(fixture, '.lazytrae', 'config.json')), mode.configExists);
+      assert.equal(readFile(fixture, '.lazytrae/foreign.txt'), 'keep user LazyTrae file\n');
+      assert.equal(readFile(fixture, '.lazytrae/state/foreign-state.json'), '{"keep":true}\n');
+      assert.equal(readFile(fixture, '.lazytrae/evidence/foreign-proof.md'), 'keep user evidence\n');
+      assert.equal(readFile(fixture, '.omo/foreign.txt'), 'foreign namespace\n');
+    } finally {
+      fs.rmSync(fixture, { recursive: true, force: true });
+    }
+  }
+});
+
+test('uninstall soft mode preserves all LazyTrae data but removes verified project templates', () => {
+  const fixture = makeRepo('lazytrae-uninstall-soft-');
+  try {
+    // Given: an initialized project and a caller-owned LazyTrae file.
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+    writeFile(fixture, '.lazytrae/user-notes.md', 'keep\n');
+    writeFile(fixture, '.omo/foreign.txt', 'foreign namespace\n');
+
+    // When: soft uninstall runs.
+    const uninstall = runCli(['uninstall', '--yes', '--soft'], { cwd: fixture });
+
+    // Then: .lazytrae is byte-for-byte retained and generated project files are removed.
+    assert.equal(uninstall.status, 0, uninstall.stderr);
+    assert.equal(fs.existsSync(path.join(fixture, '.trae', 'rules', 'lazytrae.md')), false);
+    assert.equal(fs.existsSync(path.join(fixture, '.lazytrae', 'config.json')), true);
+    assert.equal(readFile(fixture, '.lazytrae/user-notes.md'), 'keep\n');
+    assert.equal(readFile(fixture, '.omo/foreign.txt'), 'foreign namespace\n');
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('uninstall purge state removes only exact runtime template files', () => {
+  const fixture = makeRepo('lazytrae-uninstall-purge-');
+  try {
+    // Given: an initialized project with runtime artifacts and user files.
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+    writeFile(fixture, '.lazytrae/state/user-state.json', '{"keep":false}\n');
+    writeFile(fixture, '.lazytrae/user-notes.md', 'keep\n');
+    writeFile(fixture, '.omo/foreign.txt', 'foreign namespace\n');
+
+    // When: state purge runs.
+    const uninstall = runCli(['uninstall', '--yes', '--purge-state'], { cwd: fixture });
+
+    // Then: exact template runtime files are purged without guessing ownership of unrelated files.
+    assert.equal(uninstall.status, 0, uninstall.stderr);
+    assert.equal(fs.existsSync(path.join(fixture, '.lazytrae', 'state', 'boulder.json')), false);
+    assert.equal(fs.existsSync(path.join(fixture, '.lazytrae', 'evidence', 'completion.md')), false);
+    assert.equal(readFile(fixture, '.lazytrae/state/user-state.json'), '{"keep":false}\n');
+    assert.equal(readFile(fixture, '.lazytrae/user-notes.md'), 'keep\n');
+    assert.equal(readFile(fixture, '.omo/foreign.txt'), 'foreign namespace\n');
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('uninstall removes only its marker-delimited gitignore block', () => {
+  const fixture = makeRepo('lazytrae-uninstall-gitignore-');
+  try {
+    // Given: user rules surrounding a stale prefix marker that LazyTrae does not own.
+    const gitignore = [
+      'user-before/',
+      '# notes: # LazyTrae runtime (managed by lazytrae init)',
+      'stale-runtime/',
+      'user-after/',
+      '',
+    ].join('\n');
+    writeFile(fixture, '.gitignore', gitignore);
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+    assert.match(readFile(fixture, '.gitignore'), /# lazytrae:managed:start:gitignore/);
+
+    // When: normal uninstall runs.
+    const uninstall = runCli(['uninstall', '--yes'], { cwd: fixture });
+
+    // Then: neighboring user rules and the stale prefix section survive exactly.
+    assert.equal(uninstall.status, 0, uninstall.stderr);
+    assert.equal(readFile(fixture, '.gitignore'), [
+      'user-before/',
+      '# notes: # LazyTrae runtime (managed by lazytrae init)',
+      'stale-runtime/',
+      'user-after/',
+      '',
+    ].join('\n'));
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('work uninstall removes only exact manifest skills and retains modified or nonempty directories', () => {
+  const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-uninstall-'));
+  try {
+    // Given: one exact skill, one edited skill, one nonempty skill directory, and an unknown skill.
+    assert.equal(runCli(['work', 'install', '--skills-dir', skillsDir]).status, 0);
+    fs.writeFileSync(path.join(skillsDir, 'lazy-ulw-plan', 'SKILL.md'), 'edited\n');
+    writeFile(skillsDir, 'lazy-init-deep/notes.md', 'user note\n');
+    writeFile(skillsDir, 'unrelated/SKILL.md', 'foreign\n');
+
+    // When: bounded Work uninstall runs.
+    const uninstall = runCli(['work', 'uninstall', '--skills-dir', skillsDir]);
+
+    // Then: only exact, empty manifest skill directories are deleted.
+    assert.equal(uninstall.status, 0, uninstall.stderr);
+    assert.equal(fs.existsSync(path.join(skillsDir, 'lazy-ast-grep')), false);
+    assert.equal(readFile(skillsDir, 'lazy-ulw-plan/SKILL.md'), 'edited\n');
+    assert.equal(fs.existsSync(path.join(skillsDir, 'lazy-init-deep', 'SKILL.md')), true);
+    assert.equal(readFile(skillsDir, 'lazy-init-deep/notes.md'), 'user note\n');
+    assert.equal(readFile(skillsDir, 'unrelated/SKILL.md'), 'foreign\n');
+  } finally {
+    fs.rmSync(skillsDir, { recursive: true, force: true });
+  }
+});
+
+test('work uninstall rejects symlinked and hard-linked owned skill files without deleting targets', () => {
+  const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-uninstall-links-'));
+  const outsideDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-uninstall-outside-'));
+  try {
+    // Given: a manifest skill whose file is a symlink.
+    const linkedSkill = path.join(skillsDir, 'lazy-ast-grep');
+    const victim = path.join(outsideDir, 'victim.md');
+    fs.mkdirSync(linkedSkill, { recursive: true });
+    fs.writeFileSync(victim, 'do not remove\n');
+    fs.symlinkSync(victim, path.join(linkedSkill, 'SKILL.md'));
+
+    // When: Work uninstall inspects the linked skill.
+    const symlinked = runCli(['work', 'uninstall', '--skills-dir', skillsDir]);
+
+    // Then: it fails safely without affecting the target.
+    assert.equal(symlinked.status, 1);
+    assert.match(symlinked.stderr, /Refusing to write through symlinked global skill path/);
+    assert.equal(fs.readFileSync(victim, 'utf8'), 'do not remove\n');
+
+    fs.rmSync(linkedSkill, { recursive: true, force: true });
+    fs.mkdirSync(linkedSkill, { recursive: true });
+    fs.linkSync(victim, path.join(linkedSkill, 'SKILL.md'));
+
+    // When: Work uninstall inspects a hard-linked skill file.
+    const hardLinked = runCli(['work', 'uninstall', '--skills-dir', skillsDir]);
+
+    // Then: it rejects the link and leaves the external file intact.
+    assert.equal(hardLinked.status, 1);
+    assert.match(hardLinked.stderr, /Refusing to write through hard-linked global skill file/);
+    assert.equal(fs.readFileSync(victim, 'utf8'), 'do not remove\n');
+  } finally {
+    fs.rmSync(skillsDir, { recursive: true, force: true });
+    fs.rmSync(outsideDir, { recursive: true, force: true });
+  }
+});
+
+test('project template fixture matches the uninstall ownership source', () => {
+  assert.equal(fs.existsSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'mcp.json')), true);
+});

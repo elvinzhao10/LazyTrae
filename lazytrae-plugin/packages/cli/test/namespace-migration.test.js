@@ -12,6 +12,14 @@ function makeRepo(prefix) {
   return root;
 }
 
+function readTree(root, relative = '') {
+  const directory = path.join(root, relative);
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const entryPath = path.join(relative, entry.name);
+    return entry.isDirectory() ? [entryPath, ...readTree(root, entryPath)] : [entryPath];
+  }).sort();
+}
+
 test('fresh init keeps runtime state exclusively under .lazytrae', () => {
   const fixture = makeRepo('lazytrae-namespace-init-');
 
@@ -51,7 +59,10 @@ test('fresh init keeps runtime state exclusively under .lazytrae', () => {
     assert.equal(runCli(['uninstall', '--yes', '--purge-state'], { cwd: fixture }).status, 0);
     assert.equal(fs.readFileSync(foreignOmo, 'utf8'), 'foreign namespace\n');
 
-    const mcp = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, '.trae', 'mcp.json'), 'utf8'));
+    const mcp = JSON.parse(fs.readFileSync(
+      path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'mcp.json'),
+      'utf8',
+    ));
     const codegraph = mcp.mcpServers.codegraph;
     assert.equal(codegraph.disabled, true);
     assert.equal(Object.hasOwn(codegraph, 'command'), false);
@@ -61,7 +72,7 @@ test('fresh init keeps runtime state exclusively under .lazytrae', () => {
   }
 });
 
-test('uninstall preserves canonical runtime state unless explicitly purged', () => {
+test('uninstall preserves non-template canonical runtime state in every mode', () => {
   const fixture = makeRepo('lazytrae-namespace-uninstall-');
 
   try {
@@ -90,7 +101,9 @@ test('uninstall preserves canonical runtime state unless explicitly purged', () 
 
     const purged = runCli(['uninstall', '--yes', '--purge-state'], { cwd: fixture });
     assert.equal(purged.status, 0, purged.stderr);
-    assert.equal(fs.existsSync(path.join(fixture, '.lazytrae')), false);
+    for (const filePath of [planPath, loopPath, evidencePath, statePath]) {
+      assert.equal(fs.existsSync(filePath), true, `${filePath} must survive purge uninstall`);
+    }
     assert.equal(fs.readFileSync(foreignOmo, 'utf8'), 'foreign namespace\n');
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
@@ -120,6 +133,50 @@ test('loop create-goals persists external brief input as canonical run artifacts
       assert.equal(fs.existsSync(path.join(fixture, artifactPath)), true, `${artifactPath} must exist`);
     }
     assert.equal(fs.readFileSync(path.join(fixture, loop.brief_path), 'utf8'), 'Persist this loop brief.\n');
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('legacy .omo sentinel is untouched by canonical init doctor loop and uninstall operations', () => {
+  const fixture = makeRepo('lazytrae-namespace-legacy-sentinel-');
+
+  try {
+    // Given: a malformed legacy namespace that must never become an input or output surface.
+    const legacyRoot = path.join(fixture, '.omo');
+    const legacySentinel = path.join(legacyRoot, 'keep');
+    const legacyState = path.join(legacyRoot, 'state', 'boulder.json');
+    fs.mkdirSync(path.dirname(legacyState), { recursive: true });
+    fs.writeFileSync(legacySentinel, 'foreign namespace\n', 'utf8');
+    fs.writeFileSync(legacyState, '{ malformed legacy state\n', 'utf8');
+    const legacyTree = readTree(legacyRoot);
+    const legacyContents = new Map(
+      legacyTree.filter(relativePath => fs.statSync(path.join(legacyRoot, relativePath)).isFile())
+        .map(relativePath => [relativePath, fs.readFileSync(path.join(legacyRoot, relativePath), 'utf8')]),
+    );
+
+    // When: every runtime lifecycle operation is exercised in a fresh repository.
+    const init = runCli(['init', '--host', 'cli'], { cwd: fixture });
+    assert.equal(init.status, 0, init.stderr);
+    const doctor = runCli(['doctor'], { cwd: fixture });
+    assert.equal(doctor.status, 0, doctor.stdout);
+    assert.doesNotMatch(doctor.stdout, /\.omo/);
+    fs.writeFileSync(path.join(fixture, 'brief.md'), 'Canonical loop brief.\n', 'utf8');
+    const loop = runCli([
+      'loop', 'create-goals', '--brief', 'brief.md', '--goal-id', 'goal-1', '--criterion-id', 'goal-1-crit-1',
+    ], { cwd: fixture });
+    assert.equal(loop.status, 0, loop.stderr);
+    const normalUninstall = runCli(['uninstall', '--yes'], { cwd: fixture });
+    assert.equal(normalUninstall.status, 0, normalUninstall.stderr);
+    const purgeUninstall = runCli(['uninstall', '--yes', '--purge-state'], { cwd: fixture });
+    assert.equal(purgeUninstall.status, 0, purgeUninstall.stderr);
+
+    // Then: canonical state and the legacy tree are byte-for-byte unchanged.
+    assert.equal(fs.existsSync(path.join(fixture, '.lazytrae')), true);
+    assert.deepEqual(readTree(legacyRoot), legacyTree);
+    for (const [relativePath, expectedContents] of legacyContents) {
+      assert.equal(fs.readFileSync(path.join(legacyRoot, relativePath), 'utf8'), expectedContents);
+    }
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
   }

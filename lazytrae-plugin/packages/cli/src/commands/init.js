@@ -4,6 +4,7 @@ const {
   chmodRepoFile, copyRepoDir, copyRepoFile, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
 } = require('../lib/templates');
 const { replaceBlock, hasManagedBlock, extractBlock } = require('../lib/managed-blocks');
+const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
 
 const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
 
@@ -216,19 +217,11 @@ Options:
 
   // Handle .gitignore entries
   const gitignorePath = path.join(repoRoot, '.gitignore');
-  const gitignoreEntries = [
-    '',
-    '# LazyTrae runtime (managed by lazytrae init)',
-    '.lazytrae/state/',
-    '.lazytrae/logs/',
-    '.lazytrae/evidence/',
-  ].join('\n');
-
   if (fs.existsSync(gitignorePath)) {
-    let gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
-    if (!gitignoreContent.includes('# LazyTrae runtime')) {
-      gitignoreContent = gitignoreContent.trimEnd() + '\n' + gitignoreEntries + '\n';
-      writeRepoFile(repoRoot, gitignorePath, gitignoreContent);
+    const gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
+    const nextGitignoreContent = appendManagedGitignoreBlock(gitignoreContent);
+    if (nextGitignoreContent !== gitignoreContent) {
+      writeRepoFile(repoRoot, gitignorePath, nextGitignoreContent);
       summary.updated.push('.gitignore');
     } else {
       summary.skipped.push('.gitignore (already has LazyTrae entries)');

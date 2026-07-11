@@ -3,7 +3,16 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const { readSkillsDir } = require('../src/commands/work');
 const { runCli } = require('./test-helpers');
+
+test('work resolves its documented macOS skills directory only on macOS', () => {
+  if (process.platform === 'darwin') {
+    assert.equal(readSkillsDir([]), path.join(os.homedir(), '.trae-cn', 'skills'));
+    return;
+  }
+  assert.throws(() => readSkillsDir([]), /only known on macOS/);
+});
 
 test('work install and status manage a global-style Trae Work skills directory', () => {
   const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-skills-'));
@@ -33,6 +42,36 @@ test('work install and status manage a global-style Trae Work skills directory',
     const repair = runCli(['work', 'install', '--skills-dir', skillsDir]);
     assert.equal(repair.status, 0, repair.stderr);
     assert.match(repair.stdout, /0 installed, 1 updated, 16 already current/);
+  } finally {
+    fs.rmSync(skillsDir, { recursive: true, force: true });
+  }
+});
+
+test('work lifecycle help does not mutate its explicit skills directory', () => {
+  const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-help-'));
+  try {
+    const installHelp = runCli(['work', 'install', '--help', '--skills-dir', skillsDir]);
+    assert.equal(installHelp.status, 0, installHelp.stderr);
+    assert.match(installHelp.stdout, /Usage: lazytrae work <command> \[options\]/);
+    assert.deepEqual(fs.readdirSync(skillsDir), []);
+
+    const install = runCli(['work', 'install', '--skills-dir', skillsDir]);
+    assert.equal(install.status, 0, install.stderr);
+    const skillsBeforeHelp = fs.readdirSync(skillsDir).sort();
+    const contentBeforeHelp = skillsBeforeHelp.map(name => fs.readFileSync(path.join(skillsDir, name, 'SKILL.md'), 'utf8'));
+
+    const uninstallHelp = runCli(['work', 'uninstall', '--help', '--skills-dir', skillsDir]);
+    assert.equal(uninstallHelp.status, 0, uninstallHelp.stderr);
+    assert.match(uninstallHelp.stdout, /Usage: lazytrae work <command> \[options\]/);
+    assert.deepEqual(fs.readdirSync(skillsDir).sort(), skillsBeforeHelp);
+    assert.deepEqual(
+      skillsBeforeHelp.map(name => fs.readFileSync(path.join(skillsDir, name, 'SKILL.md'), 'utf8')),
+      contentBeforeHelp,
+    );
+
+    const uninstall = runCli(['work', 'uninstall', '--skills-dir', skillsDir]);
+    assert.equal(uninstall.status, 0, uninstall.stderr);
+    assert.deepEqual(fs.readdirSync(skillsDir), []);
   } finally {
     fs.rmSync(skillsDir, { recursive: true, force: true });
   }
