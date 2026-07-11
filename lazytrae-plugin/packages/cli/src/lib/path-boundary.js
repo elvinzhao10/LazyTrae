@@ -46,14 +46,27 @@ function assertSafeRepoWritePath(repoRoot, targetPath) {
   const root = fs.realpathSync.native(lexicalRoot);
   const absolute = path.resolve(targetPath);
   if (!isInside(lexicalRoot, absolute)) throw new Error('write path must stay inside the repo root');
-  let ancestor = absolute;
-  while (!fs.existsSync(ancestor)) {
-    const parent = path.dirname(ancestor);
-    if (parent === ancestor) throw new Error('write path has no existing ancestor');
-    ancestor = parent;
-  }
-  if (!isInside(root, fs.realpathSync.native(ancestor))) {
-    throw new Error('write path resolves outside the repo root');
+  const relative = path.relative(lexicalRoot, absolute);
+  const parts = relative === '' ? [] : relative.split(path.sep);
+  let current = root;
+  for (let index = 0; index < parts.length; index += 1) {
+    current = path.join(current, parts[index]);
+    let stat;
+    try {
+      stat = fs.lstatSync(current);
+    } catch (error) {
+      if (error && error.code === 'ENOENT') continue;
+      throw error;
+    }
+    if (stat.isSymbolicLink()) {
+      throw new Error('write path resolves outside the repo root: refusing to write through symlinked path component');
+    }
+    if (index < parts.length - 1 && !stat.isDirectory()) {
+      throw new Error('write path has a non-directory component');
+    }
+    if (index === parts.length - 1 && stat.isFile() && stat.nlink > 1) {
+      throw new Error('refusing to write through hard-linked file');
+    }
   }
   return absolute;
 }

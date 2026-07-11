@@ -5,6 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { HANDLERS } = require('../../mcp/src/tools');
+const { defaultLoop, saveLoop } = require('../src/lib/loop-store');
 const { CLI, makeCompletionFixture, makeFixture, makeLoopFixture, runCli } = require('./test-helpers');
 
 test('hook dispatcher does not shell-expand hook script paths', () => {
@@ -164,6 +165,83 @@ test('init and sync reject a symlinked .trae directory without touching its targ
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
     fs.rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+test('init rejects a dangling .lazytrae config symlink before it can create its target', () => {
+  const fixture = makeFixture('lazytrae-dangling-config-');
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-config.json`);
+  const configPath = path.join(fixture, '.lazytrae', 'config.json');
+  try {
+    fs.rmSync(configPath, { force: true });
+    fs.symlinkSync(outside, configPath);
+
+    const result = runCli(['init'], { cwd: fixture });
+
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stderr, /symlink/);
+    assert.equal(fs.existsSync(outside), false);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('sync rejects a dangling .trae mcp template target before it can create its target', () => {
+  const fixture = makeFixture('lazytrae-dangling-mcp-');
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-mcp.json`);
+  const mcpPath = path.join(fixture, '.trae', 'mcp.json');
+  try {
+    fs.rmSync(mcpPath, { force: true });
+    fs.symlinkSync(outside, mcpPath);
+
+    const result = runCli(['sync'], { cwd: fixture });
+
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stderr, /symlink/);
+    assert.equal(fs.existsSync(outside), false);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('loop JSON writes reject a predictable dangling atomic temporary symlink', () => {
+  const fixture = makeLoopFixture('lazytrae-loop-temp-symlink-');
+  const statePath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
+  const tempPath = `${statePath}.${process.pid}.tmp`;
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-loop.json`);
+  try {
+    fs.writeFileSync(outside, 'outside loop sentinel\n');
+    fs.symlinkSync(outside, tempPath);
+
+    assert.throws(() => saveLoop(fixture, defaultLoop()));
+
+    assert.equal(fs.readFileSync(outside, 'utf-8'), 'outside loop sentinel\n');
+    assert.equal(fs.lstatSync(statePath).isSymbolicLink(), false);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('sync rejects an existing hard-linked template target without changing its peer', () => {
+  const fixture = makeFixture('lazytrae-hard-linked-mcp-');
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-mcp.json`);
+  const mcpPath = path.join(fixture, '.trae', 'mcp.json');
+  try {
+    fs.writeFileSync(outside, 'outside hard-link sentinel\n');
+    fs.rmSync(mcpPath, { force: true });
+    fs.linkSync(outside, mcpPath);
+
+    const result = runCli(['sync'], { cwd: fixture });
+
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stderr, /hard-linked/);
+    assert.equal(fs.readFileSync(outside, 'utf-8'), 'outside hard-link sentinel\n');
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
   }
 });
 

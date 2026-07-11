@@ -21,8 +21,21 @@ function writeJSON(repoRoot, filePath, data) {
   const dir = path.dirname(filePath);
   fs.mkdirSync(dir, { recursive: true });
   const temp = `${filePath}.${process.pid}.tmp`;
-  fs.writeFileSync(temp, JSON.stringify(data, null, 2) + '\n', 'utf-8');
-  fs.renameSync(temp, filePath);
+  assertSafeRepoWritePath(repoRoot, temp);
+  let descriptor;
+  let created = false;
+  try {
+    descriptor = fs.openSync(temp, 'wx', 0o600);
+    created = true;
+    fs.writeFileSync(descriptor, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+    fs.closeSync(descriptor);
+    descriptor = undefined;
+    assertSafeRepoWritePath(repoRoot, filePath);
+    fs.renameSync(temp, filePath);
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor);
+    if (created) fs.rmSync(temp, { force: true });
+  }
 }
 
 function statePath(repoRoot) {
