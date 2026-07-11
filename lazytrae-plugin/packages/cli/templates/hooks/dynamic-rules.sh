@@ -4,7 +4,7 @@
 # Match rules by file extension and path.
 # Always exits 0 — never blocks a session.
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 RULES_DIR="$REPO_ROOT/.trae/rules"
 
 # Args: changed_files (semicolon-delimited string)

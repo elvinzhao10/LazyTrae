@@ -80,7 +80,7 @@ printf '%s\n' "$changed_files" | while IFS= read -r f; do
     ext="${f##*.}"
     case "$ext" in
       ts|js|py|rs|go|java|swift|kt|tsx|jsx|mjs|cjs)
-        grep -n -i -E "$AI_SLOP_PATTERNS" "$check_path" 2>/dev/null && echo "[LazyTrae] AI-slop pattern detected in: $f"
+        grep -n -i -E "$AI_SLOP_PATTERNS" "$check_path" 2>/dev/null && echo "[LazyTrae] AI-slop pattern detected in: $f" || true
         ;;
     esac
   fi
