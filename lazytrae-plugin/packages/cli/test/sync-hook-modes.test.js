@@ -6,6 +6,8 @@ const test = require('node:test');
 const { REPO_ROOT, runCli } = require('./test-helpers');
 
 const EXECUTABLE_HOOKS = [
+  'context-recovery.sh',
+  'dynamic-rules.sh',
   'post-tool-use.sh',
   'pre-tool-use.sh',
   'recover-context.sh',
