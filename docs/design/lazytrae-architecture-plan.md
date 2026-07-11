@@ -5,7 +5,7 @@
 
 ## 1. Architecture Overview
 
-LazyTrae is a Trae-native recreation of LazyCodex/OmO workflows. It uses Trae-native mechanisms (Rules, Skills, Commands, Custom Agents, Hooks, MCP, SOLO/Subagents) to deliver the same workflow semantics as LazyCodex does on Codex.
+LazyTrae is a Trae-native recreation of historical source record workflows. It uses Trae-native mechanisms (Rules, Skills, Commands, Custom Agents, Hooks, MCP, SOLO/Subagents) to deliver the same workflow semantics as historical source record does on Codex.
 
 The architecture is organized into three layers:
 
@@ -43,14 +43,14 @@ CLI: lazytrae init / doctor / sync / verify / handoff / uninstall
 
 ### 2.1 Project Memory → AGENTS.md + Trae Rules
 
-**LazyCodex source**: `plugins/omo/components/rules/src/codex-hook.ts` (lines 1-80+)
+**historical source record source**: `plugins/workflow/components/rules/src/codex-hook.ts` (lines 1-80+)
 - Static injection: loads AGENTS.md, `.codex/rules/` at SessionStart and UserPromptSubmit
 - Dynamic injection: after PostToolUse, extracts file paths from tool input, matches rules
 - Context pressure handling: skips injection when compaction markers are present
 - Post-compact recovery: tracks compacted state for correct re-injection
 
 **LazyTrae mapping**:
-- `AGENTS.md` at repo root — project constitution, operating rules, command index (same role as LazyCodex AGENTS.md)
+- `AGENTS.md` at repo root — project constitution, operating rules, command index (same role as historical source record AGENTS.md)
 - `.trae/rules/lazytrae.md` — behavioral rules encoded as Trae project rules
 - Trae natively supports project rules in `.trae/rules/` directory (confirmed from docs.trae.cn/ide_rules)
 - Trae natively supports project-level memory (confirmed from docs.trae.cn/ide_memories)
@@ -62,7 +62,7 @@ CLI: lazytrae init / doctor / sync / verify / handoff / uninstall
 
 ### 2.2 Skills → .trae/skills/*/SKILL.md
 
-**LazyCodex source**: `plugins/omo/components/*/skills/*/SKILL.md`
+**historical source record source**: `plugins/workflow/components/*/skills/*/SKILL.md`
 Component skills: `ulw-loop/SKILL.md`, `ultrawork/SKILL.md`, `rules/SKILL.md`, `lsp/SKILL.md`, `teammode/SKILL.md`
 Shared skills: `init-deep/SKILL.md`, `ulw-plan/SKILL.md`, `start-work/SKILL.md`, `review-work/SKILL.md`, `remove-ai-slops/SKILL.md`, `refactor/SKILL.md`, `programming/SKILL.md`, `frontend/SKILL.md`, `git-master/SKILL.md`, `comment-checker/SKILL.md`, `lcx-doctor/SKILL.md`, `lcx-report-bug/SKILL.md`, `ast-grep/SKILL.md`, `coding-agent-sessions/SKILL.md`
 
@@ -80,11 +80,11 @@ Shared skills: `init-deep/SKILL.md`, `ulw-plan/SKILL.md`, `start-work/SKILL.md`,
 **Implementation notes**:
 - Trae Skills format: `SKILL.md` with name, description, trigger conditions, structured procedure (confirmed from docs.trae.cn/ide_skills)
 - Dynamic on-demand loading: agent scans descriptions first, then loads full SKILL.md when relevant
-- LazyCodex uses `skill-pointer` mechanism (ultrawork component) to emit a <4096-byte pointer directing the model to read the full skill — Trae's native skill loading eliminates this complexity
+- historical source record uses `skill-pointer` mechanism (ultrawork component) to emit a <4096-byte pointer directing the model to read the full skill — Trae's native skill loading eliminates this complexity
 
 ### 2.3 Commands → .trae/commands/*.md
 
-**LazyCodex source**: `packages/web/content/docs/` — 20 markdown docs covering init-deep, ulw-plan, start-work, ulw-loop, ultrawork, etc.
+**historical source record source**: `packages/web/content/docs/` — 20 markdown docs covering init-deep, ulw-plan, start-work, ulw-loop, ultrawork, etc.
 
 **LazyTrae mapping**:
 - `.trae/commands/init-deep.md`
@@ -100,11 +100,11 @@ Shared skills: `init-deep/SKILL.md`, `ulw-plan/SKILL.md`, `start-work/SKILL.md`,
 **Implementation notes**:
 - Trae slash commands are prompt templates that the user can invoke
 - Each command doc includes: usage, inputs, outputs, success criteria, and the full prompt
-- Command names preserve LazyCodex semantics where they communicate parity
+- Command names preserve historical source record semantics where they communicate parity
 
 ### 2.4 Subagents → .trae/agents/*.md + SOLO/Subagent behavior
 
-**LazyCodex source**: `plugins/omo/components/ultrawork/agents/*.toml`
+**historical source record source**: `plugins/workflow/components/ultrawork/agents/*.toml`
 - `explorer.toml` — codebase search specialist, read-only, parallel tool calls
 - `librarian.toml` — external docs/library researcher, SHA-pinned citations
 - `plan.toml` — strategic planning, writes `.lazytrae/plans/<slug>.md`, never implements
@@ -112,10 +112,10 @@ Shared skills: `init-deep/SKILL.md`, `ulw-plan/SKILL.md`, `start-work/SKILL.md`,
 - `momus.toml` — plan reviewer, issues OKAY/ITERATE/REJECT verdicts
 
 Additional roles from `packages/web/content/docs/discipline-agents.md`:
-- `lazycodex-executor` (Atlas) — executes one task at a time
-- `lazycodex-code-reviewer` — post-implementation code quality review
-- `lazycodex-qa-executor` — real-execution-based QA
-- `lazycodex-gate-reviewer` (Oracle) — pre-completion verification gates
+- historical source record (Atlas) — executes one task at a time
+- historical source record — post-implementation code quality review
+- historical source record — real-execution-based QA
+- historical source record (Oracle) — pre-completion verification gates
 
 **LazyTrae mapping**:
 - `.trae/agents/sisyphus.md` — main orchestrator (decides plan/execute/review/loop)
@@ -128,19 +128,19 @@ Additional roles from `packages/web/content/docs/discipline-agents.md`:
 - `.trae/agents/librarian.md` — maintains project memory, docs, command index, parity ledger
 - `.trae/agents/explorer.md` — fast codebase scout, read-only
 - `.trae/agents/cleaner.md` — removes AI-slop preserving behavior
-- `.trae/agents/migration-planner.md` — converts LazyCodex methods to other hosts
+- `.trae/agents/migration-planner.md` — converts historical source record methods to other hosts
 
 **Implementation notes**:
 - Trae custom agents: prompts + MCP + built-in tools (read, file system, terminal, web search, preview) — confirmed from docs.trae.cn/ide_agent
 - "Can be called by other agents" toggle — enables subagent pattern
 - Only the built-in "Agent" can call custom agents (subagent pattern)
 - Agents have independent context when called
-- Key LazyCodex principle preserved: "completion judgment is never handed wholesale to a sub-agent. The parent session keeps ownership of goals, constraints, and final judgment."
+- Key historical source record principle preserved: "completion judgment is never handed wholesale to a sub-agent. The parent session keeps ownership of goals, constraints, and final judgment."
 
 ### 2.5 Hooks → .trae/hooks + LazyTrae Hook Dispatcher
 
-**LazyCodex source**: `plugins/omo/components/*/hooks/hooks.json` and `plugins/omo/.codex-plugin/plugin.json` (lines 22-44)
-Six LazyCodex hook events:
+**historical source record source**: `plugins/workflow/components/*/hooks/hooks.json` and `plugins/workflow/.codex-plugin/plugin.json` (lines 22-44)
+Six historical source record hook events:
 1. **SessionStart** — rules loading, telemetry, auto-update, bootstrap, codegraph
 2. **UserPromptSubmit** — rules re-injection, ultrawork trigger detection, ulw-loop steering
 3. **PreToolUse** — git bash MCP guidance, ulw-loop goal budget protection
@@ -150,7 +150,7 @@ Six LazyCodex hook events:
 
 **LazyTrae mapping**:
 
-| LazyCodex event | Trae event | Hook script |
+| historical source record event | Trae event | Hook script |
 | --- | --- | --- |
 | SessionStart | SessionStart | `.trae/hooks/session-start.sh` |
 | UserPromptSubmit | UserPromptSubmit | `.trae/hooks/user-prompt-submit.sh` |
@@ -163,11 +163,11 @@ Six LazyCodex hook events:
 - Trae hooks: 6 events (SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, Stop, Notification) — confirmed from docs.trae.cn/ide_automate-actions-with-hooks
 - Hook scripts execute shell commands, receive JSON on stdin, produce output on stdout
 - LazyTrae hook dispatcher (`lazytrae hook <event>`) will be the single entry point for all hook scripts
-- PostCompact gap: LazyCodex uses PostCompact for cache resets and rule re-injection. LazyTrae must detect compaction via SessionStart source or UserPromptSubmit context-pressure markers and re-inject accordingly
+- PostCompact gap: historical source record uses PostCompact for cache resets and rule re-injection. LazyTrae must detect compaction via SessionStart source or UserPromptSubmit context-pressure markers and re-inject accordingly
 
 ### 2.6 MCP Templates → .trae/mcp.json + Optional LazyTrae MCP Server
 
-**LazyCodex source**: `plugins/omo/.mcp.json` (lines 1-34)
+**historical source record source**: `plugins/workflow/.mcp.json` (lines 1-34)
 - `grep_app` — code search (remote)
 - `context7` — documentation lookup (remote)
 - `codegraph` — code graph analysis (local)
@@ -189,13 +189,13 @@ Six LazyCodex hook events:
 
 **Implementation notes**:
 - Trae MCP supported in IDE, `.trae/mcp.json` configuration — confirmed from docs.trae.cn/ide_model-context-protocol
-- LazyCodex MCP servers use local `node` commands with relative paths — LazyTrae can use similar patterns
+- historical source record MCP servers use local `node` commands with relative paths — LazyTrae can use similar patterns
 - Optional MCP templates: filesystem, git, playwright/browser, docs/context lookup, ast-grep, LSP diagnostics
 
 ### 2.7 Long-Running Loop → .lazytrae Runtime
 
-**LazyCodex source**: `plugins/omo/components/ulw-loop/src/` — full implementation
-- `constants.ts` (lines 1-64): state directory `.omo/ulw-loop`, statuses (pending, in_progress, complete, failed, blocked, review_blocked, needs_user_decision), steering mutations, criterion user models, ledger event kinds
+**historical source record source**: `plugins/workflow/components/ulw-loop/src/` — full implementation
+- `constants.ts` (lines 1-64): state directory `.workflow/ulw-loop`, statuses (pending, in_progress, complete, failed, blocked, review_blocked, needs_user_decision), steering mutations, criterion user models, ledger event kinds
 - `domain-types.ts` (lines 1-161): UlwLoopPlan, UlwLoopItem, UlwLoopSuccessCriterion, UlwLoopQualityGate, UlwLoopLedgerEntry
 - `plan-crud.ts` (lines 1-205): create plan, start next goal, add goal, summarize plan
 - `evidence.ts` (lines 1-228): record evidence, mark criteria pending reset, criteria summary
@@ -232,13 +232,13 @@ Six LazyCodex hook events:
 13. Continue until complete, blocked, paused, or max-iteration reached
 
 **Implementation notes**:
-- LazyCodex ulw-loop uses file-based mutation locks for concurrent safety — LazyTrae should adopt the same
-- LazyCodex has 500 iteration cap in ultrawork mode, 100 in normal mode — LazyTrae should adopt similar caps
+- historical source record ulw-loop uses file-based mutation locks for concurrent safety — LazyTrae should adopt the same
+- historical source record has 500 iteration cap in ultrawork mode, 100 in normal mode — LazyTrae should adopt similar caps
 - .lazytrae is the sole runtime namespace
 
 ### 2.8 Verification → CLI Scripts + Terminal Commands + Evidence Files + Reviewer Protocols
 
-**LazyCodex source**: `packages/web/content/docs/tdd.md`, `packages/web/content/docs/manual-qa.md`, five evidence gates from `packages/web/content/docs/hooks-lifecycle.md`
+**historical source record source**: `packages/web/content/docs/tdd.md`, `packages/web/content/docs/manual-qa.md`, five evidence gates from `packages/web/content/docs/hooks-lifecycle.md`
 
 Five evidence gates:
 1. **Plan reread** — re-read the plan before claiming completion
@@ -264,7 +264,7 @@ Five evidence gates:
 
 ### 2.9 Model Routing → Trae Auto/Max/Custom-Model Guidance + Optional trae-agent Backend
 
-**LazyCodex source**: `plugins/omo/model-catalog.json` (lines 1-43)
+**historical source record source**: `plugins/workflow/model-catalog.json` (lines 1-43)
 - Role-based profiles: default, plan mode, worker, verifier
 - Baseline: `gpt-5.5` with `high` reasoning, `xhigh` for plan mode
 
@@ -282,13 +282,13 @@ Five evidence gates:
 **Implementation notes**:
 - Trae does not support programmatic model switching mid-session — routing guidance is advisory (prompt-level hints)
 - The optional `trae-agent` backend would provide true programmatic routing when available
-- LazyCodex model routing is also primarily advisory (role → model mapping in TOML agent files)
+- historical source record model routing is also primarily advisory (role → model mapping in TOML agent files)
 
 ## 3. Non-Portable Features
 
-These LazyCodex features have no direct Trae equivalent and require documented substitutes:
+These historical source record features have no direct Trae equivalent and require documented substitutes:
 
-| Feature | LazyCodex mechanism | Why non-portable | LazyTrae substitute |
+| Feature | historical source record mechanism | Why non-portable | LazyTrae substitute |
 | --- | --- | --- | --- |
 | PostCompact hook | `PostCompact` event in Codex hooks | Trae has no PostCompact event | SessionStart detection of compaction + UserPromptSubmit context-pressure markers |
 | Dynamic rule matching | PostToolUse extracts file paths, fingerprints, loads relevant rules | Trae rules are static (loaded at session start) | Hook-based PostToolUse script extracts file paths and writes to a state file; session-start reads it |
@@ -302,7 +302,7 @@ These LazyCodex features have no direct Trae equivalent and require documented s
 
 ## 4. Known Gap: PostCompact Handling
 
-**Problem**: LazyCodex uses the PostCompact hook to reset caches (git bash MCP reminder, project rule cache, LSP diagnostics cache) and re-inject rules after context compaction. Trae has no PostCompact event.
+**Problem**: historical source record uses the PostCompact hook to reset caches (git bash MCP reminder, project rule cache, LSP diagnostics cache) and re-inject rules after context compaction. Trae has no PostCompact event.
 
 **Strategy**:
 1. **SessionStart detection**: When Trae's SessionStart hook fires, inspect the session source. If the session is a resume of a previously compacted session, detect compaction markers in the transcript.
@@ -334,15 +334,15 @@ These LazyCodex features have no direct Trae equivalent and require documented s
 
 ## 6. References
 
-- LazyCodex entry point: `lazycodex/bin/lazycodex-ai.js` — thin alias to `npx oh-my-openagent omo install --platform=codex`
-- LazyCodex plugin root: `lazycodex/plugins/omo/`
-- LazyCodex agent roles: `lazycodex/plugins/omo/components/ultrawork/agents/*.toml`
-- LazyCodex hooks: `lazycodex/plugins/omo/components/*/hooks/hooks.json`
-- LazyCodex skills: `lazycodex/plugins/omo/components/*/skills/*/SKILL.md`
-- LazyCodex MCP: `lazycodex/plugins/omo/.mcp.json`
-- LazyCodex model catalog: `lazycodex/plugins/omo/model-catalog.json`
-- LazyCodex web docs: `lazycodex/packages/web/content/docs/*.md`
-- LazyCodex ulw-loop source: `lazycodex/plugins/omo/components/ulw-loop/src/`
-- LazyCodex rules source: `lazycodex/plugins/omo/components/rules/src/`
-- LazyCodex ultrawork directive: `lazycodex/plugins/omo/components/ultrawork/directive.md`
+- historical source record entry point: historical source record — thin alias to `npx oh-my-openagent workflow install --platform=codex`
+- historical source record plugin root: historical source record
+- historical source record agent roles: historical source record*.toml`
+- historical source record hooks: historical source record*/hooks/hooks.json`
+- historical source record skills: historical source record*/skills/*/SKILL.md`
+- historical source record MCP: historical source record
+- historical source record model catalog: historical source record
+- historical source record web docs: historical source record*.md`
+- historical source record ulw-loop source: historical source record
+- historical source record rules source: historical source record
+- historical source record ultrawork directive: historical source record
 - Trae capabilities: verified from AGENTS.md (summarized from docs.trae.cn)

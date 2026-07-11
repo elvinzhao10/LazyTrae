@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://lazytrae.ai/schemas/evidence.schema.json",
   "title": "Evidence Record Schema",
-  "description": "LazyTrae Evidence record schema for verification evidence. Mirrors LazyCodex evidence recording from evidence.ts.",
+  "description": "LazyTrae evidence-record schema for verification evidence.",
   "type": "object",
   "required": ["gate_type", "recorded_at", "recorded_by"],
   "properties": {

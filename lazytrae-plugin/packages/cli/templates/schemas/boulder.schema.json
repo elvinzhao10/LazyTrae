@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://lazytrae.ai/schemas/boulder.schema.json",
   "title": "Boulder State Schema",
-  "description": "LazyTrae Boulder state schema for durable plan task tracking. Mirrors LazyCodex schema_version 2.",
+  "description": "LazyTrae Boulder-state schema for durable plan task tracking.",
   "type": "object",
   "required": ["schema_version", "active_work_id", "works"],
   "properties": {

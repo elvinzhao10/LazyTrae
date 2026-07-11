@@ -7,7 +7,7 @@
 
 **Completion judgment is never handed wholesale to a sub-agent.** The parent session (Sisyphus) keeps ownership of goals, constraints, and final judgment. Sub-agents are used to read terrain, find gaps, execute tasks, or assist review — but the parent always decides when work is complete.
 
-This mirrors the LazyCodex principle from `discipline-agents.md`:
+This mirrors the historical source record principle from `discipline-agents.md`:
 > "Even with multiple roles, completion judgment is never handed wholesale to a sub-agent. The parent Codex session keeps ownership of goals, constraints, and final judgment."
 
 ## 2. Orchestration Flow
@@ -232,7 +232,7 @@ Each subagent has independent context — they do not share the parent's convers
 
 ## 7. Model Routing Guidance
 
-| Agent | Trae Mode | Reasoning | LazyCodex Equivalent |
+| Agent | Trae Mode | Reasoning | historical source record Equivalent |
 | --- | --- | --- | --- |
 | Sisyphus | Max | High | (implicit orchestrator) |
 | Prometheus | Max | xhigh | gpt-5.5, xhigh |
@@ -248,9 +248,9 @@ Each subagent has independent context — they do not share the parent's convers
 
 ## 8. References
 
-- LazyCodex agents: `lazycodex/plugins/omo/components/ultrawork/agents/*.toml`
-- LazyCodex discipline agents: `lazycodex/packages/web/content/docs/discipline-agents.md`
-- LazyCodex ultrawork directive: `lazycodex/plugins/omo/components/ultrawork/directive.md`
+- historical source record agents: historical source record*.toml`
+- historical source record discipline agents: historical source record
+- historical source record ultrawork directive: historical source record
 - LazyTrae architecture: `docs/lazytrae-architecture-plan.md`
 - LazyTrae agents: `.trae/agents/*.md`
 - LazyTrae skills: `.trae/skills/*/SKILL.md`

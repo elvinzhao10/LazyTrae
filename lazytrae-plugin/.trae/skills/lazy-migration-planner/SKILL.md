@@ -1,15 +1,15 @@
 ---
 name: lazy-migration-planner
-description: "Migration planning for converting LazyCodex methods to other host platforms. Use when adapting LazyTrae workflows to a different IDE, tool, or platform. Triggers: migration plan, adapt to platform, convert to host, migrate workflow, port to."
+description: "Migration planning for adapting LazyTrae workflows to other host platforms. Use when adapting to a different IDE, tool, or platform. Triggers: migration plan, adapt to platform, convert to host, migrate workflow, port to."
 ---
 
 # migration-planner
 
-Migration planning skill for adapting LazyTrae workflows to other host platforms. This is a LazyTrae addition — it has no direct LazyCodex equivalent, as LazyCodex is a single-platform (Codex) system.
+Migration planning skill for adapting LazyTrae workflows to other host platforms.
 
 ## Global Trae Work fallback
 
-This installed skill is self-contained. It does not require repository documentation, a parity ledger, or a LazyCodex checkout. Build the comparison from the current project's available LazyTrae components and the target platform's official documentation. A user-provided LazyCodex checkout may be used only as optional comparison material.
+This installed skill is self-contained. It does not require repository documentation or a parity ledger. Build the comparison from the current project's available LazyTrae components and the target platform's official documentation.
 
 ## Purpose
 
@@ -20,7 +20,6 @@ Plan the adaptation of LazyTrae workflows (skills, commands, agents, hooks, stat
 - The target platform's capabilities (rules, skills, commands, agents, hooks, MCP, subagents).
 - The current project's available LazyTrae components (skills, commands, agents, hooks, MCP configuration, and state files).
 - The target platform's documentation (from web search or provided by user).
-- An optional user-provided LazyCodex checkout, when one is available for comparison.
 
 ## Step-by-Step Procedure
 
@@ -33,7 +32,7 @@ Plan the adaptation of LazyTrae workflows (skills, commands, agents, hooks, stat
    - Does it have hooks/events? What events are available?
    - Does it have MCP support? What is the config format?
    - Does it have state management? Is there a runtime?
-2. **Map capabilities** — create a capability matrix: LazyCodex → LazyTrae → Target Platform.
+2. **Map capabilities** — create a capability matrix: LazyTrae → Target Platform.
 
 ### Phase 2: Gap Analysis
 

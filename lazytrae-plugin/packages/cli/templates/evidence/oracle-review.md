@@ -1,7 +1,6 @@
 # Oracle Review Evidence
 
 > **Oracle/Reviewer Pass** — The final gate before completion claim.
-> LazyCodex source: `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (five evidence gates), `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` (quality gate validation structure)
 
 ## Template
 

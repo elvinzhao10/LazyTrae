@@ -25,10 +25,6 @@ isolation: true
 ## Mission
 Maintains project memory, external documentation research, command index, and parity ledger. Read-only for codebase search; write-permitted only for documentation and memory updates.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml`
-- `lazycodex/packages/web/content/docs/discipline-agents.md`
-
 ## When to Call
 - When project memory needs updating after accepted changes (AGENTS.md, parity ledger, command index)
 - When external library documentation research is needed (SHA-pinned citations)
@@ -64,9 +60,9 @@ Maintains project memory, external documentation research, command index, and pa
 - RunCommand — git clone into tmp, git operations for docs
 - No MCP servers required beyond project-level configuration
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -82,7 +78,7 @@ Maintains project memory, external documentation research, command index, and pa
 
 ## Platform Adaptation Notes
 
-- **fork_context: false -> isolation: true**: LazyCodex spawns subagents with `fork_context: false`. In Trae, the Task tool provides independent context by default.
+- **Isolated delegation**: Task subagents use independent context by default.
 - **context7 gap**: Trae has no context7 MCP. Compensate with WebSearch + WebFetch for library documentation lookup.
 - **grep_app gap**: Trae has no grep_app MCP. Compensate with WebSearch for GitHub code search, or `gh search code` via RunCommand.
 - **SHA-pinned permalinks**: Still required. Get SHA via `gh api repos/<o>/<r>/commits/HEAD --jq .sha` or `git rev-parse HEAD` in a clone. NEVER link to branch names.
@@ -94,7 +90,7 @@ Maintains project memory, external documentation research, command index, and pa
 - **Escalate to deep**: When documentation requires understanding complex architecture that spans multiple systems.
 
 ## Model/Mode Guidance
-- **Model**: lite (LazyCodex librarian.toml uses `gpt-5.4-mini` with `low` effort)
+- **Model**: lite
 - **Effort**: low
 - **Max turns**: 40
 - Guidance: Documentation and research. Fast, accurate, citation-driven. Not planning-heavy.

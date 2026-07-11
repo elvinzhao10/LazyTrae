@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # LazyTrae v0.7 — Stop hook
 # Emits continuation reminder if active work is incomplete.
-# Mirrors LazyCodex: start-work continuation, executor evidence verification.
+# Provide start-work continuation and executor evidence verification.
 # Always exits 0 — never blocks a session.
 
 set -euo pipefail

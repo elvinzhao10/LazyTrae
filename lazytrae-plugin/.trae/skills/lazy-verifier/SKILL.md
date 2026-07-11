@@ -5,11 +5,8 @@ description: "Verification gate enforcement. Runs automated tests, captures Manu
 
 # verifier
 
-Verification gate enforcement for LazyTrae. Runs automated verification, captures Manual-QA evidence, and exercises adversarial scenarios. This skill enforces the five evidence gates from the LazyCodex workflow.
+Verification gate enforcement for LazyTrae. Runs automated verification, captures Manual-QA evidence, and exercises adversarial scenarios. This skill enforces the five LazyTrae evidence gates.
 
-## Canonical LazyCodex Source
-
-`lazycodex/plugins/omo/skills/review-work/SKILL.md` — verification behavior: automated verification gate, Manual-QA channels, adversarial QA. Also `lazycodex/plugins/omo/components/ultrawork/directive.md` — Manual-QA channels (HTTP, tmux, browser, computer-use), failing-first proof, RED→GREEN→SURFACE→CLEAN.
 
 ## Purpose
 

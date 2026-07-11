@@ -1,11 +1,11 @@
 # LazyTrae Model Routing
 
 > **v0.10 — Model Routing and Optional Trae Agent Backend.** Part of the v0.x series.
-> This document describes how LazyTrae approximates OmO's category-based model routing on the Trae platform.
+> This document describes how LazyTrae approximates workflow harness's category-based model routing on the Trae platform.
 
-## 1. LazyCodex Model Routing (Canonical Source)
+## 1. historical source record Model Routing (Canonical Source)
 
-LazyCodex uses a **model catalog** at `lazycodex/plugins/omo/model-catalog.json` with role-based model profiles:
+historical source record uses a **model catalog** at historical source record with role-based model profiles:
 
 | Profile | Model | Reasoning Effort | Purpose |
 | --- | --- | --- | --- |
@@ -16,7 +16,7 @@ LazyCodex uses a **model catalog** at `lazycodex/plugins/omo/model-catalog.json`
 
 Agent TOML files specify model per role (e.g., `explorer.toml` uses `gpt-5.4-mini` with `low` effort, `plan.toml` uses `gpt-5.5` with `xhigh` effort).
 
-LazyCodex also maintains `managedProfiles` for legacy compatibility (not applicable to LazyTrae).
+historical source record also maintains `managedProfiles` for legacy compatibility (not applicable to LazyTrae).
 
 ## 2. Trae Modes (Verified from docs.trae.cn)
 
@@ -146,8 +146,8 @@ Six categories required: `quick`, `deep`, `ultrabrain`, `visual-engineering`, `w
 
 ## References
 
-- LazyCodex model catalog: `lazycodex/plugins/omo/model-catalog.json`
-- LazyCodex agent TOML files: `lazycodex/plugins/omo/components/ultrawork/agents/*.toml`
+- historical source record model catalog: historical source record
+- historical source record agent TOML files: historical source record*.toml`
 - Trae modes: https://docs.trae.cn/ide_auto-mode, https://docs.trae.cn/enterprise_max-mode
 - LazyTrae routing config: `.lazytrae/config.json` (routing section)
 - LazyTrae agent files: `.trae/agents/*.md`

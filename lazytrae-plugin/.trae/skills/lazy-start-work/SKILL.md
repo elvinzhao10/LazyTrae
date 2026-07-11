@@ -7,9 +7,6 @@ description: "Execute a Prometheus work plan one task at a time with Boulder sta
 
 Execute a Prometheus work plan until every top-level checkbox is complete. You are an ORCHESTRATOR — you delegate implementation to subagents, never implement yourself.
 
-## Canonical LazyCodex Source
-
-`lazycodex/plugins/omo/skills/start-work/SKILL.md` — Boulder state persistence, parallel subagent dispatch, five evidence gates (plan reread, automated verification, manual-QA, adversarial QA, cleanup), Sisyphus-style completion contract, Global Review and Debugging Gate.
 
 ## Purpose
 

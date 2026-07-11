@@ -26,4 +26,4 @@ Triggers: `ralph-loop`, `ralph`, `ralph mode`
 
 ## Workflow Phase
 
-Implement → Verify — alias of `ulw-loop` for historical consistency with LazyCodex naming.
+Implement → Verify — alias of `ulw-loop` retained for command compatibility.

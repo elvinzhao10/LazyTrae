@@ -2,7 +2,30 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
-const { REPO_ROOT } = require('./test-helpers');
+const { REPO_ROOT, makeFixture } = require('./test-helpers');
+
+const ACTIVE_AGENT_NAMES = [
+  'atlas',
+  'cleaner',
+  'explorer',
+  'hephaestus',
+  'librarian',
+  'metis',
+  'migration-planner',
+  'momus',
+  'oracle',
+  'prometheus',
+  'sisyphus',
+];
+const LEGACY_AGENT_REFERENCE = /lazycodex|\bomo\b|old checkout|legacy harness/i;
+const ABSENT_CONSUMER_DOCUMENT = /docs\/lazytrae-/i;
+
+function agentFileNames(directory) {
+  return fs.readdirSync(directory)
+    .filter(file => file.endsWith('.md'))
+    .map(file => path.basename(file, '.md'))
+    .sort();
+}
 
 function readActiveAgentNames() {
   const config = JSON.parse(
@@ -21,20 +44,7 @@ function requiredContextSection(template) {
 }
 
 test('active agent templates require only consumer-available context', () => {
-  const expectedAgents = [
-    'atlas',
-    'cleaner',
-    'explorer',
-    'hephaestus',
-    'librarian',
-    'metis',
-    'migration-planner',
-    'momus',
-    'oracle',
-    'prometheus',
-    'sisyphus',
-  ];
-  assert.deepEqual(readActiveAgentNames(), expectedAgents);
+  assert.deepEqual(readActiveAgentNames(), ACTIVE_AGENT_NAMES);
 
   for (const name of readActiveAgentNames()) {
     const template = fs.readFileSync(
@@ -48,18 +58,28 @@ test('active agent templates require only consumer-available context', () => {
     );
   }
 
-  const migrationPlanner = fs.readFileSync(
-    path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'agents', 'migration-planner.md'),
-    'utf8',
-  );
-  assert.doesNotMatch(
-    migrationPlanner,
-    /Read LazyCodex source files for reference/,
-    'migration-planner must not require a LazyCodex checkout',
-  );
-  assert.match(
-    migrationPlanner,
-    /optional user-provided LazyCodex checkout/,
-    'migration-planner may use LazyCodex material only when the user provides it',
-  );
+});
+
+test('all active agent source mirrors, templates, and fresh installs remain self-contained', () => {
+  const sourceAgents = path.join(REPO_ROOT, '.trae', 'agents');
+  const templateAgents = path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'agents');
+  const fixture = makeFixture('lazytrae-agent-mirror-');
+
+  try {
+    assert.deepEqual(agentFileNames(sourceAgents), ACTIVE_AGENT_NAMES);
+    assert.deepEqual(agentFileNames(templateAgents), ACTIVE_AGENT_NAMES);
+
+    for (const name of ACTIVE_AGENT_NAMES) {
+      const source = fs.readFileSync(path.join(sourceAgents, `${name}.md`), 'utf8');
+      const template = fs.readFileSync(path.join(templateAgents, `${name}.md`), 'utf8');
+      const installed = fs.readFileSync(path.join(fixture, '.trae', 'agents', `${name}.md`), 'utf8');
+
+      assert.equal(source, template, `${name} source mirror drifted from its template`);
+      assert.equal(installed, template, `${name} was not installed from its template`);
+      assert.doesNotMatch(template, LEGACY_AGENT_REFERENCE, `${name} retains legacy operational guidance`);
+      assert.doesNotMatch(template, ABSENT_CONSUMER_DOCUMENT, `${name} links to documentation absent from consumer projects`);
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
 });

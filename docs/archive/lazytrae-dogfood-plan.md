@@ -1,5 +1,7 @@
 # LazyTrae v0.12 Dogfood — Decision-Complete Plan
 
+> **Historical record (non-operational):** This archived v0.x plan retains LazyCodex/OmO provenance for study only. Current attribution is in [NOTICE](../../NOTICE) and [LICENSE](../../LICENSE).
+
 > **Plan slug**: `v0.12-dogfood-coding-agent-sessions`
 > **Plan author**: Sisyphus (orchestrator)
 > **Date**: 2026-07-09
@@ -11,12 +13,12 @@ Fix parity-ledger item 8.15: **coding-agent-sessions skill**, currently DESIGN, 
 
 ## Background
 
-The LazyCodex `coding-agent-sessions` skill (`lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md`) is a cross-platform session finder that uses a Python script (`scripts/find-agent-sessions.py`) to search transcripts across Codex, Claude, OpenCode, Senpi, and other coding agents. In LazyTrae, the equivalent is session tracking via `.lazytrae/state/sessions.json`, which is simpler but lacks a formal skill definition.
+The historical source record `coding-agent-sessions` skill (historical source record) is a cross-platform session finder that uses a Python script (`scripts/find-agent-sessions.py`) to search transcripts across Codex, Claude, OpenCode, Senpi, and other coding agents. In LazyTrae, the equivalent is session tracking via `.lazytrae/state/sessions.json`, which is simpler but lacks a formal skill definition.
 
-The LazyTrae SKILL.md will adapt the LazyCodex concept for the Trae environment:
+The LazyTrae SKILL.md will adapt the historical source record concept for the Trae environment:
 - Document how to use Trae session tracking (`.lazytrae/state/sessions.json`)
 - Provide guidance on searching/reconstructing past work from Trae sessions
-- Reference the LazyCodex canonical source for parity documentation
+- Reference the historical source record canonical source for parity documentation
 - Follow the same structure as other LazyTrae skills (frontmatter, canonical source, purpose, procedure, etc.)
 
 ## Deliverables
@@ -34,7 +36,7 @@ The SKILL.md must follow the LazyTrae convention established by existing skills 
 1. **Frontmatter** (YAML): name, description with triggers
 2. **Title**: `# coding-agent-sessions`
 3. **Brief intro**: What the skill does
-4. **Canonical LazyCodex Source**: Reference to the LazyCodex source file
+4. **Canonical historical source record Source**: Reference to the historical source record source file
 5. **Purpose**: Why this skill exists
 6. **Required Context to Inspect**: What files/state to read before using
 7. **Step-by-Step Procedure**: How to use the skill
@@ -51,8 +53,8 @@ The SKILL.md must follow the LazyTrae convention established by existing skills 
 
 ### Acceptance Criteria for SKILL.md
 
-- [ ] Frontmatter has `name: coding-agent-sessions` and triggers line matching LazyCodex description
-- [ ] Canonical source reference cites `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md`
+- [ ] Frontmatter has `name: coding-agent-sessions` and triggers line matching historical source record description
+- [ ] Canonical source reference cites historical source record
 - [ ] Procedure references LazyTrae-native tools (SearchCodebase, Grep, Read) instead of Python scripts
 - [ ] Procedure references `.lazytrae/state/sessions.json` as the LazyTrae session store
 - [ ] Procedure covers: listing, searching, reading, and exporting sessions
@@ -118,7 +120,7 @@ If the SKILL.md is found to be incorrect or incomplete:
 
 ## References
 
-- LazyCodex canonical source: `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md`
+- historical source record canonical source: historical source record
 - LazyTrae session state: `.lazytrae/state/sessions.json`
 - Existing skill templates: `.trae/skills/librarian/SKILL.md`, `.trae/skills/verifier/SKILL.md`
 - Parity ledger: `docs/lazytrae-parity-ledger.md`

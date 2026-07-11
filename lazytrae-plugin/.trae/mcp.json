@@ -8,12 +8,12 @@
     "grep_app": {
       "url": "https://mcp.grep.app",
       "required": false,
-      "description": "Remote code search from grep.app — mirrors LazyCodex grep_app MCP"
+      "description": "Remote code search from grep.app"
     },
     "context7": {
       "url": "https://mcp.context7.com/mcp",
       "required": false,
-      "description": "Documentation lookup for open-source libraries — mirrors LazyCodex context7 MCP"
+      "description": "Documentation lookup for open-source libraries"
     },
     "filesystem": {
       "command": "npx",

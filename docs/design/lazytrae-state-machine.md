@@ -77,7 +77,7 @@ pending → in_progress → complete
 
 ### Boulder State File Structure
 
-The boulder state is stored in `.lazytrae/state/boulder.json` with `schema_version: 2` (matching LazyCodex).
+The boulder state is stored in `.lazytrae/state/boulder.json` with `schema_version: 2` (matching historical source record).
 
 **Key fields:**
 - `active_work_id`: The currently active work (or null).
@@ -125,7 +125,7 @@ The ulw-loop runs the following cycle until completion or max iterations:
 
 ### Goal Statuses
 
-From `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts`:
+From historical source record:
 
 | Status | Description |
 |--------|-------------|
@@ -157,7 +157,7 @@ From `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts`:
 
 ### Iteration Caps
 
-From `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts`:
+From historical source record:
 - **Ultrawork mode**: 500 iterations max.
 - **Normal mode**: 100 iterations max.
 
@@ -190,7 +190,7 @@ Each evidence record contains:
 
 ### Evidence is Non-Negotiable
 
-From LazyCodex `evidence.ts`:
+From historical source record `evidence.ts`:
 - Evidence must be a non-empty string.
 - `recordEvidence()` requires `goalId`, `criterionId`, `status`, and `evidence`.
 - `requireAllCriteriaPass()` throws if any criterion is not `pass`.
@@ -217,7 +217,7 @@ Attempting to mark a task complete without evidence is a violation. The completi
 
 ### Aggregate Completion
 
-From LazyCodex `domain-types.ts` (UlwLoopAggregateCompletion):
+From historical source record `domain-types.ts` (UlwLoopAggregateCompletion):
 ```typescript
 {
   status: "complete",
@@ -238,7 +238,7 @@ When a task cannot proceed:
 
 ### Blocker Fields
 
-From LazyCodex `domain-types.ts` (UlwLoopItem):
+From historical source record `domain-types.ts` (UlwLoopItem):
 - `blockedReason`: Human-readable reason for blocking.
 - `blockerSignature`: Unique signature string for deduplication.
 - `blockerOccurrenceCount`: How many times this same blocker has occurred.
@@ -286,7 +286,7 @@ See `.lazytrae/evidence/handoff.md` for the full template.
 
 ### Mutation Lock Pattern
 
-LazyTrae uses two distinct locking mechanisms, mirroring LazyCodex:
+LazyTrae uses two distinct locking mechanisms, mirroring historical source record:
 
 **1. Plan mutation lock** (mirrors `plan-io.ts` `withUlwLoopMutationLock`):
 - In-memory `Map<string, Promise>` keyed by `repoRoot + "\0" + relativePath`.
@@ -318,7 +318,7 @@ Two operations cannot mutate the same state file simultaneously:
 
 ### All 7 Mutation Types
 
-From `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts`:
+From historical source record:
 
 | # | Mutation | Description | Validation |
 |---|----------|-------------|------------|
@@ -349,16 +349,16 @@ All steering proposals are validated against invariants:
 
 ## 11. References
 
-- LazyCodex domain types: `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts`
-- LazyCodex constants: `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts`
-- LazyCodex plan CRUD: `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts`
-- LazyCodex evidence: `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts`
-- LazyCodex quality gate: `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts`
-- LazyCodex steering: `lazycodex/plugins/omo/components/ulw-loop/src/steering.ts`
-- LazyCodex plan I/O: `lazycodex/plugins/omo/components/ulw-loop/src/plan-io.ts`
-- LazyCodex session state lock: `lazycodex/plugins/omo/components/rules/src/session-state-lock.ts`
-- LazyCodex start-work docs: `lazycodex/packages/web/content/docs/start-work.md`
-- LazyCodex discipline agents: `lazycodex/packages/web/content/docs/discipline-agents.md`
-- LazyCodex hooks lifecycle: `lazycodex/packages/web/content/docs/hooks-lifecycle.md`
+- historical source record domain types: historical source record
+- historical source record constants: historical source record
+- historical source record plan CRUD: historical source record
+- historical source record evidence: historical source record
+- historical source record quality gate: historical source record
+- historical source record steering: historical source record
+- historical source record plan I/O: historical source record
+- historical source record session state lock: historical source record
+- historical source record start-work docs: historical source record
+- historical source record discipline agents: historical source record
+- historical source record hooks lifecycle: historical source record
 - LazyTrae architecture: `docs/lazytrae-architecture-plan.md`
 - LazyTrae parity ledger: `docs/lazytrae-parity-ledger.md`

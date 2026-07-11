@@ -114,7 +114,7 @@ lazytrae uninstall [options]
 - Normal uninstall removes verified configuration/schema assets and preserves all runtime directories
 - `--soft` leaves `.lazytrae/` untouched
 - `--purge-state` removes only exact bundled runtime templates; generated and unknown runtime files and directories remain
-- Never reads, writes, or removes `.omo/`
+- Never reads, writes, or removes `.workflow/`
 - Removes all managed blocks from `AGENTS.md` (leaves user content intact)
 - Removes only the exact `.gitignore` block added by `init`, preserving adjacent user rules
 - Prints summary of what was removed/preserved

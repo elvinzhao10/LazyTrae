@@ -26,7 +26,7 @@ test('work install and status manage a global-style Trae Work skills directory',
     assert.match(sessionsSkill, /Global Trae Work fallback/);
     assert.doesNotMatch(sessionsSkill, /lazycodex\/plugins/);
     const migrationSkill = fs.readFileSync(path.join(skillsDir, 'lazy-migration-planner', 'SKILL.md'), 'utf8');
-    assert.match(migrationSkill, /optional user-provided LazyCodex checkout/);
+    assert.doesNotMatch(migrationSkill, /lazycodex|\bomo\b/i);
     assert.match(migrationSkill, /Global Trae Work fallback/);
     assert.doesNotMatch(migrationSkill, /docs\/lazytrae-(architecture-plan|host-adaptation-map|parity-ledger)\.md/);
 

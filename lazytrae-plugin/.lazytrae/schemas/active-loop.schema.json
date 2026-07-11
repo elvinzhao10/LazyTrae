@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://lazytrae.ai/schemas/active-loop.schema.json",
   "title": "Active Loop Schema",
-  "description": "LazyTrae Active Loop schema for long-horizon goal execution. Mirrors LazyCodex UlwLoopPlan from domain-types.ts.",
+  "description": "LazyTrae active-loop schema for long-horizon goal execution.",
   "type": "object",
   "required": ["version", "created_at", "updated_at", "brief_path", "goals_path", "ledger_path", "goals"],
   "properties": {
@@ -36,7 +36,7 @@
     },
     "max_iterations": {
       "type": "integer",
-      "description": "Maximum iterations. 500 for ultrawork, 100 for normal. From lazycodex constants.ts.",
+      "description": "Maximum iterations: 500 for ultrawork and 100 for normal operation.",
       "minimum": 1,
       "maximum": 500
     },
@@ -48,7 +48,7 @@
     },
     "max_retries": {
       "type": "integer",
-      "description": "Maximum verification retries before blocking a task. Always 3 (from LazyCodex).",
+      "description": "Maximum verification retries before blocking a task: 3.",
       "minimum": 1,
       "maximum": 3
     },

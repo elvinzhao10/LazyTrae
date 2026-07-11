@@ -22,11 +22,11 @@ When a task cannot proceed (verification fails 3+ times, Oracle REJECT, or exter
 
 4. Transition loop state to `blocked`.
 
-Source: `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` (UlwLoopItem blocker fields), `lazycodex/plugins/omo/components/ulw-loop/src/checkpoint.ts` (applyBlockedOrFailed lines 94-118).
+Source: historical source record (UlwLoopItem blocker fields), historical source record (applyBlockedOrFailed lines 94-118).
 
 ### Blocker Classification
 
-From `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate-blockers.ts`:
+From historical source record:
 
 External authorization blockers are classified by `classifyExternalAuthorizationBlocker(evidence)`:
 - If the evidence string matches a known external auth pattern, a signature is generated.
@@ -42,11 +42,11 @@ External authorization blockers are classified by `classifyExternalAuthorization
 5. Emit `blocker_resolved` event.
 6. Transition loop state to `active`.
 
-Source: `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts` `clearGoalBlockerFields` (lines 45-56).
+Source: historical source record `clearGoalBlockerFields` (lines 45-56).
 
 ## 2. Max Retries
 
-From LazyCodex `plan-crud.ts` `startNextUlwLoop` and `checkpoint.ts`:
+From historical source record `plan-crud.ts` `startNextUlwLoop` and `checkpoint.ts`:
 
 | Scope | Max Retries | Behavior When Exceeded |
 |-------|------------|------------------------|
@@ -82,14 +82,14 @@ When a session crashes or disconnects:
 
 ### Context Compaction Recovery
 
-Trae may compact context (equivalent to LazyCodex PostCompact). When this happens:
+Trae may compact context (equivalent to historical source record PostCompact). When this happens:
 
 1. The `SessionStart` hook detects compaction via `sessions.json` `compaction_state` field.
 2. After compaction, STOP and re-read the whole notepad FIRST before any action.
 3. Recover state from the notepad and `.lazytrae/state/` — do not re-plan from scratch.
 4. Resume from `## Now` in the notepad.
 
-Source: `directive.md` notepad recovery section (line 154-160), LazyCodex PostCompact gap documented in `AGENTS.md`.
+Source: `directive.md` notepad recovery section (line 154-160), historical source record PostCompact gap documented in `AGENTS.md`.
 
 ## 4. Loop Cancellation and Pausing
 
@@ -151,10 +151,10 @@ The NDJSON event log provides a complete audit trail for recovery:
 
 ## 6. References
 
-- LazyCodex checkpoint: `lazycodex/plugins/omo/components/ulw-loop/src/checkpoint.ts`
-- LazyCodex plan CRUD: `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts`
-- LazyCodex quality gate blockers: `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate-blockers.ts`
-- LazyCodex ultrawork directive: `lazycodex/plugins/omo/components/ultrawork/directive.md`
+- historical source record checkpoint: historical source record
+- historical source record plan CRUD: historical source record
+- historical source record quality gate blockers: historical source record
+- historical source record ultrawork directive: historical source record
 - LazyTrae execution loop: `docs/lazytrae-execution-loop.md`
 - LazyTrae verifier protocol: `docs/lazytrae-verifier-protocol.md`
 - LazyTrae reviewer protocol: `docs/lazytrae-reviewer-protocol.md`

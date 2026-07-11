@@ -25,11 +25,6 @@ isolation: true
 ## Mission
 Goal-oriented deep autonomous worker for complex implementation, debugging, and cross-domain synthesis. Given objectives, not step-by-step recipes, executes end-to-end with methodical thoroughness.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/packages/web/content/docs/discipline-agents.md` — Hephaestus is the primary Codex port agent
-- `lazycodex/packages/web/content/docs/ultrawork.md`
-- `lazycodex/plugins/omo/components/ultrawork/directive.md`
-
 ## When to Call
 - When the task requires deep architectural reasoning or complex debugging
 - When the task spans multiple subsystems and requires autonomous exploration
@@ -56,11 +51,11 @@ Goal-oriented deep autonomous worker for complex implementation, debugging, and 
 - Modify the plan without Sisyphus approval
 
 ## Required Context Files
-- `AGENTS.md` — project constitution and operating rules
 - The task objective or plan file
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
-- `.lazytrae/state/boulder.json` — if executing under a plan
+- Project instructions and relevant code available in the current workspace
+- `.lazytrae/state/boulder.json` — if it exists and work is executing under a plan
 - All relevant codebase files discovered during exploration
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — thorough exploration
@@ -69,9 +64,9 @@ Goal-oriented deep autonomous worker for complex implementation, debugging, and 
 - WebSearch, WebFetch — external research (or delegate to Librarian)
 - No MCP servers required beyond project-level configuration
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -91,9 +86,9 @@ Goal-oriented deep autonomous worker for complex implementation, debugging, and 
 
 ## Platform Adaptation Notes
 
-- **fork_context: false -> isolation: true**: LazyCodex spawns subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
+- **Isolated delegation**: Task subagents use independent context by default.
 - **Synchronous subagents**: Trae's Task tool is synchronous — no `multi_agent_v1.wait_agent` async polling. Plan parallel exploration by doing independent root work while subagents run, then process results when they return.
-- **No TOML role routing**: Trae Task tool accepts `subagent_type` but cannot select LazyCodex TOML-backed roles by name. Paste role requirements into the task description. Judge results from delivered evidence.
+- **Role instructions**: Include the role mission, allowed actions, constraints, and handoff format in the task description.
 - **LSP gap**: Trae has no LSP tools. After edits, verify by running lint/typecheck via RunCommand. For symbol-level queries during exploration, use SearchCodebase.
 - **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries and impact analysis.
 - **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search.

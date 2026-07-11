@@ -1,8 +1,8 @@
 # LazyTrae
 
-> **A practice project:** realizing [LazyCodex](https://github.com/code-yeongyu/lazycodex) (the OmO harness) on the [Trae](https://docs.trae.cn/) platform. No longer maintained; open-sourced for learning.
+> **A practice project:** a workflow harness for the [Trae](https://docs.trae.cn/) platform. No longer maintained; open-sourced for learning.
 
-LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning → delegated execution → evidence-gated verification → review → durable run state) to **Trae IDE**, **Trae Work**, and **Trae CLI**.
+LazyTrae provides disciplined agent-harness workflows (planning → delegated execution → evidence-gated verification → review → durable run state) for **Trae IDE**, **Trae Work**, and **Trae CLI**.
 
 > **Setup?** See [AGENTS.md](AGENTS.md) (the setup guide). This README is about **how to use** the harness once installed.
 
@@ -108,8 +108,7 @@ lazytrae/
 ├── AGENTS.md                # setup guide
 ├── README.md                # this file (how to use)
 ├── LICENSE                  # MIT
-└── NOTICE                   # omo/lazycodex provenance
-# dev/ (gitignored) — behind-the-scenes: reference/lazycodex clone + other/ runtime samples
+└── NOTICE                   # attribution and provenance
 ```
 
 Consumer projects initialized with `lazytrae init` receive `.lazytrae/plans/` and `.lazytrae/loop/` as their runtime workspace. They are not part of the `lazytrae-plugin/` source layout.
@@ -120,13 +119,12 @@ Consumer projects initialized with `lazytrae init` receive `.lazytrae/plans/` an
 
 ## License
 
-[MIT](LICENSE) — derived from lazycodex/omo, Copyright (c) 2026 Yeongyu Kim. See [NOTICE](NOTICE) (omo is SUL at root; the lazycodex layer used as a local gitignored reference is MIT).
+[MIT](LICENSE) — see [NOTICE](NOTICE) for attribution and provenance details.
 
 ## Disclaimer
 
-Practice project, not production-ready, no longer maintained. For production use, see the [original lazycodex/omo](https://github.com/code-yeongyu/lazycodex).
+Practice project, not production-ready, and no longer maintained.
 
 ## Acknowledgments
 
-- **[Yeongyu Kim](https://github.com/code-yeongyu)** — creator of [lazycodex/OmO](https://github.com/code-yeongyu/lazycodex)
 - **[Trae](https://docs.trae.cn/)** — the platform this was built for

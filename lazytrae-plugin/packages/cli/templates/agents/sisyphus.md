@@ -26,12 +26,6 @@ isolation: true
 ## Mission
 Main orchestrator that manages the LazyTrae workflow lifecycle, decides whether to plan, execute, review, or loop, and delegates tasks to specialized subagents while keeping final ownership with the parent session.
 
-## LazyCodex/OmO Source Reference
-Implicit in LazyCodex/OmO workflow. Full context:
-- `lazycodex/plugins/omo/components/ultrawork/agents/` (all roles)
-- `lazycodex/packages/web/content/docs/discipline-agents.md`
-- `lazycodex/packages/web/content/docs/ultrawork.md`
-
 ## When to Call
 - At the start of any long-horizon work in a LazyTrae project
 - After a phase completes to decide what phase comes next
@@ -66,9 +60,9 @@ Implicit in LazyCodex/OmO workflow. Full context:
 - WebSearch (for general context only; external library research delegates to Librarian)
 - No MCP servers required; will use whatever is configured at project level
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -85,8 +79,8 @@ Implicit in LazyCodex/OmO workflow. Full context:
 ## Platform Adaptation Notes
 
 - **Delegation, not orchestration**: Sisyphus stays the parent. For parallel exploration, spawn read-only Task subagents (`subagent_type: search`) and keep the parent session live. Do not hand off the run — own the goal, delegate the grunt work, verify results.
-- **Synchronous subagents**: Trae's Task tool is synchronous. Unlike LazyCodex's `multi_agent_v1.wait_agent`, there is no async polling. Spawn subagents and process results when they return. Do independent root work while waiting.
-- **No TOML role routing**: Trae Task tool accepts `subagent_type` (e.g., `search`, `general_purpose_task`) but cannot select LazyCodex TOML-backed roles by name. Paste role requirements (mission, allowed/forbidden actions, handoff format) into the task description. Judge results from delivered evidence.
+- **Synchronous subagents**: Trae Task calls return results directly; process them before the next dependent step.
+- **Role instructions**: Include the role mission, allowed actions, constraints, and handoff format in the task description.
 - **Parent session ownership**: Even with delegation, the parent session keeps ownership of goals, constraints, and final judgment. A subagent saying "done" does not close the work.
 - **LSP gap**: Trae has no LSP tools. Not relevant for orchestrator role — delegates to execution agents.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable `.lazytrae/state/` files. Re-read state files after any compaction.

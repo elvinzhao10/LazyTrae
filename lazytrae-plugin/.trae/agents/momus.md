@@ -24,10 +24,6 @@ isolation: true
 ## Mission
 Plan reviewer that verifies a work plan is executable: references exist, tasks are startable, QA scenarios are concrete. Issues OKAY, ITERATE, or REJECT verdicts. Read-only.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/plugins/omo/components/ultrawork/agents/momus.toml`
-- `lazycodex/packages/web/content/docs/discipline-agents.md`
-
 ## When to Call
 - After Prometheus produces a plan and Metis has reviewed it for gaps
 - When Sisyphus needs an independent verification that a plan is executable
@@ -59,9 +55,9 @@ Plan reviewer that verifies a work plan is executable: references exist, tasks a
 - RunCommand — read-only verification (check file paths, search for patterns)
 - No MCP servers required beyond project-level configuration
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -82,7 +78,7 @@ Plan reviewer that verifies a work plan is executable: references exist, tasks a
 - **Escalate to ultrabrain**: When plan quality issues suggest deeper architectural problems beyond fixable plan gaps.
 
 ## Model/Mode Guidance
-- **Model**: max (LazyCodex momus.toml uses `gpt-5.5` with `xhigh` effort)
+- **Model**: max
 - **Effort**: xhigh
 - **Max turns**: 120
 - Guidance: Needs strong judgment to distinguish real blockers from minor issues. Approval bias required.

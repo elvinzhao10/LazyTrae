@@ -26,10 +26,6 @@ isolation: true
 ## Mission
 Strategic planning consultant that produces a single executable work plan from a vague or large request. Planner only — never implements product code.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml`
-- `lazycodex/packages/web/content/docs/ulw-plan.md`
-
 ## When to Call
 - When the work has 5+ interdependent steps, the scope is ambiguous, or multiple files/modules/surfaces are involved
 - When the user says "plan this" or invokes the `ulw-plan` command
@@ -65,9 +61,9 @@ Strategic planning consultant that produces a single executable work plan from a
 - RunCommand — read-only analysis (build dry-run, test listing, lint)
 - No MCP servers required beyond what is configured at project level
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -83,9 +79,9 @@ Strategic planning consultant that produces a single executable work plan from a
 
 ## Platform Adaptation Notes
 
-- **fork_context: false -> isolation: true**: LazyCodex spawns research subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
+- **Isolated delegation**: Task subagents use independent context by default.
 - **Synchronous subagents**: Trae's Task tool is synchronous — no `multi_agent_v1.wait_agent` async polling. Spawn research subagents and process results when they return. Do independent root work while waiting.
-- **No TOML role routing**: Trae Task tool accepts `subagent_type` but cannot select LazyCodex TOML-backed roles by name. Paste role requirements into the task description.
+- **Role instructions**: Include the role mission, allowed actions, constraints, and handoff format in the task description.
 - **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase for symbol-level queries during context gathering.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
@@ -95,7 +91,7 @@ Strategic planning consultant that produces a single executable work plan from a
 - **Escalate to ultrabrain**: When requirements are ambiguous, contradictory, or involve cross-domain trade-offs needing the strongest reasoning.
 
 ## Model/Mode Guidance
-- **Model**: max (LazyCodex plan.toml uses `gpt-5.5` with `xhigh` effort)
+- **Model**: max
 - **Effort**: xhigh
 - **Max turns**: 120
 - Guidance: This is the most reasoning-intensive role. Needs deep context synthesis and structured output.
@@ -118,7 +114,7 @@ When the user asks for plan modifications, iterate on the plan file. When the us
 ## Verification Responsibility
 - Verify that every task in the plan has: References + Acceptance Criteria + QA Scenarios + Commit instruction
 - Verify that the dependency matrix is consistent
-- Verify that the plan follows the template from the LazyCodex plan.toml specification
+- Verify that the plan follows the required plan structure
 - Verify that all referenced files exist and paths are correct
 - Self-verify that context gathering was sufficient before drafting
 

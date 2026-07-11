@@ -7,9 +7,6 @@ description: "Systematic debugging workflow. Use when something doesn't work and
 
 Systematic debugging discipline for LazyTrae. Provides a structured approach to finding and fixing bugs — from symptom identification to root cause analysis to verified fixes. Debugging is not guessing — it's hypothesis-driven investigation.
 
-## Canonical LazyCodex Source
-
-`lazycodex/plugins/omo/skills/debugging/SKILL.md` — systematic debugging workflow: reproduce, isolate, hypothesize, test, fix, verify, prevent recurrence. Also referenced in ultrawork directive's failure handling section.
 
 ## Purpose
 

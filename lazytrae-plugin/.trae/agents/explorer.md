@@ -24,9 +24,6 @@ isolation: true
 ## Mission
 Fast codebase search specialist that finds files, code, and patterns in the working tree. Returns absolute paths with structured, actionable results. Read-only.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml`
-
 ## When to Call
 - When the question is "Where is X?" / "Which files do Y?" / "Find code that does Z"
 - When multiple search angles are needed and the module structure is unfamiliar
@@ -55,9 +52,9 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - RunCommand — `git log`, `git blame`, `git show`, `rg`, `find`
 - No MCP servers required beyond project-level configuration
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -70,7 +67,7 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 
 ## Platform Adaptation Notes
 
-- **fork_context: false -> isolation: true**: LazyCodex spawns subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
+- **Isolated delegation**: Task subagents use independent context by default.
 - **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase (semantic search) and Grep (text search) for symbol-level queries.
 - **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries.
 - **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search.
@@ -82,7 +79,7 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - **Escalate to deep**: When search results reveal architectural complexity requiring sustained reasoning across layers.
 
 ## Model/Mode Guidance
-- **Model**: lite (LazyCodex explorer.toml uses `gpt-5.4-mini` with `low` effort)
+- **Model**: lite
 - **Effort**: low
 - **Max turns**: 40
 - Guidance: Fast, parallel, thorough. Not reasoning-heavy — focus on search coverage.
@@ -121,7 +118,7 @@ Always produce both blocks:
 
 ## Team Mode
 
-This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode (see `docs/lazytrae-team-mode.md`):
+This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode:
 
 - Write the deliverable report to `.lazytrae/team/members/<id>/report.md`
 - Use `WORKING:` / `BLOCKED:` heartbeat markers in `.lazytrae/team/mailbox/<id>/outbox.md`

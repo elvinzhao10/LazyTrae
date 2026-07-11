@@ -7,9 +7,6 @@ description: "Codebase search and context gathering. Maintains project memory, d
 
 Codebase and external knowledge researcher. Finds information, verifies claims, and maintains project documentation. Read-only by default — the librarian researches and documents, never implements.
 
-## Canonical LazyCodex Source
-
-`lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` — external open-source codebase and documentation researcher. Classifies requests by type (CONCEPTUAL, IMPLEMENTATION, CONTEXT/HISTORY, COMPREHENSIVE), executes parallel research with SHA-pinned citations, read-only.
 
 ## Purpose
 

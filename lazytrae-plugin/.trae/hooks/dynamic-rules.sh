@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # LazyTrae v0.7 — Dynamic rule matching (companion to post-tool-use.sh)
 # Extracts file types from changed files and reminds about relevant rules.
-# LazyCodex uses file fingerprint matching; LazyTrae uses extension/path-based matching.
+# Match rules by file extension and path.
 # Always exits 0 — never blocks a session.
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"

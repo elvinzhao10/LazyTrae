@@ -5,11 +5,11 @@
 
 ## 1. Workflow Phases
 
-Every LazyTrae execution follows five phases, matching the LazyCodex workflow:
+Every LazyTrae execution follows five phases, matching the historical source record workflow:
 
 ### 1.1 Explore
 - Understand the codebase before making changes.
-- Use `lazycodex/` as the canonical source of truth.
+- Use historical source record as the canonical source of truth.
 - Run read-only subagents for parallel exploration when the scope is large.
 - Verify every claim against actual source files, not memory.
 - Output: clear understanding of what exists and what needs to change.
@@ -23,8 +23,8 @@ Every LazyTrae execution follows five phases, matching the LazyCodex workflow:
 
 ### 1.3 Implement
 - Execute one checklist item at a time.
-- Read the actual LazyCodex source before implementing any feature.
-- Preserve LazyCodex semantics; document deviations.
+- Read the actual historical source record source before implementing any feature.
+- Preserve historical source record semantics; document deviations.
 - Never batch multiple tasks in a single step.
 - Reconcile every plan step: completed, blocked (reason), or removed (reason).
 - Output: changed files, commands run, evidence produced.
@@ -44,7 +44,7 @@ Every LazyTrae execution follows five phases, matching the LazyCodex workflow:
 
 ## 2. The Five Evidence Gates
 
-Before any step can close, it must pass five gates (from LazyCodex `hooks-lifecycle.md`):
+Before any step can close, it must pass five gates (from historical source record `hooks-lifecycle.md`):
 
 ### Gate 1: Plan Reread
 - Re-read the plan before claiming completion.
@@ -77,10 +77,10 @@ Before any step can close, it must pass five gates (from LazyCodex `hooks-lifecy
 
 ## 3. How to Use the Command Index
 
-- See `docs/lazytrae-command-index.md` for the full table of canonical LazyCodex commands and their LazyTrae equivalents.
+- See `docs/lazytrae-command-index.md` for the full table of canonical historical source record commands and their LazyTrae equivalents.
 - Each command entry includes: original name, source path, LazyTrae equivalent, implementation status, and notes.
 - Before implementing any command:
-  1. Read the LazyCodex source doc for that command.
+  1. Read the historical source record source doc for that command.
   2. Check the command index for the designed LazyTrae equivalent.
   3. Verify the implementation status — if already COMPLETE, do not re-implement.
   4. If DESIGN, follow the architecture plan for implementation.

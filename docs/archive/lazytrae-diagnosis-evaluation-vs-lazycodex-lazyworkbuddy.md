@@ -1,28 +1,30 @@
 # LazyTrae Working Replica Guide
 
+> **Historical record (non-operational):** This archived v0.x analysis retains LazyCodex/OmO provenance for study only. Current attribution is in [NOTICE](../../NOTICE) and [LICENSE](../../LICENSE).
+
 Date: 2026-07-09
 
-Goal: make LazyTrae a working Trae-native LazyCodex replica, using Trae-native agents, commands, hooks, MCP, state, and CLI surfaces. This is a build guide for agents, not a scorecard.
+Goal: make LazyTrae a working Trae-native historical source record replica, using Trae-native agents, commands, hooks, MCP, state, and CLI surfaces. This is a build guide for agents, not a scorecard.
 
 ## Current Read
 
-LazyTrae is a real implementation: `.trae/` agents/commands/hooks/rules exist, `.lazytrae/` state exists, `packages/cli` exists, and `packages/mcp` exposes tools. It is not yet LazyCodex-level because Trae cannot currently provide blocking Stop hooks or PostCompact hooks, and the loop runtime is still much thinner than LazyCodex `ulw-loop`.
+LazyTrae is a real implementation: `.trae/` agents/commands/hooks/rules exist, `.lazytrae/` state exists, `packages/cli` exists, and `packages/mcp` exposes tools. It is not yet historical source record because Trae cannot currently provide blocking Stop hooks or PostCompact hooks, and the loop runtime is still much thinner than historical source record `ulw-loop`.
 
-Target operating model: do not pretend Trae can enforce what the host cannot enforce. Build stronger CLI/MCP gates, recovery state, and explicit evidence checks so the agent workflow behaves like LazyCodex even when the platform hook is advisory.
+Target operating model: do not pretend Trae can enforce what the host cannot enforce. Build stronger CLI/MCP gates, recovery state, and explicit evidence checks so the agent workflow behaves like historical source record even when the platform hook is advisory.
 
 ## Reference Targets
 
-LazyCodex reference paths:
+historical source record reference paths:
 
-- `lazycodex/plugins/omo/.codex-plugin/plugin.json`
-- `lazycodex/plugins/omo/.mcp.json`
-- `lazycodex/plugins/omo/components/ulw-loop/src/`
-- `lazycodex/plugins/omo/components/start-work-continuation/`
-- `lazycodex/plugins/omo/components/lazycodex-executor-verify/`
-- `lazycodex/plugins/omo/components/rules/src/`
-- `lazycodex/plugins/omo/components/teammode/`
-- `lazycodex/plugins/omo/skills/start-work/SKILL.md`
-- `lazycodex/plugins/omo/skills/ulw-loop/SKILL.md`
+- historical source record
+- historical source record
+- historical source record
+- historical source record
+- historical source record
+- historical source record
+- historical source record
+- historical source record
+- historical source record
 
 LazyBuddy comparison paths:
 
@@ -72,7 +74,7 @@ Acceptance:
 
 ## Workstream T1: Full Loop Runtime
 
-Purpose: replace the current partial `loop.js` with a real LazyCodex-style goal/evidence engine.
+Purpose: replace the current partial `loop.js` with a real historical source record goal/evidence engine.
 
 Files:
 
@@ -90,7 +92,7 @@ TODO:
 - [ ] Add `criteria <goal>` to inspect success criteria.
 - [ ] Add `record-evidence` to attach evidence to a criterion.
 - [ ] Add `record-review-blockers` to create follow-up work from reviewer findings.
-- [ ] Add `steer` with LazyCodex-style mutation kinds: add, remove, split, merge, reorder, pause, resume.
+- [ ] Add `steer` with historical source record mutation kinds: add, remove, split, merge, reorder, pause, resume.
 - [ ] Add `checkpoint --quality-gate-json <file>` and validate all required quality-gate sections.
 - [ ] Enforce per-goal and repeated-failure caps before creating more work.
 - [ ] Append every mutation to `.lazytrae/logs/loop-events.ndjson`.
@@ -152,7 +154,7 @@ Acceptance:
 
 ## Workstream T4: Context Tooling MCP
 
-Purpose: give Trae agents code intelligence comparable to LazyCodex codegraph/LSP/context7.
+Purpose: give Trae agents code intelligence comparable to historical source record codegraph/LSP/context7.
 
 Files:
 
@@ -216,12 +218,12 @@ Do not update parity status to runtime-verified until there is a passing command
 - `runtime-verified`: command or hook was executed and evidence is stored.
 - `implemented-unverified`: code exists but no end-to-end proof.
 - `prompt-only`: markdown instruction only.
-- `heuristic-substitute`: not true LazyCodex parity, but usable in Trae.
+- `heuristic-substitute`: not true historical source record parity, but usable in Trae.
 - `platform-gap`: blocked by Trae host behavior.
 
 ## Done Definition
 
-LazyTrae becomes a working LazyCodex replica when:
+LazyTrae becomes a working historical source record replica when:
 
 - `lazytrae doctor` passes on a clean install.
 - `lazytrae verify --must-pass` blocks incomplete work.

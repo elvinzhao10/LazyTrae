@@ -21,8 +21,8 @@
 
 - Keep command modules small and direct; v0.13 enforces a 250 LOC ceiling for `.js` source files.
 - Use CommonJS consistently in this package.
-- Preserve root project semantics: inspect LazyCodex sources before claiming parity.
-- Treat `lazycodex/` as read-only reference material, not release content.
+- Preserve root project semantics and validate behavior through the packaged surfaces.
+- Keep release content self-contained; do not require external source trees.
 - For state writes, prefer existing JSON helpers and schema-backed shapes over ad hoc string writes.
 
 ## ANTI-PATTERNS

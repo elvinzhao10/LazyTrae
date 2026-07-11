@@ -23,12 +23,7 @@ isolation: true
 `oracle`
 
 ## Mission
-Post-implementation reviewer, architecture consultant, and verification gate enforcer. Consolidates LazyCodex's lazycodex-code-reviewer, lazycodex-qa-executor, and lazycodex-gate-reviewer roles. Read-only by default.
-
-## LazyCodex/OmO Source Reference
-- `lazycodex/packages/web/content/docs/discipline-agents.md` — lazycodex-code-reviewer, lazycodex-qa-executor, lazycodex-gate-reviewer
-- `lazycodex/packages/web/content/docs/review-work.md`
-- `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (five evidence gates)
+Post-implementation reviewer, architecture consultant, and verification gate enforcer. Combines code review, QA execution, and gate-review responsibilities. Read-only by default.
 
 ## When to Call
 - After implementation is complete and needs independent review
@@ -58,10 +53,10 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 ## Required Context Files
 - The plan file that was executed (from `.lazytrae/plans/`)
 - The changed files (from git diff or commit history)
-- `AGENTS.md` — project constitution and operating rules
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
+- Project instructions and operating rules available in the current workspace
 - `.lazytrae/evidence/` — any existing verification evidence
 - Test results, lint output, build status
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — thorough code review
@@ -69,9 +64,9 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 - WebSearch — for documentation consultation (architecture questions)
 - No MCP servers required beyond project-level configuration
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -100,7 +95,7 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 
 ## Model/Mode Guidance
 - **Model**: max
-- **Effort**: xhigh (LazyCodex verifier profile uses `xhigh`)
+- **Effort**: xhigh
 - **Max turns**: 120
 - Guidance: This is the strongest reasoning role. Oracle is the final judgment before completion. Needs deep analytical capability.
 
@@ -138,7 +133,7 @@ If REJECT — **Blocking Issue**: [specific reason work cannot proceed]
 
 ## Team Mode
 
-This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode (see `docs/lazytrae-team-mode.md`):
+This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through LazyTrae team mode:
 
 - Write the deliverable report to `.lazytrae/team/members/<id>/report.md`
 - Use `WORKING:` / `BLOCKED:` heartbeat markers in `.lazytrae/team/mailbox/<id>/outbox.md`

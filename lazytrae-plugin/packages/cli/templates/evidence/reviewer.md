@@ -1,7 +1,6 @@
 # Adversarial QA Evidence (Reviewer)
 
 > **Gate 4: Adversarial QA** — Edge cases, regression scenarios, adversarial inputs.
-> LazyCodex source: `lazycodex/packages/web/content/docs/manual-qa.md`
 
 ## Template
 

@@ -1,7 +1,7 @@
 # LazyTrae Team Mode
 
-> v0.11 — Trae-native adaptation of LazyCodex teammode parallel orchestration.
-> Canonical source: `lazycodex/plugins/omo/components/teammode/`
+> v0.11 — Trae-native adaptation of historical source record teammode parallel orchestration.
+> Canonical source: historical source record
 
 ## Overview
 
@@ -119,7 +119,7 @@ lazytrae team delete <team-id> [--force]
 
 ## Trae Adaptation Notes
 
-| LazyCodex (Codex) | LazyTrae (Trae-native) |
+| historical source record (Codex) | LazyTrae (Trae-native) |
 |---|---|
 | `codex_app.create_thread` (durable threads) | Subagent invocation (ephemeral, independent context) |
 | `codex_app.send_message_to_thread` | Mailbox file: `.lazytrae/team/mailbox/<id>/outbox.md` |

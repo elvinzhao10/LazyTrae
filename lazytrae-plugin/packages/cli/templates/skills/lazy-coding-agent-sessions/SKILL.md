@@ -9,7 +9,7 @@ Find and inspect coding-agent sessions across Trae and other platforms before an
 
 ## Global Trae Work fallback
 
-This installed skill is self-contained. It does not require a LazyCodex checkout, helper script, or reference bundle. Use the local paths listed below when they are available; for an unlisted platform, ask the user for its documented transcript location before searching.
+This installed skill is self-contained. It does not require a helper script or reference bundle. Use the local paths listed below when they are available; for an unlisted platform, ask the user for its documented transcript location before searching.
 
 ## Purpose
 

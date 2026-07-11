@@ -1,7 +1,6 @@
 # Completion Claim
 
 > **Completion is invalid without evidence.**
-> LazyCodex source: `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts` (UlwLoopAggregateCompletion)
 
 ## Completion Gate Logic
 

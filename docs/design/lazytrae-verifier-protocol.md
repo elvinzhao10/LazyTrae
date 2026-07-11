@@ -28,7 +28,7 @@ Run the project's test suite on changed files:
 - Full suite green required (no skipped, no xfail, no `.only`).
 - Evidence: test output captured with exit status.
 
-Source: `lazycodex/packages/web/content/docs/tdd.md`.
+Source: historical source record.
 
 ### 2.2 Linters
 
@@ -67,7 +67,7 @@ Real-surface proof through one of the Manual-QA channels:
 
 The Manual-QA scenario must be the exact, literal command/action with concrete inputs and a single PASS/FAIL observable. "Run the endpoint" is not a scenario — write the exact `curl` command.
 
-Source: `lazycodex/plugins/omo/components/ultrawork/directive.md` Manual-QA channels section.
+Source: historical source record Manual-QA channels section.
 
 ## 3. Evidence Recording Format
 
@@ -124,7 +124,7 @@ Each verification run produces evidence at `.lazytrae/evidence/test-runs.md`:
 
 Evidence is also recorded in the loop event log as a `verification_passed` or `verification_failed` event.
 
-Evidence must be non-empty (from `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts` line 49-51: `nonEmptyEvidence` throws if evidence string is empty or whitespace-only).
+Evidence must be non-empty (from historical source record line 49-51: `nonEmptyEvidence` throws if evidence string is empty or whitespace-only).
 
 ## 4. Pass/Fail Criteria
 
@@ -149,7 +149,7 @@ Any of:
 
 ## 5. Retry Behavior
 
-From LazyCodex `checkpoint.ts` and `steering.ts`: max 3 retries before blocking.
+From historical source record `checkpoint.ts` and `steering.ts`: max 3 retries before blocking.
 
 | Attempt | Action |
 |---------|--------|
@@ -178,7 +178,7 @@ If the failure persists after 2 identical attempts, surface what was tried and a
 
 ## 7. Manual-QA Channel Requirements
 
-From `lazycodex/plugins/omo/components/ultrawork/directive.md`:
+From historical source record:
 
 - The scenario MUST name the exact tool and exact invocation upfront.
 - The scenario MUST have a single binary observable that decides PASS vs FAIL.
@@ -207,9 +207,9 @@ Source: `directive.md` Execution Loop step 5 (CLEANUP).
 
 ## 9. References
 
-- LazyCodex evidence: `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts`
-- LazyCodex checkpoint: `lazycodex/plugins/omo/components/ulw-loop/src/checkpoint.ts`
-- LazyCodex ultrawork directive: `lazycodex/plugins/omo/components/ultrawork/directive.md`
-- LazyCodex TDD docs: `lazycodex/packages/web/content/docs/tdd.md`
+- historical source record evidence: historical source record
+- historical source record checkpoint: historical source record
+- historical source record ultrawork directive: historical source record
+- historical source record TDD docs: historical source record
 - LazyTrae state machine: `docs/lazytrae-state-machine.md`
 - LazyTrae execution loop: `docs/lazytrae-execution-loop.md`

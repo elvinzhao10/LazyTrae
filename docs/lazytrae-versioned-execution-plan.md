@@ -9,14 +9,14 @@
 | --- | --- | --- | --- |
 | v0.2 | Rules & Memory | Install the behavioral foundation | v0.1 |
 | v0.3 | Skills & Commands | Implement core workflows as Trae Skills and command prompts | v0.2 |
-| v0.4 | Custom Agents | Recreate OmO role separation using Trae custom agents | v0.3 |
+| v0.4 | Custom Agents | Recreate workflow harness role separation using Trae custom agents | v0.3 |
 | v0.5 | State Machine | Add durable long-horizon state | v0.4 |
 | v0.6 | CLI Installer | Package LazyTrae so users don't hand-copy files | v0.5 |
-| v0.7 | Hooks & Enforcement | Approximate LazyCodex lifecycle enforcement | v0.6 |
+| v0.7 | Hooks & Enforcement | Approximate historical source record lifecycle enforcement | v0.6 |
 | v0.8 | MCP & Tools | Expose LazyTrae state through MCP | v0.7 |
 | v0.9 | Long-Horizon Loop | Real LazyTrae equivalent of ulw-loop | v0.8 |
-| v0.10 | Model Routing | Approximate OmO category routing | v0.9 |
-| v0.11 | Team Mode | Recreate OmO-style parallelism | v0.10 |
+| v0.10 | Model Routing | Approximate workflow harness category routing | v0.9 |
+| v0.11 | Team Mode | Recreate workflow harness-style parallelism | v0.10 |
 | v0.12 | Dogfood | Prove LazyTrae can use itself | v0.11 |
 | v0.13 | Diagnostics & Fixes | Diagnose and fix release-blocking gaps | v0.12 |
 | v0.14 | Final Release | Produce a usable release | v0.13 |
@@ -35,16 +35,16 @@ Install the behavioral foundation: AGENTS.md, Trae Rules, operating manual, comm
 - `docs/lazytrae-command-index.md` — create
 - `docs/lazytrae-parity-ledger.md` — create (initial version)
 
-### LazyCodex Reference
-- Rules component: `lazycodex/plugins/omo/components/rules/src/codex-hook.ts` (static injection, dynamic injection, context pressure handling, post-compact recovery)
-- Bundled rules: `lazycodex/plugins/omo/components/rules/bundled-rules/hephaestus.md`
+### historical source record Reference
+- Rules component: historical source record (static injection, dynamic injection, context pressure handling, post-compact recovery)
+- Bundled rules: historical source record
 
 ### Implementation Steps
 1. Read the current AGENTS.md to identify existing content and managed blocks.
 2. Create `.trae/rules/lazytrae.md` with 8 core rules:
    - Inspect before editing
    - Plan before multi-file changes
-   - Preserve LazyCodex semantics (document deviations)
+   - Preserve historical source record semantics (document deviations)
    - Execute one checklist item at a time
    - Verification evidence required before completion
    - Reviewer/Oracle review required for long-horizon completion
@@ -52,13 +52,13 @@ Install the behavioral foundation: AGENTS.md, Trae Rules, operating manual, comm
    - Never claim parity without evidence
 3. Update AGENTS.md with LazyTrae managed block (project constitution, repository layout, operating rules, quick reference).
 4. Create `docs/lazytrae-operating-manual.md` — comprehensive operating guide.
-5. Create `docs/lazytrae-command-index.md` — index of all LazyCodex commands mapped to LazyTrae equivalents.
+5. Create `docs/lazytrae-command-index.md` — index of all historical source record commands mapped to LazyTrae equivalents.
 6. Create initial `docs/lazytrae-parity-ledger.md` from the architecture plan.
 
 ### Verification Steps
 1. Confirm all 5 files exist.
-2. Confirm every canonical LazyCodex method from the architecture plan appears in command index or parity ledger.
-3. Confirm rules do not contradict LazyCodex source docs (spot-check against `lazycodex/packages/web/content/docs/`).
+2. Confirm every canonical historical source record method from the architecture plan appears in command index or parity ledger.
+3. Confirm rules do not contradict historical source record source docs (spot-check against historical source record).
 4. Run any available repo checks.
 
 ### Success Criteria
@@ -76,7 +76,7 @@ Remove LazyTrae managed blocks from AGENTS.md, delete `.trae/rules/lazytrae.md`,
 ## v0.3 — Skills & Commands
 
 ### Objective
-Implement the core LazyCodex workflows as Trae Skills and command prompts.
+Implement the core historical source record workflows as Trae Skills and command prompts.
 
 ### Files to Create/Modify
 #### Skills
@@ -105,15 +105,15 @@ Implement the core LazyCodex workflows as Trae Skills and command prompts.
 - `docs/lazytrae-command-index.md` — update
 - `docs/lazytrae-parity-ledger.md` — update
 
-### LazyCodex Reference
-- Component skills: `lazycodex/plugins/omo/components/ulw-loop/skills/ulw-loop/SKILL.md`, `lazycodex/plugins/omo/components/ultrawork/skills/*/SKILL.md`, `lazycodex/plugins/omo/components/rules/skills/rules/SKILL.md`, `lazycodex/plugins/omo/components/lsp/skills/lsp/SKILL.md`, `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md`
-- Shared skills: `lazycodex/plugins/omo/skills/*/SKILL.md`
-- Web docs: `lazycodex/packages/web/content/docs/init-deep.md`, `ulw-plan.md`, `start-work.md`, `ulw-loop.md`, `ultrawork.md`, `skills.md`
+### historical source record Reference
+- Component skills: historical source record, historical source record*/SKILL.md`, historical source record, historical source record, historical source record
+- Shared skills: historical source record*/SKILL.md`
+- Web docs: historical source record, `ulw-plan.md`, `start-work.md`, `ulw-loop.md`, `ultrawork.md`, `skills.md`
 
 ### Implementation Steps
 1. For each skill, create `SKILL.md` with:
    - name, description/trigger conditions
-   - canonical LazyCodex source reference (exact file path)
+   - canonical historical source record source reference (exact file path)
    - purpose, required context, step-by-step procedure
    - allowed edits, forbidden behavior
    - verification gates, failure handling
@@ -126,7 +126,7 @@ Implement the core LazyCodex workflows as Trae Skills and command prompts.
 5. Update command index and parity ledger.
 
 ### Verification Steps
-1. Every skill maps back to a canonical LazyCodex method.
+1. Every skill maps back to a canonical historical source record method.
 2. Every command has usage, inputs, outputs, and success criteria.
 3. No skill assumes unavailable tools (check against Trae built-in tool list).
 4. Command index updated.
@@ -139,7 +139,7 @@ A user can manually drive LazyTrae in Trae using skills/commands only.
 Delete generated `.trae/skills/` and `.trae/commands/` directories.
 
 ### Risks
-- **Medium**: Skill prompts may be too long for effective context usage. Mitigation: keep SKILL.md files concise, use pointer pattern from LazyCodex ultrawork component.
+- **Medium**: Skill prompts may be too long for effective context usage. Mitigation: keep SKILL.md files concise, use pointer pattern from historical source record ultrawork component.
 - **Low**: Command names may conflict with existing Trae slash commands. Mitigation: prefix-check against known Trae commands.
 
 ---
@@ -147,7 +147,7 @@ Delete generated `.trae/skills/` and `.trae/commands/` directories.
 ## v0.4 — Custom Agents
 
 ### Objective
-Recreate OmO's role separation using Trae custom agents and SOLO subagents.
+Recreate workflow harness's role separation using Trae custom agents and SOLO subagents.
 
 ### Files to Create/Modify
 #### Agents
@@ -167,15 +167,15 @@ Recreate OmO's role separation using Trae custom agents and SOLO subagents.
 - `docs/lazytrae-agent-orchestration.md` — create
 - `docs/lazytrae-parity-ledger.md` — update
 
-### LazyCodex Reference
-- Agent TOML files: `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml`, `librarian.toml`, `plan.toml`, `metis.toml`, `momus.toml`
-- Discipline agents doc: `lazycodex/packages/web/content/docs/discipline-agents.md`
-- Ultrawork directive: `lazycodex/plugins/omo/components/ultrawork/directive.md`
+### historical source record Reference
+- Agent TOML files: historical source record, `librarian.toml`, `plan.toml`, `metis.toml`, `momus.toml`
+- Discipline agents doc: historical source record
+- Ultrawork directive: historical source record
 
 ### Implementation Steps
 1. For each agent, define:
    - mission (what it does, when to invoke)
-   - LazyCodex/OmO source behavior reference
+   - historical source record source behavior reference
    - allowed actions (tools, MCP)
    - forbidden actions (e.g., planner cannot edit product code)
    - required context files
@@ -234,17 +234,17 @@ Stop relying on prompts alone; add durable long-horizon state.
 - `.lazytrae/schemas/boulder.schema.json` — create
 - `.lazytrae/schemas/active-loop.schema.json` — create
 - `.lazytrae/schemas/evidence.schema.json` — create
-- `.omo/plans/` — create directory
-- `.omo/ulw-loop/` — create directory
+- `.workflow/plans/` — create directory
+- `.workflow/ulw-loop/` — create directory
 - `docs/lazytrae-parity-ledger.md` — update
 
-### LazyCodex Reference
-- ulw-loop constants: `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts`
-- ulw-loop domain types: `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts`
-- ulw-loop plan CRUD: `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts`
-- ulw-loop evidence: `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts`
-- ulw-loop quality gate: `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts`
-- Boulder docs: `lazycodex/packages/web/content/docs/start-work.md`, `discipline-agents.md`
+### historical source record Reference
+- ulw-loop constants: historical source record
+- ulw-loop domain types: historical source record
+- ulw-loop plan CRUD: historical source record
+- ulw-loop evidence: historical source record
+- ulw-loop quality gate: historical source record
+- Boulder docs: historical source record, `discipline-agents.md`
 
 ### Implementation Steps
 1. Create `.lazytrae/config.json` with LazyTrae version, routing config, and feature flags.
@@ -252,7 +252,7 @@ Stop relying on prompts alone; add durable long-horizon state.
 3. Define active-loop schema: status (idle/initializing/planning/active/verifying/reviewing/blocked/paused/complete/cancelled), goals, criteria, iteration counter, checkpoints, completion promise.
 4. Define evidence schema: kind (test-run/verifier/reviewer/oracle/completion/handoff), timestamp, content, file references, verdict.
 5. Create evidence file templates.
-6. Create `.omo/` compatibility directories.
+6. Create `.workflow/` compatibility directories.
 7. Document plan parser behavior (read Markdown plans, extract checklist tasks).
 8. Document completion gates: all required tasks done, evidence exists, verification passed or waiver documented, reviewer/Oracle passed or caveats accepted, handoff/completion file exists.
 
@@ -268,11 +268,11 @@ Stop relying on prompts alone; add durable long-horizon state.
 LazyTrae can resume work across sessions and cannot honestly mark long-horizon work complete without evidence.
 
 ### Rollback Strategy
-Remove `.lazytrae/state/`, `.lazytrae/schemas/`, `.lazytrae/evidence/`, `.lazytrae/config.json`, `.omo/` directories. Preserve docs.
+Remove `.lazytrae/state/`, `.lazytrae/schemas/`, `.lazytrae/evidence/`, `.lazytrae/config.json`, `.workflow/` directories. Preserve docs.
 
 ### Risks
 - **Low**: Schema design may need revision after implementation experience. Mitigation: version schemas from the start (include `version` field).
-- **Low**: .omo mirror may diverge from LazyCodex format. Mitigation: reference LazyCodex type definitions directly.
+- **Low**: .workflow mirror may diverge from historical source record format. Mitigation: reference historical source record type definitions directly.
 
 ---
 
@@ -299,17 +299,17 @@ Package LazyTrae so users do not hand-copy files.
 - `package.json` — update with bin entries
 - `docs/lazytrae-parity-ledger.md` — update
 
-### LazyCodex Reference
-- Entry point: `lazycodex/bin/lazycodex-ai.js` — thin alias to `npx oh-my-openagent omo install --platform=codex`
-- Bootstrap component: `lazycodex/plugins/omo/components/bootstrap/src/cli.ts`, `provision.ts`, `setup.ts`
-- Web docs: `lazycodex/packages/web/content/docs/installation.md`, `getting-started.md`
+### historical source record Reference
+- Entry point: historical source record — thin alias to `npx oh-my-openagent workflow install --platform=codex`
+- Bootstrap component: historical source record, `provision.ts`, `setup.ts`
+- Web docs: historical source record, `getting-started.md`
 
 ### Implementation Steps
 1. Implement `lazytrae init`:
    - Detect repo root (search for `.git`, `package.json`, etc.)
    - Create `.trae/` artifacts (rules, commands, skills, agents, hooks, MCP)
    - Create `.lazytrae/` runtime directories (state, evidence, logs, schemas)
-   - Create `.omo/` compatibility directories
+   - Create `.workflow/` compatibility directories
    - Generate or merge AGENTS.md with managed blocks
    - Never overwrite user content outside managed blocks
 2. Implement `lazytrae doctor`:
@@ -318,7 +318,7 @@ Package LazyTrae so users do not hand-copy files.
    - Validate commands exist
    - Validate agent prompts exist
    - Validate state schemas
-   - Validate .omo mirror is present
+   - Validate .workflow mirror is present
    - Validate MCP config parses
    - Validate hook scripts are executable
    - Validate parity ledger covers all discovered methods
@@ -359,7 +359,7 @@ Use `lazytrae uninstall`. CLI is npm-based, so `npm uninstall -g lazytrae-ai` re
 ## v0.7 — Hooks and Enforcement
 
 ### Objective
-Approximate LazyCodex's lifecycle enforcement using Trae hooks.
+Approximate historical source record's lifecycle enforcement using Trae hooks.
 
 ### Files to Create/Modify
 - `.trae/hooks/session-start.sh` — create
@@ -372,12 +372,12 @@ Approximate LazyCodex's lifecycle enforcement using Trae hooks.
 - `.lazytrae/logs/hooks.ndjson` — create (hook event log)
 - `docs/lazytrae-parity-ledger.md` — update
 
-### LazyCodex Reference
-- Plugin manifest hooks: `lazycodex/plugins/omo/.codex-plugin/plugin.json` (lines 22-44)
-- Component hooks: `lazycodex/plugins/omo/hooks/post-tool-use-checking-comments.json`, `lazycodex/plugins/omo/components/ulw-loop/hooks/hooks.json`, `lazycodex/plugins/omo/components/rules/hooks/hooks.json`, etc.
-- Rules hook: `lazycodex/plugins/omo/components/rules/src/codex-hook.ts`
-- Ultrawork hook: `lazycodex/plugins/omo/components/ultrawork/src/codex-hook.ts`
-- Comment checker hook: `lazycodex/plugins/omo/components/comment-checker/src/codex-hook.ts`
+### historical source record Reference
+- Plugin manifest hooks: historical source record (lines 22-44)
+- Component hooks: historical source record, historical source record, historical source record, etc.
+- Rules hook: historical source record
+- Ultrawork hook: historical source record
+- Comment checker hook: historical source record
 
 ### Implementation Steps
 1. Create hook dispatcher (`lazytrae hook <event>`) as single entry point for all hook scripts.
@@ -443,10 +443,10 @@ Expose LazyTrae state and verification tools through MCP.
 - `docs/lazytrae-mcp-and-tools.md` — create
 - `docs/lazytrae-parity-ledger.md` — update
 
-### LazyCodex Reference
-- MCP config: `lazycodex/plugins/omo/.mcp.json`
+### historical source record Reference
+- MCP config: historical source record
 - MCP servers: grep_app, context7, codegraph, git_bash, lsp
-- Codegraph MCP bridge: `lazycodex/plugins/omo/components/codegraph/src/mcp-bridge.ts`
+- Codegraph MCP bridge: historical source record
 
 ### Implementation Steps
 1. Create `.trae/mcp.json` with LazyTrae MCP server entry and optional template servers.
@@ -480,7 +480,7 @@ Disable LazyTrae MCP entry in `.trae/mcp.json`; core state files still work manu
 
 ### Risks
 - **Low**: MCP server may have compatibility issues with Trae's MCP implementation. Mitigation: test against Trae's MCP protocol; use standard MCP SDK.
-- **Low**: State file corruption from concurrent access. Mitigation: use file-based locking (same approach as LazyCodex ulw-loop).
+- **Low**: State file corruption from concurrent access. Mitigation: use file-based locking (same approach as historical source record ulw-loop).
 
 ---
 
@@ -495,18 +495,18 @@ Implement the real LazyTrae equivalent of ulw-loop.
 - `packages/cli/src/commands/loop.ts` — create (loop CLI)
 - `.lazytrae/state/active-loop.json` — update with real behavior
 - `.lazytrae/logs/loop-events.ndjson` — create
-- `.omo/ulw-loop/<run-id>/goals.json` — create (compatibility mirror)
-- `.omo/ulw-loop/<run-id>/ledger.jsonl` — create (compatibility mirror)
+- `.workflow/ulw-loop/<run-id>/goals.json` — create (compatibility mirror)
+- `.workflow/ulw-loop/<run-id>/ledger.jsonl` — create (compatibility mirror)
 - `docs/lazytrae-execution-loop.md` — create
 - `docs/lazytrae-verifier-protocol.md` — create
 - `docs/lazytrae-reviewer-protocol.md` — create
 - `docs/lazytrae-failure-recovery.md` — create
 - `docs/lazytrae-parity-ledger.md` — update
 
-### LazyCodex Reference
-- ulw-loop full source: `lazycodex/plugins/omo/components/ulw-loop/src/` (all files)
-- ulw-loop SKILL.md: `lazycodex/plugins/omo/components/ulw-loop/skills/ulw-loop/SKILL.md`
-- Web docs: `lazycodex/packages/web/content/docs/ulw-loop.md`, `ultrawork.md`
+### historical source record Reference
+- ulw-loop full source: historical source record (all files)
+- ulw-loop SKILL.md: historical source record
+- Web docs: historical source record, `ultrawork.md`
 
 ### Implementation Steps
 1. Implement loop state machine with 10 states:
@@ -517,7 +517,7 @@ Implement the real LazyTrae equivalent of ulw-loop.
 4. Implement checkpointing: save progress after each completed task.
 5. Implement steering mutations: add_subgoal, split_subgoal, reorder_pending, revise_pending_wording, revise_criterion, annotate_ledger, mark_blocked_superseded.
 6. Implement five evidence gates: plan reread, automated verification, manual-QA, adversarial QA, cleanup.
-7. Implement .omo compatibility mirror: write goals.json, ledger.jsonl, brief.md in .omo/ulw-loop/<run-id>/.
+7. Implement .workflow compatibility mirror: write goals.json, ledger.jsonl, brief.md in .workflow/ulw-loop/<run-id>/.
 8. Create protocol docs for verifier and reviewer.
 9. Create failure recovery doc.
 
@@ -529,7 +529,7 @@ Implement the real LazyTrae equivalent of ulw-loop.
 5. Fix failure.
 6. Confirm reviewer passes.
 7. Confirm completion file is written.
-8. Confirm .omo mirror files are written.
+8. Confirm .workflow mirror files are written.
 9. Parity ledger updated.
 
 ### Success Criteria
@@ -541,14 +541,14 @@ Run `lazytrae loop cancel` or set active-loop status to cancelled through CLI.
 ### Risks
 - **Medium**: Loop may get stuck in infinite retry cycles. Mitigation: iteration cap, backoff on repeated failures, require user intervention after N consecutive failures.
 - **Medium**: State file corruption on crash. Mitigation: atomic writes, file-based mutation locks, ledger-based recovery.
-- **Low**: .omo mirror format may diverge from LazyCodex. Mitigation: reference LazyCodex type definitions directly; run compatibility tests.
+- **Low**: .workflow mirror format may diverge from historical source record Mitigation: reference historical source record type definitions directly; run compatibility tests.
 
 ---
 
 ## v0.10 — Model Routing
 
 ### Objective
-Approximate OmO category routing.
+Approximate workflow harness category routing.
 
 ### Files to Create/Modify
 - `.lazytrae/config.json` — update with routing section
@@ -557,9 +557,9 @@ Approximate OmO category routing.
 - `packages/cli/src/commands/run.ts` — create (optional runner)
 - `docs/lazytrae-parity-ledger.md` — update
 
-### LazyCodex Reference
-- Model catalog: `lazycodex/plugins/omo/model-catalog.json`
-- Web docs: `lazycodex/packages/web/content/docs/model-routing.md`
+### historical source record Reference
+- Model catalog: historical source record
+- Web docs: historical source record
 
 ### Implementation Steps
 1. Add routing section to `.lazytrae/config.json`:
@@ -598,7 +598,7 @@ Disable runner config in `.lazytrae/config.json`; native LazyTrae continues work
 ## v0.11 — Team Mode / Parallel Work
 
 ### Objective
-Recreate OmO-style parallelism creatively.
+Recreate workflow harness-style parallelism creatively.
 
 ### Files to Create/Modify
 - `docs/lazytrae-team-mode.md` — create
@@ -609,10 +609,10 @@ Recreate OmO-style parallelism creatively.
 - `packages/cli/src/commands/team.ts` — create (optional)
 - `docs/lazytrae-parity-ledger.md` — update
 
-### LazyCodex Reference
-- Team mode component: `lazycodex/plugins/omo/components/teammode/`
-- Team mode skill: `lazycodex/plugins/omo/components/teammode/skills/teammode/SKILL.md`
-- Web docs: `lazycodex/packages/web/content/docs/` (team mode references)
+### historical source record Reference
+- Team mode component: historical source record
+- Team mode skill: historical source record
+- Web docs: historical source record (team mode references)
 
 ### Implementation Steps
 1. Document native version:
@@ -663,8 +663,8 @@ Prove LazyTrae can use itself.
 - `docs/lazytrae-parity-ledger.md` — update
 - `docs/lazytrae-risk-register.md` — update
 
-### LazyCodex Reference
-- Dogfood evidence: `lazycodex/.omo/evidence/` (v11-consolidation.md, v11-slop-report.md, v11-full-e2e.txt, v11-lighthouse.txt, v12-* files, screenshots)
+### historical source record Reference
+- Dogfood evidence: historical source record (v11-consolidation.md, v11-slop-report.md, v11-full-e2e.txt, v11-lighthouse.txt, v12-* files, screenshots)
 
 ### Implementation Steps
 1. Choose one small real task (e.g., improve one skill, add missing verification detail, fix parity-ledger gap, add smoke test, improve docs consistency).
@@ -737,17 +737,17 @@ Produce a usable release.
 - `docs/lazytrae-parity-ledger.md` — update (final)
 - `docs/lazytrae-risk-register.md` — update (final)
 
-### LazyCodex Reference
-- README: `lazycodex/README.md`
-- Release artifacts: `lazycodex/package.json`, `lazycodex/bin/lazycodex-ai.js`
-- CI/CD: `lazycodex/.github/workflows/`
-- Web docs: `lazycodex/packages/web/content/docs/` (20 docs)
+### historical source record Reference
+- README: historical source record
+- Release artifacts: historical source record, historical source record
+- CI/CD: historical source record
+- Web docs: historical source record (20 docs)
 
 ### Implementation Steps
 1. Create `README-LAZYTRAE.md` with install, commands, architecture, FAQ.
 2. Create `docs/lazytrae-quickstart.md` with 5-minute getting-started guide.
 3. Create `docs/lazytrae-final-parity-report.md` with:
-   - Original LazyCodex method, source path, LazyTrae equivalent, implementation status (complete/partial/deferred/not applicable), evidence path, verification method, caveats
+   - Original historical source record method, source path, LazyTrae equivalent, implementation status (complete/partial/deferred/not applicable), evidence path, verification method, caveats
 4. Create `docs/lazytrae-known-gaps.md` with honest documentation of all gaps.
 5. Final verification:
    - Run all repo tests/checks
@@ -755,7 +755,7 @@ Produce a usable release.
    - Run smoke parity check
    - Validate docs links
    - Confirm every skill has usage, inputs, outputs, success criteria
-   - Confirm LazyTrae can be used without reading the original LazyCodex repo
+   - Confirm LazyTrae can be used without reading the original historical source record repo
 
 ### Verification Steps
 1. Run all tests/checks.
@@ -763,7 +763,7 @@ Produce a usable release.
 3. Run smoke parity check.
 4. Check every docs link.
 5. Confirm every command/skill has usage, inputs, outputs, success criteria.
-6. Confirm LazyTrae can be used without reading the original LazyCodex repo.
+6. Confirm LazyTrae can be used without reading the original historical source record repo.
 
 ### Success Criteria
 A developer can install and use LazyTrae from README alone.

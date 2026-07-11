@@ -1,7 +1,7 @@
 # LazyTrae Execution Loop
 
 > **v0.9 — Long-Horizon Execution Loop.** Part of the v0.x series.
-> This document specifies the durable, auditable, resumable execution loop — the LazyTrae equivalent of LazyCodex ulw-loop.
+> This document specifies the durable, auditable, resumable execution loop — the LazyTrae equivalent of historical source record ulw-loop.
 
 ## 1. Loop States
 
@@ -96,7 +96,7 @@ Valid transitions between loop states:
 
 ## 3. Loop Cycle (13 Steps)
 
-From plan/v0.9-long-horizon-loop.md, verified against LazyCodex `directive.md`:
+From plan/v0.9-long-horizon-loop.md, verified against historical source record `directive.md`:
 
 1. **Load project memory** — Read `AGENTS.md`, `.trae/rules/`, `.lazytrae/state/active-loop.json`.
 2. **Expand user goal** — Normalize goal text into a completion promise. Record in `completion_promise` field.
@@ -114,7 +114,7 @@ From plan/v0.9-long-horizon-loop.md, verified against LazyCodex `directive.md`:
 
 ## 4. Completion Promise
 
-The loop knows it is done through a formal completion mechanism, matching LazyCodex semantics:
+The loop knows it is done through a formal completion mechanism, matching historical source record semantics:
 
 - The agent emits `<promise>DONE</promise>` when it believes all work is complete.
 - This does NOT end the loop. The Oracle must verify.
@@ -122,11 +122,11 @@ The loop knows it is done through a formal completion mechanism, matching LazyCo
 - If Oracle APPROVEs, the loop writes `aggregate_completion` to `active-loop.json` with status `"complete"`, `completed_at` timestamp, and `evidence` path.
 - If Oracle rejects: "Oracle verification failed. Continuing ULTRAWORK loop." — loop stays in `active` state.
 
-Source: `lazycodex/packages/web/content/docs/ulw-loop.md` lines 5-6.
+Source: historical source record lines 5-6.
 
 ## 5. Iteration Caps
 
-From `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` (line 500/100) and `lazycodex/packages/web/content/docs/ulw-loop.md` (line 25):
+From historical source record (line 500/100) and historical source record (line 25):
 
 | Mode | Max Iterations | Source |
 |------|---------------|--------|
@@ -156,7 +156,7 @@ State is persisted after each step so the loop survives restarts:
 }
 ```
 
-Source: checkpoint structure from `lazycodex/plugins/omo/components/ulw-loop/src/checkpoint.ts` (CheckpointUlwLoopArgs/CheckpointUlwLoopResult).
+Source: checkpoint structure from historical source record (CheckpointUlwLoopArgs/CheckpointUlwLoopResult).
 
 ## 7. Resumption
 
@@ -172,7 +172,7 @@ The notepad (`.lazytrae/notepad.md` for the LazyTrae adaptation of the ultrawork
 
 ## 8. Concurrency
 
-Mutation locks prevent concurrent loop modifications, matching LazyCodex `plan-io.ts`:
+Mutation locks prevent concurrent loop modifications, matching historical source record `plan-io.ts`:
 
 - **In-memory plan mutation lock**: `withUlwLoopMutationLock()` serializes all writes to `active-loop.json` within a process. Keyed by `repoRoot + "\0" + relativePath`. Uses promise chaining, not file-system locks.
 - **File-based session lock**: `mkdir`-based atomic lock for session state. 20 retries with 5ms delay. Returns contention error after 20 failures.
@@ -180,7 +180,7 @@ Mutation locks prevent concurrent loop modifications, matching LazyCodex `plan-i
 
 ## 9. Steering Mutations
 
-All 7 mutation types from `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` are supported and can be applied during the loop:
+All 7 mutation types from historical source record are supported and can be applied during the loop:
 
 | # | Mutation | When Allowed | Description |
 |---|----------|-------------|-------------|
@@ -237,14 +237,14 @@ Each event is a single NDJSON line: `{ "timestamp": "<ISO>", "run_id": "<id>", "
 
 ## 12. References
 
-- LazyCodex ulw-loop docs: `lazycodex/packages/web/content/docs/ulw-loop.md`
-- LazyCodex ultrawork directive: `lazycodex/plugins/omo/components/ultrawork/directive.md`
-- LazyCodex domain types: `lazycodex/plugins/omo/components/ulw-loop/src/domain-types.ts`
-- LazyCodex constants: `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts`
-- LazyCodex plan CRUD: `lazycodex/plugins/omo/components/ulw-loop/src/plan-crud.ts`
-- LazyCodex plan I/O: `lazycodex/plugins/omo/components/ulw-loop/src/plan-io.ts`
-- LazyCodex evidence: `lazycodex/plugins/omo/components/ulw-loop/src/evidence.ts`
-- LazyCodex quality gate: `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts`
-- LazyCodex steering: `lazycodex/plugins/omo/components/ulw-loop/src/steering.ts`
-- LazyCodex checkpoint: `lazycodex/plugins/omo/components/ulw-loop/src/checkpoint.ts`
+- historical source record ulw-loop docs: historical source record
+- historical source record ultrawork directive: historical source record
+- historical source record domain types: historical source record
+- historical source record constants: historical source record
+- historical source record plan CRUD: historical source record
+- historical source record plan I/O: historical source record
+- historical source record evidence: historical source record
+- historical source record quality gate: historical source record
+- historical source record steering: historical source record
+- historical source record checkpoint: historical source record
 - LazyTrae state machine: `docs/lazytrae-state-machine.md`

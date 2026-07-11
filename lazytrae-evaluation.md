@@ -32,4 +32,4 @@ The 15-tool count applies only after the local MCP server connects. Package read
 
 ## Attribution and limits
 
-LazyTrae is an adaptation of the LazyCodex/OmO workflow ideas; the repository [NOTICE](NOTICE) and [LICENSE](LICENSE) remain the authoritative attribution and license records. This document intentionally replaces historical percentage claims with observable v0.15 package evidence. It makes no claim of Linux or Windows verification and no claim that a live Trae host session has been exercised.
+LazyTrae's attribution and license are recorded exclusively in the repository [NOTICE](NOTICE) and [LICENSE](LICENSE). This document intentionally replaces historical percentage claims with observable v0.15 package evidence. It makes no claim of Linux or Windows verification and no claim that a live Trae host session has been exercised.

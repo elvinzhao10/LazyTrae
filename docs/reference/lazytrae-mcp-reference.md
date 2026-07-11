@@ -211,8 +211,8 @@ The following optional MCP servers are configured in `.trae/mcp.json` with `requ
 
 | Server | Purpose | Source |
 | --- | --- | --- |
-| `grep_app` | Remote code search | `https://mcp.grep.app` (mirrors LazyCodex) |
-| `context7` | Documentation lookup | `https://mcp.context7.com/mcp` (mirrors LazyCodex) |
+| `grep_app` | Remote code search | `https://mcp.grep.app` (mirrors historical source record) |
+| `context7` | Documentation lookup | `https://mcp.context7.com/mcp` (mirrors historical source record) |
 | `filesystem` | File system access | `@modelcontextprotocol/server-filesystem` |
 | `git` | Git operations | `@modelcontextprotocol/server-git` |
 | `playwright` | Browser automation | `@playwright/mcp` |
@@ -221,7 +221,7 @@ The following optional MCP servers are configured in `.trae/mcp.json` with `requ
 
 ## Security
 
-State tools access `.lazytrae/` state and evidence paths. Context tools read local project files for search, docs lookup, and dependency inspection, skipping large dependency/reference directories such as `.git`, `node_modules`, `reference`, and `lazycodex`. The `record_evidence` and `mark_task_done` tools only append to or update well-known paths within `.lazytrae/evidence/` and `.lazytrae/state/`.
+State tools access `.lazytrae/` state and evidence paths. Context tools read local project files for search, docs lookup, and dependency inspection, skipping large dependency/reference directories such as `.git`, `node_modules`, `reference`, and historical source record. The `record_evidence` and `mark_task_done` tools only append to or update well-known paths within `.lazytrae/evidence/` and `.lazytrae/state/`.
 
 ## Graceful Degradation
 

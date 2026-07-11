@@ -31,9 +31,9 @@
   "final_quality_gate": null,
   "checkpoints": [],
   "metadata": {
-    "description": "LazyTrae Active Loop state — mirrors LazyCodex UlwLoopPlan.",
+    "description": "LazyTrae active-loop state.",
     "max_iterations": 500,
-    "iteration_cap_source": "lazycodex/packages/web/content/docs/ulw-loop.md (line 25)",
+    "iteration_cap_source": "LazyTrae active-loop policy",
     "goal_statuses": ["pending", "in_progress", "complete", "failed", "blocked", "review_blocked", "needs_user_decision"],
     "loop_states": ["idle", "initializing", "planning", "active", "verifying", "reviewing", "blocked", "paused", "complete", "cancelled"],
     "criterion_statuses": ["pending", "pass", "fail", "blocked"],

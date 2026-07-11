@@ -7,9 +7,6 @@ description: "Frontend development best practices. Use for UI, web frontend, and
 
 Frontend development discipline for LazyTrae. Ensures UI work follows best practices for accessibility, responsiveness, performance, and user experience. Frontend code is user-facing — quality directly impacts perception.
 
-## Canonical LazyCodex Source
-
-`lazycodex/plugins/omo/skills/frontend/SKILL.md` — frontend best practices: accessibility, responsive design, performance, component architecture, state management, testing, browser compatibility.
 
 ## Purpose
 

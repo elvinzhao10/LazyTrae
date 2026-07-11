@@ -1,7 +1,6 @@
 # Manual-QA Evidence (Verifier)
 
 > **Gate 3: Manual-QA** — Real-surface proof through channels.
-> LazyCodex source: `lazycodex/plugins/omo/components/ultrawork/directive.md` (Manual-QA channels: HTTP, tmux, browser, CLI, data)
 
 ## Template
 

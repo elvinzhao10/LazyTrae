@@ -21,7 +21,7 @@ The review MUST run:
 
 Review is an Oracle gate — it is triggered, not optional. HEAVY tier tasks that skip review are incomplete.
 
-Source: `lazycodex/plugins/omo/components/ultrawork/directive.md` Verification gate section, `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts`.
+Source: historical source record Verification gate section, historical source record.
 
 ## 2. The Five Evidence Gates
 
@@ -67,7 +67,7 @@ Before any task can be marked complete, it must pass ALL five evidence gates:
 - AI slop removed (dead code, unused imports, stale comments).
 - Evidence: Cleanup receipts at `.lazytrae/evidence/reviewer.md`.
 
-Source: `lazycodex/packages/web/content/docs/hooks-lifecycle.md`, `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts`.
+Source: historical source record, historical source record.
 
 ## 3. Reviewer Verdicts
 
@@ -105,7 +105,7 @@ The Oracle issues exactly one of three verdicts:
 - Review re-runs (with same reviewer).
 - Max 3 ITERATE cycles per task. After 3, escalate to REJECT.
 
-**ITERATE violations** (from LazyCodex quality gate):
+**ITERATE violations** (from historical source record quality gate):
 - Missing or empty evidence.
 - Incomplete criteria (some still `pending`).
 - Linter warnings.
@@ -133,7 +133,7 @@ The Oracle issues exactly one of three verdicts:
 
 ## 4. Reviewer Constraints
 
-From LazyCodex and LazyTrae conventions:
+From historical source record and LazyTrae conventions:
 
 1. **Reviewer is read-only by default** — The Oracle agent has `disallowed: [Edit, Write]`. It reads code, runs tests, checks evidence, but does NOT modify files.
 2. **Binding verdicts** — There is NO "false positive". Every concern is real. Do not argue, minimise, or explain away.
@@ -142,11 +142,11 @@ From LazyCodex and LazyTrae conventions:
 5. **Stopping early IS failure** — Do not declare done until unconditional approval is received.
 6. **No self-review for HEAVY** — HEAVY tier always requires an independent Oracle subagent. LIGHT tier self-reviews in the notepad.
 
-Source: `directive.md` Verification gate procedure, `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` `validateQualityGate`.
+Source: `directive.md` Verification gate procedure, historical source record `validateQualityGate`.
 
 ## 5. Adversarial QA: 9 Adversarial Classes
 
-The LazyCodex quality gate spec defines adversarial classes that must be covered:
+The historical source record quality gate spec defines adversarial classes that must be covered:
 
 | # | Class | Description |
 |---|-------|-------------|
@@ -162,7 +162,7 @@ The LazyCodex quality gate spec defines adversarial classes that must be covered
 
 Not all classes apply to all tasks. The reviewer documents which classes were covered and which were waived with justification.
 
-Source: `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` `parseAdversarialCases` (line 236-257), `criteriaCoverage.adversarialClassesCovered`.
+Source: historical source record `parseAdversarialCases` (line 236-257), `criteriaCoverage.adversarialClassesCovered`.
 
 ## 6. Completion Claim
 
@@ -183,10 +183,10 @@ The quality gate structure (from `domain-types.ts` `UlwLoopQualityGate`):
 
 ## 7. References
 
-- LazyCodex quality gate: `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts`
-- LazyCodex quality gate blockers: `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate-blockers.ts`
-- LazyCodex ultrawork directive: `lazycodex/plugins/omo/components/ultrawork/directive.md`
-- LazyCodex hooks lifecycle: `lazycodex/packages/web/content/docs/hooks-lifecycle.md`
-- LazyCodex manual QA: `lazycodex/packages/web/content/docs/manual-qa.md`
+- historical source record quality gate: historical source record
+- historical source record quality gate blockers: historical source record
+- historical source record ultrawork directive: historical source record
+- historical source record hooks lifecycle: historical source record
+- historical source record manual QA: historical source record
 - LazyTrae execution loop: `docs/lazytrae-execution-loop.md`
 - LazyTrae verifier protocol: `docs/lazytrae-verifier-protocol.md`

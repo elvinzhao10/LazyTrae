@@ -1,7 +1,7 @@
 # LazyTrae v0.13 — Dogfood Run Report
 
 > **Version**: v0.13 diagnostics and fixes
-> **Plan**: `.omo/plans/lazytrae-v0-13-diagnosis.md`
+> **Plan**: `.workflow/plans/lazytrae-v0-13-diagnosis.md`
 > **Dogfood fixture**: `/var/folders/m6/mmqh7djx5z94rjrtfqdshftw0000gp/T/lazytrae-task-6-0pYk3K`
 
 ## Objective
@@ -185,7 +185,7 @@ The v0.13 review loop produced a real blocker during T4:
 
 | Blocker | Evidence | Resolution |
 | --- | --- | --- |
-| `lazytrae.dependency_graph` allowed `..` path traversal outside the repo | `.omo/evidence/lazytrae-v0-13-t4-context-tooling-mcp-code-review.md` | Added `safeProjectPath` boundary enforcement and an adversarial test for `../../.codex/skills/.system/openai-docs/SKILL.md`; final rereview passed in `.omo/evidence/lazytrae-v0-13-t4-context-tooling-mcp-final-rereview-code-review.md` |
+| `lazytrae.dependency_graph` allowed `..` path traversal outside the repo | `.workflow/evidence/lazytrae-v0-13-t4-context-tooling-mcp-code-review.md` | Added `safeProjectPath` boundary enforcement and an adversarial test for `../../.codex/skills/.system/openai-docs/SKILL.md`; final rereview passed in `.workflow/evidence/lazytrae-v0-13-t4-context-tooling-mcp-final-rereview-code-review.md` |
 
 ## Final Status
 

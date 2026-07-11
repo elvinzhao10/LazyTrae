@@ -20,7 +20,7 @@
 - **Category**: Hooks
 - **Affected versions**: v0.7, v0.9
 - **Description**: Trae has no PostCompact hook event. LazyTrae must detect compaction heuristically via SessionStart source, UserPromptSubmit transcript markers, and state file tracking. These heuristics may miss some compaction events, causing rules and context to not be re-injected after compaction.
-- **LazyCodex reference**: `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 38: PostCompact hook), `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts`
+- **historical source record reference**: historical source record (line 38: PostCompact hook), historical source record
 - **Mitigation**:
   1. Combine multiple detection strategies (SessionStart source field, transcript content scanning, state file tracking)
   2. Log all detection events for debugging
@@ -34,7 +34,7 @@
 - **Category**: CLI
 - **Affected versions**: v0.2, v0.6
 - **Description**: `lazytrae init` must merge LazyTrae content into existing AGENTS.md. If managed block markers are malformed, placed incorrectly, or conflict with existing content, the merge could corrupt the file or lose user content.
-- **LazyCodex reference**: LazyCodex does not auto-merge AGENTS.md (it uses `.codex/rules/` directory); this is a LazyTrae-specific concern.
+- **historical source record reference**: historical source record does not auto-merge AGENTS.md (it uses `.codex/rules/` directory); this is a LazyTrae-specific concern.
 - **Mitigation**:
   1. Use HTML comment markers (`<!-- LAZYTRAE:START -->` / `<!-- LAZYTRAE:END -->`) for managed blocks
   2. Always create backup before merge (`.AGENTS.md.lazytrae.bak`)
@@ -48,7 +48,7 @@
 - **Category**: Skills
 - **Affected versions**: v0.3
 - **Description**: SKILL.md files may become too long, consuming excessive context. Trae's context window is limited, and verbose skills reduce effective working memory for the actual task.
-- **LazyCodex reference**: `lazycodex/plugins/omo/components/ultrawork/src/skill-pointer.ts` — LazyCodex uses a <4096-byte pointer to direct the model to read the full skill, avoiding context bloat from hook output.
+- **historical source record reference**: historical source record — historical source record uses a <4096-byte pointer to direct the model to read the full skill, avoiding context bloat from hook output.
 - **Mitigation**:
   1. Keep each SKILL.md under 200 lines; use references to external docs for detailed procedures
   2. Use Trae's native skill loading (descriptions are scanned first, full SKILL.md loaded only when relevant)
@@ -61,14 +61,14 @@
 - **Severity**: MEDIUM
 - **Category**: Agents
 - **Affected versions**: v0.4
-- **Description**: Trae custom agents have access to specific built-in tools (read, file system, terminal, web search, preview). Some LazyCodex agent roles (e.g., Explorer using `lsp_goto_definition`, `lsp_find_references`) require tools not available to Trae custom agents.
-- **LazyCodex reference**: `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` (Tool strategy section: lsp_*, ast-grep, rg, glob, read, git)
+- **Description**: Trae custom agents have access to specific built-in tools (read, file system, terminal, web search, preview). Some historical source record agent roles (e.g., Explorer using `lsp_goto_definition`, `lsp_find_references`) require tools not available to Trae custom agents.
+- **historical source record reference**: historical source record (Tool strategy section: lsp_*, ast-grep, rg, glob, read, git)
 - **Mitigation**:
   1. Verify Trae custom agent tool list before finalizing agent prompts
   2. Document any tool gaps in agent prompt (e.g., "If LSP tools are unavailable, use grep-based search")
   3. Provide MCP-based alternatives where possible (e.g., LSP MCP server)
-  4. Accept that some LazyCodex agent capabilities (LSP-based code navigation) may be degraded
-- **Acceptance criteria**: Each agent prompt explicitly lists available tools; 80% of LazyCodex agent tool usage is covered.
+  4. Accept that some historical source record agent capabilities (LSP-based code navigation) may be degraded
+- **Acceptance criteria**: Each agent prompt explicitly lists available tools; 80% of historical source record agent tool usage is covered.
 
 ### R-005: Hook Script Performance Impact
 
@@ -76,7 +76,7 @@
 - **Category**: Hooks
 - **Affected versions**: v0.7
 - **Description**: Hook scripts that run on every PostToolUse or UserPromptSubmit could add latency to Trae operations. If hooks are slow (>1s), they degrade the user experience.
-- **LazyCodex reference**: `lazycodex/plugins/omo/components/ulw-loop/hooks/hooks.json` (timeout: 10 for UserPromptSubmit, 5 for PreToolUse)
+- **historical source record reference**: historical source record (timeout: 10 for UserPromptSubmit, 5 for PreToolUse)
 - **Mitigation**:
   1. Keep all hook scripts fast (<500ms target, <1s hard limit)
   2. Use timeout in hook configuration (Trae supports hook timeouts)
@@ -90,27 +90,27 @@
 - **Category**: State Machine
 - **Affected versions**: v0.5, v0.9
 - **Description**: If LazyTrae or Trae crashes while writing state files (boulder.json, active-loop.json), the files could be corrupted, leaving the workflow in an unrecoverable state.
-- **LazyCodex reference**: `lazycodex/plugins/omo/components/ulw-loop/src/plan-io.ts` (withUlwLoopMutationLock — file-based locking), `lazycodex/plugins/omo/components/ulw-loop/src/ledger.jsonl` (append-only audit trail for recovery)
+- **historical source record reference**: historical source record (withUlwLoopMutationLock — file-based locking), historical source record (append-only audit trail for recovery)
 - **Mitigation**:
   1. Use atomic writes (write to temp file, then rename)
-  2. Use file-based mutation locks (same approach as LazyCodex ulw-loop)
+  2. Use file-based mutation locks (same approach as historical source record ulw-loop)
   3. Maintain append-only ledger (ledger.jsonl) for recovery
   4. Doctor command includes state file integrity check
   5. Provide `lazytrae doctor --repair-state` for recovery
 - **Acceptance criteria**: Kill process during state write; state is recoverable from ledger; doctor detects and reports corruption.
 
-### R-007: Retired .omo Mirror Format Divergence
+### R-007: Retired .workflow Mirror Format Divergence
 
 - **Severity**: LOW
 - **Category**: Compatibility
 - **Affected versions**: v0.5, v0.9; retired in v0.15
-- **Description**: The `.omo` compatibility mirror was retired in v0.15, eliminating the risk of a LazyTrae-managed mirror diverging from LazyCodex's format.
-- **Canonical state**: Active LazyTrae state is stored only in `.lazytrae`. Any pre-existing `.omo` data is foreign or legacy data and is not read or managed by LazyTrae.
+- **Description**: The `.workflow` compatibility mirror was retired in v0.15, eliminating the risk of a LazyTrae-managed mirror diverging from historical source record's format.
+- **Canonical state**: Active LazyTrae state is stored only in `.lazytrae`. Any pre-existing `.workflow` data is foreign or legacy data and is not read or managed by LazyTrae.
 - **Mitigation**:
   1. Maintain `.lazytrae` as the only active canonical state location.
-  2. Do not add `.omo` migration, mirror, read, or management behavior.
+  2. Do not add `.workflow` migration, mirror, read, or management behavior.
   3. Keep historical references to the retired mirror clearly marked as historical.
-- **Acceptance criteria**: Active LazyTrae documentation and runtime behavior provide no `.omo` compatibility-mirror instruction or management path.
+- **Acceptance criteria**: Active LazyTrae documentation and runtime behavior provide no `.workflow` compatibility-mirror instruction or management path.
 
 ### R-008: Loop Infinite Retry Cycles
 
@@ -118,7 +118,7 @@
 - **Category**: Long-Horizon Loop
 - **Affected versions**: v0.9
 - **Description**: The ulw-loop may get stuck in infinite retry cycles if verification consistently fails and the model keeps retrying without making progress.
-- **LazyCodex reference**: `lazycodex/plugins/omo/components/ulw-loop/src/constants.ts` (iteration cap: 500 in ultrawork mode, 100 in normal mode), `lazycodex/packages/web/content/docs/ulw-loop.md`
+- **historical source record reference**: historical source record (iteration cap: 500 in ultrawork mode, 100 in normal mode), historical source record
 - **Mitigation**:
   1. Implement iteration caps (500 ultrawork, 100 normal)
   2. Implement backoff on repeated failures (exponential or linear)
@@ -132,8 +132,8 @@
 - **Severity**: MEDIUM
 - **Category**: Team Mode
 - **Affected versions**: v0.11
-- **Description**: If two parallel workers attempt to write to the same file, conflicts can corrupt implementation state. LazyCodex handles this via worktree isolation.
-- **LazyCodex reference**: `lazycodex/plugins/omo/components/teammode/` (team mode component), `lazycodex/packages/web/content/docs/` (team mode documentation)
+- **Description**: If two parallel workers attempt to write to the same file, conflicts can corrupt implementation state. historical source record handles this via worktree isolation.
+- **historical source record reference**: historical source record (team mode component), historical source record (team mode documentation)
 - **Mitigation**:
   1. Enforce worktree requirement for parallel write-heavy tasks
   2. Read-only workers (Explorer, Librarian, Reviewer) can run in parallel safely
@@ -147,7 +147,7 @@
 - **Category**: Platform
 - **Affected versions**: All
 - **Description**: Trae IDE may change its APIs, hook format, MCP protocol, or agent capabilities in future updates, breaking LazyTrae's integration.
-- **LazyCodex reference**: Not applicable — this is a platform risk.
+- **historical source record reference**: Not applicable — this is a platform risk.
 - **Mitigation**:
   1. Use only documented Trae features (verified from docs.trae.cn)
   2. Doctor command detects breaking changes (e.g., hooks.json format changes)
@@ -160,22 +160,22 @@
 - **Severity**: LOW
 - **Category**: Parity
 - **Affected versions**: v0.13
-- **Description**: Some LazyCodex features may not have complete LazyTrae equivalents by v0.13, leaving gaps in the parity ledger.
-- **LazyCodex reference**: All components under `lazycodex/plugins/omo/components/`
+- **Description**: Some historical source record features may not have complete LazyTrae equivalents by v0.13, leaving gaps in the parity ledger.
+- **historical source record reference**: All components under historical source record
 - **Mitigation**:
-  1. Track every LazyCodex method in the parity ledger from v0.1
+  1. Track every historical source record method in the parity ledger from v0.1
   2. Classify gaps honestly: complete, partial, deferred, not applicable
   3. Document known gaps in known-gaps.md
   4. Prioritize core workflow features over nice-to-have features
-- **Acceptance criteria**: Parity ledger covers 100% of discovered LazyCodex methods; deferred items have documented rationale.
+- **Acceptance criteria**: Parity ledger covers 100% of discovered historical source record methods; deferred items have documented rationale.
 
 ### R-012: No PostCompact Hook Event (Fundamental Platform Gap)
 
 - **Severity**: HIGH
 - **Category**: Platform
 - **Affected versions**: All
-- **Description**: Trae IDE does not have a PostCompact hook event. LazyCodex uses PostCompact to reset rule caches and re-inject rules after every context compaction. Without this, rules injected by hooks may be lost after compaction, and the agent may not have access to project rules without re-reading them manually.
-- **LazyCodex reference**: `lazycodex/plugins/omo/.codex-plugin/plugin.json` (line 38: PostCompact hook), `lazycodex/plugins/omo/components/rules/src/post-compact-state.ts`
+- **Description**: Trae IDE does not have a PostCompact hook event. historical source record uses PostCompact to reset rule caches and re-inject rules after every context compaction. Without this, rules injected by hooks may be lost after compaction, and the agent may not have access to project rules without re-reading them manually.
+- **historical source record reference**: historical source record (line 38: PostCompact hook), historical source record
 - **Mitigation**:
   1. Detect compaction heuristically via SessionStart source field and UserPromptSubmit transcript markers
   2. Maintain compaction state in `.lazytrae/state/sessions.json`
@@ -190,8 +190,8 @@
 - **Severity**: MEDIUM
 - **Category**: Platform
 - **Affected versions**: All
-- **Description**: LazyCodex agents are TOML files with `model`, `reasoning_effort`, `service_tier`, and `disallowed_tools` that the platform enforces at runtime. Trae's Task/subagent tool cannot select roles by name — agent role requirements must be pasted into the task description as text. There is no runtime guarantee that a subagent is actually operating under the specified role constraints (model, tools, effort level).
-- **LazyCodex reference**: `lazycodex/plugins/omo/components/ultrawork/agents/*.toml`, `multi_agent_v1.spawn_agent` with role parameter
+- **Description**: historical source record agents are TOML files with `model`, `reasoning_effort`, `service_tier`, and `disallowed_tools` that the platform enforces at runtime. Trae's Task/subagent tool cannot select roles by name — agent role requirements must be pasted into the task description as text. There is no runtime guarantee that a subagent is actually operating under the specified role constraints (model, tools, effort level).
+- **historical source record reference**: historical source record*.toml`, `multi_agent_v1.spawn_agent` with role parameter
 - **Mitigation**:
   1. Document role requirements in task descriptions explicitly
   2. Use YAML frontmatter in agent .md files as specification (even if not enforced)
@@ -206,8 +206,8 @@
 - **Severity**: MEDIUM
 - **Category**: Platform
 - **Affected versions**: All
-- **Description**: LazyCodex `multi_agent_v1.spawn_agent` returns immediately, and the parent uses `multi_agent_v1.wait_agent` to poll — allowing the parent to continue working while subagents run. Trae's Task/subagent tool is synchronous — the parent blocks until the subagent returns. This means: (1) no parallel execution of parent and subagent work, (2) no progress updates during long subagent tasks, (3) the parent can't do independent root work while exploration subagents run.
-- **LazyCodex reference**: `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml` (strategy: parallel read-only exploration), `multi_agent_v1.wait_agent`
+- **Description**: historical source record `multi_agent_v1.spawn_agent` returns immediately, and the parent uses `multi_agent_v1.wait_agent` to poll — allowing the parent to continue working while subagents run. Trae's Task/subagent tool is synchronous — the parent blocks until the subagent returns. This means: (1) no parallel execution of parent and subagent work, (2) no progress updates during long subagent tasks, (3) the parent can't do independent root work while exploration subagents run.
+- **historical source record reference**: historical source record (strategy: parallel read-only exploration), `multi_agent_v1.wait_agent`
 - **Mitigation**:
   1. Launch all read-only subagents (explorer, librarian) at the start and wait for all together
   2. Use batch parallelism (multiple subagents at once) instead of interleaved parallelism
@@ -221,15 +221,15 @@
 - **Severity**: HIGH
 - **Category**: Platform
 - **Affected versions**: All
-- **Description**: Trae hooks cannot block operations — all hooks must exit 0. LazyCodex hooks can block: the Stop hook prevents session termination if evidence gates haven't passed, PreToolUse denies destructive operations, and PostToolUse rejects edits that fail quality checks. This is how LazyCodex **mechanically enforces** its evidence gate and quality bar. In LazyTrae, the Stop hook can only print a continuation reminder that the user can dismiss. This means the evidence/completion gate is advisory, not enforced — a user can always end a session without passing verification gates.
-- **LazyCodex reference**: `lazycodex/plugins/omo/.codex-plugin/plugin.json` (lines 30, 33, 41-42: PreToolUse, PostToolUse, Stop hooks with blocking capability)
+- **Description**: Trae hooks cannot block operations — all hooks must exit 0. historical source record hooks can block: the Stop hook prevents session termination if evidence gates haven't passed, PreToolUse denies destructive operations, and PostToolUse rejects edits that fail quality checks. This is how historical source record **mechanically enforces** its evidence gate and quality bar. In LazyTrae, the Stop hook can only print a continuation reminder that the user can dismiss. This means the evidence/completion gate is advisory, not enforced — a user can always end a session without passing verification gates.
+- **historical source record reference**: historical source record (lines 30, 33, 41-42: PreToolUse, PostToolUse, Stop hooks with blocking capability)
 - **Mitigation**:
   1. Reviewer/Oracle protocol emphasizes completion claims without evidence are invalid
   2. Hooks provide prominent reminders and warnings
   3. Agent instructions (ulw-loop skill) require evidence before claiming completion
-  4. Document this as the defining structural deficit vs LazyCodex
+  4. Document this as the defining structural deficit vs historical source record
 - **Acceptance criteria**: Non-blocking limitation is documented in hooks reference, risk register, and parity ledger. Soft enforcement via agent discipline is the accepted mitigation.
-- **Fundamental limitation**: Trae would need to support non-zero exit codes in hooks to block operations. This is not currently available. This is the **single sharpest differentiator** between LazyTrae and LazyCodex/LazyBuddy — LazyBuddy can block; Trae cannot.
+- **Fundamental limitation**: Trae would need to support non-zero exit codes in hooks to block operations. This is not currently available. This is the **single sharpest differentiator** between LazyTrae and historical source record — LazyBuddy can block; Trae cannot.
 
 ## Risk Matrix by Version
 

@@ -5,7 +5,7 @@
 
 ## Overview
 
-LazyTrae uses Trae's native hook system to approximate LazyCodex's lifecycle enforcement. Hooks provide:
+LazyTrae uses Trae's native hook system to approximate historical source record's lifecycle enforcement. Hooks provide:
 
 - Durable state persistence across sessions — nudges Trae back to unfinished work
 - Sanity checks (write-before-read warning, destructive git command warning)
@@ -21,7 +21,7 @@ No network calls from any hook. All operations are pure local file I/O.
 
 Trae fires 6 hook events. LazyTrae implements 5 of them directly. The sixth (Notification) is available for future use.
 
-| Trae Event | LazyTrae Hook | Purpose | LazyCodex Equivalent |
+| Trae Event | LazyTrae Hook | Purpose | historical source record Equivalent |
 | --- | --- | --- | --- |
 | **SessionStart** | `.trae/hooks/session-start.sh` | Reads `boulder.json`, `active-loop.json`, `sessions.json`. Outputs active plan name, current task, blockers, next action, active loop goal/iteration. Checks for post-compact recovery and emits recovery notice if needed. | `SessionStart` — rules loading, bootstrap, state check |
 | **UserPromptSubmit** | `.trae/hooks/user-prompt-submit.sh` | Detects keywords: `ulw`, `ultrawork`, `start-work`, `ulw-loop`, `handoff`, `stop-continuation`, `ralph-loop`. Emits skill-loading hint if detected. Checks for context-pressure markers (compaction warnings) and sets `post_compact_recovery_needed=true` in `sessions.json`. Detects ulw-loop steering directives. | `UserPromptSubmit` — rules re-injection, ultrawork trigger detection, ulw-loop steering |
@@ -59,8 +59,8 @@ Trae fires 6 hook events. LazyTrae implements 5 of them directly. The sixth (Not
 1. Reads prompt from stdin (hook event JSON).
 2. If prompt contains `ultrawork` or `ulw` (case-insensitive), emits hint to load ultrawork directive via ulw-plan/ulw-loop skill.
 3. If prompt contains any of the LazyTrae command keywords (`ulw-loop`, `start-work`, `ulw-plan`, `handoff`, `stop-continuation`, `ralph-loop`, `init-deep`, `review-work`, `remove-ai-slops`), emits hint that the skill should be loaded.
-4. If prompt contains an ulw-loop steering directive (`OMO_ULW_LOOP_STEER`, `omo.ulw-loop.steer`, `omo ulw-loop steer`), emits note that it will be processed by the loop engine.
-5. If prompt contains any context-pressure markers (mirroring LazyCodex `context-pressure.ts`):
+4. If prompt contains an ulw-loop steering directive (`OMO_ULW_LOOP_STEER`, `workflow.ulw-loop.steer`, `workflow ulw-loop steer`), emits note that it will be processed by the loop engine.
+5. If prompt contains any context-pressure markers (mirroring historical source record `context-pressure.ts`):
    - `context compacted`
    - `context_length_exceeded`
    - `skill descriptions were shortened`
@@ -140,7 +140,7 @@ Trae fires 6 hook events. LazyTrae implements 5 of them directly. The sixth (Not
 
 ### The Gap
 
-LazyCodex has a `PostCompact` hook event that fires after context compaction. LazyCodex uses this to:
+historical source record has a `PostCompact` hook event that fires after context compaction. historical source record uses this to:
 - Reset caches (project rule cache, LSP diagnostics cache, git bash MCP reminder cache)
 - Re-inject project rules after compaction
 
@@ -156,7 +156,7 @@ LazyTrae uses a two-part detection strategy:
    - Emit the recovery notice
    - Reset the flag to `false`
 
-The recovery notice reminds the agent to re-read the project rules (AGENTS.md) and state context, which accomplishes the same goal as LazyCodex's PostCompact hook.
+The recovery notice reminds the agent to re-read the project rules (AGENTS.md) and state context, which accomplishes the same goal as historical source record's PostCompact hook.
 
 ### State Changes
 
@@ -205,9 +205,9 @@ All LazyTrae hooks follow these safety rules:
 
 ## Structural Limitation: Non-Blocking Hooks
 
-**This is the defining structural deficit of LazyTrae compared to LazyCodex.**
+**This is the defining structural deficit of LazyTrae compared to historical source record**
 
-LazyCodex hooks can block tool execution — the Stop hook can prevent session termination if evidence gates haven't passed, PreToolUse can deny destructive operations, and PostToolUse can reject edits that fail quality checks. This is how LazyCodex mechanically enforces its evidence gate and quality bar.
+historical source record hooks can block tool execution — the Stop hook can prevent session termination if evidence gates haven't passed, PreToolUse can deny destructive operations, and PostToolUse can reject edits that fail quality checks. This is how historical source record mechanically enforces its evidence gate and quality bar.
 
 Trae hooks **cannot block**. All hooks exit 0 unconditionally. The `Stop` hook can only print a continuation reminder — the user can always dismiss it and end the session. This means:
 
@@ -256,9 +256,9 @@ The dispatcher:
 5. Captures stdout/stderr and writes to parent stdout/stderr.
 6. If the script fails for any reason, logs a warning but still exits 0 (hooks must not block).
 
-## Parity with LazyCodex
+## Parity with historical source record
 
-| LazyCodex Hook Component | LazyTrae Equivalent | Status |
+| historical source record Hook Component | LazyTrae Equivalent | Status |
 | --- | --- | --- |
 | SessionStart hook | `.trae/hooks/session-start.sh` | COMPLETE |
 | UserPromptSubmit hook | `.trae/hooks/user-prompt-submit.sh` | COMPLETE |
@@ -277,11 +277,11 @@ The dispatcher:
 
 ## References
 
-- LazyCodex source: `lazycodex/plugins/omo/.codex-plugin/plugin.json`
-- LazyCodex rules component: `lazycodex/plugins/omo/components/rules/src/`
-- LazyCodex comment-checker: `lazycodex/plugins/omo/components/comment-checker/`
-- LazyCodex ultrawork: `lazycodex/plugins/omo/components/ultrawork/src/codex-hook.ts`
-- LazyCodex ulw-loop steering: `lazycodex/plugins/omo/components/ulw-loop/src/steering.ts`
+- historical source record source: historical source record
+- historical source record rules component: historical source record
+- historical source record comment-checker: historical source record
+- historical source record ultrawork: historical source record
+- historical source record ulw-loop steering: historical source record
 - Architecture: `docs/lazytrae-architecture-plan.md` §2.5, §4
 - Parity ledger: `docs/lazytrae-parity-ledger.md`
 - State machine: `docs/lazytrae-state-machine.md`

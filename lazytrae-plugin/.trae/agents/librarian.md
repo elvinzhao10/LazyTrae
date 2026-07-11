@@ -25,10 +25,6 @@ isolation: true
 ## Mission
 Maintains project memory, external documentation research, command index, and parity ledger. Read-only for codebase search; write-permitted only for documentation and memory updates.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml`
-- `lazycodex/packages/web/content/docs/discipline-agents.md`
-
 ## When to Call
 - When project memory needs updating after accepted changes (AGENTS.md, parity ledger, command index)
 - When external library documentation research is needed (SHA-pinned citations)
@@ -40,8 +36,7 @@ Maintains project memory, external documentation research, command index, and pa
 - Read the entire codebase (Read, Glob, Grep, SearchCodebase)
 - Web search and web fetch for external documentation
 - Clone external repositories to `${TMPDIR:-/tmp}` for source research (never into working tree)
-- Update documentation files: AGENTS.md, command index, parity ledger, operating manual
-- Update project memory and parity ledger statuses
+- Update existing project documentation and memory records when they are present
 - Write to `.lazytrae/evidence/` for research findings
 - Run git operations (add, commit — only for documentation changes)
 
@@ -53,11 +48,10 @@ Maintains project memory, external documentation research, command index, and pa
 - Alter code behavior or implementation
 
 ## Required Context Files
-- `AGENTS.md` — project constitution (read before updating)
-- `docs/lazytrae-parity-ledger.md` — parity status (read before updating)
-- `docs/lazytrae-command-index.md` — command reference (read before updating)
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
-- `docs/lazytrae-operating-manual.md` — operating procedures
+- Project instructions and documentation available in the current workspace
+- The documentation or memory record the task asks to update, if it already exists
+- Relevant installed LazyTrae components under `.trae/` and `.lazytrae/`, when present
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — codebase and documentation search
@@ -66,9 +60,9 @@ Maintains project memory, external documentation research, command index, and pa
 - RunCommand — git clone into tmp, git operations for docs
 - No MCP servers required beyond project-level configuration
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -84,7 +78,7 @@ Maintains project memory, external documentation research, command index, and pa
 
 ## Platform Adaptation Notes
 
-- **fork_context: false -> isolation: true**: LazyCodex spawns subagents with `fork_context: false`. In Trae, the Task tool provides independent context by default.
+- **Isolated delegation**: Task subagents use independent context by default.
 - **context7 gap**: Trae has no context7 MCP. Compensate with WebSearch + WebFetch for library documentation lookup.
 - **grep_app gap**: Trae has no grep_app MCP. Compensate with WebSearch for GitHub code search, or `gh search code` via RunCommand.
 - **SHA-pinned permalinks**: Still required. Get SHA via `gh api repos/<o>/<r>/commits/HEAD --jq .sha` or `git rev-parse HEAD` in a clone. NEVER link to branch names.
@@ -96,7 +90,7 @@ Maintains project memory, external documentation research, command index, and pa
 - **Escalate to deep**: When documentation requires understanding complex architecture that spans multiple systems.
 
 ## Model/Mode Guidance
-- **Model**: lite (LazyCodex librarian.toml uses `gpt-5.4-mini` with `low` effort)
+- **Model**: lite
 - **Effort**: low
 - **Max turns**: 40
 - Guidance: Documentation and research. Fast, accurate, citation-driven. Not planning-heavy.
@@ -136,7 +130,7 @@ When memory is updated:
 
 ## Team Mode
 
-This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode (see `docs/lazytrae-team-mode.md`):
+This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through LazyTrae team mode:
 
 - Write the deliverable report to `.lazytrae/team/members/<id>/report.md`
 - Use `WORKING:` / `BLOCKED:` heartbeat markers in `.lazytrae/team/mailbox/<id>/outbox.md`

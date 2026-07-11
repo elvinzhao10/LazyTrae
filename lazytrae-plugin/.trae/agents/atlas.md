@@ -23,10 +23,6 @@ isolation: true
 ## Mission
 Executes approved checklist items from a plan one at a time, following the boulder state discipline. Methodical, precise, and evidence-driven.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/packages/web/content/docs/discipline-agents.md` — lazycodex-executor
-- `lazycodex/packages/web/content/docs/start-work.md`
-
 ## When to Call
 - When Sisyphus has an approved plan and needs tasks executed
 - When the `start-work` command is invoked
@@ -52,10 +48,11 @@ Executes approved checklist items from a plan one at a time, following the bould
 
 ## Required Context Files
 - The plan file being executed (from `.lazytrae/plans/`)
-- `.lazytrae/state/boulder.json` — current boulder state
-- `AGENTS.md` — project constitution and operating rules
+- `.lazytrae/state/boulder.json` — current boulder state, if it exists
+- Project instructions and referenced files available in the current workspace
 - All reference files listed in the current task
-- `docs/lazytrae-command-index.md` — for command semantics
+- Relevant installed command definitions or current code when command semantics matter
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
 ## Tools/MCP Expectations
 - Read, Glob, Grep, SearchCodebase — codebase exploration
@@ -63,9 +60,9 @@ Executes approved checklist items from a plan one at a time, following the bould
 - RunCommand — build, test, lint, type-check, git operations
 - No MCP servers required beyond project-level configuration
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |

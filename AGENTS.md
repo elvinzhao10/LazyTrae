@@ -2,7 +2,7 @@
 
 > **Agent:** this file is the **setup** guide. It tells you how to install and configure LazyTrae. For *how to use* the harness once installed, see the [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme).
 
-LazyTrae is a Trae-native adaptation of the LazyCodex/OmO agent harness. It supports Trae IDE, Trae Work, and Trae CLI; the `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
+LazyTrae is a Trae-native workflow harness. It supports Trae IDE, Trae Work, and Trae CLI; the `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
 
 ## `onboard` protocol
 

@@ -7,9 +7,6 @@ description: "Git workflow discipline and best practices. Use for any work invol
 
 Git workflow discipline for LazyTrae. Ensures clean, atomic, well-documented commits and a maintainable history. Good git hygiene makes debugging, review, and collaboration easier.
 
-## Canonical LazyCodex Source
-
-`lazycodex/plugins/omo/skills/git-master/SKILL.md` — git workflow discipline: conventional commits, atomic commits, clean history, rebasing, branching strategies, bisect for debugging, stash, cherry-pick, revert.
 
 ## Purpose
 

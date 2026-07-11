@@ -1,5 +1,7 @@
 # LazyTrae v0.12 Dogfood — Reviewer/Oracle Report
 
+> **Historical record (non-operational):** This archived v0.x review retains LazyCodex/OmO provenance for study only. Current attribution is in [NOTICE](../../NOTICE) and [LICENSE](../../LICENSE).
+
 > **Plan**: `docs/lazytrae-dogfood-plan.md`
 > **Reviewer**: Oracle (gate review role)
 > **Date**: 2026-07-09
@@ -12,7 +14,7 @@ Re-read the plan and compare against the implementation.
 | Criterion | Expected | Actual | Status |
 |---|---|---|---|
 | Frontmatter has name + triggers | `name: coding-agent-sessions` with trigger keywords | Line 2-3: present with 10+ trigger keywords | PASS |
-| Canonical source reference | Cites `lazycodex/plugins/omo/skills/coding-agent-sessions/SKILL.md` | Line 12: exact citation | PASS |
+| Canonical source reference | Cites historical source record | Line 12: exact citation | PASS |
 | Procedure uses Trae-native tools | SearchCodebase, Grep, Read (not Python scripts) | Lines 30-65: uses Read, Grep, Glob | PASS |
 | Procedure references sessions.json | `.lazytrae/state/sessions.json` as primary store | Lines 20, 30-36: clear reference | PASS |
 | Procedure covers all operations | List, search, read, reconstruct | Sections 1-5 cover all four | PASS |
@@ -108,4 +110,4 @@ All five evidence gates pass. Two minor notes are non-blocking:
 | 4. Adversarial QA | PASS (1 note) |
 | 5. Cleanup | PASS |
 
-The implementation faithfully adapts the LazyCodex `coding-agent-sessions` skill to the Trae environment, using Trae-native tools and the LazyTrae session state store. The parity ledger item 8.15 is correctly moved from DESIGN to COMPLETE with all arithmetic verified. No regressions detected.
+The implementation faithfully adapts the historical source record `coding-agent-sessions` skill to the Trae environment, using Trae-native tools and the LazyTrae session state store. The parity ledger item 8.15 is correctly moved from DESIGN to COMPLETE with all arithmetic verified. No regressions detected.

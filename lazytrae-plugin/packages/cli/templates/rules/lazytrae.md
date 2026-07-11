@@ -15,11 +15,11 @@
 - Store active plans in `.lazytrae/plans/`; keep loop state in `.lazytrae/loop/`.
 - Keep LazyTrae configuration, state, and evidence in `.lazytrae/`.
 
-### Preserve LazyCodex Semantics
+### Preserve LazyTrae Semantics
 - Keep command names (`init-deep`, `ulw-plan`, `start-work`, `ulw-loop`) where they communicate parity.
 - Preserve workflow phases: Explore -> Plan -> Implement -> Verify -> Manually QA.
 - Preserve the five evidence gates: plan reread, automated verification, manual-QA, adversarial QA, cleanup.
-- Document any deviation from LazyCodex semantics.
+- Document any deviation from LazyTrae semantics.
 
 ### Execute One Checklist Item at a Time
 - During `start-work`, execute one plan checkbox at a time.

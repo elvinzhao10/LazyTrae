@@ -23,12 +23,7 @@ isolation: true
 `oracle`
 
 ## Mission
-Post-implementation reviewer, architecture consultant, and verification gate enforcer. Consolidates LazyCodex's lazycodex-code-reviewer, lazycodex-qa-executor, and lazycodex-gate-reviewer roles. Read-only by default.
-
-## LazyCodex/OmO Source Reference
-- `lazycodex/packages/web/content/docs/discipline-agents.md` — lazycodex-code-reviewer, lazycodex-qa-executor, lazycodex-gate-reviewer
-- `lazycodex/packages/web/content/docs/review-work.md`
-- `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (five evidence gates)
+Post-implementation reviewer, architecture consultant, and verification gate enforcer. Combines code review, QA execution, and gate-review responsibilities. Read-only by default.
 
 ## When to Call
 - After implementation is complete and needs independent review
@@ -69,9 +64,9 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 - WebSearch — for documentation consultation (architecture questions)
 - No MCP servers required beyond project-level configuration
 
-## Codex -> Trae Tool Mapping
+## Trae Tool Guidance
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| Common operation | Trae tool | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -100,7 +95,7 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 
 ## Model/Mode Guidance
 - **Model**: max
-- **Effort**: xhigh (LazyCodex verifier profile uses `xhigh`)
+- **Effort**: xhigh
 - **Max turns**: 120
 - Guidance: This is the strongest reasoning role. Oracle is the final judgment before completion. Needs deep analytical capability.
 

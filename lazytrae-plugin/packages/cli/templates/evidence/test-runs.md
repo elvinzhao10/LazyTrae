@@ -1,7 +1,6 @@
 # Automated Verification Evidence
 
 > **Gate 2: Automated Verification** — Tests, linters, type checks, builds.
-> LazyCodex source: `lazycodex/packages/web/content/docs/tdd.md`
 
 ## Template
 

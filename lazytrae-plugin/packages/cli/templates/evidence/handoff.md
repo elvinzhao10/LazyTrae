@@ -1,7 +1,6 @@
 # Session Handoff
 
 > **Handoff Summary** — What the next session needs to know to continue.
-> LazyCodex source: `lazycodex/packages/web/content/docs/` (handoff workflow)
 
 ## Template
 

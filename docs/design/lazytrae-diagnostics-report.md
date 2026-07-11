@@ -2,7 +2,7 @@
 
 > **Scope**: Deep diagnostics and fixes for the v0.0-v0.12 LazyTrae build.
 > **Plan**: `plan/v0.13-diagnostics-fixes.md`
-> **Execution plan**: `.omo/plans/lazytrae-v0-13-diagnosis.md`
+> **Execution plan**: `.workflow/plans/lazytrae-v0-13-diagnosis.md`
 
 ## Final Result
 
@@ -27,15 +27,15 @@ PASS with one documented warning: the standalone MCP server process is not expec
 
 | Area | Severity | Issue | Fix | Evidence |
 | --- | --- | --- | --- | --- |
-| Test harness and doctor | Major | v0.13 needed executable diagnostics rather than static docs only. | Added CLI regression tests and stricter doctor checks. | `.omo/evidence/task-1-lazytrae-v0-13-diagnosis.txt` |
-| Loop runtime | Major | Long-horizon loop state lacked artifact-backed checkpoint semantics. | Added loop runtime/store/quality helpers and tests. | `.omo/evidence/task-2-lazytrae-v0-13-diagnosis.txt` |
-| Completion gates | Blocker | Trae advisory hooks could not hard-block unsupported completion claims. | Added `completion-status`, `verify --must-pass` gate integration, handoff warnings, and MCP `mark_task_done` evidence enforcement. | `.omo/evidence/task-3-lazytrae-v0-13-diagnosis.txt` |
-| Context recovery | Major | No practical mitigation for the missing Trae PostCompact hook. | Added context recovery hooks, CLI command, sessions schema/state metadata, and doctor stale-recovery checks. | `.omo/evidence/task-4-lazytrae-v0-13-diagnosis.txt` |
-| Prompt hook cleanup | Minor | `user-prompt-submit.sh` retained an unused `SESSIONS` assignment. | Removed the stale assignment from live and template hooks. | `.omo/evidence/lazytrae-v0-13-t3-gate-review.md` |
-| MCP context tooling | Major | LazyTrae had no local context query tools. | Added six bounded local context tools: `symbol_search`, `find_references`, `goto_definition`, `diagnostics`, `docs_lookup`, `dependency_graph`. | `.omo/evidence/task-5-lazytrae-v0-13-diagnosis.txt` |
-| MCP `goto_definition` | Major | A successful definition result could still return `no_result: true`. | Corrected `no_result` to reflect `results.length === 0` and added regression coverage. | `.omo/evidence/lazytrae-v0-13-t4-context-tooling-mcp-final-rereview-code-review.md` |
-| MCP path traversal | Blocker | `dependency_graph` accepted paths outside the project via `..`. | Added `safeProjectPath` boundary enforcement and adversarial test coverage. | `.omo/evidence/lazytrae-v0-13-t4-context-tooling-mcp-final-rereview-code-review.md` |
-| Diagnostics robustness | Major | Malformed or `null` `package.json` could crash diagnostics. | Returned structured invalid-package diagnostics. | `.omo/evidence/task-5-lazytrae-v0-13-diagnosis.txt` |
+| Test harness and doctor | Major | v0.13 needed executable diagnostics rather than static docs only. | Added CLI regression tests and stricter doctor checks. | `.workflow/evidence/task-1-lazytrae-v0-13-diagnosis.txt` |
+| Loop runtime | Major | Long-horizon loop state lacked artifact-backed checkpoint semantics. | Added loop runtime/store/quality helpers and tests. | `.workflow/evidence/task-2-lazytrae-v0-13-diagnosis.txt` |
+| Completion gates | Blocker | Trae advisory hooks could not hard-block unsupported completion claims. | Added `completion-status`, `verify --must-pass` gate integration, handoff warnings, and MCP `mark_task_done` evidence enforcement. | `.workflow/evidence/task-3-lazytrae-v0-13-diagnosis.txt` |
+| Context recovery | Major | No practical mitigation for the missing Trae PostCompact hook. | Added context recovery hooks, CLI command, sessions schema/state metadata, and doctor stale-recovery checks. | `.workflow/evidence/task-4-lazytrae-v0-13-diagnosis.txt` |
+| Prompt hook cleanup | Minor | `user-prompt-submit.sh` retained an unused `SESSIONS` assignment. | Removed the stale assignment from live and template hooks. | `.workflow/evidence/lazytrae-v0-13-t3-gate-review.md` |
+| MCP context tooling | Major | LazyTrae had no local context query tools. | Added six bounded local context tools: `symbol_search`, `find_references`, `goto_definition`, `diagnostics`, `docs_lookup`, `dependency_graph`. | `.workflow/evidence/task-5-lazytrae-v0-13-diagnosis.txt` |
+| MCP `goto_definition` | Major | A successful definition result could still return `no_result: true`. | Corrected `no_result` to reflect `results.length === 0` and added regression coverage. | `.workflow/evidence/lazytrae-v0-13-t4-context-tooling-mcp-final-rereview-code-review.md` |
+| MCP path traversal | Blocker | `dependency_graph` accepted paths outside the project via `..`. | Added `safeProjectPath` boundary enforcement and adversarial test coverage. | `.workflow/evidence/lazytrae-v0-13-t4-context-tooling-mcp-final-rereview-code-review.md` |
+| Diagnostics robustness | Major | Malformed or `null` `package.json` could crash diagnostics. | Returned structured invalid-package diagnostics. | `.workflow/evidence/task-5-lazytrae-v0-13-diagnosis.txt` |
 | Dogfood evidence | Major | v0.12 dogfood report was stale for the v0.13 diagnostics scope. | Replaced it with a v0.13 dogfood report covering CLI, MCP, state, hook, repair, reviewer, and handoff evidence. | `docs/lazytrae-dogfood-run.md` |
 | Test file ceiling | Major | `packages/cli/test/cli.test.js` reached 291 physical lines, exceeding the v0.13 250-line ceiling. | Moved loop CLI tests into `packages/cli/test/loop-cli.test.js`; final counts are 225 and 72 lines. | `npm test`, line-count check |
 | Security review | Blocker | Final security review found shell interpolation, hook `eval`, lexical-only path checks, and absolute artifact path acceptance. | Replaced unsafe shell execution with argv-based `spawnSync`, removed PostToolUse `eval`, parsed hook state through argv/stdin, added realpath-aware repo-boundary checks, and added six adversarial security tests. | `packages/cli/test/security.test.js`, `npm test` |
@@ -117,12 +117,12 @@ Key v0.13-generated paths:
 Pre-existing/out-of-scope dirty state:
 
 - `plan/v0.13-final-release.md` is deleted in the worktree and has not been restored.
-- `plan/v0.13-diagnostics-fixes.md`, `plan/v0.14-final-release.md`, and `docs/lazytrae-diagnosis-evaluation-vs-lazycodex-lazybuddy.md` were present as untracked planning inputs.
+- `plan/v0.13-diagnostics-fixes.md`, `plan/v0.14-final-release.md`, and historical source record were present as untracked planning inputs.
 
 ## Remaining Issues
 
 No v0.13 blocker remains after the final verification wave passes. The following are documented non-blockers:
 
-- The local canonical LazyCodex path is now documented as `dev/reference/lazycodex/`; legacy logical references beginning with `lazycodex/...` resolve under that directory.
+- The local canonical historical source record path is now documented as historical source record; legacy logical references beginning with historical source record resolve under that directory.
 - Codegraph remains an optional external gap. The new MCP context tools are heuristic/local and do not claim semantic codegraph parity.
 - Trae has no native PostCompact hook. v0.13 mitigates context recovery through SessionStart/UserPromptSubmit detection and an explicit recover-context command.
