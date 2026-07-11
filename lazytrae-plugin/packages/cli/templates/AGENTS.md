@@ -48,7 +48,7 @@ cd /path/to/your/project
 node /path/to/LazyTrae/lazytrae-plugin/packages/cli/src/index.js init --host ide
 ```
 
-This fallback copies the project `.trae/`, `.lazytrae/`, and compatibility `.omo/` trees without `npm` or `npx`. It does **not** install a global `lazytrae` executable, so the generated `lazytrae mcp` declaration cannot connect until that separate companion is installed. Use it for local skills, commands, rules, and hooks; report the MCP step as pending.
+This fallback copies the project `.trae/` and `.lazytrae/` trees without `npm` or `npx`. It does **not** install a global `lazytrae` executable, so the generated `lazytrae mcp` declaration cannot connect until that separate companion is installed. Use it for local skills, commands, rules, and hooks; report the MCP step as pending.
 
 ## Step B — Trae Work setup
 
@@ -72,7 +72,7 @@ lazytrae doctor    # expect 0 FAIL (WARNs are environmental: empty evidence, etc
 
 ## What gets installed
 
-`.trae/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, 8 hook scripts for 5 events, and 10 MCP declarations), `.lazytrae/` (canonical LazyTrae schemas/config/runtime data), `.omo/` (retained legacy/workflow-compatibility runtime for plans and loop state), and this `AGENTS.md` (setup guide). The `lazytrae` MCP declaration supplies 15 tools when connected. `.trae/` and `.lazytrae/` remain canonical; do not migrate or delete `.omo/` in this release. All skills/commands are `lazy-` prefixed.
+`.trae/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, 8 hook scripts for 5 events, and 10 MCP declarations), `.lazytrae/` (canonical LazyTrae schemas, config, plans, loop, and runtime data), and this `AGENTS.md` (setup guide). The `lazytrae` MCP declaration supplies 15 tools when connected. All skills/commands are `lazy-` prefixed.
 
 ## Reference
 

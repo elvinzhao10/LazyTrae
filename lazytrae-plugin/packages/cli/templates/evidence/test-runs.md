@@ -7,7 +7,7 @@
 
 ### Plan Under Verification
 
-- **Plan file**: `.omo/plans/<plan-name>.md`
+- **Plan file**: `.lazytrae/plans/<plan-name>.md`
 - **Task ID**: `<task-id>`
 - **Task description**: `<description>`
 
@@ -51,7 +51,7 @@
 
 ### Plan Under Verification
 
-- **Plan file**: `.omo/plans/v0.5-state-machine.md`
+- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
 - **Task ID**: `task-1`
 - **Task description**: Create `.lazytrae/config.json`
 

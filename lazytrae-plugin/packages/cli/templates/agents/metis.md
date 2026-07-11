@@ -49,7 +49,7 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 - Invent problems — report only gaps that would block a competent executor
 
 ## Required Context Files
-- The draft plan file (from `.omo/plans/` or `.lazytrae/plans/`)
+- The draft plan file (from `.lazytrae/plans/`)
 - `AGENTS.md` — project constitution and constraints
 - `docs/lazytrae-architecture-plan.md` — architecture decisions
 - The user's original request or brief

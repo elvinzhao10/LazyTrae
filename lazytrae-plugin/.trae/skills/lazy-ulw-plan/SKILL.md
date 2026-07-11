@@ -21,7 +21,7 @@ Produce a single, bulletproof, executable work plan from a vague or large reques
 - The project's AGENTS.md (project constitution, conventions).
 - The `.trae/rules/lazytrae.md` (operating rules).
 - Relevant source files in the codebase (patterns, existing implementations, test infrastructure).
-- The plan file location: `.omo/plans/<slug>.md` (compatibility mirror).
+- The plan file location: `.lazytrae/plans/<slug>.md`.
 
 ## Step-by-Step Procedure
 
@@ -51,7 +51,7 @@ Fan out read-only exploration using Trae Subagents or parallel tool calls. Resea
 
 ### Phase 3: Write the Plan
 
-Write ONE plan to `.omo/plans/<slug>.md`. Use this template:
+Write ONE plan to `.lazytrae/plans/<slug>.md`. Use this template:
 
 ```markdown
 # <Plan Title>
@@ -116,7 +116,7 @@ If `review_required` is true (user requested high accuracy, or UNCLEAR route wit
 
 ## Allowed Edits
 
-- Create `.omo/plans/<slug>.md`.
+- Create `.lazytrae/plans/<slug>.md`.
 - Read project files, search codebase, run read-only analysis.
 - Write plan artifacts only.
 
@@ -145,7 +145,7 @@ If `review_required` is true (user requested high accuracy, or UNCLEAR route wit
 
 ## Output Format
 
-Plan file at `.omo/plans/<slug>.md` with all sections filled. Brief summary of approach, effort estimate, and risk level.
+Plan file at `.lazytrae/plans/<slug>.md` with all sections filled. Brief summary of approach, effort estimate, and risk level.
 
 ## Handoff Target
 

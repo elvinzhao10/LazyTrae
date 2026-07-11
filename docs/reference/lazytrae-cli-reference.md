@@ -62,7 +62,7 @@ lazytrae doctor [options]
 - All schema files (`.lazytrae/schemas/`) are valid JSON
 - Validate state against schemas (if `ajv` is installed)
 - `AGENTS.md` has all required managed blocks
-- `.omo/` compatibility directories exist
+- `.lazytrae/plans/` and `.lazytrae/loop/` directories exist
 - Parity ledger is present and has all expected sections
 
 **Exit codes:**
@@ -104,12 +104,12 @@ lazytrae uninstall [options]
 **Options:**
 - `--help`, `-h` — Show help
 - `--yes`, `-y` — Skip confirmation prompt
-- `--soft` — Only remove managed files (preserve `.lazytrae/` and `.omo/`)
+- `--soft` — Only remove managed files (preserve `.lazytrae/`)
 - `--purge-state` — Remove everything including plans and evidence
 
 **Behavior:**
 - Removes `.trae/` directory
-- By default, preserves `.lazytrae/evidence/` and `.lazytrae/state/` and `.omo/plans/`
+- By default, preserves `.lazytrae/evidence/` and `.lazytrae/state/`
 - With `--purge-state`, removes everything
 - Removes all managed blocks from `AGENTS.md` (leaves user content intact)
 - Removes `.gitignore` entries added by `init`

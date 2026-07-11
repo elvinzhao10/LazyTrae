@@ -6,9 +6,9 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
 const MONOREPO_ROOT = path.resolve(REPO_ROOT, '..');
 const CLI = path.join(REPO_ROOT, 'packages', 'cli', 'src', 'index.js');
-const QUALITY_GATE_PATH = '.omo/evidence/quality.json';
-const BAD_QUALITY_GATE_PATH = '.omo/evidence/bad-quality.json';
-const OLD_QUALITY_GATE_PATH = '.omo/evidence/old-quality.json';
+const QUALITY_GATE_PATH = '.lazytrae/evidence/quality.json';
+const BAD_QUALITY_GATE_PATH = '.lazytrae/evidence/bad-quality.json';
+const OLD_QUALITY_GATE_PATH = '.lazytrae/evidence/old-quality.json';
 
 function runCli(args, options = {}) {
   return spawnSync(process.execPath, [CLI, ...args], {
@@ -51,7 +51,7 @@ function writeActiveWork(root, task) {
     works: {
       'work-1': {
         work_id: 'work-1',
-        active_plan: '.omo/plans/demo.md',
+        active_plan: '.lazytrae/plans/demo.md',
         plan_name: 'demo',
         session_ids: [],
         status: 'active',
@@ -83,11 +83,11 @@ function makeLoopFixture(prefix = 'lazytrae-loop-test-') {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
   fs.mkdirSync(path.join(root, '.lazytrae', 'state'), { recursive: true });
   fs.mkdirSync(path.join(root, '.lazytrae', 'schemas'), { recursive: true });
-  fs.mkdirSync(path.join(root, '.omo', 'evidence'), { recursive: true });
+  fs.mkdirSync(path.join(root, '.lazytrae', 'evidence'), { recursive: true });
   fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'state', 'active-loop.json'), path.join(root, '.lazytrae', 'state', 'active-loop.json'));
   fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'schemas', 'active-loop.schema.json'), path.join(root, '.lazytrae', 'schemas', 'active-loop.schema.json'));
-  fs.writeFileSync(path.join(root, '.omo', 'evidence', 'brief.md'), 'Ship the T1 loop runtime\n');
-  fs.writeFileSync(path.join(root, '.omo', 'evidence', 'proof.txt'), 'observable proof\n');
+  fs.writeFileSync(path.join(root, '.lazytrae', 'evidence', 'brief.md'), 'Ship the T1 loop runtime\n');
+  fs.writeFileSync(path.join(root, '.lazytrae', 'evidence', 'proof.txt'), 'observable proof\n');
   writeCanonicalQualityGate(root, QUALITY_GATE_PATH);
   const badGate = makeCanonicalQualityGate();
   badGate.manualQa.surfaceEvidence = [];
@@ -108,7 +108,7 @@ function makeCanonicalQualityGate() {
       by: 'lazycodex-code-reviewer',
       recommendation: 'APPROVE',
       codeQualityStatus: 'CLEAR',
-      reportPath: '.omo/evidence/code-review.md',
+      reportPath: '.lazytrae/evidence/code-review.md',
       evidence: 'Reviewer approved the implementation and focused tests.',
       blockers: [],
     },
@@ -120,7 +120,7 @@ function makeCanonicalQualityGate() {
         id: 'surface-cli-pass',
         criterionRef: 'crit-1',
         surface: 'cli',
-        invocation: 'lazytrae loop checkpoint --quality-gate-json .omo/evidence/quality.json',
+        invocation: 'lazytrae loop checkpoint --quality-gate-json .lazytrae/evidence/quality.json',
         verdict: 'passed',
         artifactRefs: ['artifact-cli-pass'],
       }],
@@ -133,14 +133,14 @@ function makeCanonicalQualityGate() {
         artifactRefs: ['artifact-cli-reject'],
       }],
       artifactRefs: [
-        { id: 'artifact-cli-pass', kind: 'cli-transcript', description: 'Valid checkpoint transcript.', path: '.omo/evidence/cli-pass.txt' },
-        { id: 'artifact-cli-reject', kind: 'log', description: 'Invalid checkpoint rejection log.', path: '.omo/evidence/rejection.txt' },
+        { id: 'artifact-cli-pass', kind: 'cli-transcript', description: 'Valid checkpoint transcript.', path: '.lazytrae/evidence/cli-pass.txt' },
+        { id: 'artifact-cli-reject', kind: 'log', description: 'Invalid checkpoint rejection log.', path: '.lazytrae/evidence/rejection.txt' },
       ],
     },
     gateReview: {
       by: 'lazycodex-gate-reviewer',
       recommendation: 'APPROVE',
-      reportPath: '.omo/evidence/gate-review.md',
+      reportPath: '.lazytrae/evidence/gate-review.md',
       evidence: 'Gate reviewer approved the artifact-backed completion.',
       blockers: [],
     },
@@ -162,10 +162,10 @@ function makeCanonicalQualityGate() {
 }
 
 function writeCanonicalQualityGate(root, relativePath, gate = makeCanonicalQualityGate()) {
-  fs.writeFileSync(path.join(root, '.omo', 'evidence', 'code-review.md'), 'code review approved\n');
-  fs.writeFileSync(path.join(root, '.omo', 'evidence', 'gate-review.md'), 'gate review approved\n');
-  fs.writeFileSync(path.join(root, '.omo', 'evidence', 'cli-pass.txt'), 'checkpoint passed\n');
-  fs.writeFileSync(path.join(root, '.omo', 'evidence', 'rejection.txt'), 'checkpoint rejected invalid gate\n');
+  fs.writeFileSync(path.join(root, '.lazytrae', 'evidence', 'code-review.md'), 'code review approved\n');
+  fs.writeFileSync(path.join(root, '.lazytrae', 'evidence', 'gate-review.md'), 'gate review approved\n');
+  fs.writeFileSync(path.join(root, '.lazytrae', 'evidence', 'cli-pass.txt'), 'checkpoint passed\n');
+  fs.writeFileSync(path.join(root, '.lazytrae', 'evidence', 'rejection.txt'), 'checkpoint rejected invalid gate\n');
   writeJson(root, relativePath, gate);
   return gate;
 }

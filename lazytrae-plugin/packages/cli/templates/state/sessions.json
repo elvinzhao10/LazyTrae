@@ -25,7 +25,7 @@
         "started_at": "2026-07-09T09:00:00Z",
         "last_active_at": "2026-07-09T11:30:00Z",
         "status": "active",
-        "active_plan": ".omo/plans/sample-plan.md",
+        "active_plan": ".lazytrae/plans/sample-plan.md",
         "work_id": "work-001",
         "agent": "sisyphus",
         "mode": "ultrawork"

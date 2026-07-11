@@ -17,7 +17,7 @@ Completion is **blocked** unless ALL of the following conditions are true:
 
 ### Completion Claim
 
-- **Plan file**: `.omo/plans/<plan-name>.md`
+- **Plan file**: `.lazytrae/plans/<plan-name>.md`
 - **Completed at**: `<ISO 8601 timestamp>`
 - **Completed by**: `<session id>`
 
@@ -48,7 +48,7 @@ Completion is **blocked** unless ALL of the following conditions are true:
 ```
 COMPLETION CLAIMED
 
-Plan: .omo/plans/<plan-name>.md
+Plan: .lazytrae/plans/<plan-name>.md
 Tasks: <N>/<N> complete
 Verification: ALL 5 GATES PASS
 Reviewer: APPROVE
@@ -68,7 +68,7 @@ Evidence:
 
 ### Completion Claim
 
-- **Plan file**: `.omo/plans/v0.5-state-machine.md`
+- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
 - **Completed at**: 2026-07-09T12:00:00Z
 - **Completed by**: session-abc123
 
@@ -80,9 +80,9 @@ Evidence:
 | task-2 | Create .lazytrae/state/ files | complete | `.lazytrae/evidence/test-runs.md` |
 | task-3 | Create .lazytrae/evidence/ templates | complete | `.lazytrae/evidence/verifier.md` |
 | task-4 | Create .lazytrae/schemas/ | complete | `.lazytrae/evidence/test-runs.md` |
-| task-5 | Create .omo/ compatibility mirror | complete | `.lazytrae/evidence/verifier.md` |
+| task-5 | Create canonical runtime directories | complete | `.lazytrae/evidence/verifier.md` |
 | task-6 | Create docs/lazytrae-state-machine.md | complete | `.lazytrae/evidence/test-runs.md` |
-| task-7 | Create .omo/plans/sample-plan.md | complete | `.lazytrae/evidence/verifier.md` |
+| task-7 | Create .lazytrae/plans/sample-plan.md | complete | `.lazytrae/evidence/verifier.md` |
 | task-8 | Update parity ledger | complete | `.lazytrae/evidence/test-runs.md` |
 | task-9 | Update command index | complete | `.lazytrae/evidence/test-runs.md` |
 | task-10 | Update AGENTS.md | complete | `.lazytrae/evidence/test-runs.md` |
@@ -107,7 +107,7 @@ Evidence:
 ```
 COMPLETION CLAIMED
 
-Plan: .omo/plans/v0.5-state-machine.md
+Plan: .lazytrae/plans/v0.5-state-machine.md
 Tasks: 10/10 complete
 Verification: ALL 5 GATES PASS
 Reviewer: APPROVE

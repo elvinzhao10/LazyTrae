@@ -48,7 +48,7 @@ For date-based search, inspect the `started_at` and `last_active_at` ISO timesta
 ### 3. Read Session Details
 
 To reconstruct what happened in a session:
-- Read the session's `active_plan` (e.g., `.omo/plans/<plan-name>.md`) for the plan that was being executed.
+- Read the session's `active_plan` (e.g., `.lazytrae/plans/<plan-name>.md`) for the plan that was being executed.
 - Read `.lazytrae/state/boulder.json` for task-by-task progress.
 - Read `.lazytrae/state/active-loop.json` for goal and criterion statuses.
 - Read `.lazytrae/evidence/` files named after the work for verification results.

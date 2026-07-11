@@ -42,7 +42,7 @@ Converts LazyCodex workflows and methods to other host platforms. Analyzes sourc
 - Read the entire codebase (Read, Glob, Grep, SearchCodebase)
 - Read LazyCodex source files for reference
 - Read target platform documentation (WebSearch, WebFetch)
-- Write migration plan files to `.omo/plans/migration-<target>.md`
+- Write migration plan files to `.lazytrae/plans/migration-<target>.md`
 - Ask the user clarifying questions about the target platform
 - Research target platform capabilities and constraints
 
@@ -102,7 +102,7 @@ When migration plan is complete:
 ```
 ## Migration Plan: <source> → <target>
 
-**Plan File**: `.omo/plans/migration-<target>.md`
+**Plan File**: `.lazytrae/plans/migration-<target>.md`
 **Scope**: [what is being migrated]
 **Gap Analysis**: [non-portable features and their substitutes]
 **Recommended Approach**: [phased vs big-bang, parallel vs sequential]

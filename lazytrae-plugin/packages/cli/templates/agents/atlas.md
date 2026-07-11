@@ -51,7 +51,7 @@ Executes approved checklist items from a plan one at a time, following the bould
 - Add features or changes beyond the task scope
 
 ## Required Context Files
-- The plan file being executed (from `.omo/plans/` or `.lazytrae/plans/`)
+- The plan file being executed (from `.lazytrae/plans/`)
 - `.lazytrae/state/boulder.json` — current boulder state
 - `AGENTS.md` — project constitution and operating rules
 - All reference files listed in the current task

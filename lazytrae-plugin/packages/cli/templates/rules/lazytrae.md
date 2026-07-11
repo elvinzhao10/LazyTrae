@@ -12,7 +12,7 @@
 
 ### Plan Before Multi-File Changes
 - For ambiguous or multi-file work, use `/lazy-ulw-plan` before changing product files.
-- Store active plans in `.omo/plans/`; keep compatible loop state in `.omo/ulw-loop/`.
+- Store active plans in `.lazytrae/plans/`; keep loop state in `.lazytrae/loop/`.
 - Keep LazyTrae configuration, state, and evidence in `.lazytrae/`.
 
 ### Preserve LazyCodex Semantics
@@ -58,4 +58,4 @@ All versions use the `v0.x` scheme. Do not use `v1.x`, `v2.x`, etc.
 - Project instructions: `AGENTS.md`
 - Trae integration: `.trae/`
 - LazyTrae configuration and evidence: `.lazytrae/`
-- Compatibility plans and loop state: `.omo/plans/` and `.omo/ulw-loop/`
+- Plans and loop state: `.lazytrae/plans/` and `.lazytrae/loop/`

@@ -22,7 +22,7 @@ Verify that implementation work is complete and correct before claiming done. Th
 - The project's test runner and lint configuration.
 - The project's build/typecheck commands.
 - The evidence directory: `.lazytrae/evidence/`.
-- The ledger file: `.omo/start-work/ledger.jsonl`.
+- The ledger file: `.lazytrae/logs/start-work-ledger.jsonl`.
 
 ## Step-by-Step Procedure
 
@@ -80,7 +80,7 @@ Exercise edge cases, regression scenarios, and adversarial inputs:
 ## Allowed Edits
 
 - Write evidence files to `.lazytrae/evidence/`.
-- Append to `.omo/start-work/ledger.jsonl`.
+- Append to `.lazytrae/logs/start-work-ledger.jsonl`.
 - Run verification commands (tests, lint, typecheck, build).
 - Execute curl commands, browser automation, terminal commands for Manual-QA.
 
@@ -115,7 +115,7 @@ The verifier itself follows the five gates:
 VERIFICATION REPORT
 ===================
 
-Plan: .omo/plans/<plan-name>.md
+Plan: .lazytrae/plans/<plan-name>.md
 Overall Verdict: PASS | FAIL
 
 Gate 1 - Plan Reread: PASS

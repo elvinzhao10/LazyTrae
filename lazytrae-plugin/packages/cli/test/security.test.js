@@ -92,7 +92,7 @@ test('completion and loop evidence reject absolute paths outside the repo', () =
 
   const loop = makeLoopFixture('lazytrae-loop-absolute-evidence-');
   assert.equal(runCli(['loop', 'create-goals', '--brief', outside, '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: loop }).status, 1);
-  assert.equal(runCli(['loop', 'create-goals', '--brief', '.omo/evidence/brief.md', '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: loop }).status, 0);
+  assert.equal(runCli(['loop', 'create-goals', '--brief', '.lazytrae/evidence/brief.md', '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: loop }).status, 0);
   assert.equal(runCli(['loop', 'complete-goals'], { cwd: loop }).status, 0);
   assert.match(runCli(['loop', 'record-evidence', 'goal-1', 'crit-1', outside], { cwd: loop }).stderr, /repo-relative/);
   assert.match(runCli(['loop', 'checkpoint', '--quality-gate-json', outside], { cwd: loop }).stderr, /repo-relative/);
@@ -108,8 +108,7 @@ test('persistent CLI and hook writers reject a symlinked .lazytrae directory', (
     fs.mkdirSync(path.join(fixture, '.git'));
     fs.cpSync(path.join(__dirname, '..', '..', '..', '.trae'), path.join(fixture, '.trae'), { recursive: true });
     fs.cpSync(path.join(__dirname, '..', '..', '..', 'packages'), path.join(fixture, 'packages'), { recursive: true });
-    fs.mkdirSync(path.join(fixture, '.omo', 'evidence'), { recursive: true });
-    fs.writeFileSync(path.join(fixture, '.omo', 'evidence', 'brief.md'), 'brief\n');
+    fs.writeFileSync(path.join(fixture, 'brief.md'), 'brief\n');
     fs.mkdirSync(path.join(outside, 'state'), { recursive: true });
     fs.mkdirSync(path.join(outside, 'logs'), { recursive: true });
     fs.writeFileSync(path.join(outside, 'state', 'active-loop.json'), JSON.stringify({ loop_state: 'idle', goals: [] }));
@@ -122,7 +121,7 @@ test('persistent CLI and hook writers reject a symlinked .lazytrae directory', (
     fs.symlinkSync(outside, path.join(fixture, '.lazytrae'));
 
     const init = runCli(['init'], { cwd: fixture });
-    const loop = runCli(['loop', 'create-goals', '--brief', '.omo/evidence/brief.md', '--goal-id', 'g', '--criterion-id', 'c'], { cwd: fixture });
+    const loop = runCli(['loop', 'create-goals', '--brief', 'brief.md', '--goal-id', 'g', '--criterion-id', 'c'], { cwd: fixture });
     const hook = runCli(['hook', 'user-prompt-submit'], {
       cwd: fixture,
       input: JSON.stringify({ prompt: 'context compacted' }),

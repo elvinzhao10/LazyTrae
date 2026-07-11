@@ -56,7 +56,7 @@ Options:
   const dirs = [
     '.trae/rules', '.trae/skills', '.trae/commands', '.trae/agents', '.trae/hooks',
     '.lazytrae/state', '.lazytrae/evidence', '.lazytrae/schemas', '.lazytrae/logs',
-    '.omo/plans', '.omo/ulw-loop',
+    '.lazytrae/plans', '.lazytrae/loop',
   ];
   for (const dir of dirs) {
     const fullPath = path.join(repoRoot, dir);

@@ -11,7 +11,7 @@ A loop is always in exactly one of 10 states:
 |---|-------|-------------|
 | 1 | `idle` | No loop is active. Default state. |
 | 2 | `initializing` | Bootstrap phase: tier triage, goal creation, notepad open. |
-| 3 | `planning` | Plan generation phase. Prometheus writes the plan to `.omo/plans/`. |
+| 3 | `planning` | Plan generation phase. Prometheus writes the plan to `.lazytrae/plans/`. |
 | 4 | `active` | Execution phase. Atlas or Hephaestus implements one task at a time. |
 | 5 | `verifying` | Verification phase. Verifier runs automated tests, manual-QA. |
 | 6 | `reviewing` | Review phase. Oracle runs the five evidence gates. |
@@ -101,7 +101,7 @@ From plan/v0.9-long-horizon-loop.md, verified against LazyCodex `directive.md`:
 1. **Load project memory** — Read `AGENTS.md`, `.trae/rules/`, `.lazytrae/state/active-loop.json`.
 2. **Expand user goal** — Normalize goal text into a completion promise. Record in `completion_promise` field.
 3. **Run init-deep** — If project memory is missing or stale, run init-deep first.
-4. **Generate or load plan** — HEAVY tier: delegate to Prometheus. LIGHT tier: plan directly. Write to `.omo/plans/<slug>.md`.
+4. **Generate or load plan** — HEAVY tier: delegate to Prometheus. LIGHT tier: plan directly. Write to `.lazytrae/plans/<slug>.md`.
 5. **Select next task** — From the plan, select the first pending checklist item. Update `current_task_index`.
 6. **Implement one bounded unit** — Delegate to Atlas or Hephaestus. One checklist item only.
 7. **Run verifier** — Automated tests, linters, type checks, builds. Record evidence.
@@ -198,16 +198,16 @@ All 7 mutation types from `lazycodex/plugins/omo/components/ulw-loop/src/constan
 - Proposal must not weaken completion requirements.
 - Cannot modify protected fields: `aggregateCompletion`, `codexObjective`, `codexObjectiveAliases`, `originalConstraints`, `qualityGate`, `status`, `completedAt`, `completionStatus`.
 
-## 10. .omo Compatibility Mirror
+## 10. Canonical Runtime Paths
 
-| LazyTrae Path | .omo Mirror | Description |
-|---------------|-------------|-------------|
-| `.lazytrae/state/active-loop.json` | `.omo/ulw-loop/<run-id>/goals.json` | Plan with goals, criteria, statuses |
-| `.lazytrae/logs/loop-events.ndjson` | `.omo/ulw-loop/<run-id>/ledger.jsonl` | Audit trail |
-| `.omo/ulw-loop/<run-id>/brief.md` | `.omo/ulw-loop/<run-id>/brief.md` | Task brief (same path) |
-| `.lazytrae/evidence/` | `.omo/ulw-loop/<run-id>/evidence.jsonl` | Evidence entries |
+| LazyTrae Path | Description |
+|---------------|-------------|
+| `.lazytrae/state/active-loop.json` | Plan with goals, criteria, statuses |
+| `.lazytrae/loop/<run-id>/ledger.jsonl` | Per-run audit trail |
+| `.lazytrae/loop/<run-id>/brief.md` | Task brief |
+| `.lazytrae/evidence/` | Evidence entries |
 
-Design principle: `.lazytrae/state/` is the primary source of truth. `.omo/` is a compatibility mirror. Write to `.lazytrae/` first, mirror to `.omo/`.
+Design principle: `.lazytrae/` is the sole runtime source of truth.
 
 ## 11. Event Types
 

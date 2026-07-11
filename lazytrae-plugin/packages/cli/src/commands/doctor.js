@@ -140,11 +140,10 @@ Options:
     addResult('.lazytrae/evidence/', 'WARN', 'Directory not found');
   }
 
-  // .omo/ directories
-  const omoPlans = path.join(repoRoot, '.omo', 'plans');
-  const omoUlw = path.join(repoRoot, '.omo', 'ulw-loop');
-  addResult('.omo/plans/', fs.existsSync(omoPlans) ? 'PASS' : 'WARN');
-  addResult('.omo/ulw-loop/', fs.existsSync(omoUlw) ? 'PASS' : 'WARN');
+  const plansDir = path.join(repoRoot, '.lazytrae', 'plans');
+  const loopDir = path.join(repoRoot, '.lazytrae', 'loop');
+  addResult('.lazytrae/plans/', fs.existsSync(plansDir) ? 'PASS' : 'WARN');
+  addResult('.lazytrae/loop/', fs.existsSync(loopDir) ? 'PASS' : 'WARN');
 
   // AGENTS.md with managed blocks
   const agentsPath = path.join(repoRoot, 'AGENTS.md');

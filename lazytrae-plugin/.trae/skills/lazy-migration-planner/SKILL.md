@@ -52,11 +52,11 @@ Write a migration plan with:
 
 ### Phase 4: Deliverable
 
-Produce a migration plan document at `.omo/plans/migration-<target>.md` with the same structure as a LazyTrae plan file.
+Produce a migration plan document at `.lazytrae/plans/migration-<target>.md` with the same structure as a LazyTrae plan file.
 
 ## Allowed Edits
 
-- Create `.omo/plans/migration-<target>.md`.
+- Create `.lazytrae/plans/migration-<target>.md`.
 - Read project files, search documentation, run web searches.
 - Update a project parity record only when the current project already provides one.
 

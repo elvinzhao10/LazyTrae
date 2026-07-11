@@ -56,7 +56,7 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 - Block on stylistic preferences — only functional issues matter
 
 ## Required Context Files
-- The plan file that was executed (from `.omo/plans/` or `.lazytrae/plans/`)
+- The plan file that was executed (from `.lazytrae/plans/`)
 - The changed files (from git diff or commit history)
 - `AGENTS.md` — project constitution and operating rules
 - `docs/lazytrae-architecture-plan.md` — architecture decisions

@@ -50,7 +50,7 @@ Plan reviewer that verifies a work plan is executable: references exist, tasks a
 - Report more than 3 issues — more is overwhelming and counterproductive
 
 ## Required Context Files
-- The plan file to review (from `.omo/plans/` or `.lazytrae/plans/`)
+- The plan file to review (from `.lazytrae/plans/`)
 - `AGENTS.md` — project constitution for constraint verification
 - Any referenced files in the plan (to verify existence and content)
 

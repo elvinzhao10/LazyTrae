@@ -7,11 +7,11 @@
 
 ### How Markdown Plans Are Parsed into Boulder State
 
-LazyTrae reads Markdown plan files (`.omo/plans/*.md`) and extracts checklist items into boulder state tasks.
+LazyTrae reads Markdown plan files (`.lazytrae/plans/*.md`) and extracts checklist items into boulder state tasks.
 
 **Parser behavior:**
 
-1. Read the plan file from `.omo/plans/<plan-name>.md`.
+1. Read the plan file from `.lazytrae/plans/<plan-name>.md`.
 2. Find all top-level checkbox lines matching `- [ ]` or `- [x]`.
 3. For each checkbox:
    - Extract the description text after the checkbox.
@@ -96,7 +96,7 @@ The ulw-loop runs the following cycle until completion or max iterations:
 1. Load project memory (AGENTS.md + rules)
 2. Expand user goal into completion promise
 3. Run init-deep if project memory is missing
-4. Generate or load plan (.omo/plans/)
+4. Generate or load plan (.lazytrae/plans/)
 5. Select next actionable task from boulder
 6. Implement one bounded unit (delegated to subagent)
 7. Run verifier (automated + manual-QA)
@@ -270,21 +270,17 @@ When handing off a session, produce a summary at `.lazytrae/evidence/handoff.md`
 
 See `.lazytrae/evidence/handoff.md` for the full template.
 
-## 8. .omo Compatibility Mirror
+## 8. Canonical Runtime Paths
 
-### What Mirrors What
+| Path | Purpose |
+|----------------|---------------------|
+| `.lazytrae/plans/*.md` | Plan files |
+| `.lazytrae/state/boulder.json` | Boulder state |
+| `.lazytrae/state/active-loop.json` | Active-loop state |
+| `.lazytrae/loop/<run-id>/brief.md` | Task brief |
+| `.lazytrae/loop/<run-id>/ledger.jsonl` | Per-run audit trail |
 
-LazyTrae maintains a `.omo/` compatibility mirror so that LazyCodex tooling can read LazyTrae state:
-
-| LazyCodex Path | LazyTrae Equivalent | Mirror Direction |
-|----------------|---------------------|------------------|
-| `.omo/plans/*.md` | `.omo/plans/*.md` | Direct read/write (same path) |
-| `.omo/boulder.json` | `.lazytrae/state/boulder.json` | Mirror from primary |
-| `.omo/ulw-loop/goals.json` | `.lazytrae/state/active-loop.json` (goals array) | Mirror from primary |
-| `.omo/ulw-loop/brief.md` | `.omo/ulw-loop/brief.md` | Direct read/write (same path) |
-| `.omo/ulw-loop/ledger.jsonl` | `.lazytrae/logs/loop-events.ndjson` | Mirror from primary |
-
-**Design principle**: `.lazytrae/state/` is the primary source of truth. `.omo/` is a compatibility mirror for LazyCodex tooling. Write operations go to `.lazytrae/` first, then mirror to `.omo/`.
+**Design principle**: `.lazytrae/` is the sole runtime source of truth.
 
 ## 9. State File Locking
 

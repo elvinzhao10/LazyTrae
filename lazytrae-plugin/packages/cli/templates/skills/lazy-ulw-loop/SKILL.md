@@ -179,7 +179,7 @@ Procedure (NON-NEGOTIABLE):
 
 ## Commits
 
-Atomic, Conventional Commits (`<type>(<scope>): <imperative>` — feat / fix / refactor / test / docs / chore / build / ci / perf). One logical change per commit; each commit builds + tests green on its own. No WIP on the final branch. If a plan file exists, final commit footer: `Plan: .omo/plans/<slug>.md`. Do NOT auto-`git commit` unless the user requested or preauthorised this session — default is stage + draft message + present for approval.
+Atomic, Conventional Commits (`<type>(<scope>): <imperative>` — feat / fix / refactor / test / docs / chore / build / ci / perf). One logical change per commit; each commit builds + tests green on its own. No WIP on the final branch. If a plan file exists, final commit footer: `Plan: .lazytrae/plans/<slug>.md`. Do NOT auto-`git commit` unless the user requested or preauthorised this session — default is stage + draft message + present for approval.
 
 ## Constraints
 

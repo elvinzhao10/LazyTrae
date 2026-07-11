@@ -37,7 +37,7 @@ Remove LazyTrae from the current repo.
 Options:
   --help, -h       Show this help message
   --yes, -y        Skip confirmation prompt
-  --soft           Only remove managed files (preserve .lazytrae/ and .omo/)
+  --soft           Only remove managed files (preserve .lazytrae/)
   --purge-state    Remove everything including plans/evidence
 `);
     return;
@@ -49,7 +49,7 @@ Options:
 
   if (!yes) {
     console.log('This will remove LazyTrae from the current repo.');
-    if (soft) console.log('Mode: --soft (preserve .lazytrae/ and .omo/)');
+    if (soft) console.log('Mode: --soft (preserve .lazytrae/)');
     if (purgeState) console.log('Mode: --purge-state (remove everything)');
     console.log('Are you sure? Run with --yes to confirm.');
     process.exit(0);
@@ -70,7 +70,6 @@ Options:
 
   if (soft) {
     summary.preserved.push('.lazytrae/ (--soft)');
-    summary.preserved.push('.omo/ (--soft)');
   } else {
     // Remove .lazytrae/ directory
     const lazytraeDir = path.join(repoRoot, '.lazytrae');
@@ -95,20 +94,6 @@ Options:
           else fs.unlinkSync(fullPath);
         }
         summary.removed.push('.lazytrae/ (evidence/state preserved)');
-      }
-    }
-
-    // Remove .omo/ directory
-    const omoDir = path.join(repoRoot, '.omo');
-    if (fs.existsSync(omoDir)) {
-      if (purgeState) {
-        rimraf(repoRoot, omoDir);
-        summary.removed.push('.omo/ (including plans)');
-      } else {
-        const plansDir = path.join(omoDir, 'plans');
-        if (fs.existsSync(plansDir)) summary.preserved.push('.omo/plans/');
-        rimraf(repoRoot, omoDir);
-        summary.removed.push('.omo/ (plans preserved)');
       }
     }
   }

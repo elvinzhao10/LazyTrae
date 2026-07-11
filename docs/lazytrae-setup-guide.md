@@ -10,7 +10,7 @@ cd LazyTrae
 # Open this copied repository in your Trae host and type: onboard
 ```
 
-AI onboarding is the supported first path. It uses an already-installed `lazytrae` companion command to create the project-local `.trae/` and `.lazytrae/` trees plus the retained `.omo/` workflow-compatibility runtime, then runs `lazytrae init --host ide|work|cli`. Its final load check is a **package-readiness** check: it validates bundled skills, commands, agents, hook scripts and configuration declarations, but cannot prove host discovery, MCP connection, or a live session. The `lazytrae` command must remain available because the generated MCP declaration launches `lazytrae mcp`; do not run `npm` or `npx` just to use the copied workflow repository. `.trae/` and `.lazytrae/` are canonical; do not migrate or delete `.omo/` in v0.15.
+AI onboarding is the supported first path. It uses an already-installed `lazytrae` companion command to create the project-local `.trae/` and `.lazytrae/` trees, then runs `lazytrae init --host ide|work|cli`. Its final load check is a **package-readiness** check: it validates bundled skills, commands, agents, hook scripts and configuration declarations, but cannot prove host discovery, MCP connection, or a live session. The `lazytrae` command must remain available because the generated MCP declaration launches `lazytrae mcp`; do not run `npm` or `npx` just to use the copied workflow repository.
 
 ## Trae IDE
 

@@ -41,7 +41,7 @@ For Trae CLI, run `lazytrae init --host cli`, then `trae-cli mcp add-json lazytr
 
 This will:
 - Detect repo root (finds `.git`)
-- Create directory structure: `.trae/`, `.lazytrae/`, `.omo/`
+- Create directory structure: `.trae/`, `.lazytrae/`
 - Copy all templates (rules, skills, commands, agents)
 - Merge managed blocks into `AGENTS.md` without overwriting user content
 - Add `.gitignore` entries for runtime state
@@ -62,8 +62,8 @@ For Trae Work, run `lazytrae work install` after installing the CLI. It copies t
 | `.lazytrae/state/` | Durable runtime state (boulder, active-loop, sessions) |
 | `.lazytrae/schemas/` | JSON schemas for state validation |
 | `.lazytrae/evidence/` | Evidence templates for verification gates |
-| `.omo/plans/` | Compatibility mirror for plans |
-| `.omo/ulw-loop/` | Compatibility mirror for loop state |
+| `.lazytrae/plans/` | Plan files |
+| `.lazytrae/loop/` | Per-run loop artifacts |
 
 ## License
 

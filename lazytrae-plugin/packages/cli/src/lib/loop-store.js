@@ -39,9 +39,11 @@ function loadLoop(repoRoot) {
 
 function defaultLoop() {
   const now = new Date().toISOString();
+  const runId = `run-${Date.now()}`;
+  const loopDir = `.lazytrae/loop/${runId}`;
   return {
     version: 1,
-    run_id: `run-${Date.now()}`,
+    run_id: runId,
     loop_state: 'idle',
     loop_mode: 'ultrawork',
     current_task_index: 0,
@@ -55,9 +57,9 @@ function defaultLoop() {
     cancelled_at: null,
     created_at: now,
     updated_at: now,
-    brief_path: '.omo/ulw-loop/brief.md',
-    goals_path: '.omo/ulw-loop/goals.json',
-    ledger_path: '.omo/ulw-loop/ledger.jsonl',
+    brief_path: `${loopDir}/brief.md`,
+    goals_path: `${loopDir}/goals.json`,
+    ledger_path: `${loopDir}/ledger.jsonl`,
     codex_goal_mode: 'aggregate',
     codex_objective: null,
     codex_objective_aliases: [],

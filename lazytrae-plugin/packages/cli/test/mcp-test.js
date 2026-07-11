@@ -23,7 +23,7 @@ function makeRepoRoot() {
     works: {
       'work-1': {
         work_id: 'work-1',
-        active_plan: '.omo/plans/demo.md',
+        active_plan: '.lazytrae/plans/demo.md',
         plan_name: 'demo',
         session_ids: [],
         status: 'active',

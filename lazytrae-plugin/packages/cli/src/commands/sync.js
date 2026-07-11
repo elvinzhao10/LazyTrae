@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { copyRepoDir, copyRepoFileIfChanged, writeRepoFile } = require('../lib/templates');
+const { copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile } = require('../lib/templates');
 const { replaceBlock, extractBlock, hasManagedBlock, extractBlockNames } = require('../lib/managed-blocks');
 
 function detectRepoRoot() {
@@ -31,6 +31,10 @@ Options:
 
   console.log(`LazyTrae sync v0.15.0-alpha.2`);
   console.log(`Repo root: ${repoRoot}\n`);
+
+  for (const relativePath of ['.lazytrae/plans', '.lazytrae/loop']) {
+    ensureRepoDir(repoRoot, path.join(repoRoot, relativePath));
+  }
 
   // Update .trae/agents/
   const agentsResult = copyRepoDir(repoRoot,

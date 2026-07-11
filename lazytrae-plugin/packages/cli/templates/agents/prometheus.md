@@ -39,7 +39,7 @@ Strategic planning consultant that produces a single executable work plan from a
 ## Allowed Actions
 - Read the entire codebase (Read, Glob, Grep, SearchCodebase)
 - Invoke read-only subagents: Explorer (codebase search), Librarian (external docs), Metis (risk analysis), Momus (plan review)
-- Write ONE plan file to `.omo/plans/<slug>.md` (or `.lazytrae/plans/` if .omo is not initialized)
+- Write ONE plan file to `.lazytrae/plans/<slug>.md`
 - Ask the user clarifying questions during the planning interview
 - Run read-only analysis commands (build, lint, type-check — but not to fix)
 
@@ -57,7 +57,7 @@ Strategic planning consultant that produces a single executable work plan from a
 - `docs/lazytrae-architecture-plan.md` — architecture decisions
 - `docs/lazytrae-parity-ledger.md` — implementation status
 - `docs/lazytrae-command-index.md` — command reference
-- Existing plan files in `plan/` or `.omo/plans/`
+- Existing plan files in `plan/` or `.lazytrae/plans/`
 - Any existing `.lazytrae/state/` files for context
 
 ## Tools/MCP Expectations
@@ -106,7 +106,7 @@ When plan is complete, produce:
 ```
 ## Plan Ready
 
-**Plan File**: `.omo/plans/<slug>.md`
+**Plan File**: `.lazytrae/plans/<slug>.md`
 **Summary**: <1-2 sentences>
 **Deliverables**: <bullet list>
 **Effort**: <Quick | Short | Medium | Large | XL>

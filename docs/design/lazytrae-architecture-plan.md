@@ -31,14 +31,13 @@ The architecture is organized into three layers:
 CLI: lazytrae init / doctor / sync / verify / handoff / uninstall
 ```
 
-### Layer 3 — OmO/LazyCodex compatibility mirror
+### Layer 3 — LazyTrae workflow workspace
 ```
-.omo/plans/           # Plan files (mirror from LazyCodex)
-.omo/boulder.json     # Boulder state mirror
-.omo/ulw-loop/        # ulw-loop state mirror
+.lazytrae/plans/      # Plan files
+.lazytrae/loop/       # Per-run loop artifacts
 ```
 
-**Design Principle**: Trae owns the UX. LazyTrae owns durable state, evidence, verification, compatibility, and parity accounting.
+**Design Principle**: Trae owns the UX. LazyTrae owns durable state, evidence, verification, and parity accounting.
 
 ## 2. Component Mapping
 
@@ -108,7 +107,7 @@ Shared skills: `init-deep/SKILL.md`, `ulw-plan/SKILL.md`, `start-work/SKILL.md`,
 **LazyCodex source**: `plugins/omo/components/ultrawork/agents/*.toml`
 - `explorer.toml` — codebase search specialist, read-only, parallel tool calls
 - `librarian.toml` — external docs/library researcher, SHA-pinned citations
-- `plan.toml` — strategic planning, writes `.omo/plans/<slug>.md`, never implements
+- `plan.toml` — strategic planning, writes `.lazytrae/plans/<slug>.md`, never implements
 - `metis.toml` — pre-planning gap analyst, detects contradictions and ambiguity
 - `momus.toml` — plan reviewer, issues OKAY/ITERATE/REJECT verdicts
 
@@ -193,7 +192,7 @@ Six LazyCodex hook events:
 - LazyCodex MCP servers use local `node` commands with relative paths — LazyTrae can use similar patterns
 - Optional MCP templates: filesystem, git, playwright/browser, docs/context lookup, ast-grep, LSP diagnostics
 
-### 2.7 Long-Running Loop → .lazytrae/state + .omo Compatibility Mirror
+### 2.7 Long-Running Loop → .lazytrae Runtime
 
 **LazyCodex source**: `plugins/omo/components/ulw-loop/src/` — full implementation
 - `constants.ts` (lines 1-64): state directory `.omo/ulw-loop`, statuses (pending, in_progress, complete, failed, blocked, review_blocked, needs_user_decision), steering mutations, criterion user models, ledger event kinds
@@ -210,10 +209,10 @@ Six LazyCodex hook events:
 - `.lazytrae/state/boulder.json` — active plan task tracker
 - `.lazytrae/state/sessions.json` — session tracking
 - `.lazytrae/logs/loop-events.ndjson` — event log
-- `.omo/ulw-loop/<run-id>/goals.json` — compatibility mirror of ulw-loop goals
-- `.omo/ulw-loop/<run-id>/ledger.jsonl` — compatibility mirror of audit trail
-- `.omo/ulw-loop/<run-id>/brief.md` — compatibility mirror of brief
-- `.omo/plans/` — compatibility mirror of plan files
+- `.lazytrae/loop/<run-id>/goals.json` — per-run ulw-loop goals
+- `.lazytrae/loop/<run-id>/ledger.jsonl` — per-run audit trail
+- `.lazytrae/loop/<run-id>/brief.md` — per-run brief
+- `.lazytrae/plans/` — plan files
 
 **Loop states**: idle, initializing, planning, active, verifying, reviewing, blocked, paused, complete, cancelled
 
@@ -221,7 +220,7 @@ Six LazyCodex hook events:
 1. Load project memory (AGENTS.md + rules)
 2. Expand user goal into completion promise
 3. Run init-deep if project memory is missing
-4. Generate or load plan (.omo/plans/)
+4. Generate or load plan (.lazytrae/plans/)
 5. Select next actionable task from boulder
 6. Implement one bounded unit
 7. Run verifier (automated + manual-QA)
@@ -235,7 +234,7 @@ Six LazyCodex hook events:
 **Implementation notes**:
 - LazyCodex ulw-loop uses file-based mutation locks for concurrent safety — LazyTrae should adopt the same
 - LazyCodex has 500 iteration cap in ultrawork mode, 100 in normal mode — LazyTrae should adopt similar caps
-- .omo compatibility mirror ensures any LazyCodex tooling can read LazyTrae state
+- .lazytrae is the sole runtime namespace
 
 ### 2.8 Verification → CLI Scripts + Terminal Commands + Evidence Files + Reviewer Protocols
 
@@ -330,9 +329,8 @@ These LazyCodex features have no direct Trae equivalent and require documented s
 | `.lazytrae/evidence/*.md` | Layer 2 | Verification evidence |
 | `.lazytrae/logs/*.ndjson` | Layer 2 | Event and hook logs |
 | `.lazytrae/schemas/*.json` | Layer 2 | JSON schemas for state validation |
-| `.omo/plans/` | Layer 3 | Plan files (compatibility mirror) |
-| `.omo/boulder.json` | Layer 3 | Boulder state mirror |
-| `.omo/ulw-loop/` | Layer 3 | ulw-loop state mirror |
+| `.lazytrae/plans/` | Layer 3 | Plan files |
+| `.lazytrae/loop/` | Layer 3 | Per-run loop artifacts |
 
 ## 6. References
 

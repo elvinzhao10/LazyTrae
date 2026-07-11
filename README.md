@@ -76,7 +76,7 @@ Binding, not advisory — but because **Trae hooks can't block**, the completion
 
 Practice repo; contributions welcome as learning exercises.
 
-1. **Two canonical configuration trees:** work in `lazytrae-plugin/.trae/` for Trae integration and `lazytrae-plugin/.lazytrae/` for LazyTrae configuration and workflow data. `lazytrae init` also creates consumer-project-root `.omo/plans/` and `.omo/ulw-loop/` as a retained legacy/workflow-compatibility runtime; it is not a third canonical configuration tree and is not being migrated in v0.15. `lazytrae-plugin/packages/cli/templates/` remains the installer source; run `lazytrae sync` to regenerate the live project tree.
+1. **Two configuration trees:** work in `lazytrae-plugin/.trae/` for Trae integration and `lazytrae-plugin/.lazytrae/` for all LazyTrae configuration and workflow data. Consumer projects store plans in `.lazytrae/plans/` and per-run loop files in `.lazytrae/loop/`. `lazytrae-plugin/packages/cli/templates/` remains the installer source; run `lazytrae sync` to regenerate the live project tree.
 2. **Naming discipline:** all skills & commands are `lazy-` prefixed. Keep new ones prefixed.
 3. **Test:** `cd lazytrae-plugin/packages/cli && node --test`.
 4. **Verify:** `lazytrae doctor` (0 FAIL expected) + `node --test`.
@@ -99,7 +99,7 @@ lazytrae/
 # dev/ (gitignored) — behind-the-scenes: reference/lazycodex clone + other/ runtime samples
 ```
 
-Consumer projects initialized with `lazytrae init` also receive `.omo/plans/` and `.omo/ulw-loop/` as the retained workflow-compatibility runtime. They are not part of the `lazytrae-plugin/` source layout.
+Consumer projects initialized with `lazytrae init` receive `.lazytrae/plans/` and `.lazytrae/loop/` as their runtime workspace. They are not part of the `lazytrae-plugin/` source layout.
 
 ## Related
 

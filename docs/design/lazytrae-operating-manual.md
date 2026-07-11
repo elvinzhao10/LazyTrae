@@ -173,7 +173,7 @@ When handing off a session, produce a summary containing:
 
 - **Layer 1** (Trae-native interface): `.trae/rules/`, `.trae/skills/`, `.trae/commands/`, `.trae/agents/`, `.trae/mcp.json`, `.trae/hooks/`
 - **Layer 2** (LazyTrae runtime): `.lazytrae/config.json`, `.lazytrae/state/`, `.lazytrae/evidence/`, `.lazytrae/logs/`, `.lazytrae/schemas/`, CLI
-- **Layer 3** (OmO compatibility): `.omo/plans/`, `.omo/boulder.json`, `.omo/ulw-loop/`
+- **Layer 3** (workflow runtime): `.lazytrae/plans/`, `.lazytrae/state/boulder.json`, `.lazytrae/loop/`
 
 See `docs/lazytrae-architecture-plan.md` for the full architecture design.
 
