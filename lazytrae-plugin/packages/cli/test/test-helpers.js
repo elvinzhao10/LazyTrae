@@ -21,10 +21,8 @@ function runCli(args, options = {}) {
 function makeFixture(prefix = 'lazytrae-cli-test-') {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
   fs.mkdirSync(path.join(root, '.git'));
-  fs.cpSync(path.join(REPO_ROOT, '.trae'), path.join(root, '.trae'), { recursive: true });
-  fs.cpSync(path.join(REPO_ROOT, '.lazytrae'), path.join(root, '.lazytrae'), { recursive: true });
-  fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'state'), path.join(root, '.lazytrae', 'state'), { recursive: true });
-  fs.cpSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'evidence'), path.join(root, '.lazytrae', 'evidence'), { recursive: true });
+  const init = runCli(['init'], { cwd: root });
+  if (init.status !== 0) throw new Error(`Fixture init failed: ${init.stderr || init.stdout}`);
   fs.mkdirSync(path.join(root, 'packages', 'mcp', 'src'), { recursive: true });
   fs.cpSync(path.join(REPO_ROOT, 'packages', 'mcp', 'src'), path.join(root, 'packages', 'mcp', 'src'), { recursive: true });
   fs.mkdirSync(path.join(root, 'packages', 'cli', 'src', 'lib'), { recursive: true });

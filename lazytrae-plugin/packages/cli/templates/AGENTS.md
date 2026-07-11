@@ -19,7 +19,7 @@ When the user types `onboard`:
 | Platform | Skills | Commands | Rules / Agents / Hooks | MCP server |
 |---|---|---|---|---|
 | **Trae IDE** | project `.trae/skills/` | project commands | project hooks | declaration in project `.trae/mcp.json`; reconnect/reopen to verify |
-| **Trae Work** | global `lazytrae work install` → `~/.trae-cn/skills/` (macOS) | no global commands; use skills or natural language | CLI verification gates | manually add `lazytrae mcp` in Settings → MCP |
+| **Trae Work** | `lazytrae work install` → `~/.trae-cn/skills/` on macOS | no global commands; use skills or natural language | CLI verification gates | manually add `lazytrae mcp` in Settings → MCP |
 | **Trae CLI** | local project configuration | `trae-cli` agent session + `lazytrae` gates | CLI verification gates | register with `trae-cli mcp add-json` before starting a session |
 
 - **Trae IDE** → Step A, then open the project in Trae IDE.
@@ -52,7 +52,7 @@ This fallback copies the project `.trae/` and `.lazytrae/` trees without `npm` o
 
 ## Step B — Trae Work setup
 
-Trae Work does not auto-load project configuration. Install the 17 global LazyTrae skills with `lazytrae work install`, then restart or reload Trae Work. The command copies the bundled skills to `~/.trae-cn/skills/` on macOS; use `lazytrae work status` to check them later. Trae Work has no global command registry, so invoke those skills or describe the workflow in natural language. Then manually add the LazyTrae server through **Settings → MCP** with command `lazytrae` and argument `mcp`. Full steps: [setup guide](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/lazytrae-setup-guide.md).
+Trae Work does not auto-load project configuration. On macOS, install the 17 global LazyTrae skills with `lazytrae work install`, then inspect them with `lazytrae work status`. The macOS destination is `~/.trae-cn/skills/`; host reload/discovery still requires manual confirmation. Trae Work has no global command registry, so invoke skills or use natural language. Add the LazyTrae server manually through **Settings → MCP** with command `lazytrae` and argument `mcp`. Linux and Windows paths and host behavior are unverified; use `--skills-dir` only with a directory manually reported by Trae Work. Full steps: [setup guide](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/lazytrae-setup-guide.md).
 
 ## Step C — Trae CLI (no IDE)
 
@@ -69,6 +69,18 @@ The registration command completes the CLI configuration; the new session is whe
 ```bash
 lazytrae doctor    # expect 0 FAIL (WARNs are environmental: empty evidence, etc.)
 ```
+
+## Uninstall
+
+From the initialized project, use the documented safe modes:
+
+```bash
+lazytrae uninstall --yes                # exact managed assets only; normal runtime data remains
+lazytrae uninstall --yes --soft         # exact .trae/ assets only
+lazytrae uninstall --yes --purge-state  # exact runtime templates too
+```
+
+For Trae Work on macOS, run `lazytrae work uninstall`; it removes only unmodified LazyTrae skills and preserves edited or nonempty folders. Remove the `lazytrae` MCP server manually in **Settings → MCP**. Linux and Windows host directories are unverified: pass `--skills-dir <host-reported-directory>` only after manually confirming it. For Trae CLI, remove the separately registered server with `trae-cli mcp remove lazytrae`; project uninstall never changes that registration. Remove the global companion only when unused: `npm uninstall -g lazytrae-ai`.
 
 ## What gets installed
 

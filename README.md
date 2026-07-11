@@ -11,9 +11,22 @@ LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning �
 1. Copy or clone [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae) into a local folder.
 2. Open that folder in your Trae host and type `onboard`.
 
-The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 10 MCP declarations. It cannot prove that a host loaded those files. The `lazytrae` declaration exposes 15 tools after its MCP server connects. The agent reports what it verified, what is still unchecked, and the exact manual step for each host—especially Trae Work’s required **Settings → MCP** registration.
+The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 10 MCP declarations. It cannot prove host discovery, a loaded plugin, or an MCP connection. The `lazytrae` declaration exposes 15 tools only after its server connects. Trae Work's built-in global-skills location is documented and tested only for macOS; reload/discovery and all non-macOS locations remain manual and unverified.
 
 After onboarding, you can delete the copied repository if you only needed the installed setup, or keep it to explore and study how LazyTrae works.
+
+## Uninstall safely
+
+Review the command in the initialized project, then choose the required project-removal scope:
+
+```bash
+lazytrae uninstall --help
+lazytrae uninstall --yes                # remove only exact managed assets; preserve normal runtime data
+lazytrae uninstall --yes --soft         # remove verified .trae/ assets only
+lazytrae uninstall --yes --purge-state  # also remove only exact runtime templates
+```
+
+The command preserves modified or unknown project files and never unregisters an MCP server. On macOS, remove global skills with `lazytrae work uninstall`; it removes only unmodified LazyTrae skill folders and preserves edited or nonempty folders. Then remove the `lazytrae` server manually in **Settings → MCP**. For Linux or Windows, host locations and behavior are unverified: use `lazytrae work uninstall --skills-dir <host-reported-directory>` only after manually confirming the location. For Trae CLI, remove the separately registered server with `trae-cli mcp remove lazytrae`. Remove the global companion command with `npm uninstall -g lazytrae-ai` only after no host configuration references `lazytrae mcp`.
 
 ## A first task, from request to evidence
 
@@ -90,8 +103,8 @@ lazytrae/
 │   ├── .trae/               #   Trae IDE config; source for Trae Work global skills
 │   ├── .lazytrae/           #   LazyTrae schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
-├── docs/                    # user-facing: design/, reference/, archive/, plan/, prompts/, setup-guide, versioned plan
-├── lazytrae-evaluation.md   # LazyCodex parity assessment (115/126, 91.3%)
+├── docs/                    # current v0.15 entrypoints plus historical records
+├── lazytrae-evaluation.md   # v0.15 implementation evidence and limitations
 ├── AGENTS.md                # setup guide
 ├── README.md                # this file (how to use)
 ├── LICENSE                  # MIT

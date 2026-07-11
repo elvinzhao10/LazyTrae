@@ -130,7 +130,9 @@ test('persistent CLI and hook writers reject a symlinked .lazytrae directory', (
   const snapshots = new Map();
   try {
     fs.mkdirSync(path.join(fixture, '.git'));
-    fs.cpSync(path.join(__dirname, '..', '..', '..', '.trae'), path.join(fixture, '.trae'), { recursive: true });
+    const bootstrap = runCli(['init'], { cwd: fixture });
+    assert.equal(bootstrap.status, 0, bootstrap.stderr);
+    fs.rmSync(path.join(fixture, '.lazytrae'), { recursive: true, force: true });
     fs.cpSync(path.join(__dirname, '..', '..', '..', 'packages'), path.join(fixture, 'packages'), { recursive: true });
     fs.writeFileSync(path.join(fixture, 'brief.md'), 'brief\n');
     fs.mkdirSync(path.join(outside, 'state'), { recursive: true });

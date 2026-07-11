@@ -104,16 +104,32 @@ lazytrae uninstall [options]
 **Options:**
 - `--help`, `-h` — Show help
 - `--yes`, `-y` — Skip confirmation prompt
-- `--soft` — Only remove managed files (preserve `.lazytrae/`)
-- `--purge-state` — Remove everything including plans and evidence
+- `--soft` — Remove verified `.trae/` assets only; leave all `.lazytrae/` data intact
+- `--purge-state` — Also remove exact bundled runtime templates in `.lazytrae/state/` and `evidence/`
+
+`--soft` and `--purge-state` are mutually exclusive.
 
 **Behavior:**
-- Removes `.trae/` directory
-- By default, preserves `.lazytrae/evidence/` and `.lazytrae/state/`
-- With `--purge-state`, removes everything
+- Removes only project files whose content still exactly matches the bundled LazyTrae templates; modified and unknown `.trae/` and `.lazytrae/` files stay in place
+- Normal uninstall removes verified configuration/schema assets and preserves all runtime directories
+- `--soft` leaves `.lazytrae/` untouched
+- `--purge-state` removes only exact bundled runtime templates; generated and unknown runtime files and directories remain
+- Never reads, writes, or removes `.omo/`
 - Removes all managed blocks from `AGENTS.md` (leaves user content intact)
-- Removes `.gitignore` entries added by `init`
+- Removes only the exact `.gitignore` block added by `init`, preserving adjacent user rules
 - Prints summary of what was removed/preserved
+
+### `lazytrae work uninstall`
+
+Remove globally copied Trae Work skills without assuming ownership of host files.
+
+```bash
+lazytrae work uninstall [--skills-dir <path>]
+```
+
+On macOS, the command uses Trae Work's known global skills location. Elsewhere, supply the directory shown by Trae Work with `--skills-dir`; LazyTrae never guesses a host path. It removes only skills listed in its bundled manifest when their only file is an unmodified `SKILL.md` matching the bundled content. It rejects symlinked and hard-linked paths and retains edited or nonempty skill directories. It never removes the Trae Work MCP setting: remove the `lazytrae` entry yourself in **Settings → MCP**.
+
+Host-managed cleanup remains manual: remove or disable a separately configured LazyTrae server in Trae IDE settings, and remove a Trae CLI registration with `trae-cli mcp remove lazytrae`. To remove the global command after host cleanup, run `npm uninstall -g lazytrae-ai`.
 
 ---
 

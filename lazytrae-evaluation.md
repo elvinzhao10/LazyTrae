@@ -1,105 +1,35 @@
-# LazyTrae Evaluation: LazyCodex Parity Assessment
+# LazyTrae v0.15 Implementation Evidence
 
-> Comprehensive evaluation of how well LazyTrae realizes LazyCodex/OmO semantics on its Trae Work and CLI release surfaces.
-> Last updated: v0.14 (2026-07-10)
+> Current release evidence, not a historical parity score or a certification of a Trae host session.
 
-## Overall Assessment
+## What is implemented and checked
 
-**Parity score: 115/126 (91.3%).**
+The v0.15 package contains 17 skills, 9 commands, 11 agent definitions, 8 hook scripts across 5 configured events, 10 MCP declarations, and one local `lazytrae` MCP server exposing 15 tools after connection. The installer keeps its canonical project data under `.trae/` and `.lazytrae/`; it does not require a legacy runtime directory to operate.
 
-LazyTrae successfully recreates LazyCodex/OmO's core agent-harness workflows on Trae IDE — the Explore → Plan → Implement → Verify → Manually QA loop, the 5 evidence gates, the Sisyphus completion contract, durable run state, and the long-horizon loop. The remaining 4 gaps are all platform-inherent (Trae lacks the hook event or external tool), each mitigated with a documented heuristic fallback.
+The release checks exercise the source-local CLI and package artifacts:
 
-| Category | Total | Complete | Gap | N/A |
-|---|---|---|---|---|
-| Core Commands | 10 | 10 | 0 | 0 |
-| Agent Roles | 11 | 11 | 0 | 0 |
-| Hooks | 16 | 12 | 2 | 1 |
-| State Management | 15 | 15 | 0 | 0 |
-| Verification Gates | 7 | 7 | 0 | 0 |
-| MCP Servers | 6 | 5 | 1 | 0 |
-| Model Routing | 7 | 6 | 0 | 1 |
-| Skills (Shared) | 22 | 22 | 0 | 0 |
-| Ultrawork/ulw-loop Core | 15 | 14 | 0 | 1 |
-| Rules Component | 10 | 7 | 1 | 1 |
-| Team Mode | 7 | 6 | 0 | 1 |
-| **Total** | **126** | **115** | **4** | **5** |
+- `node --test` in `lazytrae-plugin/packages/cli/`, including template parity, a fresh `init`/`load-check`/`doctor` fixture, namespace migration, path-boundary cases, and safe uninstall lifecycle cases.
+- `lazytrae load-check --host ide|work|cli` for copied-file and declaration readiness.
+- `lazytrae uninstall --yes`, `--soft`, and `--purge-state` lifecycle coverage. Removal is content-checked: modified or unknown files and normal runtime records are preserved.
+- `lazytrae work install`, `status`, and `uninstall` coverage with an explicit skills directory. Work uninstall removes only exact, unmodified LazyTrae skills and rejects symlink or hard-link traversal.
 
-## Strengths
+These are implementation and package-readiness checks. They do not show that an IDE or CLI host discovered configuration, invoked a hook, loaded a plugin, or connected the MCP process.
 
-### 1. All core commands and agent roles ported
-All 10 canonical commands (`init-deep`, `ulw-plan`, `start-work`, `ulw-loop`, `ralph-loop`, `stop-continuation`, `handoff`, `review-work`, `remove-ai-slops`, `completion-gate`) and all 11 agent roles (Sisyphus, Prometheus, Metis, Momus, Atlas, Hephaestus, Oracle, Explorer, Librarian, Cleaner, Migration-Planner) are implemented as Trae-native `.trae/` artifacts.
+## Host-compatibility boundary
 
-### 2. All 7 verification gates enforced
-plan reread → automated verification → manual-QA → adversarial QA → cleanup → completion claim → handoff. The completion gate is hardened via a CLI/MCP layer (`lazytrae verify --must-pass`, `mark_task_done` refuses completion without evidence), because Trae hooks cannot block.
+| Surface | Current evidence | Required manual observation |
+| --- | --- | --- |
+| Trae IDE | Project files and declarations are generated and checked. | Reopen the project; verify discovery and the MCP connection in the IDE. |
+| Trae Work on macOS | The CLI's default global-skills target is `~/.trae-cn/skills/`; file-copy, status, and bounded removal behavior are checked. | Restart/reload Trae Work, confirm skill discovery, and add/confirm `lazytrae mcp` in **Settings → MCP**. |
+| Trae Work on Linux or Windows | No default location or live-host behavior is verified. | Obtain the host-reported directory, pass it with `--skills-dir`, and verify the session manually. |
+| Trae CLI | Project configuration and the registration command are documented. | Run `trae-cli mcp add-json ...`, start a new session, and observe the connection. |
 
-### 3. Durable run state with checkpointing
-`.lazytrae/state/` holds boulder state, active-loop state, session tracking, evidence, and checkpoints. The long-horizon loop runs a 10-state machine with a 13-step cycle, 3-retry on verification failure, steering mutations, and resumption after interruption (500-iteration cap HEAVY / 100 LIGHT).
+The 15-tool count applies only after the local MCP server connects. Package readiness alone is not an MCP connection test.
 
-### 4. Evidence-based completion (Sisyphus contract)
-DoneClaim → AdversarialVerify → FullyDone preserved. `mark_task_done` is evidence-gated: an implementer cannot close a task without a recorded verification artifact.
+## Safe removal contract
 
-### 5. Team mode with worktree isolation
-Parallel-work coordination via file-based team state, worktree isolation per member, and mailbox-file communication — adapted from LazyCodex's thread-based team mode to Trae's ephemeral subagents.
+`lazytrae uninstall --yes` removes only exact bundled project assets. `--soft` limits removal to verified `.trae/` assets; `--purge-state` also removes only exact runtime templates, and the two options cannot be combined. The command does not change host MCP registration. On macOS, `lazytrae work uninstall` removes only exact, unmodified installed skills. Remove host MCP registrations separately; for non-macOS paths, use an explicitly confirmed `--skills-dir` value.
 
-### 6. Model routing
-6 categories (quick, deep, ultrabrain, visual-engineering, writing, review) mapped to Trae Auto/Max modes and agent frontmatter.
+## Attribution and limits
 
-### 7. Test coverage
-53 tests across 9 files: security (symlink escape, path boundary, shell injection), loop runtime (state transitions, retry, checkpoint semantics, steering), and template parity (templates mirror repo artifacts, fresh init self-contained).
-
-## Weaknesses
-
-### 1. Hooks are advisory-only — enforcement pushed to the CLI layer (platform gap)
-**LazyCodex:** hooks can block tool calls / completion at the platform level.
-**LazyTrae:** Trae hooks cannot block (all hook scripts `exit 0`). Enforcement is moved into a CLI/MCP layer: `lazytrae verify --must-pass` and `mark_task_done` refuse completion without evidence.
-**Impact:** Safety depends on the CLI gate being invoked, not on a host-level block. A user who bypasses the CLI can complete without evidence.
-**Why:** Trae's hook contract has no deny/block output. This is the inverse of the WorkBuddy sibling, which bets on host hook blocking.
-
-### 2. PostCompact hook missing
-**LazyCodex:** uses PostCompact for cache resets and rule re-injection.
-**LazyTrae:** Trae has no PostCompact event. Mitigated via SessionStart compaction detection + UserPromptSubmit context-pressure markers + a context-recovery hook.
-**Impact:** Post-compact recovery is heuristic, not event-driven.
-**Why:** Trae's hook surface lacks the event.
-
-### 3. Codegraph MCP unavailable
-**LazyCodex:** parsed AST call graph via codegraph.
-**LazyTrae:** no suitable code-graph server for Trae; heuristic local context tools (`symbol_search`, `find_references`, `goto_definition`, `dependency_graph`) provided as fallback.
-**Impact:** No precise AST call graph; blast-radius analysis is approximate.
-**Why:** codegraph relies on external binaries not available on Trae.
-
-### 4. Codegraph init hook + native post-compact recovery
-The codegraph init hook depends on the codegraph MCP (gap 3), and post-compact recovery is heuristic-only rather than a native hook.
-
-## Future Improvement Suggestions
-
-### Priority 1: Native codegraph/LSP integration
-If a Trae-compatible code-graph or LSP MCP becomes available, wire `symbol_search`/`goto_definition`/`find_references` to it, replacing grep heuristics with semantic intelligence.
-
-### Priority 2: Native hook blocking
-If Trae adds a deny/block hook contract, move the completion gate from the CLI layer back to a host Stop/SubagentStop hook (matching the WorkBuddy sibling's strategy) for defense-in-depth.
-
-### Priority 3: Native PostCompact event
-If Trae exposes PostCompact, replace heuristic context-recovery with event-driven cache reset + rule re-injection.
-
-### Priority 4: Port deferred skills
-`refactor`, `programming`, `frontend`, `git-master`, `ast-grep`, `lcx-report-bug` are currently embedded in `start-work` or deferred. Port as standalone skills if demand exists.
-
-### Priority 5: Live orchestrator dogfood
-A true end-to-end multi-agent session test: orchestrator spawns implementer → implementer produces evidence → `mark_task_done` verifies → reviewer accepts/rejects → librarian updates memory → `verify --must-pass` passes.
-
-## Capability Labels Summary
-
-| Label | Meaning |
-|---|---|
-| `semantic` | Matches LazyCodex semantics with a structured source of truth (state.json, DoneClaim, loop machine) |
-| `cli-gated` | Enforcement via the CLI/MCP layer (`verify --must-pass`, `mark_task_done`) because Trae hooks can't block |
-| `heuristic` | Grep/approximation-based fallback (context tools, post-compact recovery) |
-| `host-substitution` | Trae covers the use case through a different surface (subagents vs threads, mkdir lock vs in-process lock) |
-| `platform-gap` | Original surface not portable to Trae (PostCompact event, codegraph) |
-| `native-enhancement` | LazyTrae-only (CLI doctor/sync, file-based team state) |
-
-## Conclusion
-
-LazyTrae achieves **strong parity (91.3%)** with LazyCodex/OmO's core agent-harness design on Trae IDE. The Explore → Plan → Implement → Verify → Manually QA loop is fully functional with evidence-gated completion, durable run state, and a long-horizon loop. The 4 remaining gaps are all platform-inherent (Trae lacks the hook event or external tool), each mitigated with a documented heuristic fallback.
-
-The defining adaptation is the **enforcement strategy inversion**: where the WorkBuddy sibling bets on host hook blocking, LazyTrae — because Trae hooks cannot block — moves the completion gate into a CLI/MCP layer. Both preserve the Sisyphus "no evidence, no done" invariant; they just pick the mechanism their host allows.
+LazyTrae is an adaptation of the LazyCodex/OmO workflow ideas; the repository [NOTICE](NOTICE) and [LICENSE](LICENSE) remain the authoritative attribution and license records. This document intentionally replaces historical percentage claims with observable v0.15 package evidence. It makes no claim of Linux or Windows verification and no claim that a live Trae host session has been exercised.
