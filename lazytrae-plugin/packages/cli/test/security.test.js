@@ -225,6 +225,49 @@ test('loop JSON writes reject a predictable dangling atomic temporary symlink', 
   }
 });
 
+test('public MCP state writes reject a predictable atomic temporary symlink without touching its target', () => {
+  const fixture = makeCompletionFixture('lazytrae-mcp-temp-symlink-', false);
+  const statePath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
+  const frozenPid = 4242;
+  const frozenNow = 1700000000000;
+  const tempPath = `${statePath}.${frozenPid}.${frozenNow}.tmp`;
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-mcp.json`);
+  const sentinel = 'outside MCP sentinel\n';
+  const pidDescriptor = Object.getOwnPropertyDescriptor(process, 'pid');
+  const originalNow = Date.now;
+  const initialState = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
+
+  try {
+    fs.writeFileSync(outside, sentinel);
+    fs.symlinkSync(outside, tempPath);
+    Object.defineProperty(process, 'pid', { ...pidDescriptor, value: frozenPid });
+    Date.now = () => frozenNow;
+
+    let outcome;
+    try {
+      outcome = { kind: 'success', value: HANDLERS['lazytrae.add_blocker'](fixture, { reason: 'symlink attack' }) };
+    } catch (error) {
+      outcome = { kind: 'error', value: error };
+    }
+
+    assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+    assert.equal(outcome.kind, 'error');
+    assert.match(outcome.value.message, /symlink|EEXIST|exist/);
+
+    fs.unlinkSync(tempPath);
+    const ordinary = HANDLERS['lazytrae.add_blocker'](fixture, { reason: 'ordinary write' });
+    assert.equal(ordinary.blocker_added, true);
+    assert.equal(ordinary.blocker.reason, 'ordinary write');
+    assert.equal(fs.lstatSync(statePath).isSymbolicLink(), false);
+    assert.notEqual(JSON.parse(fs.readFileSync(statePath, 'utf-8')).updated_at, initialState.updated_at);
+  } finally {
+    Date.now = originalNow;
+    Object.defineProperty(process, 'pid', pidDescriptor);
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
 test('sync rejects an existing hard-linked template target without changing its peer', () => {
   const fixture = makeFixture('lazytrae-hard-linked-mcp-');
   const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-mcp.json`);

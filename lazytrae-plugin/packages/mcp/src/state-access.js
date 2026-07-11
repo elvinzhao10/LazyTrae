@@ -30,8 +30,21 @@ function writeJSON(filePath, data) {
   assertSafeWrite(filePath);
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   const tmp = filePath + '.' + process.pid + '.' + Date.now() + '.tmp';
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n', 'utf-8');
-  fs.renameSync(tmp, filePath);
+  assertSafeWrite(tmp);
+  let descriptor;
+  let created = false;
+  try {
+    descriptor = fs.openSync(tmp, 'wx', 0o600);
+    created = true;
+    fs.writeFileSync(descriptor, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+    fs.closeSync(descriptor);
+    descriptor = undefined;
+    assertSafeWrite(filePath);
+    fs.renameSync(tmp, filePath);
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor);
+    if (created) fs.rmSync(tmp, { force: true });
+  }
 }
 
 function assertSafeWrite(filePath) {
