@@ -85,7 +85,7 @@ function copyRepoFileIfChanged(repoRoot, src, dest) {
   const sourceContent = fs.readFileSync(src, 'utf-8');
   const existing = readExistingFile(repoRoot, dest, 'utf-8');
   if (existing.exists && existing.content === sourceContent) return false;
-  atomicWriteFile(repoRoot, dest, sourceContent);
+  atomicWriteFile(repoRoot, dest, sourceContent, 'utf-8', fs.statSync(src).mode & 0o777);
   return true;
 }
 

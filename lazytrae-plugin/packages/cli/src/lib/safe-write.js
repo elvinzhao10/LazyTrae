@@ -38,13 +38,14 @@ function createTemporaryFile(repoRoot, filePath) {
   throw new Error('could not create a unique temporary file');
 }
 
-function atomicWriteFile(repoRoot, filePath, content, encoding = 'utf-8') {
+function atomicWriteFile(repoRoot, filePath, content, encoding = 'utf-8', mode) {
   assertSafeRepoWritePath(repoRoot, filePath);
   let tempPath;
   let descriptor;
   try {
     ({ descriptor, tempPath } = createTemporaryFile(repoRoot, filePath));
     fs.writeFileSync(descriptor, content, encoding);
+    if (mode !== undefined) fs.fchmodSync(descriptor, mode);
     fs.fsyncSync(descriptor);
     fs.closeSync(descriptor);
     descriptor = undefined;
