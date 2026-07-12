@@ -46,11 +46,6 @@
       "required": false,
       "disabled": true,
       "description": "Managed read-only LSP bridge — opt in with an explicit target and tooling root: lazytrae lsp --target <absolute-project-path> --tooling-root <absolute-owned-root>. It provisions only TypeScript/JavaScript or Python providers when requested and never mutates the target project."
-    },
-    "codegraph": {
-      "required": false,
-      "disabled": true,
-      "description": "Optional CodeGraph analysis. LazyTrae keeps its 15 built-in heuristic context tools available until an explicit receipt-owned CodeGraph installation and caller-created .codegraph index are enabled."
     }
   },
   "lazytrae": {

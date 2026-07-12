@@ -85,11 +85,14 @@ test('explicit CodeGraph enable preserves user MCP configuration and launches on
   const root = makeRepo('lazytrae-codegraph-enabled-');
   const toolingRoot = path.join(root, 'tooling');
   try {
-    // Given: a caller-created graph index, a receipt-owned CodeGraph binary, and a user MCP entry.
+    // Given: a caller-owned same-name MCP entry before init, plus a graph index and receipt-owned CodeGraph binary.
+    const mcpPath = path.join(root, '.trae', 'mcp.json');
+    fs.mkdirSync(path.dirname(mcpPath), { recursive: true });
+    fs.writeFileSync(mcpPath, JSON.stringify({ mcpServers: { codegraph: { command: 'caller-codegraph', args: ['serve'] } } }, null, 2) + '\n');
     assert.equal(runCli(['init'], { cwd: root }).status, 0);
+    assert.deepEqual(JSON.parse(fs.readFileSync(mcpPath, 'utf8')).mcpServers.codegraph, { command: 'caller-codegraph', args: ['serve'] });
     fs.mkdirSync(path.join(root, '.codegraph'));
     writeOwnedCodeGraph(toolingRoot);
-    const mcpPath = path.join(root, '.trae', 'mcp.json');
     const mcp = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
     mcp.mcpServers.user_owned = { command: 'caller-mcp', args: ['serve'] };
     fs.writeFileSync(mcpPath, JSON.stringify(mcp, null, 2) + '\n');
@@ -105,7 +108,7 @@ test('explicit CodeGraph enable preserves user MCP configuration and launches on
       input: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }) + '\n',
     });
 
-    // Then: the managed entry persists, user configuration remains intact, and the proxy only runs `serve --mcp`.
+    // Then: the caller's same-name entry and the namespaced managed entry persist, and the proxy only runs `serve --mcp`.
     assert.equal(enabled.status, 0, enabled.stderr);
     assert.equal(synced.status, 0, synced.stderr);
     assert.equal(restored.status, 0, restored.stderr);
@@ -113,8 +116,9 @@ test('explicit CodeGraph enable preserves user MCP configuration and launches on
     assert.match(initialized.stdout, /codegraph-fixture/);
     const next = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
     assert.deepEqual(syncedMcp.mcpServers.user_owned, { command: 'caller-mcp', args: ['serve'] });
+    assert.deepEqual(syncedMcp.mcpServers.codegraph, { command: 'caller-codegraph', args: ['serve'] });
     const canonicalRoot = fs.realpathSync(root);
-    assert.deepEqual(next.mcpServers.codegraph, {
+    assert.deepEqual(next.mcpServers.lazytrae_codegraph, {
       command: 'lazytrae',
       args: ['codegraph', '--target', canonicalRoot, '--tooling-root', toolingRoot],
       required: false,

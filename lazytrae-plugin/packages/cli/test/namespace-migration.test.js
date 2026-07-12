@@ -63,10 +63,8 @@ test('fresh init keeps runtime state exclusively under .lazytrae', () => {
       path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'mcp.json'),
       'utf8',
     ));
-    const codegraph = mcp.mcpServers.codegraph;
-    assert.equal(codegraph.disabled, true);
-    assert.equal(Object.hasOwn(codegraph, 'command'), false);
-    assert.equal(Object.hasOwn(codegraph, 'args'), false);
+    assert.equal(Object.hasOwn(mcp.mcpServers, 'codegraph'), false);
+    assert.equal(Object.hasOwn(mcp.mcpServers, 'lazytrae_codegraph'), false);
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
   }
