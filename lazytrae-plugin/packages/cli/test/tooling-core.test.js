@@ -1,9 +1,10 @@
 const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const { runCli } = require('./test-helpers');
+const { CLI, runCli } = require('./test-helpers');
 
 function makeRepo(prefix) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -16,6 +17,25 @@ function snapshot(root) {
     const target = path.join(root, name);
     return [name, fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : null];
   }));
+}
+
+function hostBin(root, versions) {
+  const directory = path.join(root, 'host-bin');
+  fs.mkdirSync(directory);
+  for (const [name, version] of Object.entries(versions)) {
+    const executable = path.join(directory, name);
+    fs.writeFileSync(executable, `#!/bin/sh\nprintf '%s\\n' '${version}'\n`);
+    fs.chmodSync(executable, 0o755);
+  }
+  return directory;
+}
+
+function runCliWithHost(args, cwd, bin) {
+  return spawnSync(process.execPath, [CLI, ...args], {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` },
+  });
 }
 
 test('tooling verify reports exact declared npm, Python, and Make plans without running them', () => {
@@ -80,8 +100,9 @@ test('tooling verify leaves unsupported projects untouched and tooling reports s
     fs.writeFileSync(path.join(root, '.gitignore'), '# user-owned dirty change\n');
     const before = snapshot(root);
     const unsupported = runCli(['tooling', 'verify', '--dry-run'], { cwd: root });
-    const installed = runCli(['tooling', 'install', '--tooling-root', toolingRoot], { cwd: root });
-    const detected = runCli(['tooling', 'detect', '--tooling-root', toolingRoot], { cwd: root });
+    const bin = hostBin(root, { rg: 'ripgrep 13.0.0', sg: 'ast-grep 0.43.0' });
+    const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
+    const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
 
     assert.equal(unsupported.status, 1);
     assert.match(unsupported.stdout + unsupported.stderr, /unsupported/i);
@@ -90,6 +111,66 @@ test('tooling verify leaves unsupported projects untouched and tooling reports s
     assert.equal(detected.status, 0, detected.stderr);
     assert.match(detected.stdout, /ripgrep: owned/);
     assert.match(detected.stdout, /ast-grep: owned/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('tooling install keeps compatible host providers outside the owned root', () => {
+  const root = makeRepo('lazytrae-tooling-host-ready-');
+  const toolingRoot = path.join(root, 'tooling-root');
+  try {
+    const bin = hostBin(root, { rg: 'ripgrep 14.1.0', sg: 'ast-grep 0.44.1' });
+    const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
+    const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
+    const status = runCliWithHost(['tooling', 'status', '--tooling-root', toolingRoot], root, bin);
+
+    assert.equal(installed.status, 0, installed.stderr);
+    assert.match(installed.stdout, /No provisioning required/);
+    assert.equal(fs.existsSync(toolingRoot), false);
+    assert.equal(detected.status, 0, detected.stderr);
+    assert.equal(status.status, 0, status.stderr);
+    assert.match(detected.stdout, /ripgrep: host \(ready\)/);
+    assert.match(detected.stdout, /ast-grep: host \(ready\)/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('tooling install provisions only missing or incompatible providers and records only owned capabilities', () => {
+  const root = makeRepo('lazytrae-tooling-selective-');
+  const toolingRoot = path.join(root, 'tooling-root');
+  try {
+    const bin = hostBin(root, { rg: 'ripgrep 14.1.0', sg: 'ast-grep 0.43.0' });
+    const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
+    const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
+    const receipt = JSON.parse(fs.readFileSync(path.join(toolingRoot, 'lazytrae-tooling-receipt.json'), 'utf8'));
+
+    assert.equal(installed.status, 0, installed.stderr);
+    assert.equal(detected.status, 0, detected.stderr);
+    assert.match(detected.stdout, /ripgrep: host \(ready\)/);
+    assert.match(detected.stdout, /ast-grep: owned \(ready\)/);
+    assert.equal(fs.existsSync(path.join(toolingRoot, 'node_modules', '@vscode', 'ripgrep')), false);
+    assert.deepEqual(receipt.provisioned_capabilities, ['ast-grep']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('tooling install replaces incompatible host providers with pinned owned fallbacks', () => {
+  const root = makeRepo('lazytrae-tooling-host-incompatible-');
+  const toolingRoot = path.join(root, 'tooling-root');
+  try {
+    const bin = hostBin(root, { rg: 'ripgrep 13.0.0', sg: 'ast-grep 0.43.0' });
+    const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
+    const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
+    const receipt = JSON.parse(fs.readFileSync(path.join(toolingRoot, 'lazytrae-tooling-receipt.json'), 'utf8'));
+
+    assert.equal(installed.status, 0, installed.stderr);
+    assert.equal(detected.status, 0, detected.stderr);
+    assert.match(detected.stdout, /ripgrep: owned \(ready\)/);
+    assert.match(detected.stdout, /ast-grep: owned \(ready\)/);
+    assert.deepEqual(receipt.provisioned_capabilities, ['ripgrep', 'ast-grep']);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

@@ -7,7 +7,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "dependencies": {
+  "optionalDependencies": {
     "@ast-grep/cli": "0.44.1",
     "@vscode/ripgrep": "1.18.0"
   }

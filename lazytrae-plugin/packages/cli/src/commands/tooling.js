@@ -10,11 +10,10 @@ const {
   validateReceipt,
   writeReceipt,
 } = require('../lib/tooling-root');
-const { detectCapabilities, formatCapabilities } = require('../lib/tooling-capabilities');
+const { detectCapabilities, formatCapabilities, missingCapabilities, packageDependencies } = require('../lib/tooling-capabilities');
 const { runVerification } = require('../lib/tooling-verify');
 
 const TOOLING_PACKAGE = path.resolve(__dirname, '..', '..', 'tooling');
-const PACKAGE_FILES = ['package.json', 'package-lock.json'];
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 function printUsage() {
@@ -24,7 +23,7 @@ Manage the LazyTrae-owned tooling root. The root must be explicit and empty for 
 
 Commands:
   detect      Report the lifecycle shell and registered capabilities
-  install     Copy the locked package and run npm ci in the owned root
+  install     Provision only missing compatible local search providers
   status      Report whether the receipt-owned root is ready
   doctor      Validate the receipt and owned files without mutation
   uninstall   Remove only unmodified receipt-owned files
@@ -44,10 +43,20 @@ function checkRoot(root) {
 }
 
 function install(root) {
-  assertSafeRoot(root, true);
-  for (const file of PACKAGE_FILES) {
-    fs.copyFileSync(path.join(TOOLING_PACKAGE, file), path.join(root, file));
+  if (fs.existsSync(root)) assertSafeRoot(root, true);
+  const missing = missingCapabilities(root);
+  if (missing.length === 0) {
+    console.log('No provisioning required: compatible host providers are ready.');
+    return 0;
   }
+  assertSafeRoot(root, true);
+  const dependencies = packageDependencies(missing);
+  const manifest = JSON.parse(fs.readFileSync(path.join(TOOLING_PACKAGE, 'package.json'), 'utf8'));
+  manifest.optionalDependencies = dependencies;
+  const lock = JSON.parse(fs.readFileSync(path.join(TOOLING_PACKAGE, 'package-lock.json'), 'utf8'));
+  lock.packages[''].optionalDependencies = dependencies;
+  fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(manifest, null, 2) + '\n');
+  fs.writeFileSync(path.join(root, 'package-lock.json'), JSON.stringify(lock, null, 2) + '\n');
   const result = spawnSync(npm, ['ci', '--ignore-scripts', '--no-audit', '--no-fund'], {
     cwd: root,
     encoding: 'utf8',
@@ -56,7 +65,7 @@ function install(root) {
   });
   if (result.error) throw new Error(`tooling npm ci failed: ${result.error.message}`);
   if (result.status !== 0) throw new Error(`tooling npm ci failed: ${result.stderr || result.stdout}`.trim());
-  writeReceipt(root, listOwnedEntries(root));
+  writeReceipt(root, listOwnedEntries(root), missing);
   console.log(`Tooling installed in ${root}.`);
   return 0;
 }
@@ -80,14 +89,16 @@ function runCommand(args) {
   }
   if (command === 'detect') {
     const state = checkRoot(root);
+    const capabilities = detectCapabilities(root);
     console.log(`Tooling lifecycle shell: ${state.ready ? 'ready' : 'missing'} (${state.detail})`);
-    console.log(formatCapabilities(detectCapabilities(root)));
-    return state.ready ? 0 : 1;
+    console.log(formatCapabilities(capabilities));
+    return capabilities.every(capability => capability.state === 'ready') ? 0 : 1;
   }
   const state = checkRoot(root);
+  const capabilities = detectCapabilities(root);
   console.log(`Tooling root: ${state.ready ? 'ready' : 'missing'} (${state.detail})`);
-  if (state.ready) console.log(formatCapabilities(detectCapabilities(root)));
-  return state.ready ? 0 : 1;
+  console.log(formatCapabilities(capabilities));
+  return capabilities.every(capability => capability.state === 'ready') ? 0 : 1;
 }
 
 function run(args) {

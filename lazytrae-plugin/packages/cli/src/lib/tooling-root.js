@@ -103,12 +103,13 @@ function receiptPath(root) {
   return path.join(root, RECEIPT_FILE);
 }
 
-function writeReceipt(root, entries) {
+function writeReceipt(root, entries, provisionedCapabilities = []) {
   const receipt = {
     schema_version: 1,
     owner: RECEIPT_OWNER,
     tooling_root: root,
     files: entries,
+    provisioned_capabilities: provisionedCapabilities,
   };
   fs.writeFileSync(receiptPath(root), JSON.stringify(receipt, null, 2) + '\n', { mode: 0o600 });
 }
@@ -120,7 +121,8 @@ function readReceipt(root) {
   const stat = fs.lstatSync(target);
   if (!stat.isFile() || stat.nlink !== 1) throw new Error('refusing unsafe tooling receipt');
   const receipt = JSON.parse(fs.readFileSync(target, 'utf8'));
-  if (receipt.schema_version !== 1 || receipt.owner !== RECEIPT_OWNER || receipt.tooling_root !== root || !Array.isArray(receipt.files)) {
+  if (receipt.schema_version !== 1 || receipt.owner !== RECEIPT_OWNER || receipt.tooling_root !== root || !Array.isArray(receipt.files)
+    || (receipt.provisioned_capabilities !== undefined && !Array.isArray(receipt.provisioned_capabilities))) {
     throw new Error('tooling receipt is not owned by this LazyTrae installation');
   }
   return receipt;
