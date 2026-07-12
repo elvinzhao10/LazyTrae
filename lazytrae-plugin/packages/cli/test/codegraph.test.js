@@ -12,7 +12,7 @@ function makeRepo(prefix) {
   return root;
 }
 
-function writeOwnedCodeGraph(root) {
+function writeOwnedCodeGraph(root, statusSucceedsWithoutDatabase = false) {
   const binary = path.join(root, 'node_modules', '@colbymchenry', 'codegraph', 'npm-shim.js');
   fs.mkdirSync(path.dirname(binary), { recursive: true });
   fs.writeFileSync(binary, `#!/usr/bin/env node
@@ -22,12 +22,12 @@ const command = process.argv.slice(2).join(' ');
 if (process.env.CODEGRAPH_NO_DOWNLOAD !== '1') process.exit(10);
 if (process.env.CODEGRAPH_TELEMETRY !== '0') process.exit(11);
 if (!process.env.HOME.includes(path.join('runtime', 'home'))) process.exit(12);
-if (command === 'status .') {
-  process.exit(fs.existsSync(path.join(process.cwd(), '.codegraph', 'index-valid')) ? 0 : 13);
+if (command.startsWith('status ')) {
+  process.exit(${statusSucceedsWithoutDatabase ? '0' : "fs.existsSync(path.join(process.cwd(), '.codegraph', 'codegraph.db')) ? 0 : 13"});
 }
 if (command === 'init .') {
   fs.mkdirSync(path.join(process.cwd(), '.codegraph'), { recursive: true });
-  fs.writeFileSync(path.join(process.cwd(), '.codegraph', 'index-valid'), 'caller-managed index\\n');
+  fs.writeFileSync(path.join(process.cwd(), '.codegraph', 'codegraph.db'), 'SQLite format 3\\u0000caller-managed index\\n');
   process.exit(0);
 }
 if (command !== 'serve --mcp') process.exit(9);
@@ -173,6 +173,27 @@ test('CodeGraph enable rejects an empty caller-owned index before changing MCP s
   }
 });
 
+test('CodeGraph rejects a cached status response without the requested target database', () => {
+  const root = makeRepo('lazytrae-codegraph-target-database-');
+  const toolingRoot = path.join(root, 'tooling');
+  try {
+    // Given: an empty target-local graph directory and a provider that falsely reports a cached index as ready.
+    assert.equal(runCli(['init'], { cwd: root }).status, 0);
+    fs.mkdirSync(path.join(root, '.codegraph'));
+    writeOwnedCodeGraph(toolingRoot, true);
+
+    // When: CodeGraph enable is requested for this exact target.
+    const enabled = runCli(['tooling', 'codegraph-enable', '--target', root, '--tooling-root', toolingRoot], { cwd: root });
+
+    // Then: a provider response alone cannot authorize an unrelated or missing target index.
+    assert.equal(enabled.status, 1);
+    assert.match(enabled.stderr, /codegraph-init/i);
+    assert.equal(JSON.parse(fs.readFileSync(path.join(root, '.lazytrae', 'state', 'tooling.json'), 'utf8')).capabilities.codegraph, undefined);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('explicit CodeGraph initialization uses the contained runtime before enable', () => {
   const root = makeRepo('lazytrae-codegraph-init-');
   const toolingRoot = path.join(root, 'tooling');
@@ -186,7 +207,7 @@ test('explicit CodeGraph initialization uses the contained runtime before enable
 
     // Then: the valid caller-managed index exists, while enable remains a separate explicit action.
     assert.equal(initialized.status, 0, initialized.stderr);
-    assert.equal(fs.existsSync(path.join(root, '.codegraph', 'index-valid')), true);
+    assert.equal(fs.existsSync(path.join(root, '.codegraph', 'codegraph.db')), true);
     assert.equal(JSON.parse(fs.readFileSync(path.join(root, '.lazytrae', 'state', 'tooling.json'), 'utf8')).capabilities.codegraph, undefined);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -204,7 +225,7 @@ test('explicit CodeGraph enable preserves user MCP configuration and launches on
     assert.equal(runCli(['init'], { cwd: root }).status, 0);
     assert.deepEqual(JSON.parse(fs.readFileSync(mcpPath, 'utf8')).mcpServers.codegraph, { command: 'caller-codegraph', args: ['serve'] });
     fs.mkdirSync(path.join(root, '.codegraph'));
-    fs.writeFileSync(path.join(root, '.codegraph', 'index-valid'), 'caller-owned index\n');
+    fs.writeFileSync(path.join(root, '.codegraph', 'codegraph.db'), 'SQLite format 3\u0000caller-owned index\n');
     writeOwnedCodeGraph(toolingRoot);
     const mcp = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
     mcp.mcpServers.user_owned = { command: 'caller-mcp', args: ['serve'] };

@@ -53,13 +53,25 @@ function indexState(target) {
   const directory = path.join(target, '.codegraph');
   if (!fs.existsSync(directory)) return 'not-initialized';
   const stat = fs.lstatSync(directory);
-  return stat.isDirectory() && !stat.isSymbolicLink() ? 'ready' : 'incompatible';
+  if (!stat.isDirectory() || stat.isSymbolicLink()) return 'incompatible';
+  const database = path.join(directory, 'codegraph.db');
+  if (!fs.existsSync(database)) return 'not-initialized';
+  const databaseStat = fs.lstatSync(database);
+  if (!databaseStat.isFile() || databaseStat.isSymbolicLink()) return 'incompatible';
+  const descriptor = fs.openSync(database, 'r');
+  try {
+    const header = Buffer.alloc(16);
+    fs.readSync(descriptor, header, 0, header.length, 0);
+    return header.toString('utf8') === 'SQLite format 3\0' ? 'ready' : 'not-initialized';
+  } finally {
+    fs.closeSync(descriptor);
+  }
 }
 
 function validatedIndex(target, executable, toolingRoot) {
   const directoryState = indexState(target);
   if (directoryState !== 'ready') return directoryState;
-  const result = spawnSync(executable, ['status', '.'], {
+  const result = spawnSync(executable, ['status', target], {
     cwd: target,
     encoding: 'utf8',
     timeout: 30_000,
