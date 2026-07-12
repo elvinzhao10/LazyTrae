@@ -7,7 +7,7 @@
   "required": ["version", "created_at", "updated_at", "brief_path", "goals_path", "ledger_path", "goals"],
   "properties": {
     "version": { "type": "integer", "description": "Schema version. Must be 1.", "minimum": 1, "maximum": 1 },
-    "run_id": { "type": "string", "description": "Unique run identifier for this loop execution." },
+    "run_id": { "type": ["string", "null"], "description": "Unique run identifier for this loop execution; null while idle." },
     "loop_state": {
       "type": "string",
       "description": "Current loop state. One of 10 states from execution-loop.md.",
@@ -86,9 +86,9 @@
     },
     "created_at": { "type": "string", "format": "date-time" },
     "updated_at": { "type": "string", "format": "date-time" },
-    "brief_path": { "type": "string", "description": "Relative path to the brief file." },
-    "goals_path": { "type": "string", "description": "Relative path to the goals JSON file." },
-    "ledger_path": { "type": "string", "description": "Relative path to the ledger JSONL file." },
+    "brief_path": { "type": ["string", "null"], "description": "Relative path to the brief file; null while idle." },
+    "goals_path": { "type": ["string", "null"], "description": "Relative path to the goals JSON file; null while idle." },
+    "ledger_path": { "type": ["string", "null"], "description": "Relative path to the ledger JSONL file; null while idle." },
     "codex_goal_mode": {
       "type": "string",
       "description": "Goal aggregation mode.",

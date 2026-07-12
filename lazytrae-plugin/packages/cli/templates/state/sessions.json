@@ -16,20 +16,5 @@
     "description": "LazyTrae session tracking for active sessions, compaction state, and cross-session continuation.",
     "lock_mechanism": "File-based mutation lock (mkdir-based, 20 retries, 5ms delay)."
   },
-  "_schema": "See .lazytrae/schemas/ for validation rules.",
-  "_example": {
-    "current_session_id": "trae:session-abc123",
-    "sessions": {
-      "trae:session-abc123": {
-        "session_id": "trae:session-abc123",
-        "started_at": "2026-07-09T09:00:00Z",
-        "last_active_at": "2026-07-09T11:30:00Z",
-        "status": "active",
-        "active_plan": ".lazytrae/plans/sample-plan.md",
-        "work_id": "work-001",
-        "agent": "sisyphus",
-        "mode": "ultrawork"
-      }
-    }
-  }
+  "_schema": "See .lazytrae/schemas/ for validation rules."
 }

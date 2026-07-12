@@ -63,7 +63,8 @@ function createGoals(repoRoot, args) {
   const goalId = flags['--goal-id'] || 'goal-1';
   const criterionId = flags['--criterion-id'] || `${goalId}-crit-1`;
   const brief = readBrief(repoRoot, flags['--brief']);
-  const loop = loadLoop(repoRoot) || defaultLoop();
+  const existingLoop = loadLoop(repoRoot);
+  const loop = existingLoop && typeof existingLoop.run_id === 'string' ? existingLoop : defaultLoop();
   Object.assign(loop, { loop_state: 'active', started_at: loop.started_at || now, active_goal_id: goalId });
   loop.goals = [{
     id: goalId,

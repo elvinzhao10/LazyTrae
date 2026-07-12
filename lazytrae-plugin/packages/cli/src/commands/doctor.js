@@ -7,6 +7,7 @@ const { checkModelRouting } = require('../lib/model-routing-check');
 const { checkTraeStructure } = require('../lib/trae-checks');
 const { checkTeamMode } = require('../lib/team-check');
 const { checkStaleRecovery } = require('../lib/context-recovery');
+const { validateActivePlans } = require('../lib/active-plan');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -174,6 +175,15 @@ Options:
   const evidenceGate = checkCompletedTaskEvidence(repoRoot);
   addResult('Completed task evidence gate', evidenceGate.valid ? 'PASS' : 'FAIL',
     evidenceGate.valid ? 'All completed tasks have evidence paths' : evidenceGate.errors.join('; '));
+
+  const boulderPath = path.join(repoRoot, '.lazytrae', 'state', 'boulder.json');
+  try {
+    const activePlanErrors = validateActivePlans(repoRoot, JSON.parse(fs.readFileSync(boulderPath, 'utf-8')));
+    addResult('Active plan validation', activePlanErrors.length === 0 ? 'PASS' : 'FAIL',
+      activePlanErrors.length === 0 ? 'No active plan to validate or active plan is safe' : activePlanErrors.join('; '));
+  } catch (error) {
+    addResult('Active plan validation', 'FAIL', `Cannot inspect boulder state: ${error.message}`);
+  }
 
   const recoveryResult = checkStaleRecovery(repoRoot);
   addResult(recoveryResult.label, recoveryResult.status, recoveryResult.detail);

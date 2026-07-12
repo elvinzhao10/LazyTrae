@@ -2,6 +2,7 @@
 
 const { getBoulderState, getActiveWork } = require('./state-access');
 const { getParityStatus } = require('./parity');
+const { validateActivePlan } = require('../lib/active-plan');
 
 function handleGetActivePlan(root) {
   const b = getBoulderState(root);
@@ -15,6 +16,11 @@ function handleGetActivePlan(root) {
       work_count: Object.keys(b.works || {}).length,
       message: 'No active work. Use boulder.works to list all works.',
     };
+  }
+
+  const activePlan = validateActivePlan(root, work.active_plan);
+  if (!activePlan.valid) {
+    return { error: 'INVALID_ACTIVE_PLAN', message: activePlan.error, active_plan: null, tasks: [] };
   }
 
   return {

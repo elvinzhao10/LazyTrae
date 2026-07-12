@@ -14,6 +14,8 @@ const SOURCE_ROOT = path.resolve(__dirname, '..', '..', '..');
 function makeRepoRoot() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-mcp-smoke-'));
   fs.mkdirSync(path.join(root, '.lazytrae', 'state'), { recursive: true });
+  fs.mkdirSync(path.join(root, '.lazytrae', 'plans'), { recursive: true });
+  fs.writeFileSync(path.join(root, '.lazytrae', 'plans', 'demo.md'), '# Demo plan\n');
   fs.writeFileSync(path.join(root, '.lazytrae', 'state', 'boulder.json'), JSON.stringify({
     schema_version: 2,
     active_work_id: 'work-1',
