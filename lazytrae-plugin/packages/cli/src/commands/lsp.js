@@ -1,6 +1,7 @@
 const readline = require('readline');
 const { advertised, execute, tool } = require('../lib/lsp-bridge');
 const { formatStatus, parseLspArgs, status } = require('../lib/lsp-lifecycle');
+const { ownedRuntimeEnvironment } = require('../lib/tooling-root');
 
 function json(value) {
   process.stdout.write(`${JSON.stringify(value)}\n`);
@@ -25,10 +26,11 @@ async function handle(request, context) {
     return;
   }
   const provider = status(context.target, context.toolingRoot);
+  const environment = provider.source === 'owned' ? ownedRuntimeEnvironment(context.toolingRoot) : undefined;
   let available = ['lsp_status'];
   if (provider.state === 'ready') {
     try {
-      available = ['lsp_status', ...(await advertised(provider, context.target))];
+      available = ['lsp_status', ...(await advertised(provider, context.target, environment))];
     } catch (failure) {
       provider.state = 'failed-optional';
       provider.reason = `LSP provider handshake failed without changing the target: ${failure.message}`;
@@ -47,7 +49,7 @@ async function handle(request, context) {
     if (params.name === 'lsp_status') return result(id, content(provider));
     if (params.name === 'rename') throw new Error('rename is intentionally unsupported; LazyTrae exposes read-only LSP operations only.');
     if (!available.includes(params.name)) throw new Error(`operation is unavailable because the active LSP provider did not advertise it: ${params.name}`);
-    result(id, content(await execute(params.name, params.arguments || {}, provider, context.target)));
+    result(id, content(await execute(params.name, params.arguments || {}, provider, context.target, environment)));
   } catch (failure) {
     error(id, -32602, failure.message);
   }

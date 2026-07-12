@@ -4,8 +4,8 @@ const MAX_BODY_BYTES = 4_000_000;
 const MAX_HEADERS_BYTES = 16_384;
 
 class LspSession {
-  constructor(command, cwd, timeoutMs) {
-    this.process = spawn(command[0], command.slice(1), { cwd, stdio: ['pipe', 'pipe', 'ignore'] });
+  constructor(command, cwd, timeoutMs, environment) {
+    this.process = spawn(command[0], command.slice(1), { cwd, env: environment, stdio: ['pipe', 'pipe', 'ignore'] });
     this.timeoutMs = timeoutMs;
     this.nextId = 1;
     this.pending = new Map();

@@ -171,3 +171,35 @@ test('LSP status does not reject basedpyright because its language-server binary
     fs.rmSync(toolingRoot, { recursive: true, force: true });
   }
 });
+
+test('LSP uninstall uses the receipt-owned provider even after the target language changes', () => {
+  const target = makeRepo('lazytrae-lsp-uninstall-language-change-');
+  const toolingRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-lsp-uninstall-language-change-'));
+  fs.writeFileSync(path.join(target, 'tsconfig.json'), '{"compilerOptions":{"strict":true}}\n');
+  const binary = path.join(toolingRoot, 'lsp', 'typescript', 'node_modules', 'typescript-language-server', 'cli.js');
+  fs.mkdirSync(path.dirname(binary), { recursive: true });
+  fs.writeFileSync(binary, '#!/usr/bin/env node\nconsole.log("5.3.0");\n');
+  fs.chmodSync(binary, 0o755);
+  const binDirectory = path.join(toolingRoot, 'lsp', 'typescript', 'node_modules', '.bin');
+  fs.mkdirSync(binDirectory);
+  fs.symlinkSync('../typescript-language-server/cli.js', path.join(binDirectory, 'typescript-language-server'));
+  writeReceipt(toolingRoot, listOwnedEntries(toolingRoot), ['lsp-typescript']);
+
+  try {
+    // Given: a valid receipt-owned TypeScript provider whose target later becomes Python-only.
+    fs.rmSync(path.join(target, 'tsconfig.json'));
+    fs.writeFileSync(path.join(target, 'pyproject.toml'), '[project]\nname = "fixture"\nversion = "0.0.0"\n');
+
+    // When: the owned provider is explicitly uninstalled.
+    const result = runCli(['tooling', 'lsp-uninstall', '--target', target, '--tooling-root', toolingRoot], { cwd: target });
+
+    // Then: ownership, not current language detection, authorizes safe removal.
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /STATE: removed/);
+    assert.match(result.stdout, /LANGUAGE: typescript/);
+    assert.equal(fs.existsSync(toolingRoot), false);
+  } finally {
+    fs.rmSync(target, { recursive: true, force: true });
+    fs.rmSync(toolingRoot, { recursive: true, force: true });
+  }
+});

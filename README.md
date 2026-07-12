@@ -24,8 +24,8 @@ ownership. Use `rg` for local text/file search and `sg` for structural search.
 Use the read-only LSP bridge for definitions, references, symbols, hover, and
 diagnostics in supported JavaScript/TypeScript or Python projects. Use
 CodeGraph only after an explicit architecture or dependency-tracing request;
-it requires a caller-created project index and a separate receipt-owned tooling
-root. Context7 and `grep_app` remain disabled unless the project explicitly
+it requires the explicit caller action `lazytrae tooling codegraph-init` and a
+separate receipt-owned tooling root. Context7 and `grep_app` remain disabled unless the project explicitly
 selects current library documentation or public-code examples.
 
 ```bash

@@ -44,8 +44,8 @@ function languageId(language) {
   return language === 'typescript' ? 'typescript' : 'python';
 }
 
-async function withSession(provider, root, action) {
-  const session = new LspSession(lspInvocation(provider), root, timeoutMs());
+async function withSession(provider, root, environment, action) {
+  const session = new LspSession(lspInvocation(provider), root, timeoutMs(), environment);
   try {
     return await action(session);
   } finally {
@@ -53,14 +53,14 @@ async function withSession(provider, root, action) {
   }
 }
 
-async function advertised(provider, root) {
-  return withSession(provider, root, async session => operations(await session.initialize(root)));
+async function advertised(provider, root, environment) {
+  return withSession(provider, root, environment, async session => operations(await session.initialize(root)));
 }
 
-async function execute(name, arguments, provider, root) {
+async function execute(name, arguments, provider, root, environment) {
   if (name === 'rename') throw new Error('rename is intentionally unsupported; LazyTrae exposes read-only LSP operations only.');
   const file = relativeFile(root, arguments.path);
-  return withSession(provider, root, async session => {
+  return withSession(provider, root, environment, async session => {
     const capabilities = await session.initialize(root);
     const enabled = operations(capabilities);
     if (!enabled.includes(name)) throw new Error(`operation is unavailable because the active provider did not advertise it: ${name}`);

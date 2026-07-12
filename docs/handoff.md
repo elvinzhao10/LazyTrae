@@ -15,7 +15,8 @@ text/file search, `sg` for structural search, the separate read-only LSP MCP
 for supported JavaScript/TypeScript and Python semantic navigation, and
 repository-native verification only when the caller explicitly runs a declared
 check. CodeGraph is a separate, explicit architecture/dependency MCP: it
-requires a receipt-owned tooling root and a caller-created project index.
+requires a receipt-owned tooling root and the caller-selected
+`lazytrae tooling codegraph-init` project-index step.
 Context7 and `grep_app` stay disabled, offline, and optional until enabled by
 the project. Do not document any optional capability as a required install
 dependency or as verified on a non-macOS host.

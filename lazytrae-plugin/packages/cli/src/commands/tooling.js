@@ -7,6 +7,8 @@ const {
   readReceipt,
   readToolingRoot,
   removeReceiptOwnedRoot,
+  ownedRuntimeEnvironment,
+  prepareOwnedRuntime,
   validateReceipt,
   writeReceipt,
 } = require('../lib/tooling-root');
@@ -24,6 +26,7 @@ const {
   disable: disableCodeGraph,
   enable: enableCodeGraph,
   formatStatus: formatCodeGraphStatus,
+  initialize: initializeCodeGraph,
   install: installCodeGraph,
   parseCodeGraphArgs,
   status: codeGraphStatus,
@@ -58,6 +61,7 @@ Commands:
   codegraph-status Inspect optional CodeGraph readiness without mutation
   codegraph-doctor Recommend CodeGraph only for large supported projects
   codegraph-install Provision the pinned CodeGraph package into an empty owned root
+  codegraph-init Explicitly build or refresh a caller-managed CodeGraph index
   codegraph-enable Enable the managed MCP only after a caller-created .codegraph index exists
   codegraph-disable Disable the managed CodeGraph MCP without deleting an index
   codegraph-uninstall Remove only an unmodified receipt-owned CodeGraph tooling root
@@ -106,6 +110,10 @@ function runCodeGraph(command, args) {
   const { target, toolingRoot } = parseCodeGraphArgs(args);
   if (command === 'codegraph-install') {
     console.log(formatCodeGraphStatus(installCodeGraph(target, toolingRoot)));
+    return 0;
+  }
+  if (command === 'codegraph-init') {
+    console.log(formatCodeGraphStatus(initializeCodeGraph(target, toolingRoot)));
     return 0;
   }
   if (command === 'codegraph-uninstall') {
@@ -163,6 +171,7 @@ function install(root) {
     return 0;
   }
   assertSafeRoot(root, true);
+  prepareOwnedRuntime(root);
   const dependencies = packageDependencies(missing);
   const manifest = JSON.parse(fs.readFileSync(path.join(TOOLING_PACKAGE, 'package.json'), 'utf8'));
   manifest.optionalDependencies = dependencies;
@@ -174,7 +183,7 @@ function install(root) {
     cwd: root,
     encoding: 'utf8',
     timeout: 120000,
-    env: { ...process.env, npm_config_update_notifier: 'false' },
+    env: ownedRuntimeEnvironment(root),
   });
   if (result.error) throw new Error(`tooling npm ci failed: ${result.error.message}`);
   if (result.status !== 0) throw new Error(`tooling npm ci failed: ${result.stderr || result.stdout}`.trim());
@@ -189,7 +198,7 @@ function runCommand(args) {
     return args.length === 0 ? 1 : 0;
   }
   const command = args[0];
-  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify', 'lsp-status', 'lsp-install', 'lsp-doctor', 'lsp-uninstall', 'codegraph-status', 'codegraph-doctor', 'codegraph-install', 'codegraph-enable', 'codegraph-disable', 'codegraph-uninstall', 'enable', 'disable', 'remote-status'].includes(command)) {
+  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify', 'lsp-status', 'lsp-install', 'lsp-doctor', 'lsp-uninstall', 'codegraph-status', 'codegraph-doctor', 'codegraph-install', 'codegraph-init', 'codegraph-enable', 'codegraph-disable', 'codegraph-uninstall', 'enable', 'disable', 'remote-status'].includes(command)) {
     throw new Error(`unknown tooling command: ${command}`);
   }
   if (command === 'enable' || command === 'disable') return runRemote(command, args.slice(1));

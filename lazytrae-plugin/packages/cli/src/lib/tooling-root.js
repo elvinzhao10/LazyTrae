@@ -6,6 +6,53 @@ const path = require('path');
 const RECEIPT_FILE = 'lazytrae-tooling-receipt.json';
 const RECEIPT_OWNER = 'lazytrae-tooling';
 
+function runtimePaths(root) {
+  const runtime = path.join(root, 'runtime');
+  return {
+    runtime,
+    home: path.join(runtime, 'home'),
+    npmCache: path.join(runtime, 'npm-cache'),
+    npmLogs: path.join(runtime, 'npm-logs'),
+    cache: path.join(runtime, 'cache'),
+    config: path.join(runtime, 'config'),
+    data: path.join(runtime, 'data'),
+    state: path.join(runtime, 'state'),
+    pythonPycache: path.join(runtime, 'python-pycache'),
+    pythonUserbase: path.join(runtime, 'python-userbase'),
+    pipCache: path.join(runtime, 'pip-cache'),
+  };
+}
+
+function prepareOwnedRuntime(root) {
+  const paths = runtimePaths(root);
+  for (const directory of Object.values(paths)) fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
+  return paths;
+}
+
+function ownedRuntimeEnvironment(root, environment = process.env) {
+  const paths = runtimePaths(root);
+  for (const directory of Object.values(paths)) {
+    const stat = fs.lstatSync(directory);
+    if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error('refusing unsafe tooling runtime directory');
+  }
+  return {
+    ...environment,
+    HOME: paths.home,
+    XDG_CACHE_HOME: paths.cache,
+    XDG_CONFIG_HOME: paths.config,
+    XDG_DATA_HOME: paths.data,
+    XDG_STATE_HOME: paths.state,
+    npm_config_cache: paths.npmCache,
+    npm_config_logs_dir: paths.npmLogs,
+    npm_config_update_notifier: 'false',
+    PYTHONPYCACHEPREFIX: paths.pythonPycache,
+    PYTHONUSERBASE: paths.pythonUserbase,
+    PIP_CACHE_DIR: paths.pipCache,
+    PYTHONNOUSERSITE: '1',
+    CODEGRAPH_TELEMETRY: '0',
+  };
+}
+
 function isInside(root, candidate) {
   const relative = path.relative(root, candidate);
   return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
@@ -179,6 +226,8 @@ module.exports = {
   readReceipt,
   readToolingRoot,
   removeReceiptOwnedRoot,
+  ownedRuntimeEnvironment,
+  prepareOwnedRuntime,
   validateReceipt,
   writeReceipt,
 };

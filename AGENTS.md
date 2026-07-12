@@ -79,7 +79,8 @@ search, `sg` for structural search, the optional read-only LSP bridge for
 definitions/references/symbols/diagnostics, and CodeGraph only for an explicit
 architecture or dependency-tracing request. Install package-owned local search
 providers only with an explicit empty tooling root; LSP and CodeGraph have
-their own explicit lifecycle commands. Context7 and `grep_app` are optional,
+their own explicit lifecycle commands, including `lazytrae tooling
+codegraph-init` before a CodeGraph enable. Context7 and `grep_app` are optional,
 disabled by default, and are enabled only when current library documentation or
 public code examples are actually needed. `lazytrae tooling verify` discovers
 repository-native checks and runs them only after an explicit `--run` request.

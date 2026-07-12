@@ -4,6 +4,8 @@ const path = require('path');
 const {
   assertSafeRoot,
   listOwnedEntries,
+  ownedRuntimeEnvironment,
+  prepareOwnedRuntime,
   readReceipt,
   removeReceiptOwnedRoot,
   validateReceipt,
@@ -57,6 +59,7 @@ function install(target, toolingRoot) {
   const initial = status(target, toolingRoot);
   if (initial.state !== 'missing') return initial;
   assertSafeRoot(toolingRoot, true);
+  prepareOwnedRuntime(toolingRoot);
   const provider = PROVIDERS[initial.language];
   if (!provider) throw new Error('no supported provider can be provisioned for this target.');
   const source = path.join(SOURCE_ROOT, provider.packageDirectory);
@@ -67,7 +70,7 @@ function install(target, toolingRoot) {
     cwd: destination,
     encoding: 'utf8',
     timeout: 120000,
-    env: { ...process.env, npm_config_update_notifier: 'false' },
+    env: ownedRuntimeEnvironment(toolingRoot),
   });
   if (result.error || result.status !== 0) {
     fs.rmSync(toolingRoot, { recursive: true, force: true });
@@ -83,13 +86,19 @@ function doctor(target, toolingRoot) {
   return status(target, toolingRoot);
 }
 
-function uninstall(target, toolingRoot) {
-  const current = status(target, toolingRoot);
-  if (!current.language || !ownsRoot(toolingRoot, current.language)) {
+function uninstall(_target, toolingRoot) {
+  let receipt;
+  try {
+    receipt = readReceipt(toolingRoot);
+    validateReceipt(toolingRoot, receipt);
+  } catch (_) {
     throw new Error('refusing LSP uninstall: root is not an unmodified receipt-owned LSP installation.');
   }
+  const capabilities = receipt.provisioned_capabilities.filter(capability => capability.startsWith('lsp-'));
+  if (capabilities.length !== 1) throw new Error('refusing LSP uninstall: root does not own exactly one LSP provider.');
+  const language = capabilities[0].slice('lsp-'.length);
   removeReceiptOwnedRoot(toolingRoot);
-  return { state: 'removed', language: current.language };
+  return { state: 'removed', language };
 }
 
 module.exports = { doctor, formatStatus, install, parseLspArgs, status, uninstall };

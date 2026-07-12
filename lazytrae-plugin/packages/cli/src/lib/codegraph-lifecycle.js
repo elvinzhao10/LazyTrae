@@ -4,6 +4,8 @@ const path = require('path');
 const {
   assertSafeRoot,
   listOwnedEntries,
+  ownedRuntimeEnvironment,
+  prepareOwnedRuntime,
   readReceipt,
   removeReceiptOwnedRoot,
   validateReceipt,
@@ -54,6 +56,18 @@ function indexState(target) {
   return stat.isDirectory() && !stat.isSymbolicLink() ? 'ready' : 'incompatible';
 }
 
+function validatedIndex(target, executable, toolingRoot) {
+  const directoryState = indexState(target);
+  if (directoryState !== 'ready') return directoryState;
+  const result = spawnSync(executable, ['status', '.'], {
+    cwd: target,
+    encoding: 'utf8',
+    timeout: 30_000,
+    env: { ...ownedRuntimeEnvironment(toolingRoot), CODEGRAPH_NO_DOWNLOAD: '1' },
+  });
+  return !result.error && result.status === 0 ? 'ready' : 'not-initialized';
+}
+
 function projectSize(target, budget = { files: 0, lines: 0, remaining: 20000 }) {
   if (budget.files >= 500 || budget.lines >= 100000 || budget.remaining <= 0) return budget;
   for (const entry of fs.readdirSync(target, { withFileTypes: true })) {
@@ -84,8 +98,8 @@ function status(target, toolingRoot) {
       : 'the explicit tooling root is not an unmodified receipt-owned CodeGraph installation';
     return { state, reason, recommendation, size };
   }
-  const index = indexState(target);
-  if (index !== 'ready') return { state: index, reason: index === 'not-initialized' ? 'run codegraph init yourself before enabling this optional MCP' : 'the project .codegraph path must be a non-symlink directory', recommendation, size };
+  const index = validatedIndex(target, executable, toolingRoot);
+  if (index !== 'ready') return { state: index, reason: index === 'not-initialized' ? 'run lazytrae tooling codegraph-init before enabling this optional MCP' : 'the project .codegraph path must be a non-symlink directory', recommendation, size };
   return { state: 'ready', command: executable, recommendation, size };
 }
 
@@ -104,11 +118,12 @@ function formatStatus(value) {
 function install(target, toolingRoot) {
   assertSafeRoot(toolingRoot, true);
   fs.cpSync(SOURCE_ROOT, toolingRoot, { recursive: true, dereference: false });
+  prepareOwnedRuntime(toolingRoot);
   const result = spawnSync(npm, ['ci', '--ignore-scripts', '--no-audit', '--no-fund'], {
     cwd: toolingRoot,
     encoding: 'utf8',
     timeout: 120000,
-    env: { ...process.env, npm_config_update_notifier: 'false' },
+    env: ownedRuntimeEnvironment(toolingRoot),
   });
   if (result.error || result.status !== 0) {
     fs.rmSync(toolingRoot, { recursive: true, force: true });
@@ -116,6 +131,23 @@ function install(target, toolingRoot) {
   }
   writeReceipt(toolingRoot, listOwnedEntries(toolingRoot), ['codegraph']);
   return status(target, toolingRoot);
+}
+
+function initialize(target, toolingRoot) {
+  const executable = ownedExecutable(toolingRoot);
+  if (!executable) throw new Error('CodeGraph cannot initialize without an unmodified receipt-owned binary.');
+  const result = spawnSync(executable, ['init', '.'], {
+    cwd: target,
+    encoding: 'utf8',
+    timeout: 120_000,
+    env: { ...ownedRuntimeEnvironment(toolingRoot), CODEGRAPH_NO_DOWNLOAD: '1' },
+  });
+  if (result.error || result.status !== 0) {
+    throw new Error(`CodeGraph initialization failed: ${(result.error && result.error.message) || result.stderr || result.stdout}`.trim());
+  }
+  const initialized = status(target, toolingRoot);
+  if (initialized.state !== 'ready') throw new Error(`CodeGraph initialization did not produce a valid index: ${initialized.reason}`);
+  return initialized;
 }
 
 function enable(target, toolingRoot) {
@@ -141,4 +173,4 @@ function uninstall(target, toolingRoot) {
   disable(target);
 }
 
-module.exports = { disable, enable, formatStatus, install, ownedExecutable, parseCodeGraphArgs, status, uninstall };
+module.exports = { disable, enable, formatStatus, initialize, install, ownedExecutable, parseCodeGraphArgs, status, uninstall };

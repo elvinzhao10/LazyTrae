@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { runCli } = require('./test-helpers');
-const { listOwnedEntries, writeReceipt } = require('../src/lib/tooling-root');
+const { listOwnedEntries, prepareOwnedRuntime, writeReceipt } = require('../src/lib/tooling-root');
 
 function makeRepo(prefix) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -16,8 +16,21 @@ function writeOwnedCodeGraph(root) {
   const binary = path.join(root, 'node_modules', '@colbymchenry', 'codegraph', 'npm-shim.js');
   fs.mkdirSync(path.dirname(binary), { recursive: true });
   fs.writeFileSync(binary, `#!/usr/bin/env node
-if (process.argv.slice(2).join(' ') !== 'serve --mcp') process.exit(9);
+const fs = require('fs');
+const path = require('path');
+const command = process.argv.slice(2).join(' ');
 if (process.env.CODEGRAPH_NO_DOWNLOAD !== '1') process.exit(10);
+if (process.env.CODEGRAPH_TELEMETRY !== '0') process.exit(11);
+if (!process.env.HOME.includes(path.join('runtime', 'home'))) process.exit(12);
+if (command === 'status .') {
+  process.exit(fs.existsSync(path.join(process.cwd(), '.codegraph', 'index-valid')) ? 0 : 13);
+}
+if (command === 'init .') {
+  fs.mkdirSync(path.join(process.cwd(), '.codegraph'), { recursive: true });
+  fs.writeFileSync(path.join(process.cwd(), '.codegraph', 'index-valid'), 'caller-managed index\\n');
+  process.exit(0);
+}
+if (command !== 'serve --mcp') process.exit(9);
 let buffer = '';
 process.stdin.on('data', chunk => { buffer += chunk; });
 process.stdin.on('end', () => {
@@ -32,7 +45,37 @@ process.stdin.on('end', () => {
   const bin = path.join(root, 'node_modules', '.bin');
   fs.mkdirSync(bin, { recursive: true });
   fs.symlinkSync('../@colbymchenry/codegraph/npm-shim.js', path.join(bin, 'codegraph'));
+  prepareOwnedRuntime(root);
   writeReceipt(root, listOwnedEntries(root), ['codegraph']);
+}
+
+function writeFakeNpm(root) {
+  const binary = path.join(root, 'bin', 'npm');
+  fs.mkdirSync(path.dirname(binary), { recursive: true });
+  fs.writeFileSync(binary, `#!/usr/bin/env node
+const fs = require('fs');
+const path = require('path');
+const runtime = path.dirname(process.env.HOME);
+if (fs.realpathSync(path.dirname(runtime)) !== fs.realpathSync(process.cwd())) process.exit(7);
+const expected = {
+  HOME: path.join(runtime, 'home'),
+  npm_config_cache: path.join(runtime, 'npm-cache'),
+  npm_config_logs_dir: path.join(runtime, 'npm-logs'),
+  XDG_CACHE_HOME: path.join(runtime, 'cache'),
+  PYTHONPYCACHEPREFIX: path.join(runtime, 'python-pycache'),
+  CODEGRAPH_TELEMETRY: '0',
+};
+if (Object.entries(expected).some(([name, value]) => process.env[name] !== value)) process.exit(7);
+const executable = path.join(process.cwd(), 'node_modules', '@colbymchenry', 'codegraph', 'npm-shim.js');
+fs.mkdirSync(path.dirname(executable), { recursive: true });
+fs.writeFileSync(executable, '#!/usr/bin/env node\\nprocess.exit(0);\\n');
+fs.chmodSync(executable, 0o755);
+const bin = path.join(process.cwd(), 'node_modules', '.bin');
+fs.mkdirSync(bin, { recursive: true });
+fs.symlinkSync('../@colbymchenry/codegraph/npm-shim.js', path.join(bin, 'codegraph'));
+`);
+  fs.chmodSync(binary, 0o755);
+  return path.dirname(binary);
 }
 
 test('CodeGraph remains disabled and non-mutating until an explicitly initialized project is enabled', () => {
@@ -81,6 +124,75 @@ test('CodeGraph doctor recommends only a target that crosses the supported sourc
   }
 });
 
+test('CodeGraph install confines npm and runtime state to the receipt-owned root', () => {
+  const root = makeRepo('lazytrae-codegraph-runtime-');
+  const toolingRoot = path.join(root, 'tooling');
+  const sentinelHome = path.join(root, 'sentinel-home');
+  fs.mkdirSync(sentinelHome);
+  const fakeBin = writeFakeNpm(root);
+  try {
+    // Given: a caller HOME sentinel and an npm replacement that verifies child-process state paths.
+    const result = runCli(['tooling', 'codegraph-install', '--target', root, '--tooling-root', toolingRoot], {
+      cwd: root,
+      env: { ...process.env, HOME: sentinelHome, PATH: `${fakeBin}${path.delimiter}${process.env.PATH}` },
+    });
+
+    // When: the package-owned CodeGraph installation is requested.
+
+    // Then: install succeeds without host-state writes and creates a contained runtime directory.
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(fs.readdirSync(sentinelHome), []);
+    assert.equal(fs.existsSync(path.join(toolingRoot, 'runtime', 'home')), true);
+    assert.equal(fs.existsSync(path.join(toolingRoot, 'lazytrae-tooling-receipt.json')), true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CodeGraph enable rejects an empty caller-owned index before changing MCP state', () => {
+  const root = makeRepo('lazytrae-codegraph-empty-index-');
+  const toolingRoot = path.join(root, 'tooling');
+  try {
+    // Given: a receipt-owned executable and a caller-created but uninitialized graph directory.
+    assert.equal(runCli(['init'], { cwd: root }).status, 0);
+    fs.mkdirSync(path.join(root, '.codegraph'));
+    writeOwnedCodeGraph(toolingRoot);
+    const mcpPath = path.join(root, '.trae', 'mcp.json');
+    const beforeMcp = fs.readFileSync(mcpPath, 'utf8');
+
+    // When: enabling checks the candidate index.
+    const enabled = runCli(['tooling', 'codegraph-enable', '--target', root, '--tooling-root', toolingRoot], { cwd: root });
+
+    // Then: empty directories are refused and the caller-owned index/configuration remain untouched.
+    assert.equal(enabled.status, 1);
+    assert.match(enabled.stderr, /run lazytrae tooling codegraph-init/i);
+    assert.equal(fs.readFileSync(mcpPath, 'utf8'), beforeMcp);
+    assert.equal(JSON.parse(fs.readFileSync(path.join(root, '.lazytrae', 'state', 'tooling.json'), 'utf8')).capabilities.codegraph, undefined);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('explicit CodeGraph initialization uses the contained runtime before enable', () => {
+  const root = makeRepo('lazytrae-codegraph-init-');
+  const toolingRoot = path.join(root, 'tooling');
+  try {
+    // Given: an initialized project and a receipt-owned CodeGraph executable without an index.
+    assert.equal(runCli(['init'], { cwd: root }).status, 0);
+    writeOwnedCodeGraph(toolingRoot);
+
+    // When: the caller explicitly requests CodeGraph initialization.
+    const initialized = runCli(['tooling', 'codegraph-init', '--target', root, '--tooling-root', toolingRoot], { cwd: root });
+
+    // Then: the valid caller-managed index exists, while enable remains a separate explicit action.
+    assert.equal(initialized.status, 0, initialized.stderr);
+    assert.equal(fs.existsSync(path.join(root, '.codegraph', 'index-valid')), true);
+    assert.equal(JSON.parse(fs.readFileSync(path.join(root, '.lazytrae', 'state', 'tooling.json'), 'utf8')).capabilities.codegraph, undefined);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('explicit CodeGraph enable preserves user MCP configuration and launches only the owned serve process', () => {
   const root = makeRepo('lazytrae-codegraph-enabled-');
   const toolingRoot = path.join(root, 'tooling');
@@ -92,6 +204,7 @@ test('explicit CodeGraph enable preserves user MCP configuration and launches on
     assert.equal(runCli(['init'], { cwd: root }).status, 0);
     assert.deepEqual(JSON.parse(fs.readFileSync(mcpPath, 'utf8')).mcpServers.codegraph, { command: 'caller-codegraph', args: ['serve'] });
     fs.mkdirSync(path.join(root, '.codegraph'));
+    fs.writeFileSync(path.join(root, '.codegraph', 'index-valid'), 'caller-owned index\n');
     writeOwnedCodeGraph(toolingRoot);
     const mcp = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
     mcp.mcpServers.user_owned = { command: 'caller-mcp', args: ['serve'] };
