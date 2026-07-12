@@ -41,11 +41,22 @@ lazytrae tooling lsp-uninstall --target /absolute/project --tooling-root /absolu
 
 # Start the separate read-only LSP MCP bridge after provider readiness is reported
 lazytrae lsp --target /absolute/project --tooling-root /absolute/lazytrae-lsp
+
+# Inspect and explicitly manage the optional package-owned CodeGraph bridge
+lazytrae tooling codegraph-doctor --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
+lazytrae tooling codegraph-install --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
+# Run `codegraph init` yourself from the target project, then enable the managed bridge.
+lazytrae tooling codegraph-enable --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
+lazytrae tooling codegraph-uninstall --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
 ```
 
 ## Managed LSP bridge
 
 The optional LSP bridge is separate from `lazytrae mcp`; the latter retains its 15-tool contract. It detects an existing project or host provider before provisioning a package-owned fallback. Only JavaScript/TypeScript (`typescript-language-server@5.3.0` with `typescript@5.9.3`) and Python (`basedpyright@1.39.9`) are supported. TypeScript requires Node 20 or later. The bridge exposes only advertised read-only definitions, references, symbols, hover, and diagnostics operations. It rejects rename requests and uses an explicit receipt-owned tooling root, so it never changes the target project's source, manifest, lockfile, or global tools.
+
+## Optional CodeGraph bridge
+
+CodeGraph is a separate optional MCP process, never an extra LazyTrae internal tool. `lazytrae tooling codegraph-doctor` recommends it only when the target has at least 500 supported source files or 100,000 supported source lines. It never starts CodeGraph, downloads anything, or creates `.codegraph/`. `codegraph-install` pins `@colbymchenry/codegraph@1.4.1` in an explicit empty LazyTrae-owned tooling root with package scripts disabled. Create the target index yourself with CodeGraph's `init` command, then use `codegraph-enable` to add the managed `lazytrae codegraph ...` MCP entry. `sync` preserves that managed entry and caller MCP entries. The bridge invokes only `codegraph serve --mcp`; it never calls CodeGraph's agent-install, uninstall, upgrade, or provisioning commands. `codegraph-uninstall` removes only an unmodified receipt-owned tooling root and never removes a project `.codegraph/` directory.
 
 ## Onboard
 

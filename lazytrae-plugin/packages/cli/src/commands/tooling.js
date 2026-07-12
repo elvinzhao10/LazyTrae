@@ -20,6 +20,16 @@ const {
   status: lspStatus,
   uninstall: lspUninstall,
 } = require('../lib/lsp-lifecycle');
+const {
+  disable: disableCodeGraph,
+  enable: enableCodeGraph,
+  formatStatus: formatCodeGraphStatus,
+  install: installCodeGraph,
+  parseCodeGraphArgs,
+  status: codeGraphStatus,
+  uninstall: uninstallCodeGraph,
+} = require('../lib/codegraph-lifecycle');
+const { mergeMcpTemplate } = require('../lib/tooling-state');
 
 const TOOLING_PACKAGE = path.resolve(__dirname, '..', '..', 'tooling');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -40,7 +50,40 @@ Commands:
   lsp-install Provision the matching managed LSP provider when missing
   lsp-doctor  Validate the matching LSP provider without mutation
   lsp-uninstall Remove only an unmodified receipt-owned LSP tooling root
+  codegraph-status Inspect optional CodeGraph readiness without mutation
+  codegraph-doctor Recommend CodeGraph only for large supported projects
+  codegraph-install Provision the pinned CodeGraph package into an empty owned root
+  codegraph-enable Enable the managed MCP only after a caller-created .codegraph index exists
+  codegraph-disable Disable the managed CodeGraph MCP without deleting an index
+  codegraph-uninstall Remove only an unmodified receipt-owned CodeGraph tooling root
 `);
+}
+
+function runCodeGraph(command, args) {
+  const { target, toolingRoot } = parseCodeGraphArgs(args);
+  if (command === 'codegraph-install') {
+    console.log(formatCodeGraphStatus(installCodeGraph(target, toolingRoot)));
+    return 0;
+  }
+  if (command === 'codegraph-uninstall') {
+    uninstallCodeGraph(target, toolingRoot);
+    mergeMcpTemplate(target, path.join(__dirname, '..', '..', 'templates', 'mcp.json'), path.join(target, '.trae', 'mcp.json'));
+    console.log('STATE: removed');
+    return 0;
+  }
+  if (command === 'codegraph-enable') {
+    console.log(formatCodeGraphStatus(enableCodeGraph(target, toolingRoot)));
+    mergeMcpTemplate(target, path.join(__dirname, '..', '..', 'templates', 'mcp.json'), path.join(target, '.trae', 'mcp.json'));
+    return 0;
+  }
+  if (command === 'codegraph-disable') {
+    disableCodeGraph(target);
+    mergeMcpTemplate(target, path.join(__dirname, '..', '..', 'templates', 'mcp.json'), path.join(target, '.trae', 'mcp.json'));
+    console.log('STATE: disabled');
+    return 0;
+  }
+  console.log(formatCodeGraphStatus(codeGraphStatus(target, toolingRoot)));
+  return 0;
 }
 
 function runLsp(command, args) {
@@ -103,10 +146,11 @@ function runCommand(args) {
     return args.length === 0 ? 1 : 0;
   }
   const command = args[0];
-  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify', 'lsp-status', 'lsp-install', 'lsp-doctor', 'lsp-uninstall'].includes(command)) {
+  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify', 'lsp-status', 'lsp-install', 'lsp-doctor', 'lsp-uninstall', 'codegraph-status', 'codegraph-doctor', 'codegraph-install', 'codegraph-enable', 'codegraph-disable', 'codegraph-uninstall'].includes(command)) {
     throw new Error(`unknown tooling command: ${command}`);
   }
   if (command.startsWith('lsp-')) return runLsp(command, args.slice(1));
+  if (command.startsWith('codegraph-')) return runCodeGraph(command, args.slice(1));
   if (command === 'verify') return runVerification(process.cwd(), args.slice(1));
   const root = readToolingRoot(args);
   if (command === 'install') return install(root);

@@ -50,7 +50,7 @@
     "codegraph": {
       "required": false,
       "disabled": true,
-      "description": "Code graph analysis — disabled manual option. LazyTrae compensates with SearchCodebase; review and configure a suitable CodeGraph MCP server explicitly before enabling it."
+      "description": "Optional CodeGraph analysis. LazyTrae keeps its 15 built-in heuristic context tools available until an explicit receipt-owned CodeGraph installation and caller-created .codegraph index are enabled."
     }
   },
   "lazytrae": {
