@@ -93,6 +93,26 @@ test('tooling verify executes only an explicit declared selection and propagates
   }
 });
 
+test('tooling verify keeps npm runtime state out of the caller HOME', () => {
+  const root = makeRepo('lazytrae-tooling-npm-home-');
+  const sentinelHome = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-tooling-sentinel-home-'));
+  try {
+    // Given: a declared npm lint and test workflow with an otherwise empty caller HOME.
+    fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ scripts: { lint: 'node -e "process.exit(0)"', test: 'node -e "process.exit(0)"' } }) + '\n');
+    fs.writeFileSync(path.join(root, 'package-lock.json'), '{"lockfileVersion":3}\n');
+
+    // When: explicit repository-native npm verification runs.
+    const verified = runCli(['tooling', 'verify', '--run', 'lint', 'test'], { cwd: root, env: { ...process.env, HOME: sentinelHome } });
+
+    // Then: the native checks retain their requested semantics without creating caller HOME state.
+    assert.equal(verified.status, 0, verified.stderr);
+    assert.deepEqual(fs.readdirSync(sentinelHome), []);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(sentinelHome, { recursive: true, force: true });
+  }
+});
+
 test('tooling verify leaves unsupported projects untouched and tooling reports search capability readiness', () => {
   const root = makeRepo('lazytrae-tooling-unsupported-');
   const toolingRoot = path.join(root, 'tooling-root');

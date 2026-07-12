@@ -1,5 +1,6 @@
 const { spawnSync } = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const ALLOWED = new Set(['lint', 'typecheck', 'test', 'build']);
@@ -86,6 +87,36 @@ function parseVerifyArgs(args) {
   return { dryRun, selected };
 }
 
+function npmRuntimeEnvironment() {
+  const runtime = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-npm-verify-'));
+  const home = path.join(runtime, 'home');
+  const cache = path.join(runtime, 'npm-cache');
+  const logs = path.join(runtime, 'npm-logs');
+  const config = path.join(runtime, 'config');
+  const data = path.join(runtime, 'data');
+  const state = path.join(runtime, 'state');
+  for (const directory of [home, cache, logs, config, data, state]) fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
+  return {
+    runtime,
+    environment: {
+      ...process.env,
+      HOME: home,
+      XDG_CACHE_HOME: cache,
+      XDG_CONFIG_HOME: config,
+      XDG_DATA_HOME: data,
+      XDG_STATE_HOME: state,
+      npm_config_cache: cache,
+      npm_config_logs_dir: logs,
+      npm_config_update_notifier: 'false',
+      npm_config_userconfig: path.join(config, 'npmrc'),
+    },
+  };
+}
+
+function isNpm(commandName) {
+  return path.basename(commandName).toLowerCase() === (process.platform === 'win32' ? 'npm.cmd' : 'npm');
+}
+
 function runVerification(root, args) {
   const options = parseVerifyArgs(args);
   const discovered = discoverVerification(root);
@@ -98,7 +129,18 @@ function runVerification(root, args) {
   for (const item of selected) console.log(`- ${item.display} (${item.source})`);
   if (options.dryRun) return 0;
   for (const item of selected) {
-    const result = spawnSync(item.command, item.args, { cwd: root, stdio: 'inherit', timeout: 120000 });
+    const npmRuntime = isNpm(item.command) ? npmRuntimeEnvironment() : null;
+    let result;
+    try {
+      result = spawnSync(item.command, item.args, {
+        cwd: root,
+        stdio: 'inherit',
+        timeout: 120000,
+        env: npmRuntime ? npmRuntime.environment : process.env,
+      });
+    } finally {
+      if (npmRuntime) fs.rmSync(npmRuntime.runtime, { recursive: true, force: true });
+    }
     if (result.error) {
       console.error(`Verification command unavailable: ${item.display}: ${result.error.message}`);
       return 1;
