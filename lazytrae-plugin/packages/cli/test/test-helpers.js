@@ -15,6 +15,7 @@ function runCli(args, options = {}) {
     cwd: options.cwd || REPO_ROOT,
     input: options.input,
     encoding: 'utf-8',
+    env: options.env,
   });
 }
 

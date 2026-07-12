@@ -6,6 +6,23 @@ const { readExistingFile } = require('./safe-write');
 const TOOLING_STATE_PATH = path.join('.lazytrae', 'state', 'tooling.json');
 const MANAGED_CODEGRAPH_SERVER = 'lazytrae_codegraph';
 const MANAGED_CODEGRAPH_DESCRIPTION = 'Optional receipt-owned CodeGraph MCP bridge. Enable only after you create the project-local .codegraph index.';
+const REMOTE_CAPABILITIES = {
+  context7: {
+    serverName: 'lazytrae_context7',
+    url: 'https://mcp.context7.com/mcp',
+    description: 'Optional Context7 library documentation MCP. Enabled explicitly; credentials stay in the host environment.',
+  },
+  grep_app: {
+    serverName: 'lazytrae_grep_app',
+    url: 'https://mcp.grep.app',
+    description: 'Experimental optional grep_app public-code MCP. Enabled explicitly; endpoint is unpinned.',
+  },
+};
+const LEGACY_REMOTE_SERVERS = {
+  context7: { url: 'https://mcp.context7.com/mcp', required: false, description: 'Documentation lookup for open-source libraries' },
+  context7_docs: { url: 'https://mcp.context7.com/mcp', required: false, description: 'Documentation search MCP server — optional template (alias for context7)' },
+  grep_app: { url: 'https://mcp.grep.app', required: false, description: 'Remote code search from grep.app' },
+};
 const LEGACY_CODEGRAPH_PLACEHOLDER = {
   required: false,
   disabled: true,
@@ -44,6 +61,21 @@ function setCodeGraphCapability(repoRoot, capability) {
   const state = readToolingState(repoRoot);
   state.capabilities.codegraph = capability;
   writeRepoFile(repoRoot, toolingStatePath(repoRoot), JSON.stringify(state, null, 2) + '\n');
+}
+
+function setRemoteCapability(repoRoot, name, enabled) {
+  if (!Object.hasOwn(REMOTE_CAPABILITIES, name)) throw new Error(`unknown remote capability: ${name}`);
+  const state = readToolingState(repoRoot);
+  state.capabilities[name] = { enabled, state: enabled ? 'ready' : 'disabled' };
+  writeRepoFile(repoRoot, toolingStatePath(repoRoot), JSON.stringify(state, null, 2) + '\n');
+}
+
+function managedRemoteServers(repoRoot) {
+  const capabilities = readToolingState(repoRoot).capabilities;
+  return Object.fromEntries(Object.entries(REMOTE_CAPABILITIES).flatMap(([name, remote]) => {
+    if (capabilities[name]?.enabled !== true) return [];
+    return [[remote.serverName, { url: remote.url, required: false, description: remote.description }]];
+  }));
 }
 
 function managedCodeGraphServer(repoRoot) {
@@ -89,14 +121,28 @@ function isLegacyManagedCodeGraphServer(name, server) {
     && server.description === MANAGED_CODEGRAPH_DESCRIPTION;
 }
 
+function isManagedRemoteServer(name, server) {
+  return Object.values(REMOTE_CAPABILITIES).some(remote =>
+    name === remote.serverName && sameJson(server, { url: remote.url, required: false, description: remote.description }));
+}
+
+function isLegacyManagedRemoteServer(name, server) {
+  return Object.hasOwn(LEGACY_REMOTE_SERVERS, name) && sameJson(server, LEGACY_REMOTE_SERVERS[name]);
+}
+
+function hasLegacyRemoteTemplate(servers) {
+  return sameJson(servers.context7_docs, LEGACY_REMOTE_SERVERS.context7_docs);
+}
+
 function mergeMcpTemplate(repoRoot, templatePath, destinationPath) {
   const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
   const templateServers = { ...(template.mcpServers || {}) };
   const codeGraph = managedCodeGraphServer(repoRoot);
   if (codeGraph) templateServers[MANAGED_CODEGRAPH_SERVER] = codeGraph;
+  Object.assign(templateServers, managedRemoteServers(repoRoot));
   const existingFile = readExistingFile(repoRoot, destinationPath, 'utf8');
   if (!existingFile.exists) {
-    const content = codeGraph
+    const content = codeGraph || Object.keys(managedRemoteServers(repoRoot)).length > 0
       ? JSON.stringify({ ...template, mcpServers: templateServers }, null, 2) + '\n'
       : fs.readFileSync(templatePath, 'utf8');
     writeRepoFile(repoRoot, destinationPath, content);
@@ -105,10 +151,18 @@ function mergeMcpTemplate(repoRoot, templatePath, destinationPath) {
 
   const existing = JSON.parse(existingFile.content);
   const existingServers = existing.mcpServers || {};
+  const legacyRemoteTemplate = hasLegacyRemoteTemplate(existingServers);
   const userServers = Object.fromEntries(
     Object.entries(existingServers).filter(([name, server]) => {
-      if (Object.hasOwn(templateServers, name)) return false;
+      if (Object.hasOwn(templateServers, name)) {
+        if ((name === 'context7' || name === 'grep_app')) {
+          return !sameJson(server, templateServers[name])
+            && !(legacyRemoteTemplate && isLegacyManagedRemoteServer(name, server));
+        }
+        return false;
+      }
       if (isManagedCodeGraphServer(name, server) || isLegacyManagedCodeGraphServer(name, server)) return false;
+      if (isManagedRemoteServer(name, server) || isLegacyManagedRemoteServer(name, server)) return false;
       return !(name === 'codegraph' && sameJson(server, LEGACY_CODEGRAPH_PLACEHOLDER));
     }),
   );
@@ -131,9 +185,12 @@ module.exports = {
   defaultToolingState,
   ensureToolingState,
   MANAGED_CODEGRAPH_SERVER,
+  REMOTE_CAPABILITIES,
   managedCodeGraphServer,
+  managedRemoteServers,
   mergeMcpTemplate,
   readToolingState,
   setCodeGraphCapability,
+  setRemoteCapability,
   toolingStatePath,
 };

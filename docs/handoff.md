@@ -10,9 +10,11 @@ behavior without verification against source and tests.
 ## Current release state
 
 The current cleanup release is **v0.15.0-alpha.3**. Package validation is
-verified on macOS only. It is a documentation and package-boundary release;
-do not describe v0.16 tooling capabilities here until their implementation and
-tests exist.
+verified on macOS only. The next tooling release adds disabled-by-default
+Context7 and `grep_app` selections: they are enabled only through `lazytrae
+tooling enable`, rendered as namespaced managed MCP entries, and remain
+offline during normal install, doctor, and status checks. Document them as
+optional remote capabilities, never as required local tooling.
 
 ## Repository map
 

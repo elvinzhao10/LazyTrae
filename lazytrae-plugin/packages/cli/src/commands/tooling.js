@@ -29,7 +29,12 @@ const {
   status: codeGraphStatus,
   uninstall: uninstallCodeGraph,
 } = require('../lib/codegraph-lifecycle');
-const { mergeMcpTemplate } = require('../lib/tooling-state');
+const {
+  REMOTE_CAPABILITIES,
+  mergeMcpTemplate,
+  readToolingState,
+  setRemoteCapability,
+} = require('../lib/tooling-state');
 
 const TOOLING_PACKAGE = path.resolve(__dirname, '..', '..', 'tooling');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -56,7 +61,45 @@ Commands:
   codegraph-enable Enable the managed MCP only after a caller-created .codegraph index exists
   codegraph-disable Disable the managed CodeGraph MCP without deleting an index
   codegraph-uninstall Remove only an unmodified receipt-owned CodeGraph tooling root
+  enable <remote> Enable Context7 or grep_app in this initialized project
+  disable <remote> Disable Context7 or grep_app in this initialized project
+  remote-status Report optional remote capability state without network access
 `);
+}
+
+function detectRepoRoot() {
+  let directory = process.cwd();
+  while (directory !== path.dirname(directory)) {
+    if (fs.existsSync(path.join(directory, '.git'))) return directory;
+    directory = path.dirname(directory);
+  }
+  return process.cwd();
+}
+
+function remoteStatus(repoRoot) {
+  const capabilities = readToolingState(repoRoot).capabilities;
+  return Object.entries(REMOTE_CAPABILITIES).map(([name, remote]) => {
+    const state = capabilities[name]?.enabled === true ? 'enabled' : 'disabled';
+    return `${name}: ${state} (optional, offline; ${remote.description})`;
+  }).join('\n');
+}
+
+function runRemote(command, args) {
+  const credentialArgument = args.slice(1).some(argument => /(?:api[_-]?key|credential|secret|token|password)/i.test(argument));
+  if (credentialArgument) throw new Error('credentials are not accepted or stored; configure them only in the MCP host environment.');
+  if (args.length !== 1 || !Object.hasOwn(REMOTE_CAPABILITIES, args[0])) {
+    throw new Error('remote capability must be context7 or grep_app.');
+  }
+  const repoRoot = detectRepoRoot();
+  const statePath = path.join(repoRoot, '.lazytrae', 'state', 'tooling.json');
+  const mcpPath = path.join(repoRoot, '.trae', 'mcp.json');
+  if (!fs.existsSync(statePath) || !fs.existsSync(mcpPath)) {
+    throw new Error('initialize this project before changing remote capability state.');
+  }
+  setRemoteCapability(repoRoot, args[0], command === 'enable');
+  mergeMcpTemplate(repoRoot, path.join(__dirname, '..', '..', 'templates', 'mcp.json'), mcpPath);
+  console.log(`${args[0]}: ${command}d`);
+  return 0;
 }
 
 function runCodeGraph(command, args) {
@@ -146,8 +189,14 @@ function runCommand(args) {
     return args.length === 0 ? 1 : 0;
   }
   const command = args[0];
-  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify', 'lsp-status', 'lsp-install', 'lsp-doctor', 'lsp-uninstall', 'codegraph-status', 'codegraph-doctor', 'codegraph-install', 'codegraph-enable', 'codegraph-disable', 'codegraph-uninstall'].includes(command)) {
+  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify', 'lsp-status', 'lsp-install', 'lsp-doctor', 'lsp-uninstall', 'codegraph-status', 'codegraph-doctor', 'codegraph-install', 'codegraph-enable', 'codegraph-disable', 'codegraph-uninstall', 'enable', 'disable', 'remote-status'].includes(command)) {
     throw new Error(`unknown tooling command: ${command}`);
+  }
+  if (command === 'enable' || command === 'disable') return runRemote(command, args.slice(1));
+  if (command === 'remote-status') {
+    if (args.length !== 1) throw new Error('remote-status does not accept arguments.');
+    console.log(remoteStatus(detectRepoRoot()));
+    return 0;
   }
   if (command.startsWith('lsp-')) return runLsp(command, args.slice(1));
   if (command.startsWith('codegraph-')) return runCodeGraph(command, args.slice(1));
