@@ -26,7 +26,7 @@ function formatAjvError(error) {
   return `${errorPath || '/'} ${error.message}`;
 }
 
-function validateStateFile(repoRoot, stateFileName, schemaFileName) {
+function validateStateFile(repoRoot, stateFileName, schemaFileName, versionContract) {
   const statePath = path.join(repoRoot, '.lazytrae', 'state', stateFileName);
   const schemaPath = path.join(repoRoot, '.lazytrae', 'schemas', schemaFileName);
 
@@ -75,25 +75,20 @@ function validateStateFile(repoRoot, stateFileName, schemaFileName) {
     return { valid: false, errors };
   }
 
+  if (versionContract && stateData[versionContract.versionKey] !== versionContract.version) {
+    return {
+      valid: false,
+      errors: [`Invalid ${versionContract.versionKey} in ${stateFileName}: expected ${versionContract.version}`],
+    };
+  }
+
   return { valid: true, errors: [] };
 }
 
 function validateAllState(repoRoot) {
   const results = {};
   for (const [stateFile, contract] of Object.entries(STATE_CONTRACTS)) {
-    const result = validateStateFile(repoRoot, stateFile, contract.schemaFile);
-    if (result.valid) {
-      const statePath = path.join(repoRoot, '.lazytrae', 'state', stateFile);
-      const stateData = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
-      if (stateData[contract.versionKey] !== contract.version) {
-        results[stateFile] = {
-          valid: false,
-          errors: [`Invalid ${contract.versionKey} in ${stateFile}: expected ${contract.version}`],
-        };
-        continue;
-      }
-    }
-    results[stateFile] = result;
+    results[stateFile] = validateStateFile(repoRoot, stateFile, contract.schemaFile, contract);
   }
 
   return results;

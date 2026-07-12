@@ -3,7 +3,7 @@ const { spawn } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
-const { validateStateFile } = require('../src/lib/validator');
+const { validateAllState, validateStateFile } = require('../src/lib/validator');
 const {
   CLI,
   REPO_ROOT,
@@ -202,6 +202,47 @@ test('doctor fails closed when the boulder schema is missing', () => {
   const result = runCli(['doctor'], { cwd: fixture });
   assert.equal(result.status, 1);
   assert.match(result.stdout, /Schema validation: boulder\.json[\s\S]*Schema file not found/);
+});
+
+test('validator fails closed when a validated state cannot be reread', () => {
+  const fixture = makeFixture('lazytrae-state-reread-failure-');
+  const boulderPath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
+  const originalReadFileSync = fs.readFileSync;
+  let boulderReads = 0;
+  fs.readFileSync = function readFileSyncWithReplacement(filePath, ...args) {
+    if (filePath === boulderPath && ++boulderReads === 2) {
+      const error = new Error('simulated state replacement');
+      error.code = 'EACCES';
+      throw error;
+    }
+    return originalReadFileSync.call(this, filePath, ...args);
+  };
+
+  try {
+    let results;
+    assert.doesNotThrow(() => {
+      results = validateAllState(fixture);
+    });
+    assert.equal(results['boulder.json'].valid, true);
+    assert.equal(boulderReads, 1);
+  } finally {
+    fs.readFileSync = originalReadFileSync;
+  }
+});
+
+test('doctor fails when expected active-loop or sessions schemas are absent', () => {
+  for (const [stateFile, schemaFile] of [
+    ['active-loop.json', 'active-loop.schema.json'],
+    ['sessions.json', 'sessions.schema.json'],
+  ]) {
+    const fixture = makeFixture(`lazytrae-missing-${stateFile}-schema-`);
+    fs.rmSync(path.join(fixture, '.lazytrae', 'schemas', schemaFile));
+
+    const result = runCli(['doctor'], { cwd: fixture });
+    assert.equal(result.status, 1, result.stdout);
+    assert.match(result.stdout, new RegExp(`Schema validation: ${stateFile.replace('.', '\\.')}`));
+    assert.match(result.stdout, /Schema file not found/);
+  }
 });
 
 test('validator accepts nullable active-loop lifecycle timestamps', () => {
