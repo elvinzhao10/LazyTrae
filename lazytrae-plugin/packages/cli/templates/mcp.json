@@ -45,7 +45,7 @@
     "lsp": {
       "required": false,
       "disabled": true,
-      "description": "Language Server Protocol diagnostics — disabled manual option. Review and configure a local LSP MCP server explicitly before enabling it; Trae has no built-in LSP."
+      "description": "Managed read-only LSP bridge — opt in with an explicit target and tooling root: lazytrae lsp --target <absolute-project-path> --tooling-root <absolute-owned-root>. It provisions only TypeScript/JavaScript or Python providers when requested and never mutates the target project."
     },
     "codegraph": {
       "required": false,

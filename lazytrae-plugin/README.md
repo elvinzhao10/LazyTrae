@@ -10,6 +10,7 @@ This is the release package for LazyTrae's three supported surfaces: Trae IDE, T
 | `.lazytrae/` | Versioned schema and default configuration assets. Runtime state is excluded by `.gitignore`. |
 | `packages/cli/` | Installable `lazytrae` command, including the installer, doctor, verification gate, and MCP launcher. |
 | `packages/mcp/` | The Node stdio MCP implementation used by `lazytrae mcp`. |
+| `packages/cli/tooling/lsp/` | Locked TypeScript/JavaScript and Python provider manifests used only by the explicit managed LSP lifecycle. |
 
 The CLI template tree in `packages/cli/templates/` is the installation source of truth. Run `npm test` from `packages/cli/` after changing it.
 

@@ -12,6 +12,14 @@ const {
 } = require('../lib/tooling-root');
 const { detectCapabilities, formatCapabilities, missingCapabilities, packageDependencies } = require('../lib/tooling-capabilities');
 const { runVerification } = require('../lib/tooling-verify');
+const {
+  doctor: lspDoctor,
+  formatStatus: formatLspStatus,
+  install: lspInstall,
+  parseLspArgs,
+  status: lspStatus,
+  uninstall: lspUninstall,
+} = require('../lib/lsp-lifecycle');
 
 const TOOLING_PACKAGE = path.resolve(__dirname, '..', '..', 'tooling');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -28,7 +36,26 @@ Commands:
   doctor      Validate the receipt and owned files without mutation
   uninstall   Remove only unmodified receipt-owned files
   verify      Discover declared native checks; use --dry-run or --run <selection>
+  lsp-status  Inspect a managed LSP provider without changing the target
+  lsp-install Provision the matching managed LSP provider when missing
+  lsp-doctor  Validate the matching LSP provider without mutation
+  lsp-uninstall Remove only an unmodified receipt-owned LSP tooling root
 `);
+}
+
+function runLsp(command, args) {
+  const { target, toolingRoot } = parseLspArgs(args);
+  if (command === 'lsp-install') {
+    console.log(formatLspStatus(lspInstall(target, toolingRoot)));
+    return 0;
+  }
+  if (command === 'lsp-uninstall') {
+    console.log(formatLspStatus(lspUninstall(target, toolingRoot)));
+    return 0;
+  }
+  const state = command === 'lsp-doctor' ? lspDoctor(target, toolingRoot) : lspStatus(target, toolingRoot);
+  console.log(formatLspStatus(state));
+  return 0;
 }
 
 function checkRoot(root) {
@@ -76,9 +103,10 @@ function runCommand(args) {
     return args.length === 0 ? 1 : 0;
   }
   const command = args[0];
-  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify'].includes(command)) {
+  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify', 'lsp-status', 'lsp-install', 'lsp-doctor', 'lsp-uninstall'].includes(command)) {
     throw new Error(`unknown tooling command: ${command}`);
   }
+  if (command.startsWith('lsp-')) return runLsp(command, args.slice(1));
   if (command === 'verify') return runVerification(process.cwd(), args.slice(1));
   const root = readToolingRoot(args);
   if (command === 'install') return install(root);

@@ -32,7 +32,20 @@ lazytrae verify
 
 # Print handoff summary from current state
 lazytrae handoff
+
+# Inspect, provision, validate, or remove an explicitly-owned LSP provider
+lazytrae tooling lsp-status --target /absolute/project --tooling-root /absolute/lazytrae-lsp
+lazytrae tooling lsp-install --target /absolute/project --tooling-root /absolute/lazytrae-lsp
+lazytrae tooling lsp-doctor --target /absolute/project --tooling-root /absolute/lazytrae-lsp
+lazytrae tooling lsp-uninstall --target /absolute/project --tooling-root /absolute/lazytrae-lsp
+
+# Start the separate read-only LSP MCP bridge after provider readiness is reported
+lazytrae lsp --target /absolute/project --tooling-root /absolute/lazytrae-lsp
 ```
+
+## Managed LSP bridge
+
+The optional LSP bridge is separate from `lazytrae mcp`; the latter retains its 15-tool contract. It detects an existing project or host provider before provisioning a package-owned fallback. Only JavaScript/TypeScript (`typescript-language-server@5.3.0` with `typescript@5.9.3`) and Python (`basedpyright@1.39.9`) are supported. TypeScript requires Node 20 or later. The bridge exposes only advertised read-only definitions, references, symbols, hover, and diagnostics operations. It rejects rename requests and uses an explicit receipt-owned tooling root, so it never changes the target project's source, manifest, lockfile, or global tools.
 
 ## Onboard
 

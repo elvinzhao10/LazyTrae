@@ -18,6 +18,7 @@ const commands = {
   team: () => require('./commands/team').run,
   work: () => require('./commands/work').run,
   tooling: () => require('./commands/tooling').run,
+  lsp: () => require('./commands/lsp').run,
   'load-check': () => require('./commands/load-check').run,
 };
 
@@ -54,6 +55,7 @@ Commands:
   team        Team mode / parallel-work coordination
   work        Install or inspect global Trae Work skills
   tooling     Manage a package-owned local tooling root
+  lsp         Start the separate managed read-only LSP MCP bridge
   load-check  Verify every host component is ready after init
 
 Aliases: i, d, s, rm, v, h, l, r, t
