@@ -112,7 +112,7 @@ Binding, not advisory — but because **Trae hooks can't block**, the completion
 | Agents | 11 | Sisyphus, Prometheus, Metis, Momus, Atlas, Hephaestus, Oracle, Explorer, Librarian, Cleaner, Migration-Planner |
 | Commands | 9 | lazy-init-deep, lazy-ulw-plan, lazy-start-work, lazy-ulw-loop, lazy-review-work, lazy-handoff, lazy-ralph-loop, lazy-remove-ai-slops, lazy-stop-continuation |
 | MCP tools | 15 | 9 state/evidence/review/handoff + 6 context |
-| CLI | 11 | init, doctor, sync, verify, handoff, loop, team, run, mcp |
+| CLI | 17 | init, doctor, sync, uninstall, verify, completion-status, handoff, hook, mcp, loop, run, team, work, tooling, lsp, codegraph, load-check |
 
 ## Developing on this repo (open-source)
 

@@ -134,6 +134,9 @@ test('published guidance matches the explicit external-capability contract', () 
   const packageReadme = fs.readFileSync(path.join(REPO_ROOT, 'packages/cli/README.md'), 'utf8');
   assert.match(packageReadme, /8 MCP declarations; one executable core server and seven disabled placeholders/);
 
+  const rootReadme = fs.readFileSync(path.join(MONOREPO_ROOT, 'README.md'), 'utf8');
+  assert.match(rootReadme, /\| CLI \| 17 \|/);
+
   const guidance = inventoryRecords([
     path.join(MONOREPO_ROOT, 'AGENTS.md'),
     path.join(MONOREPO_ROOT, 'README.md'),
