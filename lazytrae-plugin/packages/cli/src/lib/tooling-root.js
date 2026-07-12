@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const RECEIPT_FILE = 'lazytrae-tooling-receipt.json';
@@ -24,14 +25,38 @@ function readToolingRoot(args) {
   return path.resolve(root);
 }
 
+function assertSafeAncestors(root) {
+  const parsed = path.parse(root);
+  let current = parsed.root;
+  const parts = root.slice(parsed.root.length).split(path.sep).filter(Boolean);
+  const systemTempRoots = [path.resolve(os.tmpdir()), path.resolve('/tmp')];
+  for (const part of parts) {
+    current = path.join(current, part);
+    let stat;
+    try {
+      stat = fs.lstatSync(current);
+    } catch (error) {
+      if (error && error.code === 'ENOENT') return;
+      throw error;
+    }
+    const isSystemTempAlias = systemTempRoots.some(tempRoot =>
+      tempRoot === current || tempRoot.startsWith(`${current}${path.sep}`),
+    );
+    if (stat.isSymbolicLink() && !isSystemTempAlias) {
+      throw new Error('refusing symlinked tooling-root ancestor');
+    }
+    if (current !== root && !stat.isDirectory() && !(stat.isSymbolicLink() && isSystemTempAlias)) {
+      throw new Error('tooling-root has a non-directory ancestor');
+    }
+  }
+}
+
 function assertSafeRoot(root, requireEmpty) {
+  assertSafeAncestors(root);
   if (!fs.existsSync(root)) {
     if (!requireEmpty) return { exists: false };
-    const parent = path.dirname(root);
-    if (fs.existsSync(parent) && fs.lstatSync(parent).isSymbolicLink()) {
-      throw new Error('refusing symlinked tooling-root parent');
-    }
     fs.mkdirSync(root, { recursive: true, mode: 0o700 });
+    assertSafeAncestors(root);
   }
   const stat = fs.lstatSync(root);
   if (stat.isSymbolicLink()) throw new Error('refusing symlinked tooling-root');
@@ -146,6 +171,7 @@ function removeReceiptOwnedRoot(root) {
 
 module.exports = {
   RECEIPT_FILE,
+  assertSafeAncestors,
   assertSafeRoot,
   listOwnedEntries,
   readReceipt,

@@ -82,6 +82,8 @@ test('tooling lifecycle rejects unsafe roots and preserves unverified files', ()
     fs.writeFileSync(path.join(nonempty, 'sentinel'), 'keep\n');
     const linkedRoot = path.join(root, 'linked-root');
     fs.symlinkSync(outside, linkedRoot);
+    const linkedParent = path.join(root, 'linked-parent');
+    fs.symlinkSync(outside, linkedParent);
     const outsideFile = path.join(outside, 'outside-package.json');
     fs.writeFileSync(outsideFile, 'outside\n');
 
@@ -90,6 +92,7 @@ test('tooling lifecycle rejects unsafe roots and preserves unverified files', ()
     const relative = runCli(['tooling', 'install', '--tooling-root', 'relative'], { cwd: root });
     const nonemptyInstall = install(root, nonempty);
     const symlinkInstall = install(root, linkedRoot);
+    const ancestorSymlinkInstall = install(root, path.join(linkedParent, 'new', 'interior'));
     const noReceipt = runCli(['tooling', 'uninstall', '--tooling-root', nonempty], { cwd: root });
 
     // Then: every unsafe call fails without mutating user-owned data.
@@ -97,9 +100,11 @@ test('tooling lifecycle rejects unsafe roots and preserves unverified files', ()
     assert.equal(relative.status, 1);
     assert.equal(nonemptyInstall.status, 1);
     assert.equal(symlinkInstall.status, 1);
+    assert.equal(ancestorSymlinkInstall.status, 1);
     assert.equal(noReceipt.status, 1);
     assert.equal(fs.readFileSync(path.join(nonempty, 'sentinel'), 'utf8'), 'keep\n');
     assert.equal(fs.readFileSync(outsideFile, 'utf8'), 'outside\n');
+    assert.equal(fs.existsSync(path.join(outside, 'new', 'interior')), false);
 
     const editedRoot = path.join(root, 'edited-root');
     assert.equal(install(root, editedRoot).status, 0);
