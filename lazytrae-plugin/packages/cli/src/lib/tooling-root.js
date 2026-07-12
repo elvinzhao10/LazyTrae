@@ -62,6 +62,14 @@ function sha256(filePath) {
   return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
 }
 
+function isExpectedMutableRuntimeEntry(entry) {
+  if (entry.type !== 'file') return false;
+  const relativePath = entry.path.split(path.sep).join('/');
+  return relativePath === 'runtime/home/.codegraph/update-check.json'
+    || /^runtime\/home\/\.codegraph\/daemons\/[A-Za-z0-9._-]+\.json$/.test(relativePath)
+    || /^runtime\/npm-logs\/\d{4}-\d{2}-\d{2}T\d{2}_\d{2}_\d{2}_\d{3}Z-debug-\d+\.log$/.test(relativePath);
+}
+
 function readToolingRoot(args) {
   const index = args.indexOf('--tooling-root');
   if (index === -1 || !args[index + 1]) throw new Error('--tooling-root requires an absolute path.');
@@ -155,7 +163,7 @@ function writeReceipt(root, entries, provisionedCapabilities = []) {
     schema_version: 1,
     owner: RECEIPT_OWNER,
     tooling_root: root,
-    files: entries,
+    files: entries.filter(entry => !isExpectedMutableRuntimeEntry(entry)),
     provisioned_capabilities: provisionedCapabilities,
   };
   fs.writeFileSync(receiptPath(root), JSON.stringify(receipt, null, 2) + '\n', { mode: 0o600 });
@@ -179,22 +187,34 @@ function validateReceipt(root, receipt) {
   const expected = new Map(receipt.files.map(entry => [entry.path, entry]));
   if (expected.size !== receipt.files.length) throw new Error('tooling receipt contains duplicate paths');
   const actual = listOwnedEntries(root);
-  if (actual.length !== receipt.files.length) throw new Error('tooling root contains unverified files');
+  const seen = new Set();
   for (const actualEntry of actual) {
     const receiptEntry = expected.get(actualEntry.path);
-    if (!receiptEntry || receiptEntry.type !== actualEntry.type) throw new Error('tooling root contains unverified files');
-    if (actualEntry.type === 'file' && receiptEntry.sha256 !== actualEntry.sha256) {
+    if (!receiptEntry) {
+      if (isExpectedMutableRuntimeEntry(actualEntry)) continue;
+      throw new Error('tooling root contains unverified files');
+    }
+    seen.add(actualEntry.path);
+    if (receiptEntry.type !== actualEntry.type) throw new Error('tooling root contains unverified files');
+    if (!isExpectedMutableRuntimeEntry(actualEntry) && actualEntry.type === 'file' && receiptEntry.sha256 !== actualEntry.sha256) {
       throw new Error(`tooling file was edited: ${actualEntry.path}`);
     }
-    if (actualEntry.type === 'symlink' && receiptEntry.target !== actualEntry.target) {
+    if (!isExpectedMutableRuntimeEntry(actualEntry) && actualEntry.type === 'symlink' && receiptEntry.target !== actualEntry.target) {
       throw new Error(`tooling symlink was edited: ${actualEntry.path}`);
     }
+  }
+  for (const expectedEntry of receipt.files) {
+    if (!seen.has(expectedEntry.path) && !isExpectedMutableRuntimeEntry(expectedEntry)) throw new Error('tooling root contains unverified files');
   }
 }
 
 function removeReceiptOwnedRoot(root) {
   const receipt = readReceipt(root);
   validateReceipt(root, receipt);
+  const expected = new Set(receipt.files.map(entry => entry.path));
+  for (const entry of listOwnedEntries(root)) {
+    if (!expected.has(entry.path) && isExpectedMutableRuntimeEntry(entry)) fs.unlinkSync(path.join(root, entry.path));
+  }
   for (const entry of receipt.files) {
     const target = path.join(root, entry.path);
     relativeRootPath(root, target);
@@ -226,6 +246,7 @@ module.exports = {
   readReceipt,
   readToolingRoot,
   removeReceiptOwnedRoot,
+  isExpectedMutableRuntimeEntry,
   ownedRuntimeEnvironment,
   prepareOwnedRuntime,
   validateReceipt,

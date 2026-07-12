@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const { spawn } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -12,7 +13,8 @@ function makeRepo(prefix) {
   return root;
 }
 
-function writeOwnedCodeGraph(root, statusSucceedsWithoutDatabase = false) {
+function writeOwnedCodeGraph(root, options = {}) {
+  const { persistent = false, statusSucceedsWithoutDatabase = false } = options;
   const binary = path.join(root, 'node_modules', '@colbymchenry', 'codegraph', 'npm-shim.js');
   fs.mkdirSync(path.dirname(binary), { recursive: true });
   fs.writeFileSync(binary, `#!/usr/bin/env node
@@ -22,6 +24,7 @@ const command = process.argv.slice(2).join(' ');
 if (process.env.CODEGRAPH_NO_DOWNLOAD !== '1') process.exit(10);
 if (process.env.CODEGRAPH_TELEMETRY !== '0') process.exit(11);
 if (!process.env.HOME.includes(path.join('runtime', 'home'))) process.exit(12);
+if (command === 'serve --mcp' && process.env.CODEGRAPH_NO_DAEMON !== '1') process.exit(14);
 if (command.startsWith('status ')) {
   process.exit(${statusSucceedsWithoutDatabase ? '0' : "fs.existsSync(path.join(process.cwd(), '.codegraph', 'codegraph.db')) ? 0 : 13"});
 }
@@ -31,6 +34,13 @@ if (command === 'init .') {
   process.exit(0);
 }
 if (command !== 'serve --mcp') process.exit(9);
+if (${persistent}) {
+  const { spawn } = require('child_process');
+  const descendant = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });
+  fs.writeFileSync(process.env.LAZYTRAE_TEST_PID_FILE, JSON.stringify({ pid: process.pid, descendantPid: descendant.pid }));
+  setInterval(() => {}, 1000);
+  return;
+}
 let buffer = '';
 process.stdin.on('data', chunk => { buffer += chunk; });
 process.stdin.on('end', () => {
@@ -47,6 +57,45 @@ process.stdin.on('end', () => {
   fs.symlinkSync('../@colbymchenry/codegraph/npm-shim.js', path.join(bin, 'codegraph'));
   prepareOwnedRuntime(root);
   writeReceipt(root, listOwnedEntries(root), ['codegraph']);
+}
+
+function wait(milliseconds) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+async function waitForFile(filePath) {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    if (fs.existsSync(filePath)) return;
+    await wait(20);
+  }
+  throw new Error(`timed out waiting for ${filePath}`);
+}
+
+function processIsAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function startCodeGraph(target, toolingRoot, pidPath) {
+  const child = spawn(process.execPath, [path.join(__dirname, '..', 'src', 'index.js'), 'codegraph', '--target', target, '--tooling-root', toolingRoot], {
+    cwd: target,
+    env: { ...process.env, LAZYTRAE_TEST_PID_FILE: pidPath },
+    stdio: ['pipe', 'ignore', 'ignore'],
+  });
+  child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} })}\n`);
+  return child;
+}
+
+function killRecordedProcess(pidPath) {
+  if (!fs.existsSync(pidPath)) return;
+  const record = JSON.parse(fs.readFileSync(pidPath, 'utf8'));
+  for (const pid of [record.pid, record.descendantPid]) {
+    if (Number.isInteger(pid) && processIsAlive(pid)) process.kill(pid, 'SIGKILL');
+  }
 }
 
 function writeFakeNpm(root) {
@@ -180,7 +229,7 @@ test('CodeGraph rejects a cached status response without the requested target da
     // Given: an empty target-local graph directory and a provider that falsely reports a cached index as ready.
     assert.equal(runCli(['init'], { cwd: root }).status, 0);
     fs.mkdirSync(path.join(root, '.codegraph'));
-    writeOwnedCodeGraph(toolingRoot, true);
+    writeOwnedCodeGraph(toolingRoot, { statusSucceedsWithoutDatabase: true });
 
     // When: CodeGraph enable is requested for this exact target.
     const enabled = runCli(['tooling', 'codegraph-enable', '--target', root, '--tooling-root', toolingRoot], { cwd: root });
@@ -190,6 +239,92 @@ test('CodeGraph rejects a cached status response without the requested target da
     assert.match(enabled.stderr, /codegraph-init/i);
     assert.equal(JSON.parse(fs.readFileSync(path.join(root, '.lazytrae', 'state', 'tooling.json'), 'utf8')).capabilities.codegraph, undefined);
   } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CodeGraph uninstall accepts only expected mutable runtime files', () => {
+  const root = makeRepo('lazytrae-codegraph-mutable-runtime-');
+  const toolingRoot = path.join(root, 'tooling');
+  try {
+    // Given: a valid receipt root with post-install CodeGraph daemon/update and npm log files.
+    assert.equal(runCli(['init'], { cwd: root }).status, 0);
+    writeOwnedCodeGraph(toolingRoot);
+    const runtime = path.join(toolingRoot, 'runtime');
+    fs.mkdirSync(path.join(runtime, 'home', '.codegraph', 'daemons'), { recursive: true });
+    fs.writeFileSync(path.join(runtime, 'home', '.codegraph', 'daemons', 'target.json'), '{}\n');
+    fs.writeFileSync(path.join(runtime, 'home', '.codegraph', 'update-check.json'), '{}\n');
+    fs.writeFileSync(path.join(runtime, 'npm-logs', '2026-07-12T12_00_00_000Z-debug-0.log'), 'npm log\n');
+
+    // When: the owned CodeGraph root is uninstalled.
+    const result = runCli(['tooling', 'codegraph-uninstall', '--target', root, '--tooling-root', toolingRoot], { cwd: root });
+
+    // Then: only the receipt root is removed and the caller project remains intact.
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(fs.existsSync(toolingRoot), false);
+    assert.equal(fs.existsSync(path.join(root, '.trae')), true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('CodeGraph uninstall rejects a non-runtime addition', () => {
+  const root = makeRepo('lazytrae-codegraph-foreign-runtime-');
+  const toolingRoot = path.join(root, 'tooling');
+  try {
+    // Given: an otherwise receipt-owned root with a caller file outside the explicit mutable runtime paths.
+    assert.equal(runCli(['init'], { cwd: root }).status, 0);
+    writeOwnedCodeGraph(toolingRoot);
+    fs.writeFileSync(path.join(toolingRoot, 'caller-file'), 'preserve\n');
+
+    // When: uninstallation is requested.
+    const result = runCli(['tooling', 'codegraph-uninstall', '--target', root, '--tooling-root', toolingRoot], { cwd: root });
+
+    // Then: the unknown file blocks removal and remains untouched.
+    assert.equal(result.status, 1);
+    assert.equal(fs.readFileSync(path.join(toolingRoot, 'caller-file'), 'utf8'), 'preserve\n');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('closing one CodeGraph MCP stream terminates only its owned process tree', async () => {
+  const root = makeRepo('lazytrae-codegraph-process-tree-');
+  const toolingRoot = path.join(root, 'tooling');
+  const firstTarget = path.join(root, 'first');
+  const secondTarget = path.join(root, 'second');
+  const firstPidPath = path.join(root, 'first-pid.json');
+  const secondPidPath = path.join(root, 'second-pid.json');
+  let first;
+  let second;
+  try {
+    // Given: two target-local indexes sharing one owned CodeGraph executable that keeps serving after input.
+    writeOwnedCodeGraph(toolingRoot, { persistent: true });
+    for (const target of [firstTarget, secondTarget]) {
+      fs.mkdirSync(path.join(target, '.codegraph'), { recursive: true });
+      fs.writeFileSync(path.join(target, '.codegraph', 'codegraph.db'), 'SQLite format 3\u0000fixture\n');
+    }
+    first = startCodeGraph(firstTarget, toolingRoot, firstPidPath);
+    second = startCodeGraph(secondTarget, toolingRoot, secondPidPath);
+    await Promise.all([waitForFile(firstPidPath), waitForFile(secondPidPath)]);
+    const firstRecord = JSON.parse(fs.readFileSync(firstPidPath, 'utf8'));
+    const secondRecord = JSON.parse(fs.readFileSync(secondPidPath, 'utf8'));
+
+    // When: the first MCP client closes stdin.
+    first.stdin.end();
+    await wait(800);
+
+    // Then: its wrapper and process tree end while the independent target keeps serving.
+    assert.notEqual(first.exitCode, null);
+    assert.equal(processIsAlive(firstRecord.pid), false);
+    assert.equal(processIsAlive(firstRecord.descendantPid), false);
+    assert.equal(second.exitCode, null);
+    assert.equal(processIsAlive(secondRecord.pid), true);
+  } finally {
+    if (first && first.exitCode === null) first.kill('SIGKILL');
+    if (second && second.exitCode === null) second.kill('SIGKILL');
+    killRecordedProcess(firstPidPath);
+    killRecordedProcess(secondPidPath);
     fs.rmSync(root, { recursive: true, force: true });
   }
 });

@@ -6,6 +6,16 @@ function printUsage() {
   console.log('Usage: lazytrae codegraph --target <absolute-project-path> --tooling-root <absolute-owned-root>');
 }
 
+function stopChildTree(child, signal) {
+  if (child.pid === undefined) return;
+  try {
+    if (process.platform !== 'win32') process.kill(-child.pid, signal);
+    else child.kill(signal);
+  } catch (failure) {
+    if (failure.code !== 'ESRCH') throw failure;
+  }
+}
+
 function run(args) {
   if (args.includes('--help') || args.includes('-h')) {
     printUsage();
@@ -18,15 +28,57 @@ function run(args) {
     const executable = ownedExecutable(toolingRoot);
     const child = spawn(executable, ['serve', '--mcp'], {
       cwd: target,
-      stdio: 'inherit',
-      env: { ...ownedRuntimeEnvironment(toolingRoot), CODEGRAPH_NO_DOWNLOAD: '1' },
+      stdio: ['pipe', 'pipe', 'inherit'],
+      detached: process.platform !== 'win32',
+      env: {
+        ...ownedRuntimeEnvironment(toolingRoot),
+        CODEGRAPH_NO_DAEMON: '1',
+        CODEGRAPH_NO_DOWNLOAD: '1',
+      },
     });
+    let stopping = false;
+    let inputClosed = false;
+    let forceTimer;
+    let closeTimer;
+    const stop = () => {
+      if (stopping) return;
+      stopping = true;
+      stopChildTree(child, 'SIGTERM');
+      forceTimer = setTimeout(() => stopChildTree(child, 'SIGKILL'), 500);
+    };
+    const cleanup = () => {
+      clearTimeout(forceTimer);
+      clearTimeout(closeTimer);
+      process.stdin.unpipe(child.stdin);
+      process.stdin.removeListener('end', closeInput);
+      process.stdin.removeListener('error', stop);
+      process.removeListener('SIGTERM', stop);
+      process.removeListener('SIGINT', stop);
+    };
+    const closeInput = () => {
+      inputClosed = true;
+      child.stdin.end();
+      closeTimer = setTimeout(stop, 500);
+    };
+    child.stdout.on('data', chunk => {
+      process.stdout.write(chunk);
+      if (inputClosed) {
+        clearTimeout(closeTimer);
+        closeTimer = setTimeout(stop, 25);
+      }
+    });
+    process.stdin.pipe(child.stdin);
+    process.stdin.once('end', closeInput);
+    process.stdin.once('error', stop);
+    process.once('SIGTERM', stop);
+    process.once('SIGINT', stop);
     child.on('error', failure => {
       console.error(`lazytrae codegraph: ${failure.message}`);
       process.exitCode = 1;
     });
     child.on('exit', code => {
-      if (code !== 0) process.exitCode = code || 1;
+      cleanup();
+      if (code !== 0 && !stopping) process.exitCode = code || 1;
     });
     return undefined;
   } catch (failure) {
