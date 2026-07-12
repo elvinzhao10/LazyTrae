@@ -34,13 +34,13 @@ test('fresh init keeps runtime state exclusively under .lazytrae', () => {
       path.join(fixture, '.lazytrae', 'state', 'active-loop.json'),
       'utf8',
     ));
-    const expectedPrefix = `.lazytrae/loop/${loop.run_id}/`;
     for (const value of [loop.brief_path, loop.goals_path, loop.ledger_path]) {
-      assert.equal(value.startsWith(expectedPrefix), true, `${value} must use ${expectedPrefix}`);
+      assert.equal(value, null, 'an idle loop must not claim a run artifact');
     }
     const generatedLoop = defaultLoop();
     const generatedPrefix = `.lazytrae/loop/${generatedLoop.run_id}/`;
     for (const value of [generatedLoop.brief_path, generatedLoop.goals_path, generatedLoop.ledger_path]) {
+      assert.equal(typeof value, 'string');
       assert.equal(value.startsWith(generatedPrefix), true, `${value} must use ${generatedPrefix}`);
     }
 
