@@ -10,6 +10,8 @@ const {
   validateReceipt,
   writeReceipt,
 } = require('../lib/tooling-root');
+const { detectCapabilities, formatCapabilities } = require('../lib/tooling-capabilities');
+const { runVerification } = require('../lib/tooling-verify');
 
 const TOOLING_PACKAGE = path.resolve(__dirname, '..', '..', 'tooling');
 const PACKAGE_FILES = ['package.json', 'package-lock.json'];
@@ -26,6 +28,7 @@ Commands:
   status      Report whether the receipt-owned root is ready
   doctor      Validate the receipt and owned files without mutation
   uninstall   Remove only unmodified receipt-owned files
+  verify      Discover declared native checks; use --dry-run or --run <selection>
 `);
 }
 
@@ -64,9 +67,10 @@ function runCommand(args) {
     return args.length === 0 ? 1 : 0;
   }
   const command = args[0];
-  if (!['detect', 'install', 'status', 'doctor', 'uninstall'].includes(command)) {
+  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify'].includes(command)) {
     throw new Error(`unknown tooling command: ${command}`);
   }
+  if (command === 'verify') return runVerification(process.cwd(), args.slice(1));
   const root = readToolingRoot(args);
   if (command === 'install') return install(root);
   if (command === 'uninstall') {
@@ -77,11 +81,12 @@ function runCommand(args) {
   if (command === 'detect') {
     const state = checkRoot(root);
     console.log(`Tooling lifecycle shell: ${state.ready ? 'ready' : 'missing'} (${state.detail})`);
-    console.log('Registered capabilities: none in this lifecycle shell.');
+    console.log(formatCapabilities(detectCapabilities(root)));
     return state.ready ? 0 : 1;
   }
   const state = checkRoot(root);
   console.log(`Tooling root: ${state.ready ? 'ready' : 'missing'} (${state.detail})`);
+  if (state.ready) console.log(formatCapabilities(detectCapabilities(root)));
   return state.ready ? 0 : 1;
 }
 
