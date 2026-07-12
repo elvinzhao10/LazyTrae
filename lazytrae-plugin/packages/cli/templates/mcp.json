@@ -54,7 +54,7 @@
     }
   },
   "lazytrae": {
-    "description": "LazyTrae MCP configuration template for v0.15 alpha. The 'lazytrae' server runs through the installed CLI and provides 15 state, evidence, handoff, and local context tools. Optional servers provide additional capabilities and degrade gracefully when not configured.",
+    "description": "LazyTrae MCP configuration template for v0.15.0-alpha.3. The 'lazytrae' server runs through the installed CLI and provides 15 state, evidence, handoff, and local context tools. Optional servers provide additional capabilities and degrade gracefully when not configured.",
     "note": "Required: false servers are optional and will not cause errors if unavailable. Disable unwanted servers by setting 'disabled': true."
   }
 }

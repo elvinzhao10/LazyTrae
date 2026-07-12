@@ -65,7 +65,7 @@ For Trae IDE, remove the project configuration with `lazytrae uninstall --yes`, 
 | `.trae/skills/*/SKILL.md` | 17 workflow skills (init-deep, ulw-plan, start-work, etc.) |
 | `.trae/commands/*.md` | 9 slash command definitions |
 | `.trae/agents/*.md` | 11 custom agent role definitions |
-| `.trae/hooks.json` | Five configured events referencing eight hook scripts (v0.15 alpha) |
+| `.trae/hooks.json` | Five configured events referencing eight hook scripts (v0.15.0-alpha.3) |
 | `.trae/mcp.json` | Ten MCP declarations; the `lazytrae` declaration exposes 15 tools when connected |
 | `.lazytrae/config.json` | LazyTrae configuration |
 | `.lazytrae/state/` | Durable runtime state (boulder, active-loop, sessions) |

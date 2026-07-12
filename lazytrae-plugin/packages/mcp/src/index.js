@@ -28,7 +28,7 @@ function handleRequest(req, repoRoot) {
       return send(id, {
         protocolVersion: '2024-11-05',
         capabilities: { tools: {} },
-        serverInfo: { name: 'lazytrae-mcp', version: '0.15.0-alpha.2' },
+        serverInfo: { name: 'lazytrae-mcp', version: '0.15.0-alpha.3' },
       });
     }
 
@@ -91,7 +91,7 @@ function main() {
   });
 
   // Log startup info to stderr (not stdout, which is the JSON-RPC transport)
-  process.stderr.write('LazyTrae MCP server v0.15.0-alpha.2 started (repo: ' + repoRoot + ')\n');
+  process.stderr.write('LazyTrae MCP server v0.15.0-alpha.3 started (repo: ' + repoRoot + ')\n');
 }
 
 // Run directly if executed as a script

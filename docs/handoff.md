@@ -7,6 +7,13 @@ Write new, current documentation here. Treat the ignored material in
 workflows, assumptions, or release states and must not be presented as current
 behavior without verification against source and tests.
 
+## Current release state
+
+The current cleanup release is **v0.15.0-alpha.3**. Package validation is
+verified on macOS only. It is a documentation and package-boundary release;
+do not describe v0.16 tooling capabilities here until their implementation and
+tests exist.
+
 ## Repository map
 
 | Area | Responsibility |

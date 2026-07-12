@@ -4,6 +4,8 @@
 
 LazyTrae provides disciplined agent-harness workflows (planning → delegated execution → evidence-gated verification → review → durable run state) for **Trae IDE**, **Trae Work**, and **Trae CLI**.
 
+Current cleanup release: **v0.15.0-alpha.3**. Its package checks are verified on macOS only; other operating systems remain unverified.
+
 > **Setup?** See [AGENTS.md](AGENTS.md) (the setup guide). This README is about **how to use** the harness once installed.
 
 ## Onboard with AI
@@ -103,8 +105,8 @@ lazytrae/
 │   ├── .trae/               #   Trae IDE config; source for Trae Work global skills
 │   ├── .lazytrae/           #   LazyTrae schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
-├── docs/                    # current v0.15 entrypoints plus historical records
-├── lazytrae-evaluation.md   # v0.15 implementation evidence and limitations
+├── docs/                    # current v0.15.0-alpha.3 learning entrypoints
+├── lazytrae-evaluation.md   # v0.15.0-alpha.3 implementation evidence and limitations
 ├── AGENTS.md                # setup guide
 ├── README.md                # this file (how to use)
 ├── LICENSE                  # MIT
