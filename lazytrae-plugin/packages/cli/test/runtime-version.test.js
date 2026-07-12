@@ -6,7 +6,7 @@ const test = require('node:test');
 const expectedVersion = require('../package.json').version;
 const packagedMcp = require('../src/mcp');
 const sourceMcp = require('../../mcp/src');
-const RELEASE_VERSION = '0.15.0-alpha.3';
+const RELEASE_VERSION = '0.16.0-alpha.1';
 
 function initializeVersion(server) {
   let output = '';
@@ -28,7 +28,7 @@ test('all LazyTrae MCP runtime entry points report the package version', () => {
   assert.equal(initializeVersion(sourceMcp), expectedVersion);
 });
 
-test('v0.15 cleanup release manifests are pinned to alpha.3', () => {
+test('v0.16 tooling release manifests are pinned to alpha.1', () => {
   assert.equal(expectedVersion, RELEASE_VERSION);
   assert.equal(require('../../mcp/package.json').version, RELEASE_VERSION);
 
@@ -44,12 +44,22 @@ test('v0.15 cleanup release manifests are pinned to alpha.3', () => {
     '../src/mcp/index.js',
     '../../mcp/src/index.js',
     '../templates/hooks.json',
+    '../templates/mcp.json',
+    '../templates/AGENTS.md',
     '../../../.trae/hooks.json',
+    '../../../.trae/mcp.json',
+    '../../../../README.md',
+    '../../../../AGENTS.md',
+    '../../../../docs/README.md',
+    '../../../../docs/handoff.md',
+    '../../../../lazytrae-evaluation.md',
+    '../../../README.md',
+    '../README.md',
   ];
 
   for (const relativePath of releasePaths) {
     const contents = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
-    assert.doesNotMatch(contents, /0\.15\.0-alpha\.2/, `${relativePath} retained alpha.2`);
-    assert.match(contents, /0\.15\.0-alpha\.3/, `${relativePath} omitted alpha.3`);
+    assert.doesNotMatch(contents, /0\.15\.0-alpha\.3/, `${relativePath} retained alpha.3`);
+    assert.match(contents, /0\.16\.0-alpha\.1/, `${relativePath} omitted alpha.1`);
   }
 });

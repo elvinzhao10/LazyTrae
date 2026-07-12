@@ -122,7 +122,7 @@ function run(args) {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae load-check [--host ide|work|cli]
 
-Check v0.15 package readiness after initialization. This validates local files and
+Check v0.16 package readiness after initialization. This validates local files and
 configuration only; it does not claim that a host has registered or loaded them.
 `);
     return 0;
@@ -144,7 +144,7 @@ configuration only; it does not claim that a host has registered or loaded them.
   const hookPermissions = nonExecutableHooks(repoRoot);
   const mcpError = mcpDeclarationError(repoRoot);
 
-  console.log('=== LazyTrae Tool Load Check — v0.15 Package Readiness ===');
+  console.log('=== LazyTrae Tool Load Check — v0.16 Package Readiness ===');
   console.log(`Host: ${host}`);
   for (const result of checks) {
     const expected = V015_ARTIFACT_CONTRACT[result.label].length;

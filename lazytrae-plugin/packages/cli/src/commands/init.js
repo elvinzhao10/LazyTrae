@@ -51,7 +51,7 @@ Options:
 
   const summary = { created: [], updated: [], skipped: [], merged: [] };
 
-  console.log(`LazyTrae init v0.15.0-alpha.3`);
+  console.log(`LazyTrae init v0.16.0-alpha.1`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Create directory structure

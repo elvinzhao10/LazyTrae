@@ -45,7 +45,7 @@ Options:
   const repoRoot = detectRepoRoot();
   const summary = { removed: [], preserved: [] };
 
-  console.log(`LazyTrae uninstall v0.15.0-alpha.3`);
+  console.log(`LazyTrae uninstall v0.16.0-alpha.1`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');

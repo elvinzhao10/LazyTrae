@@ -1,14 +1,23 @@
-# LazyTrae v0.15.0-alpha.3 Implementation Evidence
+# LazyTrae v0.16.0-alpha.1 Implementation Evidence
 
 > Current release evidence, not a historical parity score or a certification of a Trae host session.
 
 ## What is implemented and checked
 
-The v0.15.0-alpha.3 package contains 17 skills, 9 commands, 11 agent definitions, 8 hook scripts across 5 configured events, 10 MCP declarations, and one local `lazytrae` MCP server exposing 15 tools after connection. The installer keeps its canonical project data under `.trae/` and `.lazytrae/`; it does not require a legacy runtime directory to operate.
+The v0.16.0-alpha.1 package contains 17 skills, 9 commands, 11 agent definitions, 8 hook scripts across 5 configured events, 10 MCP declarations, and one local `lazytrae` MCP server exposing 15 tools after connection. The installer keeps its canonical project data under `.trae/` and `.lazytrae/`; it does not require a legacy runtime directory to operate.
+
+The release adds a package-owned, explicit-root tooling foundation. It detects
+existing compatible `rg` and `sg` providers before provisioning pinned local
+fallbacks, supports separate read-only TypeScript/JavaScript and Python LSP
+providers, and discovers repository-native lint/typecheck/test/build commands
+without running them unless selected. CodeGraph is a conditional separate MCP
+that is enabled only after a caller-created project index exists. Context7 and
+`grep_app` are disabled-by-default remote selections; normal install, doctor,
+and status paths remain offline.
 
 The release checks exercise the source-local CLI and package artifacts:
 
-- `node --test` in `lazytrae-plugin/packages/cli/`, including template parity, a fresh `init`/`load-check`/`doctor` fixture, namespace migration, path-boundary cases, and safe uninstall lifecycle cases.
+- `npm ci --ignore-scripts` and `npm test` in the CLI and MCP packages. The CLI suite covers template parity, source/packaged MCP equivalence, a fresh `init`/`load-check`/`doctor` fixture, tooling lifecycle paths, namespace migration, path-boundary cases, and safe uninstall lifecycle cases.
 - `lazytrae load-check --host ide|work|cli` for copied-file and declaration readiness.
 - `lazytrae uninstall --yes`, `--soft`, and `--purge-state` lifecycle coverage. Removal is content-checked: modified or unknown files and normal runtime records are preserved.
 - `lazytrae work install`, `status`, and `uninstall` coverage with an explicit skills directory. Work uninstall removes only exact, unmodified LazyTrae skills and rejects symlink or hard-link traversal.
@@ -32,4 +41,4 @@ The 15-tool count applies only after the local MCP server connects. Package read
 
 ## Attribution and limits
 
-LazyTrae's attribution and license are recorded exclusively in the repository [NOTICE](NOTICE) and [LICENSE](LICENSE). This document intentionally replaces historical percentage claims with observable v0.15.0-alpha.3 package evidence. It makes no claim of Linux or Windows verification and no claim that a live Trae host session has been exercised.
+LazyTrae's attribution and license are recorded exclusively in the repository [NOTICE](NOTICE) and [LICENSE](LICENSE). This document intentionally replaces historical percentage claims with observable v0.16.0-alpha.1 package evidence. It makes no claim of Linux or Windows verification and no claim that a live Trae host session has been exercised.

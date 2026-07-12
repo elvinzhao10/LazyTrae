@@ -4,7 +4,7 @@
 
 LazyTrae is a Trae-native workflow harness. It supports Trae IDE, Trae Work, and Trae CLI; the `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
 
-This guide covers the current cleanup release, **v0.15.0-alpha.3**. Its package workflow is verified on macOS only; do not infer support for other operating systems.
+This guide covers the current LazySeries tooling release, **v0.16.0-alpha.1**. Its package workflow is verified on macOS only; do not infer support for other operating systems.
 
 ## `onboard` protocol
 
@@ -71,6 +71,18 @@ The registration command completes the CLI configuration; the new session is whe
 ```bash
 lazytrae doctor    # expect 0 FAIL (WARNs are environmental: empty evidence, etc.)
 ```
+
+## LazySeries tooling selection
+
+Use the lightest tool that answers the task: `rg` for local text and file
+search, `sg` for structural search, the optional read-only LSP bridge for
+definitions/references/symbols/diagnostics, and CodeGraph only for an explicit
+architecture or dependency-tracing request. Install package-owned local search
+providers only with an explicit empty tooling root; LSP and CodeGraph have
+their own explicit lifecycle commands. Context7 and `grep_app` are optional,
+disabled by default, and are enabled only when current library documentation or
+public code examples are actually needed. `lazytrae tooling verify` discovers
+repository-native checks and runs them only after an explicit `--run` request.
 
 ## Uninstall
 

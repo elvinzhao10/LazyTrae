@@ -1,10 +1,13 @@
 {
   "name": "@lazytrae/mcp-server",
-  "version": "0.15.0-alpha.3",
+  "version": "0.16.0-alpha.1",
   "description": "LazyTrae MCP server — exposes LazyTrae state and verification tools through Model Context Protocol",
   "main": "src/index.js",
   "bin": {
     "lazytrae-mcp": "src/index.js"
+  },
+  "scripts": {
+    "test": "node --test"
   },
   "files": [
     "src/"

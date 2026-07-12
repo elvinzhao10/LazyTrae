@@ -2,6 +2,13 @@
 
 This is the release package for LazyTrae's three supported surfaces: Trae IDE, Trae Work, and Trae CLI.
 
+Current release: **v0.16.0-alpha.1**, verified on macOS only. It provides an
+explicit package-owned tooling lifecycle: `rg` for local search, `sg` for
+structural search, a separate read-only LSP bridge for supported languages, and
+CodeGraph only after an explicit architecture/dependency request. Optional
+Context7 and `grep_app` selections remain disabled unless the project enables
+them.
+
 ## Layout
 
 | Path | Purpose |

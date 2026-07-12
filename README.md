@@ -4,7 +4,7 @@
 
 LazyTrae provides disciplined agent-harness workflows (planning → delegated execution → evidence-gated verification → review → durable run state) for **Trae IDE**, **Trae Work**, and **Trae CLI**.
 
-Current cleanup release: **v0.15.0-alpha.3**. Its package checks are verified on macOS only; other operating systems remain unverified.
+Current LazySeries tooling release: **v0.16.0-alpha.1**. Its package checks are verified on macOS only; other operating systems remain unverified.
 
 > **Setup?** See [AGENTS.md](AGENTS.md) (the setup guide). This README is about **how to use** the harness once installed.
 
@@ -16,6 +16,31 @@ Current cleanup release: **v0.15.0-alpha.3**. Its package checks are verified on
 The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 10 MCP declarations. It cannot prove host discovery, a loaded plugin, or an MCP connection. The `lazytrae` declaration exposes 15 tools only after its server connects. Trae Work's built-in global-skills location is documented and tested only for macOS; reload/discovery and all non-macOS locations remain manual and unverified.
 
 After onboarding, you can delete the copied repository if you only needed the installed setup, or keep it to explore and study how LazyTrae works.
+
+## LazySeries tooling
+
+The v0.16 tooling foundation is mostly local and always explicit about
+ownership. Use `rg` for local text/file search and `sg` for structural search.
+Use the read-only LSP bridge for definitions, references, symbols, hover, and
+diagnostics in supported JavaScript/TypeScript or Python projects. Use
+CodeGraph only after an explicit architecture or dependency-tracing request;
+it requires a caller-created project index and a separate receipt-owned tooling
+root. Context7 and `grep_app` remain disabled unless the project explicitly
+selects current library documentation or public-code examples.
+
+```bash
+# Provision only missing local search tools in a caller-owned empty directory.
+lazytrae tooling install --tooling-root /absolute/lazytrae-tools
+lazytrae tooling status --tooling-root /absolute/lazytrae-tools
+
+# Detect native checks first; run a selected declared check only when requested.
+lazytrae tooling verify --dry-run
+lazytrae tooling verify --run test
+```
+
+The tooling lifecycle never changes a target project's package manifest,
+lockfile, source tree, global tools, or host-managed paths. `lazytrae tooling
+uninstall` removes only an unmodified receipt-owned tooling root.
 
 ## Uninstall safely
 
@@ -105,8 +130,8 @@ lazytrae/
 │   ├── .trae/               #   Trae IDE config; source for Trae Work global skills
 │   ├── .lazytrae/           #   LazyTrae schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
-├── docs/                    # current v0.15.0-alpha.3 learning entrypoints
-├── lazytrae-evaluation.md   # v0.15.0-alpha.3 implementation evidence and limitations
+├── docs/                    # current v0.16.0-alpha.1 learning entrypoints
+├── lazytrae-evaluation.md   # v0.16.0-alpha.1 implementation evidence and limitations
 ├── AGENTS.md                # setup guide
 ├── README.md                # this file (how to use)
 ├── LICENSE                  # MIT

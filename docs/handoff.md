@@ -9,12 +9,16 @@ behavior without verification against source and tests.
 
 ## Current release state
 
-The current cleanup release is **v0.15.0-alpha.3**. Package validation is
-verified on macOS only. The next tooling release adds disabled-by-default
-Context7 and `grep_app` selections: they are enabled only through `lazytrae
-tooling enable`, rendered as namespaced managed MCP entries, and remain
-offline during normal install, doctor, and status checks. Document them as
-optional remote capabilities, never as required local tooling.
+The current LazySeries tooling release is **v0.16.0-alpha.1**. Package
+validation is verified on macOS only. The local foundation selects `rg` for
+text/file search, `sg` for structural search, the separate read-only LSP MCP
+for supported JavaScript/TypeScript and Python semantic navigation, and
+repository-native verification only when the caller explicitly runs a declared
+check. CodeGraph is a separate, explicit architecture/dependency MCP: it
+requires a receipt-owned tooling root and a caller-created project index.
+Context7 and `grep_app` stay disabled, offline, and optional until enabled by
+the project. Do not document any optional capability as a required install
+dependency or as verified on a non-macOS host.
 
 ## Repository map
 
@@ -50,6 +54,7 @@ npm test
 node src/index.js --help
 node src/index.js doctor
 node src/index.js verify
+node src/index.js tooling --help
 ```
 
 The package README and `AGENTS.md` remain the concise current starting points

@@ -2,7 +2,7 @@
 
 This directory is intentionally small. It is the starting point for the next
 documentation owner, not a copy of the historical operating manuals. The
-current cleanup release is v0.15.0-alpha.3, verified on macOS only.
+current LazySeries tooling release is v0.16.0-alpha.1, verified on macOS only.
 
 - Read [handoff.md](handoff.md) for the repository map, code ownership
   boundaries, and a documentation-writing checklist.

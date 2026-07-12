@@ -4,6 +4,11 @@
 
 LazyTrae is a Trae-native workflow harness. It supports Trae IDE, Trae Work, and Trae CLI; the `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
 
+This guide covers **v0.16.0-alpha.1**, verified on macOS only. Use the
+package-owned tooling lifecycle only with an explicit tooling root: `rg` for
+local search, `sg` for structural search, the separate LSP bridge for semantic
+navigation, and CodeGraph only for explicit architecture/dependency work.
+
 ## `onboard` protocol
 
 When the user types `onboard`:
