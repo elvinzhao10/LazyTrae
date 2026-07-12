@@ -6,7 +6,7 @@ const { readExistingFile } = require('./safe-write');
 const TOOLING_STATE_PATH = path.join('.lazytrae', 'state', 'tooling.json');
 const MANAGED_CODEGRAPH_SERVER = 'lazytrae_codegraph';
 const MANAGED_CODEGRAPH_DESCRIPTION = 'Optional receipt-owned CodeGraph MCP bridge. Enable only after you create the project-local .codegraph index.';
-const REMOTE_CAPABILITIES = {
+const OPTIONAL_CAPABILITIES = {
   context7: {
     serverName: 'lazytrae_context7',
     url: 'https://mcp.context7.com/mcp',
@@ -17,11 +17,37 @@ const REMOTE_CAPABILITIES = {
     url: 'https://mcp.grep.app',
     description: 'Experimental optional grep_app public-code MCP. Enabled explicitly; endpoint is unpinned.',
   },
+  filesystem: {
+    serverName: 'lazytrae_filesystem',
+    command: 'npx',
+    args: repoRoot => ['-y', '@modelcontextprotocol/server-filesystem@2026.7.10', fs.realpathSync(repoRoot)],
+    description: 'Optional project-scoped filesystem MCP. Enabled explicitly; npx runs only when the configured MCP host starts it.',
+  },
+  playwright: {
+    serverName: 'lazytrae_playwright',
+    command: 'npx',
+    args: () => ['-y', '@playwright/mcp@0.0.78'],
+    description: 'Optional Playwright browser MCP. Enabled explicitly; npx runs only when the configured MCP host starts it.',
+  },
 };
 const LEGACY_REMOTE_SERVERS = {
   context7: { url: 'https://mcp.context7.com/mcp', required: false, description: 'Documentation lookup for open-source libraries' },
   context7_docs: { url: 'https://mcp.context7.com/mcp', required: false, description: 'Documentation search MCP server — optional template (alias for context7)' },
   grep_app: { url: 'https://mcp.grep.app', required: false, description: 'Remote code search from grep.app' },
+};
+const LEGACY_LOCAL_SERVERS = {
+  filesystem: {
+    command: 'npx',
+    args: ['-y', '@modelcontextprotocol/server-filesystem@2026.7.10', '.'],
+    required: false,
+    description: 'Filesystem access MCP server — optional template pinned to a reviewed version',
+  },
+  playwright: {
+    command: 'npx',
+    args: ['-y', '@playwright/mcp@0.0.78'],
+    required: false,
+    description: 'Browser automation MCP server via Playwright — optional template pinned to a reviewed version',
+  },
 };
 const LEGACY_CODEGRAPH_PLACEHOLDER = {
   required: false,
@@ -63,18 +89,30 @@ function setCodeGraphCapability(repoRoot, capability) {
   writeRepoFile(repoRoot, toolingStatePath(repoRoot), JSON.stringify(state, null, 2) + '\n');
 }
 
-function setRemoteCapability(repoRoot, name, enabled) {
-  if (!Object.hasOwn(REMOTE_CAPABILITIES, name)) throw new Error(`unknown remote capability: ${name}`);
+function setOptionalCapability(repoRoot, name, enabled) {
+  if (!Object.hasOwn(OPTIONAL_CAPABILITIES, name)) throw new Error(`unknown optional capability: ${name}`);
   const state = readToolingState(repoRoot);
   state.capabilities[name] = { enabled, state: enabled ? 'ready' : 'disabled' };
   writeRepoFile(repoRoot, toolingStatePath(repoRoot), JSON.stringify(state, null, 2) + '\n');
 }
 
-function managedRemoteServers(repoRoot) {
+function optionalServer(repoRoot, capability) {
+  if (capability.url) {
+    return { url: capability.url, required: false, description: capability.description };
+  }
+  return {
+    command: capability.command,
+    args: capability.args(repoRoot),
+    required: false,
+    description: capability.description,
+  };
+}
+
+function managedOptionalServers(repoRoot) {
   const capabilities = readToolingState(repoRoot).capabilities;
-  return Object.fromEntries(Object.entries(REMOTE_CAPABILITIES).flatMap(([name, remote]) => {
+  return Object.fromEntries(Object.entries(OPTIONAL_CAPABILITIES).flatMap(([name, capability]) => {
     if (capabilities[name]?.enabled !== true) return [];
-    return [[remote.serverName, { url: remote.url, required: false, description: remote.description }]];
+    return [[capability.serverName, optionalServer(repoRoot, capability)]];
   }));
 }
 
@@ -121,13 +159,17 @@ function isLegacyManagedCodeGraphServer(name, server) {
     && server.description === MANAGED_CODEGRAPH_DESCRIPTION;
 }
 
-function isManagedRemoteServer(name, server) {
-  return Object.values(REMOTE_CAPABILITIES).some(remote =>
-    name === remote.serverName && sameJson(server, { url: remote.url, required: false, description: remote.description }));
+function isManagedOptionalServer(repoRoot, name, server) {
+  return Object.values(OPTIONAL_CAPABILITIES).some(capability =>
+    name === capability.serverName && sameJson(server, optionalServer(repoRoot, capability)));
 }
 
 function isLegacyManagedRemoteServer(name, server) {
   return Object.hasOwn(LEGACY_REMOTE_SERVERS, name) && sameJson(server, LEGACY_REMOTE_SERVERS[name]);
+}
+
+function isLegacyManagedLocalServer(name, server) {
+  return Object.hasOwn(LEGACY_LOCAL_SERVERS, name) && sameJson(server, LEGACY_LOCAL_SERVERS[name]);
 }
 
 function hasLegacyRemoteTemplate(servers) {
@@ -139,10 +181,10 @@ function mergeMcpTemplate(repoRoot, templatePath, destinationPath) {
   const templateServers = { ...(template.mcpServers || {}) };
   const codeGraph = managedCodeGraphServer(repoRoot);
   if (codeGraph) templateServers[MANAGED_CODEGRAPH_SERVER] = codeGraph;
-  Object.assign(templateServers, managedRemoteServers(repoRoot));
+  Object.assign(templateServers, managedOptionalServers(repoRoot));
   const existingFile = readExistingFile(repoRoot, destinationPath, 'utf8');
   if (!existingFile.exists) {
-    const content = codeGraph || Object.keys(managedRemoteServers(repoRoot)).length > 0
+    const content = codeGraph || Object.keys(managedOptionalServers(repoRoot)).length > 0
       ? JSON.stringify({ ...template, mcpServers: templateServers }, null, 2) + '\n'
       : fs.readFileSync(templatePath, 'utf8');
     writeRepoFile(repoRoot, destinationPath, content);
@@ -155,14 +197,17 @@ function mergeMcpTemplate(repoRoot, templatePath, destinationPath) {
   const userServers = Object.fromEntries(
     Object.entries(existingServers).filter(([name, server]) => {
       if (Object.hasOwn(templateServers, name)) {
-        if ((name === 'context7' || name === 'grep_app')) {
+        if (templateServers[name].disabled === true) {
           return !sameJson(server, templateServers[name])
-            && !(legacyRemoteTemplate && isLegacyManagedRemoteServer(name, server));
+            && !(legacyRemoteTemplate && isLegacyManagedRemoteServer(name, server))
+            && !isLegacyManagedLocalServer(name, server);
         }
-        return false;
+        return !isManagedOptionalServer(repoRoot, name, server)
+          && !isManagedCodeGraphServer(name, server)
+          && !isLegacyManagedCodeGraphServer(name, server);
       }
       if (isManagedCodeGraphServer(name, server) || isLegacyManagedCodeGraphServer(name, server)) return false;
-      if (isManagedRemoteServer(name, server) || isLegacyManagedRemoteServer(name, server)) return false;
+      if (isManagedOptionalServer(repoRoot, name, server) || isLegacyManagedRemoteServer(name, server)) return false;
       return !(name === 'codegraph' && sameJson(server, LEGACY_CODEGRAPH_PLACEHOLDER));
     }),
   );
@@ -185,12 +230,12 @@ module.exports = {
   defaultToolingState,
   ensureToolingState,
   MANAGED_CODEGRAPH_SERVER,
-  REMOTE_CAPABILITIES,
+  OPTIONAL_CAPABILITIES,
   managedCodeGraphServer,
-  managedRemoteServers,
+  managedOptionalServers,
   mergeMcpTemplate,
   readToolingState,
   setCodeGraphCapability,
-  setRemoteCapability,
+  setOptionalCapability,
   toolingStatePath,
 };

@@ -82,6 +82,58 @@ test('remote capabilities are disabled by default and explicit selection survive
   }
 });
 
+test('non-core MCP capabilities require explicit selection and use managed names without replacing caller entries', () => {
+  const root = makeRepo('lazytrae-local-mcp-capabilities-');
+  try {
+    // Given: a fresh project whose caller already owns public and namespaced MCP entries.
+    assert.equal(runCli(['init'], { cwd: root }).status, 0);
+    const mcpPath = path.join(root, '.trae', 'mcp.json');
+    const mcp = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
+    const executableServers = Object.entries(mcp.mcpServers)
+      .filter(([, server]) => Object.hasOwn(server, 'command'))
+      .map(([name]) => name);
+    assert.deepEqual(executableServers, ['lazytrae']);
+    assert.equal(mcp.mcpServers.filesystem.disabled, true);
+    assert.equal(mcp.mcpServers.playwright.disabled, true);
+    mcp.mcpServers.filesystem = { command: 'caller-filesystem', args: ['serve'] };
+    mcp.mcpServers.playwright = { command: 'caller-playwright', args: ['serve'] };
+    mcp.mcpServers.user_owned = { command: 'caller-mcp', args: ['serve'] };
+    fs.writeFileSync(mcpPath, JSON.stringify(mcp, null, 2) + '\n');
+
+    // When: both local external capabilities are explicitly selected.
+    const enableFilesystem = runCli(['tooling', 'enable', 'filesystem'], { cwd: root });
+    const enablePlaywright = runCli(['tooling', 'enable', 'playwright'], { cwd: root });
+    const next = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
+
+    // Then: the caller entries remain untouched and only namespaced managed entries are executable.
+    assert.equal(enableFilesystem.status, 0, enableFilesystem.stderr);
+    assert.equal(enablePlaywright.status, 0, enablePlaywright.stderr);
+    assert.deepEqual(next.mcpServers.filesystem, { command: 'caller-filesystem', args: ['serve'] });
+    assert.deepEqual(next.mcpServers.playwright, { command: 'caller-playwright', args: ['serve'] });
+    assert.deepEqual(next.mcpServers.user_owned, { command: 'caller-mcp', args: ['serve'] });
+    assert.deepEqual(next.mcpServers.lazytrae_filesystem, {
+      command: 'npx',
+      args: ['-y', '@modelcontextprotocol/server-filesystem@2026.7.10', fs.realpathSync(root)],
+      required: false,
+      description: 'Optional project-scoped filesystem MCP. Enabled explicitly; npx runs only when the configured MCP host starts it.',
+    });
+    assert.deepEqual(next.mcpServers.lazytrae_playwright, {
+      command: 'npx',
+      args: ['-y', '@playwright/mcp@0.0.78'],
+      required: false,
+      description: 'Optional Playwright browser MCP. Enabled explicitly; npx runs only when the configured MCP host starts it.',
+    });
+
+    const disabled = runCli(['tooling', 'disable', 'filesystem'], { cwd: root });
+    const afterDisable = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
+    assert.equal(disabled.status, 0, disabled.stderr);
+    assert.equal(Object.hasOwn(afterDisable.mcpServers, 'lazytrae_filesystem'), false);
+    assert.equal(Object.hasOwn(afterDisable.mcpServers, 'lazytrae_playwright'), true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('remote capability commands reject credential persistence and normal checks remain offline and non-blocking', () => {
   const root = makeRepo('lazytrae-remote-safety-');
   try {
@@ -134,6 +186,41 @@ test('sync removes the prior active remote defaults without treating them as cal
     assert.equal(synced.status, 0, synced.stderr);
     assert.equal(next.mcpServers.context7.disabled, true);
     assert.equal(Object.hasOwn(next.mcpServers.context7, 'url'), false);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('sync removes prior active filesystem and Playwright defaults without replacing caller-owned entries', () => {
+  const root = makeRepo('lazytrae-local-mcp-migration-');
+  try {
+    assert.equal(runCli(['init'], { cwd: root }).status, 0);
+    const mcpPath = path.join(root, '.trae', 'mcp.json');
+    const mcp = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
+    mcp.mcpServers.filesystem = {
+      command: 'npx',
+      args: ['-y', '@modelcontextprotocol/server-filesystem@2026.7.10', '.'],
+      required: false,
+      description: 'Filesystem access MCP server — optional template pinned to a reviewed version',
+    };
+    mcp.mcpServers.playwright = {
+      command: 'npx',
+      args: ['-y', '@playwright/mcp@0.0.78'],
+      required: false,
+      description: 'Browser automation MCP server via Playwright — optional template pinned to a reviewed version',
+    };
+    mcp.mcpServers.user_filesystem = { command: 'caller-filesystem', args: ['serve'] };
+    fs.writeFileSync(mcpPath, JSON.stringify(mcp, null, 2) + '\n');
+
+    const synced = runCli(['sync'], { cwd: root });
+    const next = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
+
+    assert.equal(synced.status, 0, synced.stderr);
+    for (const name of ['filesystem', 'playwright']) {
+      assert.equal(next.mcpServers[name].disabled, true);
+      assert.equal(Object.hasOwn(next.mcpServers[name], 'command'), false);
+    }
+    assert.deepEqual(next.mcpServers.user_filesystem, { command: 'caller-filesystem', args: ['serve'] });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

@@ -16,10 +16,9 @@
       "description": "Optional Context7 library documentation MCP. Enable with lazytrae tooling enable context7; credentials stay in the host environment."
     },
     "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem@2026.7.10", "."],
       "required": false,
-      "description": "Filesystem access MCP server — optional template pinned to a reviewed version"
+      "disabled": true,
+      "description": "Optional project-scoped filesystem MCP. Enable with lazytrae tooling enable filesystem."
     },
     "git": {
       "required": false,
@@ -27,10 +26,9 @@
       "description": "Git operations MCP server — disabled manual option. The former package name is no longer published; install and configure a reviewed Git MCP server explicitly before enabling it."
     },
     "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@0.0.78"],
       "required": false,
-      "description": "Browser automation MCP server via Playwright — optional template pinned to a reviewed version"
+      "disabled": true,
+      "description": "Optional Playwright browser MCP. Enable with lazytrae tooling enable playwright."
     },
     "ast_grep": {
       "required": false,
