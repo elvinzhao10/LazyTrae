@@ -18,6 +18,13 @@ function sendError(id, code, message) {
   }) + '\n');
 }
 
+function isRequest(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  if (value.jsonrpc !== '2.0' || typeof value.method !== 'string' || value.method.startsWith('rpc.')) return false;
+  if (Object.hasOwn(value, 'params') && (!value.params || typeof value.params !== 'object')) return false;
+  return !Object.hasOwn(value, 'id') || value.id === null || typeof value.id === 'string' || typeof value.id === 'number';
+}
+
 // ── Request handler ──
 
 function handleRequest(req, repoRoot) {
@@ -73,17 +80,21 @@ function main() {
     terminal: false,
   });
 
-  let buffer = '';
-
   rl.on('line', (line) => {
-    buffer += line;
+    let req;
     try {
-      const req = JSON.parse(buffer);
-      buffer = '';
-      handleRequest(req, repoRoot);
+      req = JSON.parse(line);
     } catch (_) {
-      // Incomplete JSON — wait for more lines
+      sendError(null, -32700, 'Parse error');
+      return;
     }
+
+    if (!isRequest(req)) {
+      sendError(null, -32600, 'Invalid Request');
+      return;
+    }
+
+    handleRequest(req, repoRoot);
   });
 
   rl.on('close', () => {
