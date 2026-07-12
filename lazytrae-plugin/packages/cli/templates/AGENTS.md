@@ -1,3 +1,4 @@
+<!-- lazytrae:managed:start:onboarding -->
 # AGENTS.md — LazyTrae Setup Guide
 
 > **Agent:** this file is the **setup** guide. It tells you how to install and configure LazyTrae. For *how to use* the harness once installed, see the [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme).
@@ -96,3 +97,4 @@ For Trae Work on macOS, run `lazytrae work uninstall`; it removes only unmodifie
 - Trae Work: `lazytrae work install`, then `lazytrae work status`
 - How to use the harness: [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme)
 - Parity assessment: [LazyTrae evaluation](https://github.com/elvinzhao10/LazyTrae/blob/main/lazytrae-evaluation.md)
+<!-- lazytrae:managed:end:onboarding -->

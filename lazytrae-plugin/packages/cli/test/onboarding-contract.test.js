@@ -2,7 +2,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
-const { REPO_ROOT } = require('./test-helpers');
+const os = require('node:os');
+const { REPO_ROOT, runCli } = require('./test-helpers');
 
 function readTemplate(relativePath) {
   return fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8');
@@ -30,4 +31,28 @@ test('InitDeep repairs core assets but never provisions optional integrations', 
   assert.match(skill, /Do NOT run `lazytrae tooling/);
   assert.match(skill, /Do NOT enable optional MCP\s+capabilities/);
   assert.doesNotMatch(skill, /npm install|npx /);
+});
+
+test('init appends removable onboarding guidance to an existing user AGENTS.md', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-existing-agents-'));
+  const userContent = '# Project rules\n\nKeep this exact text.\n';
+  try {
+    fs.mkdirSync(path.join(fixture, '.git'));
+    fs.writeFileSync(path.join(fixture, 'AGENTS.md'), userContent, 'utf8');
+
+    const init = runCli(['init', '--host', 'ide'], { cwd: fixture });
+
+    assert.equal(init.status, 0, init.stderr);
+    const installed = fs.readFileSync(path.join(fixture, 'AGENTS.md'), 'utf8');
+    assert.match(installed, /<!-- lazytrae:managed:start:onboarding -->/);
+    assert.match(installed, /## `onboard` protocol/);
+    assert.equal(installed.slice(0, userContent.length), userContent);
+
+    const uninstall = runCli(['uninstall', '--yes'], { cwd: fixture });
+
+    assert.equal(uninstall.status, 0, uninstall.stderr);
+    assert.equal(fs.readFileSync(path.join(fixture, 'AGENTS.md'), 'utf8'), userContent);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
 });
