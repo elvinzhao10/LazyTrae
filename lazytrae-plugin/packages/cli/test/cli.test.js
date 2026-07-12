@@ -191,6 +191,19 @@ test('validator rejects malformed state against schemas', () => {
   assert.match(result.stdout, /Schema validation: boulder\.json/);
 });
 
+test('doctor fails closed when the boulder schema is missing', () => {
+  const fixture = makeFixture('lazytrae-missing-boulder-schema-');
+  const boulderPath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
+  const boulder = JSON.parse(fs.readFileSync(boulderPath, 'utf-8'));
+  boulder.schema_version = 99;
+  fs.writeFileSync(boulderPath, JSON.stringify(boulder, null, 2) + '\n');
+  fs.rmSync(path.join(fixture, '.lazytrae', 'schemas', 'boulder.schema.json'));
+
+  const result = runCli(['doctor'], { cwd: fixture });
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /Schema validation: boulder\.json[\s\S]*Schema file not found/);
+});
+
 test('validator accepts nullable active-loop lifecycle timestamps', () => {
   const fixture = makeFixture('lazytrae-nullable-active-loop-');
 

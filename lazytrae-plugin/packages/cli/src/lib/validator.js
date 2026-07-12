@@ -9,6 +9,12 @@ try {
   Ajv = null;
 }
 
+const STATE_CONTRACTS = Object.freeze({
+  'active-loop.json': { schemaFile: 'active-loop.schema.json', versionKey: 'version', version: 1 },
+  'boulder.json': { schemaFile: 'boulder.schema.json', versionKey: 'schema_version', version: 2 },
+  'sessions.json': { schemaFile: 'sessions.schema.json', versionKey: 'schema_version', version: 1 },
+});
+
 function formatAjvError(error) {
   let errorPath = error.instancePath;
   if (!errorPath && error.schemaPath) {
@@ -46,16 +52,23 @@ function validateStateFile(repoRoot, stateFileName, schemaFileName) {
   }
 
   if (!Ajv) {
-    try {
-      Ajv = require('ajv');
-    } catch (e) {
-      return { valid: true, errors: [], warning: 'ajv not installed — skipping schema validation' };
-    }
+    return { valid: false, errors: ['Ajv is unavailable; cannot validate state schema'] };
   }
 
-  const ajv = new Ajv({ allErrors: true, strict: false });
-  const validate = ajv.compile(schemaData);
-  const valid = validate(stateData);
+  let validate;
+  try {
+    const ajv = new Ajv({ allErrors: true, strict: false });
+    validate = ajv.compile(schemaData);
+  } catch (e) {
+    return { valid: false, errors: [`Cannot compile schema ${schemaFileName}: ${e.message}`] };
+  }
+
+  let valid;
+  try {
+    valid = validate(stateData);
+  } catch (e) {
+    return { valid: false, errors: [`Cannot validate ${stateFileName}: ${e.message}`] };
+  }
 
   if (!valid) {
     const errors = (validate.errors || []).map(formatAjvError);
@@ -67,22 +80,20 @@ function validateStateFile(repoRoot, stateFileName, schemaFileName) {
 
 function validateAllState(repoRoot) {
   const results = {};
-  const stateDir = path.join(repoRoot, '.lazytrae', 'state');
-  const schemaDir = path.join(repoRoot, '.lazytrae', 'schemas');
-
-  if (!fs.existsSync(stateDir) || !fs.existsSync(schemaDir)) {
-    return results;
-  }
-
-  const stateFiles = fs.readdirSync(stateDir).filter(f => f.endsWith('.json'));
-  const schemaFiles = fs.readdirSync(schemaDir).filter(f => f.endsWith('.json'));
-
-  for (const stateFile of stateFiles) {
-    const base = stateFile.replace('.json', '');
-    const schemaFile = schemaFiles.find(s => s.startsWith(base + '.'));
-    if (schemaFile) {
-      results[stateFile] = validateStateFile(repoRoot, stateFile, schemaFile);
+  for (const [stateFile, contract] of Object.entries(STATE_CONTRACTS)) {
+    const result = validateStateFile(repoRoot, stateFile, contract.schemaFile);
+    if (result.valid) {
+      const statePath = path.join(repoRoot, '.lazytrae', 'state', stateFile);
+      const stateData = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
+      if (stateData[contract.versionKey] !== contract.version) {
+        results[stateFile] = {
+          valid: false,
+          errors: [`Invalid ${contract.versionKey} in ${stateFile}: expected ${contract.version}`],
+        };
+        continue;
+      }
     }
+    results[stateFile] = result;
   }
 
   return results;
