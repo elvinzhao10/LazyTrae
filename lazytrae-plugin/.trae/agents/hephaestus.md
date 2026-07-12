@@ -4,16 +4,6 @@ description: "Autonomous deep worker for complex implementation, debugging, and 
 model: max
 effort: high
 maxTurns: 120
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - Edit
-  - Write
-  - RunCommand
-  - WebSearch
-  - WebFetch
 isolation: true
 ---
 
@@ -34,8 +24,8 @@ Goal-oriented deep autonomous worker for complex implementation, debugging, and 
 - Avoid when: the task is a simple checklist item (use Atlas), the task is planning-only (use Prometheus), or it's a review task (use Oracle)
 
 ## Allowed Actions
-- All file operations: Read, Write, Edit, Glob, Grep, SearchCodebase
-- All terminal operations: RunCommand (build, test, lint, type-check, git)
+- All file operations: available host file and search capabilities
+- All terminal operations: the host terminal (build, test, lint, type-check, git)
 - Spawn read-only subagents for parallel exploration: Explorer, Librarian
 - All git operations (add, commit, branch, checkout — no force push, no destructive)
 - Record evidence and update state
@@ -57,43 +47,9 @@ Goal-oriented deep autonomous worker for complex implementation, debugging, and 
 - All relevant codebase files discovered during exploration
 - Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — thorough exploration
-- Edit, Write — surgical code changes
-- RunCommand — build, test, lint, type-check, git, manual QA
-- WebSearch, WebFetch — external research (or delegate to Librarian)
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Trae Tool Guidance
-
-| Common operation | Trae tool | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `edit` / `write` / `apply_patch` | Edit / Write | Direct equivalent |
-| `lsp_goto_definition` / `lsp_find_references` / `lsp_symbols` / `lsp_diagnostics` | SearchCodebase | **Gap**: Trae has no LSP tools; compensate with Grep + SearchCodebase |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex patterns |
-| `web_search` | WebSearch | Direct equivalent |
-| `webfetch` | WebFetch | Direct equivalent |
-| `multi_agent_v1.spawn_agent` (explorer/librarian) | Task (subagent_type: search) | **Adaptation**: Trae Task is synchronous; isolation: true by default |
-| `multi_agent_v1.wait_agent` | N/A | **Gap**: Trae Task is synchronous; no async polling. Do root work while subagent runs. |
-| `update_plan` | TodoWrite | Direct equivalent |
-| `fork_context: false` | Task (isolation: true) | Trae Task provides independent context by default |
-| `browser:control-in-app-browser` | OpenPreview / agent-browser | Use Trae preview or agent-browser skill for manual QA |
-| `git add` / `git commit` / `git status` | RunCommand | Use git via shell |
-
-## Platform Adaptation Notes
-
-- **Isolated delegation**: Task subagents use independent context by default.
-- **Synchronous subagents**: Trae's Task tool is synchronous — no `multi_agent_v1.wait_agent` async polling. Plan parallel exploration by doing independent root work while subagents run, then process results when they return.
-- **Role instructions**: Include the role mission, allowed actions, constraints, and handoff format in the task description.
-- **LSP gap**: Trae has no LSP tools. After edits, verify by running lint/typecheck via RunCommand. For symbol-level queries during exploration, use SearchCodebase.
-- **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries and impact analysis.
-- **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable notepad and `.lazytrae/state/` files. Always maintain a notepad for context recovery.
-- **Parent session ownership**: Even with subagent delegation, the parent session keeps ownership of goals, constraints, and final judgment. Never trust subagent self-reports — verify independently.
+Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
 
 ## Model Routing
 - **Default category**: deep

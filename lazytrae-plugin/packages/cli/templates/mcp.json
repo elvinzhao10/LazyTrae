@@ -42,7 +42,7 @@
     }
   },
   "lazytrae": {
-    "description": "LazyTrae MCP configuration template for v0.16.0-alpha.1. The 'lazytrae' server runs through the installed CLI and provides 15 state, evidence, handoff, and local context tools. Optional servers provide additional capabilities and degrade gracefully when not configured.",
+    "description": "LazyTrae MCP configuration template for v0.16.0-alpha.1. The base configuration has one executable 'lazytrae' core server and seven disabled placeholders. Context7, grep_app, filesystem, and Playwright require explicit lazytrae tooling enable commands and are created as namespaced lazytrae_* servers. The core server provides 15 state, evidence, handoff, and local context tools after connection.",
     "note": "Required: false servers are optional and will not cause errors if unavailable. Disable unwanted servers by setting 'disabled': true."
   }
 }

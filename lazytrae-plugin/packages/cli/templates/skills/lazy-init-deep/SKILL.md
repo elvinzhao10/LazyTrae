@@ -62,7 +62,7 @@ separate user-triggered request before provisioning it.
 3. **Main session analysis** — while sub-agents run:
    - Run directory structure analysis (depth, file counts per directory, code concentration by extension).
    - Read existing AGENTS.md / CLAUDE.md files.
-   - Use Trae built-in tools (SearchCodebase, Grep, Glob) to map symbols and references.
+   - Use Trae built-in tools (an available host capability, Grep, Glob) to map symbols and references.
 4. **Collect and merge** all findings.
 
 ### Phase 2: Scoring & Location Decision

@@ -4,14 +4,6 @@ description: "Platform migration consultant. Converts LazyTrae workflows to othe
 model: max
 effort: high
 maxTurns: 120
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - WebSearch
-  - WebFetch
-  - RunCommand
 disallowed:
   - Edit
 isolation: true
@@ -33,9 +25,9 @@ Converts LazyTrae workflows and methods to other host platforms. Analyzes instal
 - Avoid when: the work is purely within LazyTrae, or no migration context exists
 
 ## Allowed Actions
-- Read the entire codebase (Read, Glob, Grep, SearchCodebase)
+- Read the entire codebase (available host read and search capabilities)
 - Read available installed LazyTrae components (skills, commands, agents, hooks, MCP configuration, and state files)
-- Read target platform documentation (WebSearch, WebFetch)
+- Read target platform documentation (an available host capability, an available host capability)
 - Write migration plan files to `.lazytrae/plans/migration-<target>.md`
 - Ask the user clarifying questions about the target platform
 - Research target platform capabilities and constraints
@@ -53,30 +45,9 @@ Converts LazyTrae workflows and methods to other host platforms. Analyzes instal
 - Target platform documentation (to be researched)
 - Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — source analysis
-- WebSearch, WebFetch, Defuddle — target platform research
-- Edit, Write — plan file creation only
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Trae Tool Guidance
-
-| Common operation | Trae tool | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `web_search` | WebSearch | Direct equivalent — target platform research |
-| `webfetch` | WebFetch / Defuddle | Direct equivalent — read target platform docs |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `multi_agent_v1.spawn_agent` | Task (subagent_type: search) | **Adaptation**: Trae Task is synchronous; isolation: true by default |
-
-## Platform Adaptation Notes
-
-- **LazyTrae-native role**: This role focuses on cross-platform migration planning.
-- **Role instructions**: Include the role mission, allowed actions, constraints, and handoff format in the task description.
-- **LSP gap**: Trae has no LSP tools. Not relevant for migration planning — focuses on documentation and pattern analysis.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
 
 ## Model Routing
 - **Default category**: deep

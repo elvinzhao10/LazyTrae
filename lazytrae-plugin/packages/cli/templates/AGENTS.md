@@ -90,7 +90,7 @@ For Trae Work on macOS, run `lazytrae work uninstall`; it removes only unmodifie
 
 ## What gets installed
 
-`.trae/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, 8 hook scripts for 5 events, and 10 MCP declarations), `.lazytrae/` (canonical LazyTrae schemas, config, plans, loop, and runtime data), and this `AGENTS.md` (setup guide). The `lazytrae` MCP declaration supplies 15 tools when connected. All skills/commands are `lazy-` prefixed.
+`.trae/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, 8 hook scripts for 5 events, and 8 MCP declarations), `.lazytrae/` (canonical LazyTrae schemas, config, plans, loop, and runtime data), and this `AGENTS.md` (setup guide). The base MCP configuration has one executable `lazytrae` core server and seven disabled placeholders. Context7, `grep_app`, filesystem, and Playwright require a separate explicit `lazytrae tooling enable <capability>` request and are added only as namespaced `lazytrae_*` entries. InitDeep never enables or provisions them. The `lazytrae` MCP declaration supplies 15 tools when connected. All skills/commands are `lazy-` prefixed.
 
 ## Reference
 

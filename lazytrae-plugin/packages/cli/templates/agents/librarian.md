@@ -4,16 +4,6 @@ description: "External open-source codebase and documentation researcher. Invest
 model: lite
 effort: low
 maxTurns: 40
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - Edit
-  - Write
-  - WebSearch
-  - WebFetch
-  - RunCommand
 isolation: true
 ---
 
@@ -33,7 +23,7 @@ Maintains project memory, external documentation research, command index, and pa
 - Avoid when: the answer lives in the local working-tree (use Explorer), the question is purely conceptual with no external source, or writing is not needed
 
 ## Allowed Actions
-- Read the entire codebase (Read, Glob, Grep, SearchCodebase)
+- Read the entire codebase (available host read and search capabilities)
 - Web search and web fetch for external documentation
 - Clone external repositories to `${TMPDIR:-/tmp}` for source research (never into working tree)
 - Update existing project documentation and memory records when they are present
@@ -53,36 +43,9 @@ Maintains project memory, external documentation research, command index, and pa
 - Relevant installed LazyTrae components under `.trae/` and `.lazytrae/`, when present
 - Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — codebase and documentation search
-- Edit, Write — documentation updates only
-- WebSearch, WebFetch, Defuddle — external documentation research
-- RunCommand — git clone into tmp, git operations for docs
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Trae Tool Guidance
-
-| Common operation | Trae tool | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `edit` / `write` (docs only) | Edit / Write | Direct equivalent for documentation files |
-| `web_search` | WebSearch | Direct equivalent |
-| `webfetch` | WebFetch | Direct equivalent |
-| `context7` | WebSearch + WebFetch | Library docs lookup via web (no context7 MCP) |
-| `grep_app` | WebSearch + Grep | External GitHub code search via web |
-| `gh search code` / `gh repo clone` | RunCommand | Use `gh` CLI via shell |
-| `gh api repos/.../commits/HEAD` | RunCommand | Get SHA via `gh api` |
-| `git rev-parse HEAD` | RunCommand | Pin SHA in cloned repo |
-
-## Platform Adaptation Notes
-
-- **Isolated delegation**: Task subagents use independent context by default.
-- **context7 gap**: Trae has no context7 MCP. Compensate with WebSearch + WebFetch for library documentation lookup.
-- **grep_app gap**: Trae has no grep_app MCP. Compensate with WebSearch for GitHub code search, or `gh search code` via RunCommand.
-- **SHA-pinned permalinks**: Still required. Get SHA via `gh api repos/<o>/<r>/commits/HEAD --jq .sha` or `git rev-parse HEAD` in a clone. NEVER link to branch names.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
 
 ## Model Routing
 - **Default category**: writing

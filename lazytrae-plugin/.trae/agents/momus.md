@@ -4,12 +4,6 @@ description: "Plan reviewer. Verifies a work plan is executable: references exis
 model: max
 effort: xhigh
 maxTurns: 120
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - RunCommand
 disallowed:
   - Edit
   - Write
@@ -31,7 +25,7 @@ Plan reviewer that verifies a work plan is executable: references exist, tasks a
 - Avoid when: the plan is trivial (single file, single step), or the plan has already been reviewed and approved
 
 ## Allowed Actions
-- Read the entire codebase (Read, Glob, Grep, SearchCodebase)
+- Read the entire codebase (available host read and search capabilities)
 - Read the plan file
 - Verify referenced files exist and contain claimed content
 - Verify line numbers in references point to relevant code
@@ -50,27 +44,9 @@ Plan reviewer that verifies a work plan is executable: references exist, tasks a
 - `AGENTS.md` — project constitution for constraint verification
 - Any referenced files in the plan (to verify existence and content)
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — verify references and file existence
-- RunCommand — read-only verification (check file paths, search for patterns)
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Trae Tool Guidance
-
-| Common operation | Trae tool | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `lsp_goto_definition` / `lsp_find_references` | SearchCodebase | **Gap**: Trae has no LSP tools; compensate with Grep + SearchCodebase |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-
-## Platform Adaptation Notes
-
-- **Read-only enforcement**: Trae enforces read-only via `disallowed` frontmatter (Edit, Write).
-- **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase for verifying referenced files and line numbers.
-- **Parallel verification**: Use parallel Read/Grep calls to verify multiple plan references simultaneously.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
 
 ## Model Routing
 - **Default category**: review

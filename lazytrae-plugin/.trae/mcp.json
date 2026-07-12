@@ -6,20 +6,19 @@
       "description": "LazyTrae state, evidence, handoff, and local context MCP server — exposes 15 tools including heuristic symbol/reference/docs/dependency helpers"
     },
     "grep_app": {
-      "url": "https://mcp.grep.app",
       "required": false,
-      "description": "Remote code search from grep.app"
+      "disabled": true,
+      "description": "Experimental optional grep_app public-code MCP. Enable with lazytrae tooling enable grep_app."
     },
     "context7": {
-      "url": "https://mcp.context7.com/mcp",
       "required": false,
-      "description": "Documentation lookup for open-source libraries"
+      "disabled": true,
+      "description": "Optional Context7 library documentation MCP. Enable with lazytrae tooling enable context7; credentials stay in the host environment."
     },
     "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem@2026.7.10", "."],
       "required": false,
-      "description": "Filesystem access MCP server — optional template pinned to a reviewed version"
+      "disabled": true,
+      "description": "Optional project-scoped filesystem MCP. Enable with lazytrae tooling enable filesystem."
     },
     "git": {
       "required": false,
@@ -27,15 +26,9 @@
       "description": "Git operations MCP server — disabled manual option. The former package name is no longer published; install and configure a reviewed Git MCP server explicitly before enabling it."
     },
     "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@0.0.78"],
       "required": false,
-      "description": "Browser automation MCP server via Playwright — optional template pinned to a reviewed version"
-    },
-    "context7_docs": {
-      "url": "https://mcp.context7.com/mcp",
-      "required": false,
-      "description": "Documentation search MCP server — optional template (alias for context7)"
+      "disabled": true,
+      "description": "Optional Playwright browser MCP. Enable with lazytrae tooling enable playwright."
     },
     "ast_grep": {
       "required": false,
@@ -45,16 +38,11 @@
     "lsp": {
       "required": false,
       "disabled": true,
-      "description": "Language Server Protocol diagnostics — disabled manual option. Review and configure a local LSP MCP server explicitly before enabling it; Trae has no built-in LSP."
-    },
-    "codegraph": {
-      "required": false,
-      "disabled": true,
-      "description": "Code graph analysis — disabled manual option. LazyTrae compensates with SearchCodebase; review and configure a suitable CodeGraph MCP server explicitly before enabling it."
+      "description": "Managed read-only LSP bridge — opt in with an explicit target and tooling root: lazytrae lsp --target <absolute-project-path> --tooling-root <absolute-owned-root>. It provisions only TypeScript/JavaScript or Python providers when requested and never mutates the target project."
     }
   },
   "lazytrae": {
-    "description": "LazyTrae MCP configuration template for v0.16.0-alpha.1. The 'lazytrae' server runs through the installed CLI and provides 15 state, evidence, handoff, and local context tools. Optional servers provide additional capabilities and degrade gracefully when not configured.",
+    "description": "LazyTrae MCP configuration template for v0.16.0-alpha.1. The base configuration has one executable 'lazytrae' core server and seven disabled placeholders. Context7, grep_app, filesystem, and Playwright require explicit lazytrae tooling enable commands and are created as namespaced lazytrae_* servers. The core server provides 15 state, evidence, handoff, and local context tools after connection.",
     "note": "Required: false servers are optional and will not cause errors if unavailable. Disable unwanted servers by setting 'disabled': true."
   }
 }

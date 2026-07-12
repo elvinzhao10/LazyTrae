@@ -4,12 +4,6 @@ description: "Pre-planning analyst. Detects contradictions, ambiguity, missing c
 model: max
 effort: high
 maxTurns: 120
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - RunCommand
 disallowed:
   - Edit
   - Write
@@ -31,7 +25,7 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 - Avoid when: the request is trivial, the plan is already reviewed, or the requirements are clear and unambiguous
 
 ## Allowed Actions
-- Read the entire codebase (Read, Glob, Grep, SearchCodebase)
+- Read the entire codebase (available host read and search capabilities)
 - Read the draft plan file
 - Read relevant context files (AGENTS.md, architecture docs, existing plans)
 - Read referenced files to verify constraints
@@ -51,28 +45,9 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 - Any referenced specification files
 - Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — verify referenced files and patterns
-- RunCommand — read-only analysis (grep for patterns, check structure)
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Trae Tool Guidance
-
-| Common operation | Trae tool | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `lsp_goto_definition` / `lsp_find_references` | SearchCodebase | **Gap**: Trae has no LSP tools; compensate with Grep + SearchCodebase |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex patterns |
-
-## Platform Adaptation Notes
-
-- **Read-only enforcement**: Trae enforces read-only via `disallowed` frontmatter (Edit, Write). No runtime tool restriction needed.
-- **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase for verifying referenced patterns and file contents.
-- **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries during risk analysis.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
 
 ## Model Routing
 - **Default category**: ultrabrain

@@ -4,12 +4,6 @@ description: "Codebase search specialist. Finds files and code in the working tr
 model: lite
 effort: low
 maxTurns: 40
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - RunCommand
 disallowed:
   - Edit
   - Write
@@ -32,7 +26,7 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - Avoid when: the caller already knows the exact file or symbol, or a single keyword search suffices
 
 ## Allowed Actions
-- All read-only tools: Read, Glob, Grep, SearchCodebase
+- All read-only tools: available host read and search capabilities
 - Run read-only shell commands: `git log`, `git blame`, `git show`
 - Fire 3+ parallel searches in the first wave — cross-validate across multiple tools
 - Multiple search waves based on thoroughness level
@@ -47,31 +41,9 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - None required — the explorer is called for specific search questions
 - May read AGENTS.md for project-specific conventions if needed
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — all search tools
-- RunCommand — `git log`, `git blame`, `git show`, `rg`, `find`
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Trae Tool Guidance
-
-| Common operation | Trae tool | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `lsp_goto_definition` / `lsp_find_references` / `lsp_symbols` / `lsp_diagnostics` | SearchCodebase | **Gap**: Trae has no LSP tools; compensate with Grep + SearchCodebase |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex patterns |
-| `git log` / `git blame` / `git show` | RunCommand | Use git via shell |
-| `multi_agent_v1.spawn_agent` | Task (subagent_type: search) | **Adaptation**: Trae Task is synchronous; isolation: true by default |
-
-## Platform Adaptation Notes
-
-- **Isolated delegation**: Task subagents use independent context by default.
-- **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase (semantic search) and Grep (text search) for symbol-level queries.
-- **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries.
-- **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
 
 ## Model Routing
 - **Default category**: quick

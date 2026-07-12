@@ -43,7 +43,7 @@ Verify that implementation work is complete and correct before claiming done. Th
 For each QA scenario in the plan:
 1. Execute the scenario through the specified channel:
    - **HTTP**: `curl -i` against the live endpoint; capture status line + headers + body.
-   - **Terminal**: `RunCommand` with exact command; capture exit code + stdout/stderr.
+   - **Terminal**: `the host terminal` with exact command; capture exit code + stdout/stderr.
    - **Browser**: Trae Preview or browser automation; capture screenshot + action log.
    - **CLI/D**ata: Execute the exact invocation; capture the observable result.
 2. Compare actual vs expected. Record PASS or FAIL.

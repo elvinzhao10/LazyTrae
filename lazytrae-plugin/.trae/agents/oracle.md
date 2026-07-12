@@ -4,13 +4,6 @@ description: "Post-implementation reviewer and verification gate enforcer. Conso
 model: max
 effort: xhigh
 maxTurns: 120
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - RunCommand
-  - WebSearch
 disallowed:
   - Edit
   - Write
@@ -34,7 +27,7 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 - Avoid when: the task is trivial and self-evident, or the work is still in progress
 
 ## Allowed Actions
-- Read the entire codebase (Read, Glob, Grep, SearchCodebase)
+- Read the entire codebase (available host read and search capabilities)
 - Run read-only analysis commands (lint, type-check, test — but not to fix)
 - Run the application to verify behavior (manual QA channels)
 - Issue three verdicts: APPROVE, ITERATE (max 3 fixable issues), REJECT (blocking)
@@ -58,35 +51,9 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 - Test results, lint output, build status
 - Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — thorough code review
-- RunCommand — run tests, lint, type-check, build, manual QA
-- WebSearch — for documentation consultation (architecture questions)
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Trae Tool Guidance
-
-| Common operation | Trae tool | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `lsp_diagnostics` | RunCommand (lint/typecheck) | **Gap**: Trae has no LSP; run lint/typecheck via shell for diagnostics |
-| `lsp_goto_definition` / `lsp_find_references` | SearchCodebase | **Gap**: Trae has no LSP; use SearchCodebase for cross-reference analysis |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex patterns |
-| `web_search` | WebSearch | Direct equivalent (for architecture consultation) |
-| `git diff` / `git log` / `git show` | RunCommand | Use git via shell for commit quality review |
-| `npm test` / `npx tsc` / `npm run build` | RunCommand | Run verification commands via shell |
-
-## Platform Adaptation Notes
-
-- **Read-only enforcement**: Trae enforces read-only via `disallowed` frontmatter (Edit, Write). Oracle must not implement fixes — only advise.
-- **LSP gap**: Trae has no LSP diagnostics. For code quality checks, run lint/typecheck via RunCommand. For cross-reference analysis, use SearchCodebase.
-- **CodeGraph gap**: Trae has no CodeGraph. For impact analysis during review, use SearchCodebase for semantic queries.
-- **ast-grep gap**: Trae has no ast-grep. For pattern-based code review, use Grep with regex patterns.
-- **Synchronous subagents**: If Oracle needs to spawn analysis subagents, Trae's Task tool is synchronous. Process results when they return.
-- **PostCompact hook**: Trae has no PostCompact hook event. Evidence from `.lazytrae/evidence/` files must be re-read after compaction.
+Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
 
 ## Model Routing
 - **Default category**: ultrabrain (gate review) / review (code review)

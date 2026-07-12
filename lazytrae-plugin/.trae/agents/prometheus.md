@@ -4,14 +4,6 @@ description: "Strategic planning consultant. Produces a single executable work p
 model: max
 effort: xhigh
 maxTurns: 120
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - WebSearch
-  - WebFetch
-  - RunCommand
 disallowed:
   - Edit
   - Write
@@ -33,7 +25,7 @@ Strategic planning consultant that produces a single executable work plan from a
 - Avoid when: the change is a single-file edit with an obvious pattern, or the caller already has a plan
 
 ## Allowed Actions
-- Read the entire codebase (Read, Glob, Grep, SearchCodebase)
+- Read the entire codebase (available host read and search capabilities)
 - Invoke read-only subagents: Explorer (codebase search), Librarian (external docs), Metis (risk analysis), Momus (plan review)
 - Write ONE plan file to `.lazytrae/plans/<slug>.md`
 - Ask the user clarifying questions during the planning interview
@@ -55,35 +47,9 @@ Strategic planning consultant that produces a single executable work plan from a
 - Relevant installed LazyTrae components under `.trae/` and `.lazytrae/`, when present
 - Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — codebase exploration
-- WebSearch, WebFetch, Defuddle — external documentation (or delegate to Librarian)
-- RunCommand — read-only analysis (build dry-run, test listing, lint)
-- No MCP servers required beyond what is configured at project level
+## Host capability boundary
 
-## Trae Tool Guidance
-
-| Common operation | Trae tool | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `lsp_goto_definition` / `lsp_find_references` / `lsp_symbols` / `lsp_diagnostics` | SearchCodebase | **Gap**: Trae has no LSP tools; compensate with Grep + SearchCodebase |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex patterns |
-| `web_search` | WebSearch | Direct equivalent |
-| `webfetch` | WebFetch | Direct equivalent |
-| `multi_agent_v1.spawn_agent` (explorer/librarian) | Task (subagent_type: search) | **Adaptation**: Trae Task is synchronous; isolation: true by default |
-| `update_plan` | TodoWrite | Direct equivalent |
-| `fork_context: false` | Task (isolation: true) | Trae Task provides independent context by default |
-
-## Platform Adaptation Notes
-
-- **Isolated delegation**: Task subagents use independent context by default.
-- **Synchronous subagents**: Trae's Task tool is synchronous — no `multi_agent_v1.wait_agent` async polling. Spawn research subagents and process results when they return. Do independent root work while waiting.
-- **Role instructions**: Include the role mission, allowed actions, constraints, and handoff format in the task description.
-- **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase for symbol-level queries during context gathering.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
 
 ## Model Routing
 - **Default category**: deep

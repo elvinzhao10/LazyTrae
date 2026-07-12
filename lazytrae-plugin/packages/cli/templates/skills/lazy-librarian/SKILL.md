@@ -33,7 +33,7 @@ When asked to research external libraries, APIs, or documentation:
 
 2. **Execute parallel research** — use multiple search angles in one batch:
    - Web search for official documentation and current-year usage examples.
-   - WebFetch for specific doc pages.
+   - an available host capability for specific doc pages.
    - GitHub search for real-world usage patterns.
    - For TYPE B: clone shallowly, pin SHA, build permalinks.
 

@@ -21,7 +21,7 @@ Remove AI-generated code smells from changed files while preserving behavior. Th
 
 ## Step-by-Step Procedure
 
-### Phase 0: Plan with TodoWrite
+### Phase 0: Plan with an available host capability
 
 Create todos for all phases. Mark in_progress one at a time.
 

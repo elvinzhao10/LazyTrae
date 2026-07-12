@@ -4,16 +4,16 @@
 
 ## What is implemented and checked
 
-The v0.16.0-alpha.1 package contains 17 skills, 9 commands, 11 agent definitions, 8 hook scripts across 5 configured events, 10 MCP declarations, and one local `lazytrae` MCP server exposing 15 tools after connection. The installer keeps its canonical project data under `.trae/` and `.lazytrae/`; it does not require a legacy runtime directory to operate.
+The v0.16.0-alpha.1 package contains 17 skills, 9 commands, 11 agent definitions, 8 hook scripts across 5 configured events, and 8 MCP declarations: one executable `lazytrae` core server plus seven disabled placeholders. The local core server exposes 15 tools after connection. Context7, `grep_app`, filesystem, and Playwright are not provisioned by default; each requires an explicit `lazytrae tooling enable <capability>` request and is added under a namespaced `lazytrae_*` server name. The installer keeps its canonical project data under `.trae/` and `.lazytrae/`; it does not require a legacy runtime directory to operate.
 
 The release adds a package-owned, explicit-root tooling foundation. It detects
 existing compatible `rg` and `sg` providers before provisioning pinned local
 fallbacks, supports separate read-only TypeScript/JavaScript and Python LSP
 providers, and discovers repository-native lint/typecheck/test/build commands
 without running them unless selected. CodeGraph is a conditional separate MCP
-that is enabled only after a caller-created project index exists. Context7 and
-`grep_app` are disabled-by-default remote selections; normal install, doctor,
-and status paths remain offline.
+that is enabled only after a caller-created project index exists. Context7,
+`grep_app`, filesystem, and Playwright are disabled-by-default external
+selections; normal install, doctor, and status paths remain offline.
 
 The release checks exercise the source-local CLI and package artifacts:
 

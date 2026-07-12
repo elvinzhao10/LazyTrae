@@ -4,14 +4,6 @@ description: "Main orchestrator. Manages the LazyTrae workflow lifecycle, delega
 model: max
 effort: high
 maxTurns: 120
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - WebSearch
-  - RunCommand
-  - Task
 disallowed:
   - Edit
   - Write
@@ -55,35 +47,9 @@ Main orchestrator that manages the LazyTrae workflow lifecycle, decides whether 
 - `.lazytrae/state/boulder.json` — current boulder state, if executing and present
 - Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
-## Tools/MCP Expectations
-- All built-in Trae tools: Read, Glob, Grep, SearchCodebase, Grep (for exploration)
-- WebSearch (for general context only; external library research delegates to Librarian)
-- No MCP servers required; will use whatever is configured at project level
+## Host capability boundary
 
-## Trae Tool Guidance
-
-| Common operation | Trae tool | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `lsp_goto_definition` / `lsp_find_references` | SearchCodebase | **Gap**: Trae has no LSP tools; compensate with Grep + SearchCodebase |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `web_search` | WebSearch | Direct equivalent |
-| `multi_agent_v1.spawn_agent` (all roles) | Task (subagent_type: search/general_purpose_task) | **Adaptation**: Trae Task is synchronous; isolation: true by default |
-| `multi_agent_v1.wait_agent` | N/A | **Gap**: Trae Task is synchronous; no async polling |
-| `update_plan` | TodoWrite | Direct equivalent |
-| `fork_context: false` | Task (isolation: true) | Trae Task provides independent context by default |
-| `create_goal` | `# Goal` block in response | Write goal block or update `.lazytrae/state/active-loop.json` |
-
-## Platform Adaptation Notes
-
-- **Delegation, not orchestration**: Sisyphus stays the parent. For parallel exploration, spawn read-only Task subagents (`subagent_type: search`) and keep the parent session live. Do not hand off the run — own the goal, delegate the grunt work, verify results.
-- **Synchronous subagents**: Trae Task calls return results directly; process them before the next dependent step.
-- **Role instructions**: Include the role mission, allowed actions, constraints, and handoff format in the task description.
-- **Parent session ownership**: Even with delegation, the parent session keeps ownership of goals, constraints, and final judgment. A subagent saying "done" does not close the work.
-- **LSP gap**: Trae has no LSP tools. Not relevant for orchestrator role — delegates to execution agents.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable `.lazytrae/state/` files. Re-read state files after any compaction.
+Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
 
 ## Model Routing
 - **Default category**: visual-engineering
