@@ -15,8 +15,7 @@ Provide accurate, evidence-backed research for external libraries, APIs, documen
 ## Required Context to Inspect
 
 - The project's current documentation state.
-- The parity ledger at `docs/lazytrae-parity-ledger.md`.
-- The command index at `docs/lazytrae-command-index.md`.
+- The project's current documentation, if the consumer maintains it.
 - The project's AGENTS.md and `.trae/rules/lazytrae.md`.
 - External sources as needed (docs, GitHub, web search).
 
@@ -52,8 +51,7 @@ When asked to update project memory:
 
 ## Allowed Edits
 
-- Update `docs/lazytrae-parity-ledger.md` (status changes, evidence, summary counts).
-- Update `docs/lazytrae-command-index.md` (status changes, summary counts).
+- Update consumer-owned documentation only when the user explicitly asks.
 - Update `AGENTS.md` (managed sections only).
 - Read project files, run web searches, fetch documentation.
 - Clone repositories into temp directories for research.

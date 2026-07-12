@@ -23,7 +23,7 @@ When the user types `onboard`:
 | **Trae CLI** | local project configuration | `trae-cli` agent session + `lazytrae` gates | CLI verification gates | register with `trae-cli mcp add-json` before starting a session |
 
 - **Trae IDE** → Step A, then open the project in Trae IDE.
-- **Trae Work** → Step A, then follow the [Trae Work setup guide](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/lazytrae-setup-guide.md).
+- **Trae Work** → Step A, then use the Work setup below.
 - **Trae CLI** → [Step C](#step-c--trae-cli-no-ide).
 
 ## Step A — Install
@@ -52,7 +52,7 @@ This fallback copies the project `.trae/` and `.lazytrae/` trees without `npm` o
 
 ## Step B — Trae Work setup
 
-Trae Work does not auto-load project configuration. On macOS, install the 17 global LazyTrae skills with `lazytrae work install`, then inspect them with `lazytrae work status`. The macOS destination is `~/.trae-cn/skills/`; host reload/discovery still requires manual confirmation. Trae Work has no global command registry, so invoke skills or use natural language. Add the LazyTrae server manually through **Settings → MCP** with command `lazytrae` and argument `mcp`. Linux and Windows paths and host behavior are unverified; use `--skills-dir` only with a directory manually reported by Trae Work. Full steps: [setup guide](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/lazytrae-setup-guide.md).
+Trae Work does not auto-load project configuration. On macOS, install the 17 global LazyTrae skills with `lazytrae work install`, then inspect them with `lazytrae work status`. The macOS destination is `~/.trae-cn/skills/`; host reload/discovery still requires manual confirmation. Trae Work has no global command registry, so invoke skills or use natural language. Add the LazyTrae server manually through **Settings → MCP** with command `lazytrae` and argument `mcp`. Linux and Windows paths and host behavior are unverified; use `--skills-dir` only with a directory manually reported by Trae Work.
 
 ## Step C — Trae CLI (no IDE)
 
@@ -88,6 +88,6 @@ For Trae Work on macOS, run `lazytrae work uninstall`; it removes only unmodifie
 
 ## Reference
 
-- Full setup detail (Trae Work + CLI): [setup guide](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/lazytrae-setup-guide.md)
+- Trae Work: `lazytrae work install`, then `lazytrae work status`
 - How to use the harness: [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme)
 - Parity assessment: [LazyTrae evaluation](https://github.com/elvinzhao10/LazyTrae/blob/main/lazytrae-evaluation.md)

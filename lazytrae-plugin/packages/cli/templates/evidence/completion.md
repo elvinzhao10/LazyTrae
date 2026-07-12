@@ -80,7 +80,7 @@ Evidence:
 | task-3 | Create .lazytrae/evidence/ templates | complete | `.lazytrae/evidence/verifier.md` |
 | task-4 | Create .lazytrae/schemas/ | complete | `.lazytrae/evidence/test-runs.md` |
 | task-5 | Create canonical runtime directories | complete | `.lazytrae/evidence/verifier.md` |
-| task-6 | Create docs/lazytrae-state-machine.md | complete | `.lazytrae/evidence/test-runs.md` |
+| task-6 | Record state-machine evidence | complete | `.lazytrae/evidence/test-runs.md` |
 | task-7 | Create .lazytrae/plans/sample-plan.md | complete | `.lazytrae/evidence/verifier.md` |
 | task-8 | Update parity ledger | complete | `.lazytrae/evidence/test-runs.md` |
 | task-9 | Update command index | complete | `.lazytrae/evidence/test-runs.md` |

@@ -82,7 +82,7 @@ function printRoutingGuidance(agent, category, prompt) {
     npm install -g trae-agent
     # or: npx trae-agent
 
-  Documentation: docs/lazytrae-model-routing.md
+  Routing guidance is included in this command and .lazytrae/config.json
   `);
 }
 

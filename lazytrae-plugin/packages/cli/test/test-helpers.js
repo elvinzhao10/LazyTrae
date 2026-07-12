@@ -34,8 +34,6 @@ function makeFixture(prefix = 'lazytrae-cli-test-') {
     path.join(REPO_ROOT, 'packages', 'cli', 'src', 'lib', 'path-boundary.js'),
     path.join(root, 'packages', 'cli', 'src', 'lib', 'path-boundary.js'),
   );
-  fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
-  fs.copyFileSync(path.join(MONOREPO_ROOT, 'docs', 'reference', 'lazytrae-parity-ledger.md'), path.join(root, 'docs', 'lazytrae-parity-ledger.md'));
   fs.copyFileSync(path.join(__dirname, '..', 'templates', 'AGENTS.md'), path.join(root, 'AGENTS.md'));
   return root;
 }
