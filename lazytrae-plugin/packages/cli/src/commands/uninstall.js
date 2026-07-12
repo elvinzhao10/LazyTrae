@@ -25,6 +25,8 @@ Options:
   --yes, -y        Skip confirmation prompt
   --soft           Remove verified .trae/ assets only
   --purge-state    Also remove verified .lazytrae runtime templates
+
+Normal uninstall retains .lazytrae state/, evidence/, plans/, and loop/ data.
 `);
     return;
   }
@@ -71,7 +73,7 @@ Options:
       removeEmptyDir(repoRoot, path.join(lazytraeDir, 'evidence'));
       if (runtimeFiles > 0) summary.removed.push(`${runtimeFiles} verified runtime asset(s)`);
     } else {
-      summary.preserved.push('.lazytrae runtime data (normal uninstall)');
+      summary.preserved.push('.lazytrae runtime data (state/, evidence/, plans/, and loop/; normal uninstall)');
     }
     removeEmptyDir(repoRoot, lazytraeDir);
   }

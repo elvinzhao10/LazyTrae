@@ -82,6 +82,48 @@ test('uninstall soft mode preserves all LazyTrae data but removes verified proje
   }
 });
 
+test('normal uninstall explicitly retains canonical and legacy plan state', () => {
+  const fixture = makeRepo('lazytrae-uninstall-plan-retention-');
+  try {
+    // Given: plans owned by the current namespace and a pre-existing legacy namespace.
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+    writeFile(fixture, '.lazytrae/plans/current-plan.md', '# Current plan\n');
+    writeFile(fixture, '.lazytrae/loop/current-loop.json', '{"run_id":"current"}\n');
+    writeFile(fixture, '.omo/plans/legacy-plan.md', '# Legacy plan\n');
+
+    // When: normal uninstall removes only verified install assets.
+    const uninstall = runCli(['uninstall', '--yes'], { cwd: fixture });
+
+    // Then: all durable plan and loop state remains and the receipt names that contract.
+    assert.equal(uninstall.status, 0, uninstall.stderr);
+    assert.match(uninstall.stdout, /state\/, evidence\/, plans\/, and loop\//);
+    assert.equal(readFile(fixture, '.lazytrae/plans/current-plan.md'), '# Current plan\n');
+    assert.equal(readFile(fixture, '.lazytrae/loop/current-loop.json'), '{"run_id":"current"}\n');
+    assert.equal(readFile(fixture, '.omo/plans/legacy-plan.md'), '# Legacy plan\n');
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('uninstall without confirmation does not modify managed assets', () => {
+  const fixture = makeRepo('lazytrae-uninstall-no-confirm-');
+  try {
+    // Given: a complete installation that requires an explicit confirmation flag.
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+    const before = readFile(fixture, '.trae/rules/lazytrae.md');
+
+    // When: uninstall is invoked without --yes.
+    const uninstall = runCli(['uninstall'], { cwd: fixture });
+
+    // Then: it reports the required confirmation and leaves installation files unchanged.
+    assert.equal(uninstall.status, 0, uninstall.stderr);
+    assert.match(uninstall.stdout, /Run with --yes to confirm/);
+    assert.equal(readFile(fixture, '.trae/rules/lazytrae.md'), before);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
 test('uninstall purge state removes only exact runtime template files', () => {
   const fixture = makeRepo('lazytrae-uninstall-purge-');
   try {

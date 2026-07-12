@@ -38,6 +38,15 @@ lazytrae load-check --host cli
 
 Record the exact result in the final report. If project components are missing, run `lazytrae init --host <host>`; use `lazytrae sync` for an existing installation. For Trae Work, run `lazytrae work install` if global skills are missing. Re-run the check before continuing. Do not claim the project is initialized while the host load check fails. The Trae Work MCP setting remains manual.
 
+## Optional Integration Boundary
+
+The load check and any repair above handle core LazyTrae assets only: installed
+skills, commands, rules, hooks, agents, schemas, and the base LazyTrae MCP
+declaration. Do NOT run `lazytrae tooling ...`. Do NOT enable optional MCP
+capabilities or install external dependencies during InitDeep. If an optional
+tool is genuinely needed, report its explicit lifecycle command and wait for a
+separate user-triggered request before provisioning it.
+
 ## Step-by-Step Procedure
 
 ### Phase 1: Discovery + Analysis

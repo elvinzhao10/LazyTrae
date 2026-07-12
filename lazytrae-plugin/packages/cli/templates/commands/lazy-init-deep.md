@@ -18,6 +18,15 @@ Triggers: `init-deep`, `initialize repo`, `generate AGENTS.md`, `understand this
 - Summary report with created files, file counts, and hierarchy.
 - Host load-check result from `lazytrae load-check --host ide|work|cli` before discovery begins.
 
+## Integration Boundary
+
+InitDeep may repair core LazyTrae assets only: the installed skills, commands,
+rules, hooks, agents, schemas, and the base LazyTrae MCP declaration. It must
+never provision package-owned tooling, enable optional MCP capabilities, or
+install external dependencies. When an optional integration is genuinely
+needed, report the explicit lifecycle command for the operator to trigger
+outside InitDeep.
+
 ## Success Criteria
 
 - Every directory with score > 15 has an AGENTS.md.
