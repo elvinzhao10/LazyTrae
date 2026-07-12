@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile } = require('../lib/templates');
 const { replaceBlock, extractBlock, hasManagedBlock, extractBlockNames } = require('../lib/managed-blocks');
+const { ensureToolingState, mergeMcpTemplate } = require('../lib/tooling-state');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -71,12 +72,17 @@ Options:
     summary.skipped.push('rules (no changes)');
   }
 
-  for (const relativePath of ['.trae/hooks.json', '.trae/mcp.json']) {
+  for (const relativePath of ['.trae/hooks.json']) {
     const templatePath = path.join(templatesDir, relativePath.slice('.trae/'.length));
     const destinationPath = path.join(repoRoot, relativePath);
     if (copyRepoFileIfChanged(repoRoot, templatePath, destinationPath)) summary.updated.push(relativePath);
     else summary.skipped.push(`${relativePath} (no changes)`);
   }
+
+  const mcpTemplatePath = path.join(templatesDir, 'mcp.json');
+  const mcpDestinationPath = path.join(repoRoot, '.trae', 'mcp.json');
+  if (mergeMcpTemplate(repoRoot, mcpTemplatePath, mcpDestinationPath)) summary.updated.push('.trae/mcp.json');
+  else summary.skipped.push('.trae/mcp.json (no changes)');
 
   const hooksResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'hooks'),
@@ -115,6 +121,7 @@ Options:
   }
   if (createdStateFiles > 0) summary.updated.push(`${createdStateFiles} state files (created)`);
   else summary.skipped.push('state (consumer data preserved)');
+  if (ensureToolingState(repoRoot)) summary.updated.push('.lazytrae/state/tooling.json (created)');
 
   // Update AGENTS.md managed blocks
   const agentsTemplatePath = path.join(templatesDir, 'AGENTS.md');

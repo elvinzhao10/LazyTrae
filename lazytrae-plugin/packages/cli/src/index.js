@@ -17,6 +17,7 @@ const commands = {
   run: () => require('./commands/run').run,
   team: () => require('./commands/team').run,
   work: () => require('./commands/work').run,
+  tooling: () => require('./commands/tooling').run,
   'load-check': () => require('./commands/load-check').run,
 };
 
@@ -52,6 +53,7 @@ Commands:
   run         Execute a task with explicit model routing (optional trae-agent backend)
   team        Team mode / parallel-work coordination
   work        Install or inspect global Trae Work skills
+  tooling     Manage a package-owned local tooling root
   load-check  Verify every host component is ready after init
 
 Aliases: i, d, s, rm, v, h, l, r, t

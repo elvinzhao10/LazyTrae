@@ -5,6 +5,7 @@ const {
 } = require('../lib/templates');
 const { replaceBlock, hasManagedBlock, extractBlock } = require('../lib/managed-blocks');
 const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
+const { ensureToolingState, mergeMcpTemplate } = require('../lib/tooling-state');
 
 const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
 
@@ -96,9 +97,8 @@ Options:
   if (rulesResult.created > 0) summary.created.push(`${rulesResult.created} rule files`);
   if (rulesResult.updated > 0) summary.updated.push(`${rulesResult.updated} rule files`);
 
-  // Copy .trae/mcp.json
   try {
-    if (copyRepoFileIfChanged(repoRoot,
+    if (mergeMcpTemplate(repoRoot,
       path.join(templatesDir, 'mcp.json'),
       path.join(repoRoot, '.trae', 'mcp.json')
     )) {
@@ -174,6 +174,8 @@ Options:
   );
   if (stateResult.created > 0) summary.created.push(`${stateResult.created} state files`);
   if (stateResult.updated > 0) summary.updated.push(`${stateResult.updated} state files`);
+
+  if (ensureToolingState(repoRoot)) summary.created.push('.lazytrae/state/tooling.json');
 
   // Handle AGENTS.md with managed blocks
   const agentsTemplatePath = path.join(templatesDir, 'AGENTS.md');
