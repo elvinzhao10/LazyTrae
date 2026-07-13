@@ -44,8 +44,8 @@ function languageId(language) {
   return language === 'typescript' ? 'typescript' : 'python';
 }
 
-async function withSession(provider, root, environment, action) {
-  const session = new LspSession(lspInvocation(provider), root, timeoutMs(), environment);
+async function withSession(provider, root, environment, action, requestedTimeout) {
+  const session = new LspSession(lspInvocation(provider), root, requestedTimeout || timeoutMs(), environment);
   try {
     return await action(session);
   } finally {
@@ -57,7 +57,7 @@ async function advertised(provider, root, environment) {
   return withSession(provider, root, environment, async session => operations(await session.initialize(root)));
 }
 
-async function execute(name, arguments, provider, root, environment) {
+async function execute(name, arguments, provider, root, environment, requestedTimeout) {
   if (name === 'rename') throw new Error('rename is intentionally unsupported; LazyTrae exposes read-only LSP operations only.');
   const file = relativeFile(root, arguments.path);
   return withSession(provider, root, environment, async session => {
@@ -74,7 +74,7 @@ async function execute(name, arguments, provider, root, environment) {
     if (name === 'symbols') return session.request('textDocument/documentSymbol', { textDocument });
     if (name === 'hover') return session.request('textDocument/hover', { textDocument, position: position(arguments) });
     return session.diagnostics();
-  });
+  }, requestedTimeout);
 }
 
 function tool(name) {

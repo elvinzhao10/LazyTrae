@@ -47,7 +47,7 @@ function run(args) {
       forceTimer = setTimeout(() => stopChildTree(child, 'SIGKILL'), 500);
     };
     const cleanup = () => {
-      clearTimeout(forceTimer);
+      if (!stopping) clearTimeout(forceTimer);
       clearTimeout(closeTimer);
       process.stdin.unpipe(child.stdin);
       process.stdin.removeListener('end', closeInput);
@@ -75,6 +75,7 @@ function run(args) {
     child.on('error', failure => {
       console.error(`lazytrae codegraph: ${failure.message}`);
       process.exitCode = 1;
+      stop();
     });
     child.on('exit', code => {
       cleanup();

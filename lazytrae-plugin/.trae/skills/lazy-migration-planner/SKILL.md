@@ -19,13 +19,13 @@ Plan the adaptation of LazyTrae workflows (skills, commands, agents, hooks, stat
 
 - The target platform's capabilities (rules, skills, commands, agents, hooks, MCP, subagents).
 - The current project's available LazyTrae components (skills, commands, agents, hooks, MCP configuration, and state files).
-- The target platform's documentation (from web search or provided by user).
+- The target platform's documentation (from documentation-search or provided by user).
 
 ## Step-by-Step Procedure
 
 ### Phase 1: Platform Discovery
 
-1. **Research the target platform** — use web search and documentation to understand:
+1. **Research the target platform** — request documentation-search to understand:
    - Does it have a rules/config system? How are rules injected?
    - Does it have a skills/plugins system? What is the format?
    - Does it have custom agents/subagents? How are they defined?
@@ -56,7 +56,7 @@ Produce a migration plan document at `.lazytrae/plans/migration-<target>.md` wit
 ## Allowed Edits
 
 - Create `.lazytrae/plans/migration-<target>.md`.
-- Read project files, search documentation, run web searches.
+- Read project files and request documentation or web-search capabilities.
 - Update a project parity record only when the current project already provides one.
 
 ## Forbidden Behavior

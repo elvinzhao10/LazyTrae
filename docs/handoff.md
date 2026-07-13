@@ -16,10 +16,16 @@ for supported JavaScript/TypeScript and Python semantic navigation, and
 repository-native verification only when the caller explicitly runs a declared
 check. CodeGraph is a separate, explicit architecture/dependency MCP: it
 requires a receipt-owned tooling root and the caller-selected
-`lazytrae tooling codegraph-init` project-index step.
-Context7 and `grep_app` stay disabled, offline, and optional until enabled by
-the project. Do not document any optional capability as a required install
-dependency or as verified on a non-macOS host.
+`lazytrae tooling codegraph-init` project-index step. The automatic capability
+broker is temporary and never writes host MCP configuration, project tooling
+state, dependencies, or lockfiles. `lazytrae tooling enable <capability>` is
+the separate explicit persistent compatibility command; onboarding and InitDeep
+do not invoke it. `setup` and `providers` show redacted metadata and opaque
+credential references only. Document approval, budget, egress, CodeGraph, and
+Playwright boundaries accurately: CodeGraph/Playwright require approval, and
+authenticated browser work, forms, external writes, purchases, destructive
+actions, and secret reads always require approval. Do not document any optional
+capability as a required install dependency or as verified on a non-macOS host.
 
 ## Repository map
 
@@ -56,6 +62,8 @@ node src/index.js --help
 node src/index.js doctor
 node src/index.js verify
 node src/index.js tooling --help
+node src/index.js setup --non-interactive --json
+node src/index.js providers --json
 ```
 
 The package README and `AGENTS.md` remain the concise current starting points

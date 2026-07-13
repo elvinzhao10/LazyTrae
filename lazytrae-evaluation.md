@@ -4,22 +4,34 @@
 
 ## What is implemented and checked
 
-The v0.16.0-alpha.1 package contains 17 skills, 9 commands, 11 agent definitions, 8 hook scripts across 5 configured events, and 8 MCP declarations: one executable `lazytrae` core server plus seven disabled placeholders. The local core server exposes 15 tools after connection. Context7, `grep_app`, filesystem, and Playwright are not provisioned by default; each requires an explicit `lazytrae tooling enable <capability>` request and is added under a namespaced `lazytrae_*` server name. The installer keeps its canonical project data under `.trae/` and `.lazytrae/`; it does not require a legacy runtime directory to operate.
+The v0.16.0-alpha.1 package contains 17 skills, 9 commands, 11 agent definitions, 8 hook scripts across 5 configured events, and 8 MCP declarations: one executable `lazytrae` core server plus seven disabled placeholders. The local core server exposes 15 tools after connection. Context7, `grep_app`, filesystem, and Playwright are not provisioned by default. An explicit `lazytrae tooling enable <capability>` request is required only to persist a namespaced `lazytrae_*` MCP server selection. The installer keeps its canonical project data under `.trae/` and `.lazytrae/`; it does not require a legacy runtime directory to operate.
 
-The release adds a package-owned, explicit-root tooling foundation. It detects
-existing compatible `rg` and `sg` providers before provisioning pinned local
-fallbacks, supports separate read-only TypeScript/JavaScript and Python LSP
-providers, and discovers repository-native lint/typecheck/test/build commands
-without running them unless selected. CodeGraph is a conditional separate MCP
-that is enabled only after a caller-created project index exists. Context7,
-`grep_app`, filesystem, and Playwright are disabled-by-default external
-selections; normal install, doctor, and status paths remain offline.
+The release adds a package-owned tooling contract, provider adapters, and a
+task-scoped broker. It detects existing compatible `rg` and `sg` providers
+before provisioning pinned local fallbacks in a private receipt-owned toolpack,
+supports separate read-only TypeScript/JavaScript and Python LSP providers, and
+discovers repository-native lint/typecheck/test/build commands without running
+them unless selected. Automatic activation is temporary: it does not change
+project MCP configuration, project tooling state, dependencies, lockfiles, or
+host settings. Provider selection reports redacted setup/status information;
+credentials are opaque references, not stored values. Metered calls need an
+explicit bounded budget. CodeGraph and Playwright need approval, and browser
+authentication, forms, external writes, purchases, destructive actions, and
+secret reads always need approval. CodeGraph never claims or removes the
+caller-owned project index.
+
+The older `lazytrae tooling enable <capability>` path remains only as explicit
+persistent compatibility: it may add a namespaced `lazytrae_*` MCP entry after
+an operator chooses it. Onboarding and InitDeep install package-owned skills,
+commands, rules, hooks, agents, schemas, and the one core MCP declaration, but
+never use that persistent path. `setup`, `providers`, `providers configure`,
+and `providers test` expose provider readiness without secret disclosure.
 
 The release checks exercise the source-local CLI and package artifacts:
 
 - `npm ci --ignore-scripts` and `npm test` in the CLI and MCP packages. The CLI suite covers template parity, source/packaged MCP equivalence, a fresh `init`/`load-check`/`doctor` fixture, tooling lifecycle paths, namespace migration, path-boundary cases, and safe uninstall lifecycle cases.
 - `lazytrae load-check --host ide|work|cli` for copied-file and declaration readiness.
-- `lazytrae uninstall --yes`, `--soft`, and `--purge-state` lifecycle coverage. Removal is content-checked: modified or unknown files and normal runtime records are preserved.
+- `lazytrae uninstall --yes`, `--soft`, and `--purge-state` lifecycle coverage. Removal is content-checked: modified or unknown files and normal runtime records are preserved. Receipt-owned toolpacks and policy artifacts are removed only through their exact lifecycle commands; project uninstall never guesses host paths or deletes caller-owned indexes.
 - `lazytrae work install`, `status`, and `uninstall` coverage with an explicit skills directory. Work uninstall removes only exact, unmodified LazyTrae skills and rejects symlink or hard-link traversal.
 
 These are implementation and package-readiness checks. They do not show that an IDE or CLI host discovered configuration, invoked a hook, loaded a plugin, or connected the MCP process.

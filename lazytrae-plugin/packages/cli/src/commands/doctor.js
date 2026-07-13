@@ -8,6 +8,8 @@ const { checkTraeStructure } = require('../lib/trae-checks');
 const { checkTeamMode } = require('../lib/team-check');
 const { checkStaleRecovery } = require('../lib/context-recovery');
 const { validateActivePlans } = require('../lib/active-plan');
+const { providerMatrix } = require('../lib/provider-lifecycle');
+const { readLedger } = require('../lib/automatic-tooling-policy');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -197,6 +199,21 @@ Options:
     ? checkTeamMode(repoRoot)
     : { label: 'Team mode', status: 'WARN', detail: 'No team state initialized' };
   addResult(teamResult.label, teamResult.status, teamResult.detail);
+
+  try {
+    const providers = providerMatrix({ environment: process.env });
+    const configured = providers.filter(provider => provider.credential !== null).length;
+    addResult('Provider status', 'PASS', `${providers.length} declared; ${configured} credential reference(s), values redacted`);
+  } catch (error) {
+    addResult('Provider status', 'WARN', `Unavailable: ${error.message}`);
+  }
+
+  try {
+    const ledger = readLedger({ environment: process.env });
+    addResult('Approval status', 'PASS', `${Object.keys(ledger.approvals).length} persisted approval decision(s)`);
+  } catch (error) {
+    addResult('Approval status', 'WARN', `Unavailable: ${error.message}`);
+  }
 
   // Parity ledger
   if (sourceTree) {

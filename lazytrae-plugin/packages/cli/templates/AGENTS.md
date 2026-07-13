@@ -5,10 +5,12 @@
 
 LazyTrae is a Trae-native workflow harness. It supports Trae IDE, Trae Work, and Trae CLI; the `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
 
-This guide covers **v0.16.0-alpha.1**, verified on macOS only. Use the
-package-owned tooling lifecycle only with an explicit tooling root: `rg` for
-local search, `sg` for structural search, the separate LSP bridge for semantic
-navigation, and CodeGraph only for explicit architecture/dependency work.
+This guide covers **v0.16.0-alpha.1**, verified on macOS only. Automatic
+capability work is temporary and package-owned: it may use safe local tools in
+a private receipt-owned toolpack, but never changes a project MCP file, host
+configuration, dependencies, or lockfile. Use `rg` for local search, `sg` for
+structural search, the separate LSP bridge for semantic navigation, and
+CodeGraph only for explicit architecture/dependency work.
 
 ## `onboard` protocol
 
@@ -17,7 +19,7 @@ When the user types `onboard`:
 1. Read this guide and ask which installed host/version they are using: **Trae IDE**, **Trae Work**, or **Trae CLI**.
 2. Follow only that host's setup path. Perform safe repository and CLI steps automatically. If the separate `lazytrae` companion command is available, run `lazytrae init --host ide|work|cli`; for Trae Work, also run `lazytrae work install` and `lazytrae work status`. If it is absent, do not claim the cloned repository supplies it; offer the repo-only fallback in Step A and explain its MCP limit.
 3. Report each completed action and its observed result. Label the final `load-check` as **package readiness**: it verifies copied files and declared configuration, not host discovery, MCP connection, or a running session.
-4. Stop before account, marketplace, model, or app-setting changes. Give exact manual directions for those steps. For Trae Work, manual **Settings → MCP** registration is required.
+4. Stop before account, marketplace, model, or app-setting changes. Do not use `tooling enable` during onboarding or InitDeep: it is an explicit persistent compatibility choice. Give exact manual directions for those steps. For Trae Work, manual **Settings → MCP** registration is required.
 5. End by explaining that the copied repository can be deleted after installation, or retained to explore and study the project.
 
 ## Step 0 — Which platform are you on?
@@ -74,7 +76,21 @@ The registration command completes the CLI configuration; the new session is whe
 
 ```bash
 lazytrae doctor    # expect 0 FAIL (WARNs are environmental: empty evidence, etc.)
+lazytrae setup --non-interactive --json  # provider readiness; no credential read
+lazytrae providers --json                # redacted provider and approval state
 ```
+
+## Provider and approval boundary
+
+`lazytrae setup`, `providers`, `providers configure`, and `providers test`
+manage only redacted provider metadata and opaque credential references. They
+do not print raw credential values. Automatic remote use is bounded by the
+contract's approval, egress, timeout, and cost rules: metered use requires an
+explicit budget; CodeGraph and Playwright require approval; authenticated
+browser work, forms, publishing, external writes, purchases, destructive work,
+and secret reads always require approval. `lazytrae tooling enable <capability>`
+is the separate explicit persistent compatibility path and is never chosen by
+onboarding, InitDeep, doctor, or automatic capability routing.
 
 ## Uninstall
 
@@ -90,7 +106,7 @@ For Trae Work on macOS, run `lazytrae work uninstall`; it removes only unmodifie
 
 ## What gets installed
 
-`.trae/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, 8 hook scripts for 5 events, and 8 MCP declarations), `.lazytrae/` (canonical LazyTrae schemas, config, plans, loop, and runtime data), and this `AGENTS.md` (setup guide). The base MCP configuration has one executable `lazytrae` core server and seven disabled placeholders. Context7, `grep_app`, filesystem, and Playwright require a separate explicit `lazytrae tooling enable <capability>` request and are added only as namespaced `lazytrae_*` entries. InitDeep never enables or provisions them. The `lazytrae` MCP declaration supplies 15 tools when connected. All skills/commands are `lazy-` prefixed.
+`.trae/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, 8 hook scripts for 5 events, and 8 MCP declarations), `.lazytrae/` (canonical LazyTrae schemas, config, plans, loop, and runtime data), and this `AGENTS.md` (setup guide). The base MCP configuration has one executable `lazytrae` core server and seven disabled placeholders. InitDeep copies these package-owned assets only. It never enables remote MCP services or creates persistent provider state. The `lazytrae` MCP declaration supplies 15 tools when connected. All skills/commands are `lazy-` prefixed.
 
 ## Reference
 

@@ -49,7 +49,7 @@ Strategic planning consultant that produces a single executable work plan from a
 
 ## Host capability boundary
 
-Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
+Use only capabilities exposed by the active Trae host. Ask the capability detector for documentation, external-code, filesystem, architecture, or browser work; provider selection and approval stay behind the contract.
 
 ## Model Routing
 - **Default category**: deep

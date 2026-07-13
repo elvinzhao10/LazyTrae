@@ -14,7 +14,7 @@ function makeRepo(prefix) {
 }
 
 function writeOwnedCodeGraph(root, options = {}) {
-  const { persistent = false, statusSucceedsWithoutDatabase = false } = options;
+  const { persistent = false, descendantIgnoresTerm = false, statusSucceedsWithoutDatabase = false } = options;
   const binary = path.join(root, 'node_modules', '@colbymchenry', 'codegraph', 'npm-shim.js');
   fs.mkdirSync(path.dirname(binary), { recursive: true });
   fs.writeFileSync(binary, `#!/usr/bin/env node
@@ -36,7 +36,7 @@ if (command === 'init .') {
 if (command !== 'serve --mcp') process.exit(9);
 if (${persistent}) {
   const { spawn } = require('child_process');
-  const descendant = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });
+  const descendant = spawn(process.execPath, ['-e', ${descendantIgnoresTerm ? "'process.on(\\\"SIGTERM\\\", () => {}); setInterval(() => {}, 1000)'" : "'setInterval(() => {}, 1000)'"}], { stdio: 'ignore' });
   fs.writeFileSync(process.env.LAZYTRAE_TEST_PID_FILE, JSON.stringify({ pid: process.pid, descendantPid: descendant.pid }));
   setInterval(() => {}, 1000);
   return;
@@ -69,6 +69,23 @@ async function waitForFile(filePath) {
     await wait(20);
   }
   throw new Error(`timed out waiting for ${filePath}`);
+}
+
+function waitForChildExit(child) {
+  if (child.exitCode !== null) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('timed out waiting for CodeGraph bridge exit')), 3_000);
+    child.once('exit', () => {
+      clearTimeout(timeout);
+      resolve();
+    });
+  });
+}
+
+async function stopCodeGraphBridge(child) {
+  if (!child || child.exitCode !== null) return;
+  child.kill('SIGTERM');
+  await waitForChildExit(child);
 }
 
 function processIsAlive(pid) {
@@ -312,7 +329,7 @@ test('closing one CodeGraph MCP stream terminates only its owned process tree', 
 
     // When: the first MCP client closes stdin.
     first.stdin.end();
-    await wait(800);
+    await waitForChildExit(first);
 
     // Then: its wrapper and process tree end while the independent target keeps serving.
     assert.notEqual(first.exitCode, null);
@@ -321,10 +338,40 @@ test('closing one CodeGraph MCP stream terminates only its owned process tree', 
     assert.equal(second.exitCode, null);
     assert.equal(processIsAlive(secondRecord.pid), true);
   } finally {
-    if (first && first.exitCode === null) first.kill('SIGKILL');
-    if (second && second.exitCode === null) second.kill('SIGKILL');
+    await stopCodeGraphBridge(first);
+    await stopCodeGraphBridge(second);
     killRecordedProcess(firstPidPath);
     killRecordedProcess(secondPidPath);
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('closing a CodeGraph MCP stream force-kills a descendant that ignores SIGTERM', async () => {
+  const root = makeRepo('lazytrae-codegraph-force-tree-');
+  const toolingRoot = path.join(root, 'tooling');
+  const target = path.join(root, 'target');
+  const pidPath = path.join(root, 'pid.json');
+  let bridge;
+  try {
+    // Given: a receipt-owned bridge whose spawned descendant ignores graceful termination.
+    writeOwnedCodeGraph(toolingRoot, { persistent: true, descendantIgnoresTerm: true });
+    fs.mkdirSync(path.join(target, '.codegraph'), { recursive: true });
+    fs.writeFileSync(path.join(target, '.codegraph', 'codegraph.db'), 'SQLite format 3\u0000fixture\n');
+    bridge = startCodeGraph(target, toolingRoot, pidPath);
+    await waitForFile(pidPath);
+    const record = JSON.parse(fs.readFileSync(pidPath, 'utf8'));
+
+    // When: the MCP client closes its input stream.
+    bridge.stdin.end();
+    await waitForChildExit(bridge);
+
+    // Then: the owned process group is gone even though its leader exited before the descendant.
+    assert.notEqual(bridge.exitCode, null);
+    assert.equal(processIsAlive(record.pid), false);
+    assert.equal(processIsAlive(record.descendantPid), false);
+  } finally {
+    await stopCodeGraphBridge(bridge);
+    killRecordedProcess(pidPath);
     fs.rmSync(root, { recursive: true, force: true });
   }
 });

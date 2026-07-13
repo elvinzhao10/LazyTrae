@@ -14,6 +14,9 @@ const {
 } = require('../lib/tooling-root');
 const { detectCapabilities, formatCapabilities, missingCapabilities, packageDependencies } = require('../lib/tooling-capabilities');
 const { runVerification } = require('../lib/tooling-verify');
+const { runPolicy } = require('../lib/automatic-tooling-policy-cli');
+const { runCapability } = require('../lib/automatic-tooling-broker');
+const { runDetector } = require('../lib/automatic-tooling-detector');
 const {
   doctor: lspDoctor,
   formatStatus: formatLspStatus,
@@ -38,10 +41,8 @@ const {
   readToolingState,
   setOptionalCapability,
 } = require('../lib/tooling-state');
-
 const TOOLING_PACKAGE = path.resolve(__dirname, '..', '..', 'tooling');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-
 function printUsage() {
   console.log(`Usage: lazytrae tooling <command> --tooling-root <absolute-path>
 
@@ -69,9 +70,12 @@ Commands:
   disable <capability> Disable an optional external MCP in this initialized project
   capability-status Report optional external MCP state without network access
   remote-status Backward-compatible alias for capability-status
+  policy status Report contract-backed policy resolution without execution or mutation
+  capability run Execute a canonical local capability in an ephemeral receipt-owned toolpack
+  capability detect Classify a structured task into a canonical capability request
+  capability fallback Exercise a bounded capability fallback fixture without provider execution
 `);
 }
-
 function detectRepoRoot() {
   let directory = process.cwd();
   while (directory !== path.dirname(directory)) {
@@ -80,7 +84,6 @@ function detectRepoRoot() {
   }
   return process.cwd();
 }
-
 function capabilityStatus(repoRoot) {
   const capabilities = readToolingState(repoRoot).capabilities;
   return Object.entries(OPTIONAL_CAPABILITIES).map(([name, capability]) => {
@@ -88,7 +91,6 @@ function capabilityStatus(repoRoot) {
     return `${name}: ${state} (optional, configuration only; ${capability.description})`;
   }).join('\n');
 }
-
 function runOptionalCapability(command, args) {
   const credentialArgument = args.slice(1).some(argument => /(?:api[_-]?key|credential|secret|token|password)/i.test(argument));
   if (credentialArgument) throw new Error('credentials are not accepted or stored; configure them only in the MCP host environment.');
@@ -106,7 +108,6 @@ function runOptionalCapability(command, args) {
   console.log(`${args[0]}: ${command}d`);
   return 0;
 }
-
 function runCodeGraph(command, args) {
   const { target, toolingRoot } = parseCodeGraphArgs(args);
   if (command === 'codegraph-install') {
@@ -137,7 +138,6 @@ function runCodeGraph(command, args) {
   console.log(formatCodeGraphStatus(codeGraphStatus(target, toolingRoot)));
   return 0;
 }
-
 function runLsp(command, args) {
   const { target, toolingRoot } = parseLspArgs(args);
   if (command === 'lsp-install') {
@@ -152,7 +152,6 @@ function runLsp(command, args) {
   console.log(formatLspStatus(state));
   return 0;
 }
-
 function checkRoot(root) {
   try {
     assertSafeRoot(root, false);
@@ -199,7 +198,7 @@ function runCommand(args) {
     return args.length === 0 ? 1 : 0;
   }
   const command = args[0];
-  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify', 'lsp-status', 'lsp-install', 'lsp-doctor', 'lsp-uninstall', 'codegraph-status', 'codegraph-doctor', 'codegraph-install', 'codegraph-init', 'codegraph-enable', 'codegraph-disable', 'codegraph-uninstall', 'enable', 'disable', 'capability-status', 'remote-status'].includes(command)) {
+  if (!['detect', 'install', 'status', 'doctor', 'uninstall', 'verify', 'lsp-status', 'lsp-install', 'lsp-doctor', 'lsp-uninstall', 'codegraph-status', 'codegraph-doctor', 'codegraph-install', 'codegraph-init', 'codegraph-enable', 'codegraph-disable', 'codegraph-uninstall', 'enable', 'disable', 'capability-status', 'remote-status', 'policy', 'capability'].includes(command)) {
     throw new Error(`unknown tooling command: ${command}`);
   }
   if (command === 'enable' || command === 'disable') return runOptionalCapability(command, args.slice(1));
@@ -207,6 +206,17 @@ function runCommand(args) {
     if (args.length !== 1) throw new Error(`${command} does not accept arguments.`);
     console.log(capabilityStatus(detectRepoRoot()));
     return 0;
+  }
+  if (command === 'policy') return runPolicy(args.slice(1));
+  if (command === 'capability') {
+    if (args[1] === 'detect' || args[1] === 'fallback') return runDetector(args.slice(1)).then(result => {
+      console.log(JSON.stringify(result, null, 2));
+      return 0;
+    });
+    return runCapability(args.slice(1), detectRepoRoot()).then(result => {
+      console.log(JSON.stringify(result, null, 2));
+      return 0;
+    });
   }
   if (command.startsWith('lsp-')) return runLsp(command, args.slice(1));
   if (command.startsWith('codegraph-')) return runCodeGraph(command, args.slice(1));
@@ -234,7 +244,10 @@ function runCommand(args) {
 
 function run(args) {
   try {
-    return runCommand(args);
+    return Promise.resolve(runCommand(args)).catch(error => {
+      console.error(`lazytrae tooling: ${error.message}`);
+      return error.message === 'AUTOMATIC_TOOLING_CANCELLED' ? 130 : 1;
+    });
   } catch (error) {
     console.error(`lazytrae tooling: ${error.message}`);
     return 1;

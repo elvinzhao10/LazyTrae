@@ -17,7 +17,7 @@ Provide accurate, evidence-backed research for external libraries, APIs, documen
 - The project's current documentation state.
 - The project's current documentation, if the consumer maintains it.
 - The project's AGENTS.md and `.trae/rules/lazytrae.md`.
-- External sources as needed (docs, GitHub, web search).
+- External sources as needed through documentation, external-code, or web-search capabilities.
 
 ## Step-by-Step Procedure
 
@@ -32,9 +32,9 @@ When asked to research external libraries, APIs, or documentation:
    - **TYPE D — COMPREHENSIVE**: Complex or ambiguous → doc discovery, then all of the above in parallel.
 
 2. **Execute parallel research** — use multiple search angles in one batch:
-   - Web search for official documentation and current-year usage examples.
-   - an available host capability for specific doc pages.
-   - GitHub search for real-world usage patterns.
+   - Request documentation-search for official documentation and current-year usage examples.
+   - Request the matching capability for specific documentation pages.
+   - Request external-code-search for real-world usage patterns.
    - For TYPE B: clone shallowly, pin SHA, build permalinks.
 
 3. **Synthesize with evidence** — every code claim must cite a verifiable source with a permalink.
@@ -53,7 +53,7 @@ When asked to update project memory:
 
 - Update consumer-owned documentation only when the user explicitly asks.
 - Update `AGENTS.md` (managed sections only).
-- Read project files, run web searches, fetch documentation.
+- Read project files and request documentation or web-search capabilities.
 - Clone repositories into temp directories for research.
 
 ## Forbidden Behavior

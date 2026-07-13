@@ -13,22 +13,25 @@ Current LazySeries tooling release: **v0.16.0-alpha.1**. Its package checks are 
 1. Copy or clone [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae) into a local folder.
 2. Open that folder in your Trae host and type `onboard`.
 
-The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 8 MCP declarations. The base MCP configuration has one executable core server (`lazytrae`) and seven disabled placeholders. Context7, `grep_app`, filesystem, and Playwright become namespaced `lazytrae_*` entries only after an explicit `lazytrae tooling enable <capability>` request. It cannot prove host discovery, a loaded plugin, or an MCP connection. The `lazytrae` declaration exposes 15 tools only after its server connects. Trae Work's built-in global-skills location is documented and tested only for macOS; reload/discovery and all non-macOS locations remain manual and unverified.
+The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 8 MCP declarations. The base MCP configuration has one executable core server (`lazytrae`) and seven disabled placeholders. It cannot prove host discovery, a loaded plugin, or an MCP connection. The `lazytrae` declaration exposes 15 tools only after its server connects. Trae Work's built-in global-skills location is documented and tested only for macOS; reload/discovery and all non-macOS locations remain manual and unverified.
 
 After onboarding, you can delete the copied repository if you only needed the installed setup, or keep it to explore and study how LazyTrae works.
 
 ## LazySeries tooling
 
-The v0.16 tooling foundation is mostly local and always explicit about
-ownership. Use `rg` for local text/file search and `sg` for structural search.
+The v0.16 tooling foundation is package-owned and always explicit about
+ownership. A capability request may temporarily provision safe local search
+tools in the private receipt-owned toolpack; it never changes a project MCP
+file, lockfile, dependencies, or host configuration. Use `rg` for local text/file search and `sg` for structural search.
 Use the read-only LSP bridge for definitions, references, symbols, hover, and
 diagnostics in supported JavaScript/TypeScript or Python projects. Use
 CodeGraph only after an explicit architecture or dependency-tracing request;
 it requires the explicit caller action `lazytrae tooling codegraph-init` and a
 separate receipt-owned tooling root. Context7, `grep_app`, filesystem, and
-Playwright remain disabled until the project explicitly enables the capability;
-the created MCP server is namespaced `lazytrae_<capability>` so caller-owned
-entries are never replaced.
+Playwright are selected through the capability contract and respect its approval,
+cost, egress, and timeout limits. CodeGraph and Playwright require approval;
+authenticated browser actions, forms, external writes, purchases, destructive
+actions, and secret reads always require a new approval.
 
 ```bash
 # Provision only missing local search tools in a caller-owned empty directory.
@@ -38,11 +41,21 @@ lazytrae tooling status --tooling-root /absolute/lazytrae-tools
 # Detect native checks first; run a selected declared check only when requested.
 lazytrae tooling verify --dry-run
 lazytrae tooling verify --run test
+
+# Inspect redacted provider/approval readiness without consuming a credential.
+lazytrae setup --non-interactive --json
+lazytrae providers --json
+lazytrae providers test --json
 ```
 
-The tooling lifecycle never changes a target project's package manifest,
-lockfile, source tree, global tools, or host-managed paths. `lazytrae tooling
-uninstall` removes only an unmodified receipt-owned tooling root.
+`lazytrae tooling enable <capability>` is a separate legacy compatibility path:
+it is the only command that persists a namespaced optional MCP selection in the
+project. It is never performed by onboarding, InitDeep, doctor, or automatic
+capability routing. Configure a provider only with an opaque credential reference
+using `lazytrae providers configure`; provider status and doctor redact values.
+Metered providers are unavailable automatically unless the request has an
+explicit bounded budget. `lazytrae tooling uninstall` removes only an
+unmodified receipt-owned tooling root and never guesses a host path.
 
 ## Uninstall safely
 

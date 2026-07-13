@@ -1,6 +1,6 @@
 ---
 name: librarian
-description: "External open-source codebase and documentation researcher. Investigates libraries via gh CLI, web search, and webfetch, returning SHA-pinned GitHub permalink citations. Read-only for code; write-permitted for docs."
+description: "External open-source codebase and documentation researcher. Uses capability-routed research and returns SHA-pinned source citations. Read-only for code; write-permitted for docs."
 model: lite
 effort: low
 maxTurns: 40
@@ -24,7 +24,7 @@ Maintains project memory, external documentation research, command index, and pa
 
 ## Allowed Actions
 - Read the entire codebase (available host read and search capabilities)
-- Web search and web fetch for external documentation
+- Request documentation or web-search capabilities for external documentation
 - Clone external repositories to `${TMPDIR:-/tmp}` for source research (never into working tree)
 - Update existing project documentation and memory records when they are present
 - Write to `.lazytrae/evidence/` for research findings
@@ -45,7 +45,7 @@ Maintains project memory, external documentation research, command index, and pa
 
 ## Host capability boundary
 
-Use only tools that the active Trae host actually exposes; do not rely on named host APIs from another surface. The base LazyTrae MCP configuration starts only the `lazytrae` server. Context7, grep_app, filesystem, and Playwright are optional integrations: use them only after a separate explicit `lazytrae tooling enable <context7|grep_app|filesystem|playwright>` request has created the corresponding `lazytrae_*` MCP entry.
+Use only capabilities exposed by the active Trae host. Ask the capability detector for documentation, external-code, filesystem, architecture, or browser work; provider selection and approval stay behind the contract.
 
 ## Model Routing
 - **Default category**: writing

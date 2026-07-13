@@ -12,11 +12,20 @@ A developer installs LazyTrae from this repository, then uses the local `lazytra
 # Install LazyTrae into current repo
 lazytrae init
 
+# CLI-compatible safe aliases used by onboarding and InitDeep workflows
+lazytrae onboard --host ide
+lazytrae initdeep --host ide
+
 # Verify copied package files and declarations after a fresh init
 lazytrae load-check --host ide
 
 # Check installation health
 lazytrae doctor
+
+# Inspect redacted provider and approval status without consuming credentials
+lazytrae setup --non-interactive --json
+lazytrae providers --json
+lazytrae providers test --json
 
 # Update managed templates and managed blocks
 lazytrae sync
@@ -51,7 +60,7 @@ lazytrae tooling codegraph-init --target /absolute/project --tooling-root /absol
 lazytrae tooling codegraph-enable --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
 lazytrae tooling codegraph-uninstall --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
 
-# Keep optional remote MCP services disabled until a project explicitly selects them.
+# Explicit persistent compatibility only; automatic capability use is temporary.
 lazytrae tooling remote-status
 lazytrae tooling enable context7
 lazytrae tooling enable grep_app
@@ -77,9 +86,26 @@ until the caller gives `--run <selection>`.
 
 CodeGraph is a separate optional MCP process, never an extra LazyTrae internal tool. `lazytrae tooling codegraph-doctor` recommends it only when the target has at least 500 supported source files or 100,000 supported source lines. It never starts CodeGraph, downloads anything, or creates `.codegraph/`. `codegraph-install` pins `@colbymchenry/codegraph@1.4.1` in an explicit empty LazyTrae-owned tooling root with package scripts disabled. `codegraph-init` is an explicit caller action that creates or refreshes the project index with telemetry disabled and all runtime state contained in that tooling root; it never claims ownership of or removes the project `.codegraph/` directory. `codegraph-enable` proves that index before adding the managed `lazytrae codegraph ...` MCP entry. `sync` preserves that managed entry and caller MCP entries. The bridge invokes only `codegraph init` and `codegraph serve --mcp`; it never calls CodeGraph's agent-install, uninstall, upgrade, or provisioning commands. `codegraph-uninstall` removes only an unmodified receipt-owned tooling root and never removes a project `.codegraph/` directory.
 
+## Automatic capabilities and persistent compatibility
+
+Automatic capability routing selects providers through the bundled contract. It
+may use safe local tools from the private receipt-owned toolpack for one task,
+then tears them down without changing `.trae/mcp.json`, project tooling state,
+dependencies, lockfiles, or host MCP settings. Provider requests carry only a
+sanitized bounded query; provider output is untrusted. Metered services require
+an explicit bounded budget, while CodeGraph and Playwright require approval.
+Authenticated browser work, forms, external writes, purchases, destructive
+actions, and secret reads always prompt.
+
+`lazytrae tooling enable <capability>` is deliberately different: it is the
+explicit, persistent compatibility path. It writes a namespaced `lazytrae_*`
+MCP selection only when the operator requests it. Onboarding and InitDeep copy
+package-owned skills, commands, rules, hooks, agents, and the single core MCP
+declaration only; they never enable or register optional remote services.
+
 ## Optional remote MCP capabilities
 
-Context7 and `grep_app` are disabled by default. `lazytrae tooling enable context7` adds a managed, endpoint-only `lazytrae_context7` entry for `https://mcp.context7.com/mcp`; `lazytrae tooling enable grep_app` adds the experimental, unpinned `lazytrae_grep_app` entry for `https://mcp.grep.app`. `sync` preserves both selections and unrelated caller MCP entries. Neither normal install, doctor, nor status contacts either service. Credentials are never accepted by LazyTrae commands or written to project state; configure any required credential only in the MCP host environment. Use `tooling disable` to remove only the corresponding LazyTrae-managed entry.
+Context7 and `grep_app` are disabled by default. `lazytrae tooling enable context7` adds a managed, endpoint-only `lazytrae_context7` entry for `https://mcp.context7.com/mcp`; `lazytrae tooling enable grep_app` adds the experimental, unpinned `lazytrae_grep_app` entry for `https://mcp.grep.app`. `sync` preserves both selections and unrelated caller MCP entries. Neither normal install, InitDeep, doctor, nor status contacts either service. Credentials are never accepted as raw values or written to project state. Use `lazytrae providers configure --provider <id> --credential-ref env:NAME` for an opaque reference; status output never reveals its value. Use `tooling disable` to remove only the corresponding LazyTrae-managed entry.
 
 ## Onboard
 
