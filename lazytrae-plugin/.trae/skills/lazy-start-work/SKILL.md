@@ -7,9 +7,8 @@ description: "Execute a Prometheus work plan one task at a time with Boulder sta
 
 Execute a Prometheus work plan until every top-level checkbox is complete. You are an ORCHESTRATOR — you delegate implementation to subagents, never implement yourself.
 
-## Canonical LazyCodex Source
+## Scope
 
-`lazycodex/plugins/omo/skills/start-work/SKILL.md` — Boulder state persistence, parallel subagent dispatch, five evidence gates (plan reread, automated verification, manual-QA, adversarial QA, cleanup), Sisyphus-style completion contract, Global Review and Debugging Gate.
 
 ## Purpose
 
@@ -17,18 +16,18 @@ Execute an approved plan one checkbox at a time, with durable state tracking, ev
 
 ## Required Context to Inspect
 
-- The approved plan file at `.omo/plans/<slug>.md`.
-- The Boulder state file at `.omo/boulder.json` (if resuming).
+- The approved plan file at `.lazytrae/plans/<slug>.md`.
+- The Boulder state file at `.lazytrae/boulder.json` (if resuming).
 - The project's AGENTS.md and `.trae/rules/lazytrae.md`.
-- The evidence ledger at `.omo/start-work/ledger.jsonl` (if resuming).
+- The evidence ledger at `.lazytrae/start-work/ledger.jsonl` (if resuming).
 - Recent git history and branch state.
 
 ## Step-by-Step Procedure
 
 ### Phase 1: Select the Plan
 
-1. Read `.omo/boulder.json` if it exists.
-2. List plan files under `.omo/plans/`.
+1. Read `.lazytrae/boulder.json` if it exists.
+2. List plan files under `.lazytrae/plans/`.
 3. If a plan name was provided, select the matching plan.
 4. If exactly one active or paused Boulder work exists for this session, resume it.
 5. If exactly one plan exists, select it.
@@ -37,7 +36,7 @@ Execute an approved plan one checkbox at a time, with durable state tracking, ev
 
 ### Phase 2: Create or Update Boulder State
 
-Write `.omo/boulder.json` before implementation starts:
+Write `.lazytrae/boulder.json` before implementation starts:
 
 ```json
 {
@@ -46,7 +45,7 @@ Write `.omo/boulder.json` before implementation starts:
   "works": {
     "<work-id>": {
       "work_id": "<work-id>",
-      "active_plan": ".omo/plans/<plan-name>.md",
+      "active_plan": ".lazytrae/plans/<plan-name>.md",
       "plan_name": "<plan-name>",
       "session_ids": ["trae:<session_id>"],
       "status": "active",
@@ -79,7 +78,7 @@ For each checkbox, complete all five gates before marking it done:
 4. **Adversarial QA**: Exercise edge cases, regression scenarios, adversarial inputs.
 5. **Cleanup**: Tear down QA resources (servers, tmux sessions, browser contexts, temp files).
 
-Append evidence to `.omo/start-work/ledger.jsonl`.
+Append evidence to `.lazytrae/start-work/ledger.jsonl`.
 
 ### Phase 5: Mark Progress
 
@@ -102,7 +101,7 @@ When all top-level checkboxes are complete:
 
 ## Allowed Edits
 
-- Write to `.omo/boulder.json`, `.omo/start-work/ledger.jsonl`.
+- Write to `.lazytrae/boulder.json`, `.lazytrae/start-work/ledger.jsonl`.
 - Edit plan file checkboxes (from `[ ]` to `[x]`).
 - Create evidence files under `.lazytrae/evidence/`.
 - Read project files, run verification commands.
@@ -136,7 +135,7 @@ When all top-level checkboxes are complete:
 ```
 ORCHESTRATION COMPLETE
 
-Plan: .omo/plans/<plan-name>.md
+Plan: .lazytrae/plans/<plan-name>.md
 Tasks completed: {N}/{N}
 Verification: PASS
 Global Review Gate: PASS

@@ -5,12 +5,10 @@ description: "Long-horizon execution loop with ultrawork mode. Decomposes work i
 
 # ulw-loop
 
-Long-horizon execution loop that decomposes work into systematic, evidence-bound steps and runs until verified completion. Combines the LazyCodex ulw-loop skill and ultrawork directive into a single Trae-native workflow.
+Long-horizon execution loop that decomposes work into systematic, evidence-bound steps and runs until verified completion. Combines the LazyTrae ulw-loop skill and ultrawork directive into a single Trae-native workflow.
 
-## Canonical LazyCodex Source
+## Scope
 
-- `lazycodex/plugins/omo/components/ulw-loop/skills/ulw-loop/SKILL.md` — loop execution with CLI state, evidence recording, delegation to subagents.
-- `lazycodex/plugins/omo/components/ultrawork/skills/ultrawork/SKILL.md` — ultrawork mode directive: tier triage, Manual-QA channels, execution loop (PIN->RED->GREEN->SURFACE->CLEAN), verification gate, constraints.
 
 ## Mandatory First Line
 
@@ -150,12 +148,12 @@ Parallel-batch independent reads / searches / subagents within a step, but NEVER
 
 ## Subagent Reliability (Trae Adaptation)
 
-Every Task tool subagent invocation is self-contained and starts with `TASK: <imperative assignment>`, then names `DELIVERABLE`, `SCOPE`, and `VERIFY`. State that it is an executable assignment, not a context handoff. The Trae Task tool provides independent context by default (equivalent to LazyCodex `fork_context: false`). Paste only the context the child needs.
+Every Task tool subagent invocation is self-contained and starts with `TASK: <imperative assignment>`, then names `DELIVERABLE`, `SCOPE`, and `VERIFY`. State that it is an executable assignment, not a context handoff. The Trae Task tool provides independent context by default (equivalent to LazyTrae `fork_context: false`). Paste only the context the child needs.
 
 ### Trae vs Codex Subagent Differences
 
-- **Synchronous execution**: Trae's Task tool is synchronous — the parent waits for the subagent to return. Unlike LazyCodex's `multi_agent_v1.wait_agent`, there is no async polling. Plan around this by doing independent root work before spawning, and processing the result when it returns.
-- **No TOML-backed role routing**: The Trae Task tool accepts `subagent_type` (e.g., `search`, `general_purpose_task`) but cannot select a LazyCodex TOML-backed role by name. Paste the role requirements into the task description and judge the result from delivered evidence. Never claim a specific role was selected unless runtime evidence confirms it.
+- **Synchronous execution**: Trae's Task tool is synchronous — the parent waits for the subagent to return. Unlike LazyTrae's `multi_agent_v1.wait_agent`, there is no async polling. Plan around this by doing independent root work before spawning, and processing the result when it returns.
+- **No TOML-backed role routing**: The Trae Task tool accepts `subagent_type` (e.g., `search`, `general_purpose_task`) but cannot select a LazyTrae TOML-backed role by name. Paste the role requirements into the task description and judge the result from delivered evidence. Never claim a specific role was selected unless runtime evidence confirms it.
 - **Result is a single message**: The subagent returns one final summary. There is no mailbox or incremental updates. Structure the task description to request a complete deliverable in the final response.
 
 ### Subagent-Dependent Transition Barrier
@@ -179,7 +177,7 @@ Procedure (NON-NEGOTIABLE):
 
 ## Commits
 
-Atomic, Conventional Commits (`<type>(<scope>): <imperative>` — feat / fix / refactor / test / docs / chore / build / ci / perf). One logical change per commit; each commit builds + tests green on its own. No WIP on the final branch. If a plan file exists, final commit footer: `Plan: .omo/plans/<slug>.md`. Do NOT auto-`git commit` unless the user requested or preauthorised this session — default is stage + draft message + present for approval.
+Atomic, Conventional Commits (`<type>(<scope>): <imperative>` — feat / fix / refactor / test / docs / chore / build / ci / perf). One logical change per commit; each commit builds + tests green on its own. No WIP on the final branch. If a plan file exists, final commit footer: `Plan: .lazytrae/plans/<slug>.md`. Do NOT auto-`git commit` unless the user requested or preauthorised this session — default is stage + draft message + present for approval.
 
 ## Constraints
 

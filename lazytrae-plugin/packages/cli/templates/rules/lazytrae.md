@@ -8,18 +8,18 @@
 ### Inspect Before Editing
 - Read the current project's `AGENTS.md`, README, relevant source, and tests before editing.
 - Use the installed LazyTrae skills and commands as the workflow source of truth.
-- If external parity material is available, treat it as reference evidence, not as a required local directory.
+- If external status material is available, treat it as reference evidence, not as a required local directory.
 
 ### Plan Before Multi-File Changes
 - For ambiguous or multi-file work, use `/lazy-ulw-plan` before changing product files.
-- Store active plans in `.omo/plans/`; keep compatible loop state in `.omo/ulw-loop/`.
+- Store active plans in `.lazytrae/plans/`; keep compatible loop state in `.lazytrae/ulw-loop/`.
 - Keep LazyTrae configuration, state, and evidence in `.lazytrae/`.
 
-### Preserve LazyCodex Semantics
-- Keep command names (`init-deep`, `ulw-plan`, `start-work`, `ulw-loop`) where they communicate parity.
+### Preserve LazyTrae Semantics
+- Keep command names (`init-deep`, `ulw-plan`, `start-work`, `ulw-loop`) where they communicate status.
 - Preserve workflow phases: Explore -> Plan -> Implement -> Verify -> Manually QA.
 - Preserve the five evidence gates: plan reread, automated verification, manual-QA, adversarial QA, cleanup.
-- Document any deviation from LazyCodex semantics.
+- Document any deviation from LazyTrae semantics.
 
 ### Execute One Checklist Item at a Time
 - During `start-work`, execute one plan checkbox at a time.
@@ -29,7 +29,7 @@
 ### Verification Evidence Required
 - Completion is invalid without evidence.
 - Evidence includes: commands run, outputs, exit status, changed files, manual checks, reviewer findings.
-- Never claim parity without evidence.
+- Never claim status without evidence.
 
 ### Reviewer/Oracle Review Required
 - Long-horizon completion requires reviewer/Oracle pass.
@@ -58,4 +58,4 @@ All versions use the `v0.x` scheme. Do not use `v1.x`, `v2.x`, etc.
 - Project instructions: `AGENTS.md`
 - Trae integration: `.trae/`
 - LazyTrae configuration and evidence: `.lazytrae/`
-- Compatibility plans and loop state: `.omo/plans/` and `.omo/ulw-loop/`
+- Current plans and loop state: `.lazytrae/plans/` and `.lazytrae/ulw-loop/`

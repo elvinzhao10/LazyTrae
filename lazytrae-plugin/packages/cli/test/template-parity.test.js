@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const { REPO_ROOT, runCli } = require('./test-helpers');
+const { MONOREPO_ROOT, REPO_ROOT, runCli } = require('./test-helpers');
 
 function readFiles(directory, prefix = '') {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
@@ -80,6 +80,32 @@ test('generated onboarding guide uses stable Markdown references', () => {
     [],
     'the installed guide must not link to documentation absent from a consumer project',
   );
+});
+
+test('active documentation is self-contained and indexes v0.15 entrypoints', () => {
+  const root = MONOREPO_ROOT;
+  const activeFiles = [
+    path.join(root, 'AGENTS.md'),
+    path.join(root, 'README.md'),
+    path.join(REPO_ROOT, 'README.md'),
+    path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'AGENTS.md'),
+    ...readFiles(path.join(REPO_ROOT, '.trae'))
+      .filter(relativePath => relativePath.endsWith('.md'))
+      .map(relativePath => path.join(REPO_ROOT, '.trae', relativePath)),
+  ];
+  const externalRuntimeReference = /dev\/reference\/lazycodex|\.omo(?:\/|\b)|\blazycodex\b|\bomo\b/i;
+
+  for (const file of activeFiles) {
+    assert.doesNotMatch(
+      fs.readFileSync(file, 'utf8'),
+      externalRuntimeReference,
+      `${path.relative(root, file)} must not require an external legacy runtime or reference tree`,
+    );
+  }
+
+  const docsIndex = fs.readFileSync(path.join(root, 'docs', 'README.md'), 'utf8');
+  assert.match(docsIndex, /Current v0\.15 entrypoints/);
+  assert.match(docsIndex, /Historical records/);
 });
 
 test('MCP templates have no unbounded active npx defaults', () => {

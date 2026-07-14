@@ -7,9 +7,8 @@ description: "Hierarchical repo understanding and AGENTS.md generation. Use when
 
 Generate hierarchical AGENTS.md files for a project. Root AGENTS.md + complexity-scored subdirectory AGENTS.md files.
 
-## Canonical LazyCodex Source
+## Scope
 
-`lazycodex/plugins/omo/skills/init-deep/SKILL.md` — hierarchical repo understanding with parallel explore agents, LSP/codegraph code map, scoring matrix, and four-phase workflow.
 
 ## Purpose
 
@@ -61,7 +60,7 @@ Record the exact result in the final report. If project components are missing, 
 
 ### Phase 2: Scoring & Location Decision
 
-Score each directory using this matrix (adapted from LazyCodex):
+Score each directory using this matrix (adapted from LazyTrae):
 
 | Factor | Weight | High Threshold |
 |--------|--------|----------------|

@@ -23,9 +23,7 @@ isolation: true
 ## Mission
 Removes AI-generated code smells (slop) from branch changes or explicit file lists while preserving behavior. Locks behavior with regression tests first, then runs categorized cleanup, then verifies with quality gates.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/packages/web/content/docs/remove-ai-slops.md`
-- `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (gate 5: Cleanup)
+## LazyTrae Source Reference
 
 ## When to Call
 - After implementation is complete and before final review
@@ -64,7 +62,7 @@ Removes AI-generated code smells (slop) from branch changes or explicit file lis
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent — primary slop detection tool |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |

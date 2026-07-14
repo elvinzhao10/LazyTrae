@@ -103,3 +103,35 @@ A true end-to-end multi-agent session test: orchestrator spawns implementer → 
 LazyTrae achieves **strong parity (91.3%)** with LazyCodex/OmO's core agent-harness design on Trae IDE. The Explore → Plan → Implement → Verify → Manually QA loop is fully functional with evidence-gated completion, durable run state, and a long-horizon loop. The 4 remaining gaps are all platform-inherent (Trae lacks the hook event or external tool), each mitigated with a documented heuristic fallback.
 
 The defining adaptation is the **enforcement strategy inversion**: where the WorkBuddy sibling bets on host hook blocking, LazyTrae — because Trae hooks cannot block — moves the completion gate into a CLI/MCP layer. Both preserve the Sisyphus "no evidence, no done" invariant; they just pick the mechanism their host allows.
+
+## Public capability status contract
+
+The v0.17 read-only capability report uses the vendor-owned LazySeries record: `schema_version`, `contract_version`, `contract_digest`, `host`, `capability`, `provider` (nullable), `status`, `reason_code` (nullable), `message`, `receipt` (nullable `{owner, schema_version, state}`), and object `details`. Its only public statuses are `host-ready`, `owned-ready`, `missing`, `incompatible`, `disabled`, `failed-optional`, and `not-initialized`. A status record reports observed readiness; it does not select, install, enable, or start a provider.
+
+## Optional capability policy
+
+Optional integrations remain opt-in. A status, doctor, or load-check does not run package managers, activate a provider, alter host configuration, export an MCP fragment, or make a network request. The existing automatic-tooling policy remains the authority for any separately requested lifecycle action. Normal CI is self-contained within this repository; paired LazyTrae/LazyBuddy parity is a release-only check that receives a sibling path explicitly and creates no runtime dependency.
+
+## Receipt and safe removal
+
+Removal accepts only exact receipt-owned entries. Expected mutable runtime entries are tolerated only where the receipt already owns them; unknown siblings, tampered entries, symlinks, and hardlinks are rejected. Project lockfiles, user configuration, caller-owned CodeGraph indexes, and host registrations survive. Use `lazytrae uninstall` for managed project assets; remove a Trae-host registration through that host's own UI or CLI rather than treating package removal as host removal.
+
+## Package readiness versus host verification
+
+`lazytrae load-check`, `doctor`, and the canonical status report verify package files, declared configuration, and local optional-state evidence. They do not prove that Trae discovered the project configuration, loaded a plugin, or connected an MCP server. A new host session and the host's MCP status are the required separate observation.
+
+## JSON-RPC resilience
+
+The stdio MCP transport is line-oriented JSON-RPC. Malformed JSON yields one `-32700` response with `id: null`; an invalid request yields `-32600`; notifications receive no response; and a later valid request on the same stream remains processable. Protocol JSON is the only stdout content. This documents package behavior, not proof that a host connected the server.
+
+## Host-specific exclusions
+
+LazyTrae keeps Trae-specific layouts and commands: project assets are `.trae/` and `.lazytrae/`; Trae CLI registration uses `trae-cli mcp add-json`; and Trae Work uses the explicit `lazytrae work install` command plus manual **Settings → MCP** registration. The project declaration inventory is ten MCP declarations: one `lazytrae` core declaration exposing 15 tools after connection and optional declarations, including filesystem and Playwright templates. Optional declaration presence is not activation, installation, or a live connection.
+
+## Known unverified host behavior
+
+Trae IDE discovery after reopening, Trae Work reload/discovery, host-managed MCP connection, and every non-macOS Trae Work skills location require manual host confirmation. The package does not claim that copied files, a declaration, or an installer command proves any of those host outcomes.
+
+## macOS verification scope
+
+The Trae Work global-skill destination `~/.trae-cn/skills/` and `lazytrae work install` behavior are verified on **macOS only**. Linux and Windows paths and host behavior are unverified; use an explicit `--skills-dir` only after the host reports the directory.

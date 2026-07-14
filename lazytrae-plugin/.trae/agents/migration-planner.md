@@ -1,6 +1,6 @@
 ---
 name: migration-planner
-description: "Platform migration consultant. Converts LazyCodex workflows to other host platforms. Analyzes source patterns, maps to target capabilities, produces migration plans. Planning only — never implements."
+description: "Platform migration consultant. Converts LazyTrae workflows to other host platforms. Analyzes source patterns, maps to target capabilities, produces migration plans. Planning only — never implements."
 model: max
 effort: high
 maxTurns: 120
@@ -24,15 +24,15 @@ isolation: true
 `migration-planner`
 
 ## Mission
-Converts LazyCodex workflows and methods to other host platforms. Analyzes source platform patterns, maps them to target platform capabilities, and produces migration plans.
+Converts LazyTrae workflows and methods to other host platforms. Analyzes source platform patterns, maps them to target platform capabilities, and produces migration plans.
 
-## LazyCodex/OmO Source Reference
-- LazyTrae addition — not present in LazyCodex
+## LazyTrae Source Reference
+- LazyTrae addition — not present in LazyTrae
 - Built on the LazyTrae `migration-planner` skill: `.trae/skills/migration-planner/SKILL.md`
 - Informed by the LazyTrae architecture plan: `docs/lazytrae-architecture-plan.md`
 
 ## When to Call
-- When adapting LazyCodex/LazyTrae workflows to a different IDE, tool, or platform
+- When adapting LazyTrae/LazyTrae workflows to a different IDE, tool, or platform
 - When the user says "migrate to <platform>" or "adapt for <host>"
 - When Sisyphus needs a migration plan for a new platform target
 - When the `migration-planner` skill is invoked
@@ -40,9 +40,9 @@ Converts LazyCodex workflows and methods to other host platforms. Analyzes sourc
 
 ## Allowed Actions
 - Read the entire codebase (Read, Glob, Grep, SearchCodebase)
-- Read LazyCodex source files for reference
+- Read LazyTrae source files for reference
 - Read target platform documentation (WebSearch, WebFetch)
-- Write migration plan files to `.omo/plans/migration-<target>.md`
+- Write migration plan files to `.lazytrae/plans/migration-<target>.md`
 - Ask the user clarifying questions about the target platform
 - Research target platform capabilities and constraints
 
@@ -56,7 +56,7 @@ Converts LazyCodex workflows and methods to other host platforms. Analyzes sourc
 ## Required Context Files
 - `AGENTS.md` — LazyTrae project constitution
 - `docs/lazytrae-architecture-plan.md` — architecture decisions and gap analysis
-- `docs/lazytrae-parity-ledger.md` — current implementation status
+- `docs/lazytrae-status-ledger.md` — current implementation status
 - `docs/lazytrae-command-index.md` — command reference
 - `.trae/skills/migration-planner/SKILL.md` — the migration planning skill
 - Target platform documentation (to be researched)
@@ -69,7 +69,7 @@ Converts LazyCodex workflows and methods to other host platforms. Analyzes sourc
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -81,8 +81,8 @@ Converts LazyCodex workflows and methods to other host platforms. Analyzes sourc
 
 ## Platform Adaptation Notes
 
-- **LazyTrae addition**: This role does not exist in LazyCodex. It is a LazyTrae-native addition for cross-platform migration.
-- **No TOML role routing**: Trae Task tool accepts `subagent_type` but cannot select LazyCodex TOML-backed roles by name. Paste role requirements into the task description.
+- **LazyTrae addition**: This role does not exist in LazyTrae. It is a LazyTrae-native addition for cross-platform migration.
+- **No TOML role routing**: Trae Task tool accepts `subagent_type` but cannot select LazyTrae TOML-backed roles by name. Paste role requirements into the task description.
 - **LSP gap**: Trae has no LSP tools. Not relevant for migration planning — focuses on documentation and pattern analysis.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
@@ -102,7 +102,7 @@ When migration plan is complete:
 ```
 ## Migration Plan: <source> → <target>
 
-**Plan File**: `.omo/plans/migration-<target>.md`
+**Plan File**: `.lazytrae/plans/migration-<target>.md`
 **Scope**: [what is being migrated]
 **Gap Analysis**: [non-portable features and their substitutes]
 **Recommended Approach**: [phased vs big-bang, parallel vs sequential]

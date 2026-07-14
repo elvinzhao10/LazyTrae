@@ -21,14 +21,13 @@
 
 - Keep command modules small and direct; v0.13 enforces a 250 LOC ceiling for `.js` source files.
 - Use CommonJS consistently in this package.
-- Preserve root project semantics: inspect LazyCodex sources before claiming parity.
-- Treat `lazycodex/` as read-only reference material, not release content.
+- Treat the installed LazyTrae configuration and host documentation as the current source of truth.
 - For state writes, prefer existing JSON helpers and schema-backed shapes over ad hoc string writes.
 
 ## ANTI-PATTERNS
 
 - Do not leave `npm test` as a placeholder once adding runtime behavior.
-- Do not claim hook blocking parity; Trae hooks exit 0, so completion blocking must be enforced by CLI/MCP.
+- Do not claim hook blocking; Trae hooks exit 0, so completion blocking must be enforced by CLI/MCP.
 - Do not add command behavior without a real CLI/manual surface proof.
 - Do not update templates without also checking the installed `.trae/` or `.lazytrae/` counterpart expectation.
 

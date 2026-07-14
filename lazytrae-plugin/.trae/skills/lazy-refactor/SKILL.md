@@ -7,9 +7,8 @@ description: "Safe refactoring discipline. Use when changing code structure with
 
 Safe refactoring discipline for LazyTrae. Changes the structure of code without changing its external behavior. Refactoring requires discipline — you must prove the behavior didn't change through tests and small, reversible steps.
 
-## Canonical LazyCodex Source
+## Scope
 
-`lazycodex/plugins/omo/skills/refactor/SKILL.md` — refactoring discipline: characterization tests first, small reversible steps, test after every change, no feature additions during refactoring, rename/move/extract patterns.
 
 ## Purpose
 

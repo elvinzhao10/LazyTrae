@@ -7,9 +7,8 @@ description: "Post-implementation reviewer/Oracle protocol. Launches parallel re
 
 Post-implementation review orchestrator. Launches multiple parallel review sub-agents covering complementary concerns. Together they form a comprehensive review that no single reviewer could match. All must pass for the review to pass.
 
-## Canonical LazyCodex Source
+## Scope
 
-`lazycodex/plugins/omo/skills/review-work/SKILL.md` — 5-agent parallel review orchestrator: Goal & Constraint Verification (Oracle), QA Execution (hands-on), Code Quality Review (Oracle), Security Review (Oracle), Context Mining (investigative). All must pass for review to pass.
 
 ## Purpose
 

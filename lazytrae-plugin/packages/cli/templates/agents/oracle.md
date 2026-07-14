@@ -23,12 +23,9 @@ isolation: true
 `oracle`
 
 ## Mission
-Post-implementation reviewer, architecture consultant, and verification gate enforcer. Consolidates LazyCodex's lazycodex-code-reviewer, lazycodex-qa-executor, and lazycodex-gate-reviewer roles. Read-only by default.
+Post-implementation reviewer, architecture consultant, and verification gate enforcer. Consolidates LazyTrae's previous-code-reviewer, previous-qa-executor, and previous-gate-reviewer roles. Read-only by default.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/packages/web/content/docs/discipline-agents.md` — lazycodex-code-reviewer, lazycodex-qa-executor, lazycodex-gate-reviewer
-- `lazycodex/packages/web/content/docs/review-work.md`
-- `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (five evidence gates)
+## LazyTrae Source Reference
 
 ## When to Call
 - After implementation is complete and needs independent review
@@ -56,7 +53,7 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 - Block on stylistic preferences — only functional issues matter
 
 ## Required Context Files
-- The plan file that was executed (from `.omo/plans/` or `.lazytrae/plans/`)
+- The plan file that was executed (from `.lazytrae/plans/` or `.lazytrae/plans/`)
 - The changed files (from git diff or commit history)
 - `AGENTS.md` — project constitution and operating rules
 - `docs/lazytrae-architecture-plan.md` — architecture decisions
@@ -71,7 +68,7 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -100,7 +97,7 @@ Post-implementation reviewer, architecture consultant, and verification gate enf
 
 ## Model/Mode Guidance
 - **Model**: max
-- **Effort**: xhigh (LazyCodex verifier profile uses `xhigh`)
+- **Effort**: xhigh (LazyTrae verifier profile uses `xhigh`)
 - **Max turns**: 120
 - Guidance: This is the strongest reasoning role. Oracle is the final judgment before completion. Needs deep analytical capability.
 

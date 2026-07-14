@@ -17,6 +17,8 @@ The CLI template tree in `packages/cli/templates/` is the installation source of
 
 Copy or clone [LazyTrae](https://github.com/elvinzhao10/LazyTrae), open it in the target host, and type `onboard`. The generated setup guide selects Trae IDE, Trae Work, or Trae CLI and runs the matching `lazytrae init --host <host>` command when the companion CLI is already installed. That check proves package readiness only; host discovery and MCP connection are reported separately.
 
+The read-only capability report can classify optional readiness without installing, enabling, or registering anything. A receipt-safe uninstall removes only managed receipt-owned project assets; host registrations remain host-managed.
+
 For Trae Work, `lazytrae init --host work` also installs the global skills. Restart or reload Trae Work, then add the MCP server manually in **Settings → MCP** with command `lazytrae` and argument `mcp`. Trae Work does not auto-load the project `.trae/mcp.json` and has no global command registry, so use skills or natural-language requests.
 
 See the repository [setup guide](../AGENTS.md) for the full workflow.

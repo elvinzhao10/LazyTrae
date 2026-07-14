@@ -9,7 +9,7 @@ Find and inspect coding-agent sessions across Trae and other platforms before an
 
 ## Global Trae Work fallback
 
-This installed skill is self-contained. It does not require a LazyCodex checkout, helper script, or reference bundle. Use the local paths listed below when they are available; for an unlisted platform, ask the user for its documented transcript location before searching.
+This installed skill is self-contained. It does not require a LazyTrae checkout, helper script, or reference bundle. Use the local paths listed below when they are available; for an unlisted platform, ask the user for its documented transcript location before searching.
 
 ## Purpose
 
@@ -48,7 +48,7 @@ For date-based search, inspect the `started_at` and `last_active_at` ISO timesta
 ### 3. Read Session Details
 
 To reconstruct what happened in a session:
-- Read the session's `active_plan` (e.g., `.omo/plans/<plan-name>.md`) for the plan that was being executed.
+- Read the session's `active_plan` (e.g., `.lazytrae/plans/<plan-name>.md`) for the plan that was being executed.
 - Read `.lazytrae/state/boulder.json` for task-by-task progress.
 - Read `.lazytrae/state/active-loop.json` for goal and criterion statuses.
 - Read `.lazytrae/evidence/` files named after the work for verification results.
@@ -59,7 +59,7 @@ When the user asks about sessions from other coding agents:
 - Use Grep/Glob only in the user's approved local path.
 - For Codex: `.codex/state_*.sqlite`, rollout JSONL files.
 - For Claude: `~/.claude/projects/`, `~/.claude/transcripts/`.
-- For OpenCode: `~/.opencode/`, `~/.local/share/opencode/`.
+- For OpenCode: `~/.opencode/`, `~/.lazytrae/share/opencode/`.
 - For another platform: ask the user for the official local storage path, or consult that platform's official documentation before searching.
 
 ### 5. Reconstruct Past Work

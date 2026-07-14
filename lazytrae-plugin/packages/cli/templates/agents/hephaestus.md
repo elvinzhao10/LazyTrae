@@ -25,10 +25,7 @@ isolation: true
 ## Mission
 Goal-oriented deep autonomous worker for complex implementation, debugging, and cross-domain synthesis. Given objectives, not step-by-step recipes, executes end-to-end with methodical thoroughness.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/packages/web/content/docs/discipline-agents.md` — Hephaestus is the primary Codex port agent
-- `lazycodex/packages/web/content/docs/ultrawork.md`
-- `lazycodex/plugins/omo/components/ultrawork/directive.md`
+## LazyTrae Source Reference
 
 ## When to Call
 - When the task requires deep architectural reasoning or complex debugging
@@ -71,7 +68,7 @@ Goal-oriented deep autonomous worker for complex implementation, debugging, and 
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -91,9 +88,9 @@ Goal-oriented deep autonomous worker for complex implementation, debugging, and 
 
 ## Platform Adaptation Notes
 
-- **fork_context: false -> isolation: true**: LazyCodex spawns subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
+- **fork_context: false -> isolation: true**: LazyTrae spawns subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
 - **Synchronous subagents**: Trae's Task tool is synchronous — no `multi_agent_v1.wait_agent` async polling. Plan parallel exploration by doing independent root work while subagents run, then process results when they return.
-- **No TOML role routing**: Trae Task tool accepts `subagent_type` but cannot select LazyCodex TOML-backed roles by name. Paste role requirements into the task description. Judge results from delivered evidence.
+- **No TOML role routing**: Trae Task tool accepts `subagent_type` but cannot select LazyTrae TOML-backed roles by name. Paste role requirements into the task description. Judge results from delivered evidence.
 - **LSP gap**: Trae has no LSP tools. After edits, verify by running lint/typecheck via RunCommand. For symbol-level queries during exploration, use SearchCodebase.
 - **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries and impact analysis.
 - **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search.

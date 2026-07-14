@@ -26,11 +26,8 @@ isolation: true
 ## Mission
 Main orchestrator that manages the LazyTrae workflow lifecycle, decides whether to plan, execute, review, or loop, and delegates tasks to specialized subagents while keeping final ownership with the parent session.
 
-## LazyCodex/OmO Source Reference
-Implicit in LazyCodex/OmO workflow. Full context:
-- `lazycodex/plugins/omo/components/ultrawork/agents/` (all roles)
-- `lazycodex/packages/web/content/docs/discipline-agents.md`
-- `lazycodex/packages/web/content/docs/ultrawork.md`
+## LazyTrae Source Reference
+Implicit in LazyTrae workflow. Full context:
 
 ## When to Call
 - At the start of any long-horizon work in a LazyTrae project
@@ -39,7 +36,7 @@ Implicit in LazyCodex/OmO workflow. Full context:
 - When the workflow needs to be steered (plan → implement → verify → review → loop → complete)
 
 ## Allowed Actions
-- Read project context: AGENTS.md, parity ledger, command index, existing plans, state files
+- Read project context: AGENTS.md, status ledger, command index, existing plans, state files
 - Invoke specialized subagents: Explorer, Librarian, Prometheus, Metis, Momus, Atlas, Hephaestus, Oracle, Cleaner, Migration Planner
 - Update workflow state and track progress
 - Generate handoff summaries when work pauses
@@ -58,7 +55,7 @@ Implicit in LazyCodex/OmO workflow. Full context:
 - `AGENTS.md` — LazyTrae project constitution
 - `docs/lazytrae-architecture-plan.md` — architecture decisions
 - `docs/lazytrae-agent-orchestration.md` — orchestration flow
-- `docs/lazytrae-parity-ledger.md` — implementation status
+- `docs/lazytrae-status-ledger.md` — implementation status
 - `docs/lazytrae-command-index.md` — command reference
 - `.lazytrae/state/active-loop.json` — current loop state (if continuing)
 - `.lazytrae/state/boulder.json` — current boulder state (if executing)
@@ -70,7 +67,7 @@ Implicit in LazyCodex/OmO workflow. Full context:
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -87,8 +84,8 @@ Implicit in LazyCodex/OmO workflow. Full context:
 ## Platform Adaptation Notes
 
 - **Delegation, not orchestration**: Sisyphus stays the parent. For parallel exploration, spawn read-only Task subagents (`subagent_type: search`) and keep the parent session live. Do not hand off the run — own the goal, delegate the grunt work, verify results.
-- **Synchronous subagents**: Trae's Task tool is synchronous. Unlike LazyCodex's `multi_agent_v1.wait_agent`, there is no async polling. Spawn subagents and process results when they return. Do independent root work while waiting.
-- **No TOML role routing**: Trae Task tool accepts `subagent_type` (e.g., `search`, `general_purpose_task`) but cannot select LazyCodex TOML-backed roles by name. Paste role requirements (mission, allowed/forbidden actions, handoff format) into the task description. Judge results from delivered evidence.
+- **Synchronous subagents**: Trae's Task tool is synchronous. Unlike LazyTrae's `multi_agent_v1.wait_agent`, there is no async polling. Spawn subagents and process results when they return. Do independent root work while waiting.
+- **No TOML role routing**: Trae Task tool accepts `subagent_type` (e.g., `search`, `general_purpose_task`) but cannot select LazyTrae TOML-backed roles by name. Paste role requirements (mission, allowed/forbidden actions, handoff format) into the task description. Judge results from delivered evidence.
 - **Parent session ownership**: Even with delegation, the parent session keeps ownership of goals, constraints, and final judgment. A subagent saying "done" does not close the work.
 - **LSP gap**: Trae has no LSP tools. Not relevant for orchestrator role — delegates to execution agents.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable `.lazytrae/state/` files. Re-read state files after any compaction.
@@ -121,7 +118,7 @@ When pausing or completing, produce a concise summary with:
 - Verify that no two agents have conflicting authority
 - Verify that the workflow follows LazyTrae semantics (Explore → Plan → Implement → Verify → Review)
 - Verify that the five evidence gates are passed before completion
-- Verify that all status updates are consistent across parity ledger, command index, and AGENTS.md
+- Verify that all status updates are consistent across status ledger, command index, and AGENTS.md
 
 ## Failure Behavior
 - If a subagent is blocked, record the blocker clearly and ask the user for input

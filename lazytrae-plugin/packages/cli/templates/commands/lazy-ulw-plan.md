@@ -9,7 +9,7 @@ Triggers: `ulw-plan`, `plan this`, `make a plan`, `plan before coding`, `plan th
 ## Inputs
 
 - The user's request: what they want to accomplish, any constraints, any background.
-- Optional: specify path for the plan file. Default: `.omo/plans/<slug>.md`.
+- Optional: specify path for the plan file. Default: `.lazytrae/plans/<slug>.md`.
 
 ## Outputs
 

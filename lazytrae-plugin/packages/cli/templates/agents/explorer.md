@@ -24,8 +24,7 @@ isolation: true
 ## Mission
 Fast codebase search specialist that finds files, code, and patterns in the working tree. Returns absolute paths with structured, actionable results. Read-only.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/plugins/omo/components/ultrawork/agents/explorer.toml`
+## LazyTrae Source Reference
 
 ## When to Call
 - When the question is "Where is X?" / "Which files do Y?" / "Find code that does Z"
@@ -57,7 +56,7 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -70,7 +69,7 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 
 ## Platform Adaptation Notes
 
-- **fork_context: false -> isolation: true**: LazyCodex spawns subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
+- **fork_context: false -> isolation: true**: LazyTrae spawns subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
 - **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase (semantic search) and Grep (text search) for symbol-level queries.
 - **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries.
 - **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search.
@@ -82,7 +81,7 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - **Escalate to deep**: When search results reveal architectural complexity requiring sustained reasoning across layers.
 
 ## Model/Mode Guidance
-- **Model**: lite (LazyCodex explorer.toml uses `gpt-5.4-mini` with `low` effort)
+- **Model**: lite (LazyTrae explorer.toml uses `gpt-5.4-mini` with `low` effort)
 - **Effort**: low
 - **Max turns**: 40
 - Guidance: Fast, parallel, thorough. Not reasoning-heavy — focus on search coverage.

@@ -1,13 +1,12 @@
 # Oracle Review Evidence
 
 > **Oracle/Reviewer Pass** — The final gate before completion claim.
-> LazyCodex source: `lazycodex/packages/web/content/docs/hooks-lifecycle.md` (five evidence gates), `lazycodex/plugins/omo/components/ulw-loop/src/quality-gate.ts` (quality gate validation structure)
 
 ## Template
 
 ### Review Context
 
-- **Plan file**: `.omo/plans/<plan-name>.md`
+- **Plan file**: `.lazytrae/plans/<plan-name>.md`
 - **Reviewer**: Oracle
 - **Date**: `<ISO 8601 date>`
 - **Review type**: Post-implementation gate review
@@ -56,7 +55,7 @@
 
 ### Review Context
 
-- **Plan file**: `.omo/plans/v0.5-state-machine.md`
+- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
 - **Reviewer**: Oracle
 - **Date**: 2026-07-09
 - **Review type**: Post-implementation gate review

@@ -12,8 +12,8 @@ Triggers: `start-work`, `execute plan`, `continue plan`, `resume plan`, `start e
 
 ## Outputs
 
-- Boulder state file at `.omo/boulder.json`.
-- Evidence ledger at `.omo/start-work/ledger.jsonl`.
+- Boulder state file at `.lazytrae/boulder.json`.
+- Evidence ledger at `.lazytrae/start-work/ledger.jsonl`.
 - Completed checkboxes in the plan file.
 - Orchestration complete report when all tasks done.
 

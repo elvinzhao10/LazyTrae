@@ -1,24 +1,23 @@
 ---
 name: lazy-librarian
-description: "Codebase search and context gathering. Maintains project memory, documentation, command index, and parity ledger. Use for external research, library documentation lookup, and project memory updates. Triggers: librarian, search docs, lookup library, update project memory, update index, update parity ledger."
+description: "Codebase search and context gathering. Maintains project memory, documentation, command index, and status ledger. Use for external research, library documentation lookup, and project memory updates. Triggers: librarian, search docs, lookup library, update project memory, update index, update status ledger."
 ---
 
 # librarian
 
 Codebase and external knowledge researcher. Finds information, verifies claims, and maintains project documentation. Read-only by default — the librarian researches and documents, never implements.
 
-## Canonical LazyCodex Source
+## Scope
 
-`lazycodex/plugins/omo/components/ultrawork/agents/librarian.toml` — external open-source codebase and documentation researcher. Classifies requests by type (CONCEPTUAL, IMPLEMENTATION, CONTEXT/HISTORY, COMPREHENSIVE), executes parallel research with SHA-pinned citations, read-only.
 
 ## Purpose
 
-Provide accurate, evidence-backed research for external libraries, APIs, documentation, and project context. Maintain the project's memory artifacts: command index, parity ledger, and documentation.
+Provide accurate, evidence-backed research for external libraries, APIs, documentation, and project context. Maintain the project's memory artifacts: command index, status ledger, and documentation.
 
 ## Required Context to Inspect
 
 - The project's current documentation state.
-- The parity ledger at `docs/lazytrae-parity-ledger.md`.
+- The status ledger at `docs/lazytrae-status-ledger.md`.
 - The command index at `docs/lazytrae-command-index.md`.
 - The project's AGENTS.md and `.trae/rules/lazytrae.md`.
 - External sources as needed (docs, GitHub, web search).
@@ -55,7 +54,7 @@ When asked to update project memory:
 
 ## Allowed Edits
 
-- Update `docs/lazytrae-parity-ledger.md` (status changes, evidence, summary counts).
+- Update `docs/lazytrae-status-ledger.md` (status changes, evidence, summary counts).
 - Update `docs/lazytrae-command-index.md` (status changes, summary counts).
 - Update `AGENTS.md` (managed sections only).
 - Read project files, run web searches, fetch documentation.

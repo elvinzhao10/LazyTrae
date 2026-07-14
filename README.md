@@ -1,8 +1,8 @@
 # LazyTrae
 
-> **A practice project:** realizing [LazyCodex](https://github.com/code-yeongyu/lazycodex) (the OmO harness) on the [Trae](https://docs.trae.cn/) platform. No longer maintained; open-sourced for learning.
+> **A practice project:** a self-contained workflow harness for the [Trae](https://docs.trae.cn/) platform. No longer maintained; open-sourced for learning.
 
-LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning → delegated execution → evidence-gated verification → review → durable run state) to **Trae IDE**, **Trae Work**, and **Trae CLI**.
+LazyTrae provides disciplined planning, delegated execution, evidence-gated verification, review, and durable run state for **Trae IDE**, **Trae Work**, and **Trae CLI**.
 
 > **Setup?** See [AGENTS.md](AGENTS.md) (the setup guide). This README is about **how to use** the harness once installed.
 
@@ -11,7 +11,9 @@ LazyTrae brings LazyCodex/OmO's disciplined agent-harness workflows (planning �
 1. Copy or clone [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae) into a local folder.
 2. Open that folder in your Trae host and type `onboard`.
 
-The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 10 MCP declarations. It cannot prove that a host loaded those files. The `lazytrae` declaration exposes 15 tools after its MCP server connects. The agent reports what it verified, what is still unchecked, and the exact manual step for each host—especially Trae Work’s required **Settings → MCP** registration.
+The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 10 MCP declarations. It cannot prove host discovery, a host-loaded plugin, or an MCP connection. The `lazytrae` declaration exposes 15 tools only after its server connects. The macOS Trae Work skill destination is the tested CLI behavior; reload/discovery and all non-macOS locations remain manual and unverified.
+
+The read-only capability report uses the shared seven-state readiness vocabulary and can describe an optional integration as unavailable without changing it. It never activates a provider, installs globally, registers MCP, or proves a live host connection. Normal checks are self-contained; the paired sibling comparison is release-only and takes an explicit sibling path.
 
 After onboarding, you can delete the copied repository if you only needed the installed setup, or keep it to explore and study how LazyTrae works.
 
@@ -76,11 +78,10 @@ Binding, not advisory — but because **Trae hooks can't block**, the completion
 
 Practice repo; contributions welcome as learning exercises.
 
-1. **Two canonical configuration trees:** work in `lazytrae-plugin/.trae/` for Trae integration and `lazytrae-plugin/.lazytrae/` for LazyTrae configuration and workflow data. `lazytrae init` also creates consumer-project-root `.omo/plans/` and `.omo/ulw-loop/` as a retained legacy/workflow-compatibility runtime; it is not a third canonical configuration tree and is not being migrated in v0.15. `lazytrae-plugin/packages/cli/templates/` remains the installer source; run `lazytrae sync` to regenerate the live project tree.
+1. **Two canonical configuration trees:** work in `lazytrae-plugin/.trae/` for Trae integration and `lazytrae-plugin/.lazytrae/` for LazyTrae configuration and workflow data. `lazytrae-plugin/packages/cli/templates/` remains the installer source; run `lazytrae sync` to regenerate the live project tree.
 2. **Naming discipline:** all skills & commands are `lazy-` prefixed. Keep new ones prefixed.
 3. **Test:** `cd lazytrae-plugin/packages/cli && node --test`.
 4. **Verify:** `lazytrae doctor` (0 FAIL expected) + `node --test`.
-5. **Commit:** conventional, atomic, stage only files you changed, no `--no-verify`.
 
 ## Repository structure
 
@@ -90,16 +91,13 @@ lazytrae/
 │   ├── .trae/               #   Trae IDE config; source for Trae Work global skills
 │   ├── .lazytrae/           #   LazyTrae schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
-├── docs/                    # user-facing: design/, reference/, archive/, plan/, prompts/, setup-guide, versioned plan
-├── lazytrae-evaluation.md   # LazyCodex parity assessment (115/126, 91.3%)
+├── docs/                    # current v0.15 index plus historical records
+├── lazytrae-evaluation.md   # historical evaluation record
 ├── AGENTS.md                # setup guide
 ├── README.md                # this file (how to use)
 ├── LICENSE                  # MIT
-└── NOTICE                   # omo/lazycodex provenance
-# dev/ (gitignored) — behind-the-scenes: reference/lazycodex clone + other/ runtime samples
+└── NOTICE                   # legal attribution and provenance
 ```
-
-Consumer projects initialized with `lazytrae init` also receive `.omo/plans/` and `.omo/ulw-loop/` as the retained workflow-compatibility runtime. They are not part of the `lazytrae-plugin/` source layout.
 
 ## Related
 
@@ -107,13 +105,12 @@ Consumer projects initialized with `lazytrae init` also receive `.omo/plans/` an
 
 ## License
 
-[MIT](LICENSE) — derived from lazycodex/omo, Copyright (c) 2026 Yeongyu Kim. See [NOTICE](NOTICE) (omo is SUL at root; the lazycodex layer used as a local gitignored reference is MIT).
+[MIT](LICENSE) — see [NOTICE](NOTICE) for the scoped legal attribution and provenance record.
 
 ## Disclaimer
 
-Practice project, not production-ready, no longer maintained. For production use, see the [original lazycodex/omo](https://github.com/code-yeongyu/lazycodex).
+Practice project, not production-ready, and no longer maintained.
 
 ## Acknowledgments
 
-- **[Yeongyu Kim](https://github.com/code-yeongyu)** — creator of [lazycodex/OmO](https://github.com/code-yeongyu/lazycodex)
 - **[Trae](https://docs.trae.cn/)** — the platform this was built for

@@ -1,7 +1,6 @@
 # Session Handoff
 
 > **Handoff Summary** — What the next session needs to know to continue.
-> LazyCodex source: `lazycodex/packages/web/content/docs/` (handoff workflow)
 
 ## Template
 
@@ -19,7 +18,7 @@
 
 ### Current State
 
-- **Plan file**: `.omo/plans/<plan-name>.md`
+- **Plan file**: `.lazytrae/plans/<plan-name>.md`
 - **Tasks completed**: `<N>/<M>`
 - **Current task**: `<task id>` — `<description>` (status: `<status>`)
 - **Active loop**: `<active/inactive>`
@@ -68,14 +67,14 @@
 - Created `.lazytrae/state/sessions.json` — session tracking with compaction state.
 - Created 6 evidence templates in `.lazytrae/evidence/` (test-runs, verifier, reviewer, oracle-review, completion, handoff).
 - Created 3 JSON Schemas in `.lazytrae/schemas/` (boulder, active-loop, evidence).
-- Created `.omo/` compatibility mirror directories.
+- Created `.lazytrae/` current mirror directories.
 - Created `docs/lazytrae-state-machine.md` — comprehensive state machine documentation.
-- Created `.omo/plans/sample-plan.md` — sample plan for verification.
-- Updated parity ledger, command index, and AGENTS.md with COMPLETE statuses.
+- Created `.lazytrae/plans/sample-plan.md` — sample plan for verification.
+- Updated status ledger, command index, and AGENTS.md with COMPLETE statuses.
 
 ### Current State
 
-- **Plan file**: `.omo/plans/v0.5-state-machine.md`
+- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
 - **Tasks completed**: 10/10
 - **Current task**: None (all complete)
 - **Active loop**: Inactive

@@ -26,9 +26,7 @@ isolation: true
 ## Mission
 Strategic planning consultant that produces a single executable work plan from a vague or large request. Planner only — never implements product code.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/plugins/omo/components/ultrawork/agents/plan.toml`
-- `lazycodex/packages/web/content/docs/ulw-plan.md`
+## LazyTrae Source Reference
 
 ## When to Call
 - When the work has 5+ interdependent steps, the scope is ambiguous, or multiple files/modules/surfaces are involved
@@ -39,7 +37,7 @@ Strategic planning consultant that produces a single executable work plan from a
 ## Allowed Actions
 - Read the entire codebase (Read, Glob, Grep, SearchCodebase)
 - Invoke read-only subagents: Explorer (codebase search), Librarian (external docs), Metis (risk analysis), Momus (plan review)
-- Write ONE plan file to `.omo/plans/<slug>.md` (or `.lazytrae/plans/` if .omo is not initialized)
+- Write ONE plan file to `.lazytrae/plans/<slug>.md` (or `.lazytrae/plans/` if .local is not initialized)
 - Ask the user clarifying questions during the planning interview
 - Run read-only analysis commands (build, lint, type-check — but not to fix)
 
@@ -55,9 +53,9 @@ Strategic planning consultant that produces a single executable work plan from a
 ## Required Context Files
 - `AGENTS.md` — project constitution and operating rules
 - `docs/lazytrae-architecture-plan.md` — architecture decisions
-- `docs/lazytrae-parity-ledger.md` — implementation status
+- `docs/lazytrae-status-ledger.md` — implementation status
 - `docs/lazytrae-command-index.md` — command reference
-- Existing plan files in `plan/` or `.omo/plans/`
+- Existing plan files in `plan/` or `.lazytrae/plans/`
 - Any existing `.lazytrae/state/` files for context
 
 ## Tools/MCP Expectations
@@ -68,7 +66,7 @@ Strategic planning consultant that produces a single executable work plan from a
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -84,9 +82,9 @@ Strategic planning consultant that produces a single executable work plan from a
 
 ## Platform Adaptation Notes
 
-- **fork_context: false -> isolation: true**: LazyCodex spawns research subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
+- **fork_context: false -> isolation: true**: LazyTrae spawns research subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
 - **Synchronous subagents**: Trae's Task tool is synchronous — no `multi_agent_v1.wait_agent` async polling. Spawn research subagents and process results when they return. Do independent root work while waiting.
-- **No TOML role routing**: Trae Task tool accepts `subagent_type` but cannot select LazyCodex TOML-backed roles by name. Paste role requirements into the task description.
+- **No TOML role routing**: Trae Task tool accepts `subagent_type` but cannot select LazyTrae TOML-backed roles by name. Paste role requirements into the task description.
 - **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase for symbol-level queries during context gathering.
 - **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
 
@@ -96,7 +94,7 @@ Strategic planning consultant that produces a single executable work plan from a
 - **Escalate to ultrabrain**: When requirements are ambiguous, contradictory, or involve cross-domain trade-offs needing the strongest reasoning.
 
 ## Model/Mode Guidance
-- **Model**: max (LazyCodex plan.toml uses `gpt-5.5` with `xhigh` effort)
+- **Model**: max (LazyTrae plan.toml uses `gpt-5.5` with `xhigh` effort)
 - **Effort**: xhigh
 - **Max turns**: 120
 - Guidance: This is the most reasoning-intensive role. Needs deep context synthesis and structured output.
@@ -106,7 +104,7 @@ When plan is complete, produce:
 ```
 ## Plan Ready
 
-**Plan File**: `.omo/plans/<slug>.md`
+**Plan File**: `.lazytrae/plans/<slug>.md`
 **Summary**: <1-2 sentences>
 **Deliverables**: <bullet list>
 **Effort**: <Quick | Short | Medium | Large | XL>
@@ -119,7 +117,7 @@ When the user asks for plan modifications, iterate on the plan file. When the us
 ## Verification Responsibility
 - Verify that every task in the plan has: References + Acceptance Criteria + QA Scenarios + Commit instruction
 - Verify that the dependency matrix is consistent
-- Verify that the plan follows the template from the LazyCodex plan.toml specification
+- Verify that the plan follows the template from the LazyTrae plan.toml specification
 - Verify that all referenced files exist and paths are correct
 - Self-verify that context gathering was sufficient before drafting
 

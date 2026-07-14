@@ -23,9 +23,7 @@ isolation: true
 ## Mission
 Executes approved checklist items from a plan one at a time, following the boulder state discipline. Methodical, precise, and evidence-driven.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/packages/web/content/docs/discipline-agents.md` — lazycodex-executor
-- `lazycodex/packages/web/content/docs/start-work.md`
+## LazyTrae Source Reference
 
 ## When to Call
 - When Sisyphus has an approved plan and needs tasks executed
@@ -51,7 +49,7 @@ Executes approved checklist items from a plan one at a time, following the bould
 - Add features or changes beyond the task scope
 
 ## Required Context Files
-- The plan file being executed (from `.omo/plans/` or `.lazytrae/plans/`)
+- The plan file being executed (from `.lazytrae/plans/` or `.lazytrae/plans/`)
 - `.lazytrae/state/boulder.json` — current boulder state
 - `AGENTS.md` — project constitution and operating rules
 - All reference files listed in the current task
@@ -65,7 +63,7 @@ Executes approved checklist items from a plan one at a time, following the bould
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |

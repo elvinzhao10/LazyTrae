@@ -1,13 +1,12 @@
 # Manual-QA Evidence (Verifier)
 
 > **Gate 3: Manual-QA** — Real-surface proof through channels.
-> LazyCodex source: `lazycodex/plugins/omo/components/ultrawork/directive.md` (Manual-QA channels: HTTP, tmux, browser, CLI, data)
 
 ## Template
 
 ### Plan Under Verification
 
-- **Plan file**: `.omo/plans/<plan-name>.md`
+- **Plan file**: `.lazytrae/plans/<plan-name>.md`
 - **Task ID**: `<task-id>`
 - **Task description**: `<description>`
 
@@ -56,7 +55,7 @@ For each QA scenario in the plan, execute through the specified channel and capt
 
 ### Plan Under Verification
 
-- **Plan file**: `.omo/plans/v0.5-state-machine.md`
+- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
 - **Task ID**: `task-1`
 - **Task description**: Create `.lazytrae/config.json`
 

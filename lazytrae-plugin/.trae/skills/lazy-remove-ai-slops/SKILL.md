@@ -7,9 +7,8 @@ description: "Remove AI-generated code smells (slop) from branch changes or an e
 
 Clean AI-generated slop from a bounded set of changed files while strictly preserving behavior. Locks behavior with regression tests first, then runs a categorized multi-pass cleanup, then verifies with quality gates and a critical review.
 
-## Canonical LazyCodex Source
+## Scope
 
-`lazycodex/plugins/omo/skills/remove-ai-slops/SKILL.md` — 10 slop categories (stylistic, structural, hidden cost, behavior coverage), deletion ladder, parallel slop removal via deep agents in batches of 5, quality gates, critical review checklist.
 
 ## Purpose
 

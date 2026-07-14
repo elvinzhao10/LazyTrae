@@ -24,9 +24,7 @@ isolation: true
 ## Mission
 Pre-planning analyst that examines a draft plan or vague request and surfaces contradictions, ambiguity, missing constraints, and execution risks before the planner finalizes. Read-only.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/plugins/omo/components/ultrawork/agents/metis.toml`
-- `lazycodex/packages/web/content/docs/discipline-agents.md`
+## LazyTrae Source Reference
 
 ## When to Call
 - After Prometheus drafts a plan but before Momus reviews it
@@ -49,7 +47,7 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 - Invent problems — report only gaps that would block a competent executor
 
 ## Required Context Files
-- The draft plan file (from `.omo/plans/` or `.lazytrae/plans/`)
+- The draft plan file (from `.lazytrae/plans/` or `.lazytrae/plans/`)
 - `AGENTS.md` — project constitution and constraints
 - `docs/lazytrae-architecture-plan.md` — architecture decisions
 - The user's original request or brief
@@ -62,7 +60,7 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -84,7 +82,7 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 - **Escalate to review**: When gap analysis is complete and the plan needs formal review before execution.
 
 ## Model/Mode Guidance
-- **Model**: max (LazyCodex metis.toml uses `gpt-5.5` with `high` effort)
+- **Model**: max (LazyTrae metis.toml uses `gpt-5.5` with `high` effort)
 - **Effort**: high
 - **Max turns**: 120
 - Guidance: Needs strong analytical reasoning to detect subtle contradictions and missing constraints.

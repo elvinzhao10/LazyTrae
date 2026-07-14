@@ -1,13 +1,12 @@
 # Adversarial QA Evidence (Reviewer)
 
 > **Gate 4: Adversarial QA** — Edge cases, regression scenarios, adversarial inputs.
-> LazyCodex source: `lazycodex/packages/web/content/docs/manual-qa.md`
 
 ## Template
 
 ### Plan Under Review
 
-- **Plan file**: `.omo/plans/<plan-name>.md`
+- **Plan file**: `.lazytrae/plans/<plan-name>.md`
 - **Reviewer**: `<agent name>`
 - **Date**: `<ISO 8601 date>`
 
@@ -126,7 +125,7 @@ For each applicable adversarial class, run the specific probe and record the res
 
 ### Plan Under Review
 
-- **Plan file**: `.omo/plans/v0.5-state-machine.md`
+- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
 - **Reviewer**: Oracle
 - **Date**: 2026-07-09
 

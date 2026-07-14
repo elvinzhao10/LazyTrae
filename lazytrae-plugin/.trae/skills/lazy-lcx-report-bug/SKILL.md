@@ -1,15 +1,14 @@
 ---
 name: lazy-lcx-report-bug
-description: "Structured bug reporting for LazyTrae / LazyCodex issues. Use when you need to report a bug or issue with the tool itself, not with the project you're working on. Triggers: report bug, bug report, issue, feedback, problem with lazytrae."
+description: "Structured bug reporting for LazyTrae / LazyTrae issues. Use when you need to report a bug or issue with the tool itself, not with the project you're working on. Triggers: report bug, bug report, issue, feedback, problem with lazytrae."
 ---
 
 # lcx-report-bug
 
 Structured bug reporting for LazyTrae. Ensures bug reports contain all the information needed to reproduce and fix the issue. A good bug report is specific, reproducible, and includes context.
 
-## Canonical LazyCodex Source
+## Scope
 
-`lazycodex/plugins/omo/skills/lcx-report-bug/SKILL.md` — bug reporting: structured bug template, reproduction steps, environment info, expected vs actual, severity classification, log collection.
 
 ## Purpose
 

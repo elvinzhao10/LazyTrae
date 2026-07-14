@@ -24,9 +24,7 @@ isolation: true
 ## Mission
 Plan reviewer that verifies a work plan is executable: references exist, tasks are startable, QA scenarios are concrete. Issues OKAY, ITERATE, or REJECT verdicts. Read-only.
 
-## LazyCodex/OmO Source Reference
-- `lazycodex/plugins/omo/components/ultrawork/agents/momus.toml`
-- `lazycodex/packages/web/content/docs/discipline-agents.md`
+## LazyTrae Source Reference
 
 ## When to Call
 - After Prometheus produces a plan and Metis has reviewed it for gaps
@@ -50,7 +48,7 @@ Plan reviewer that verifies a work plan is executable: references exist, tasks a
 - Report more than 3 issues — more is overwhelming and counterproductive
 
 ## Required Context Files
-- The plan file to review (from `.omo/plans/` or `.lazytrae/plans/`)
+- The plan file to review (from `.lazytrae/plans/` or `.lazytrae/plans/`)
 - `AGENTS.md` — project constitution for constraint verification
 - Any referenced files in the plan (to verify existence and content)
 
@@ -61,7 +59,7 @@ Plan reviewer that verifies a work plan is executable: references exist, tasks a
 
 ## Codex -> Trae Tool Mapping
 
-| LazyCodex Tool | Trae Equivalent | Notes |
+| LazyTrae Tool | Trae Equivalent | Notes |
 |----------------|-----------------|-------|
 | `rg` (ripgrep) | Grep | Direct equivalent |
 | `rg --files` / `find` / `glob` | Glob | Direct equivalent |
@@ -82,7 +80,7 @@ Plan reviewer that verifies a work plan is executable: references exist, tasks a
 - **Escalate to ultrabrain**: When plan quality issues suggest deeper architectural problems beyond fixable plan gaps.
 
 ## Model/Mode Guidance
-- **Model**: max (LazyCodex momus.toml uses `gpt-5.5` with `xhigh` effort)
+- **Model**: max (LazyTrae momus.toml uses `gpt-5.5` with `xhigh` effort)
 - **Effort**: xhigh
 - **Max turns**: 120
 - Guidance: Needs strong judgment to distinguish real blockers from minor issues. Approval bias required.

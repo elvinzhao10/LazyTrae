@@ -52,3 +52,8 @@ dev/
 /.omo/
 /.trae
 /.lazytrae
+
+# LazyTrae runtime (managed by lazytrae init)
+.lazytrae/state/
+.lazytrae/logs/
+.lazytrae/evidence/
