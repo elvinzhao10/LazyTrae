@@ -7,8 +7,6 @@ description: "Structural code search and rewriting using AST patterns. Use when 
 
 Structural code search and rewriting using AST (Abstract Syntax Tree) patterns. Find and rewrite code by its structure, not just by text matching. More powerful than regex because it understands the code's syntax.
 
-## Scope
-
 
 ## Purpose
 

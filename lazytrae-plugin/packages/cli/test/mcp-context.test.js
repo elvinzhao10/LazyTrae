@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { TOOLS, HANDLERS } = require('../../mcp/src/tools');
-const { REPO_ROOT, MONOREPO_ROOT } = require('./test-helpers');
+const { REPO_ROOT } = require('./test-helpers');
 
 function emptyRepo() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-empty-context-'));
@@ -46,9 +46,12 @@ test('MCP context tools return provenance and local repo evidence', () => {
   ].includes(definition.results[0].file), true);
   assert.notEqual(definition.no_result, true);
 
-  const docs = HANDLERS['lazytrae.docs_lookup'](MONOREPO_ROOT, { query: 'ulw-loop' });
+  const docsRoot = emptyRepo();
+  fs.writeFileSync(path.join(docsRoot, 'README.md'), 'ulw-loop is documented by this consumer project.\n');
+  const docs = HANDLERS['lazytrae.docs_lookup'](docsRoot, { query: 'ulw-loop' });
   assert.equal(docs.provenance, 'project-tool-backed');
-  assert.equal(docs.results.some(result => result.file.startsWith('docs/')), true);
+  assert.equal(docs.results.some(result => result.file === 'README.md'), true);
+  fs.rmSync(docsRoot, { recursive: true, force: true });
 
   const graph = HANDLERS['lazytrae.dependency_graph'](REPO_ROOT, { path: 'packages/cli/src/index.js' });
   assert.equal(graph.provenance, 'heuristic');

@@ -38,7 +38,7 @@ function replaceBlock(content, blockName, newBlockContent) {
   if (re.test(content)) {
     return content.replace(re, replacement);
   }
-  return content + '\n\n' + replacement;
+  return content + replacement;
 }
 
 function removeBlock(content, blockName) {
@@ -51,10 +51,10 @@ function removeBlock(content, blockName) {
 
 function removeAllBlocks(content) {
   const re = new RegExp(
-    `\\n?<!--\\s*lazytrae:managed:start:[\\w-]+\\s*-->[\\s\\S]*?<!--\\s*lazytrae:managed:end:[\\w-]+\\s*-->\\n?`,
+    `<!--\\s*lazytrae:managed:start:[\\w-]+\\s*-->[\\s\\S]*?<!--\\s*lazytrae:managed:end:[\\w-]+\\s*-->\\n?`,
     'g'
   );
-  return content.replace(re, '\n').replace(/\n{3,}/g, '\n\n');
+  return content.replace(re, '').replace(/\n{3,}/g, '\n\n');
 }
 
 function escapeRegExp(string) {

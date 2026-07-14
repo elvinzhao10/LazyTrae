@@ -1,13 +1,11 @@
 ---
 name: lazy-lcx-report-bug
-description: "Structured bug reporting for LazyTrae / LazyTrae issues. Use when you need to report a bug or issue with the tool itself, not with the project you're working on. Triggers: report bug, bug report, issue, feedback, problem with lazytrae."
+description: "Structured bug reporting for LazyTrae issues. Use when you need to report a bug or issue with the tool itself, not with the project you're working on. Triggers: report bug, bug report, issue, feedback, problem with lazytrae."
 ---
 
 # lcx-report-bug
 
 Structured bug reporting for LazyTrae. Ensures bug reports contain all the information needed to reproduce and fix the issue. A good bug report is specific, reproducible, and includes context.
-
-## Scope
 
 
 ## Purpose

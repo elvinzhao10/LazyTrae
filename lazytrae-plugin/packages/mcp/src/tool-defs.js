@@ -83,7 +83,7 @@ const TOOLS = [
   },
   {
     name: 'lazytrae.get_parity_status',
-    description: 'Read docs/lazytrae-parity-ledger.md, parse summary table, return: total, complete, design, gap, deferred, na, coverage_percentage. No mutation.',
+    description: 'Return package parity status without reading project documentation. No mutation.',
     inputSchema: { type: 'object', properties: {} },
   },
   {

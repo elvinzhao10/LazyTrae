@@ -5,7 +5,31 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { HANDLERS } = require('../../mcp/src/tools');
+const { defaultLoop, saveLoop } = require('../src/lib/loop-store');
+const { copyRepoFile, copyRepoFileIfChanged, writeRepoFile } = require('../src/lib/templates');
 const { CLI, makeCompletionFixture, makeFixture, makeLoopFixture, runCli } = require('./test-helpers');
+
+function swapTargetWithSymlinkDuringFinalWrite(targetPath, outsidePath, call) {
+  const methodNames = ['appendFileSync', 'copyFileSync', 'renameSync', 'writeFileSync'];
+  const originals = new Map(methodNames.map(methodName => [methodName, fs[methodName]]));
+  let swapped = false;
+  for (const methodName of methodNames) {
+    fs[methodName] = function patchedWrite(...args) {
+      const writesTarget = args.some(value => typeof value === 'string' && path.resolve(value) === path.resolve(targetPath));
+      if (!swapped && writesTarget) {
+        fs.symlinkSync(outsidePath, targetPath);
+        swapped = true;
+      }
+      return originals.get(methodName).apply(this, args);
+    };
+  }
+  try {
+    call();
+  } finally {
+    for (const methodName of methodNames) fs[methodName] = originals.get(methodName);
+  }
+  return swapped;
+}
 
 test('hook dispatcher does not shell-expand hook script paths', () => {
   const fixture = makeFixture('lazytrae-hook-$(touch pwned-hook)-');
@@ -92,7 +116,7 @@ test('completion and loop evidence reject absolute paths outside the repo', () =
 
   const loop = makeLoopFixture('lazytrae-loop-absolute-evidence-');
   assert.equal(runCli(['loop', 'create-goals', '--brief', outside, '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: loop }).status, 1);
-  assert.equal(runCli(['loop', 'create-goals', '--brief', '.omo/evidence/brief.md', '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: loop }).status, 0);
+  assert.equal(runCli(['loop', 'create-goals', '--brief', '.lazytrae/evidence/brief.md', '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: loop }).status, 0);
   assert.equal(runCli(['loop', 'complete-goals'], { cwd: loop }).status, 0);
   assert.match(runCli(['loop', 'record-evidence', 'goal-1', 'crit-1', outside], { cwd: loop }).stderr, /repo-relative/);
   assert.match(runCli(['loop', 'checkpoint', '--quality-gate-json', outside], { cwd: loop }).stderr, /repo-relative/);
@@ -106,10 +130,11 @@ test('persistent CLI and hook writers reject a symlinked .lazytrae directory', (
   const snapshots = new Map();
   try {
     fs.mkdirSync(path.join(fixture, '.git'));
-    fs.cpSync(path.join(__dirname, '..', '..', '..', '.trae'), path.join(fixture, '.trae'), { recursive: true });
+    const bootstrap = runCli(['init'], { cwd: fixture });
+    assert.equal(bootstrap.status, 0, bootstrap.stderr);
+    fs.rmSync(path.join(fixture, '.lazytrae'), { recursive: true, force: true });
     fs.cpSync(path.join(__dirname, '..', '..', '..', 'packages'), path.join(fixture, 'packages'), { recursive: true });
-    fs.mkdirSync(path.join(fixture, '.omo', 'evidence'), { recursive: true });
-    fs.writeFileSync(path.join(fixture, '.omo', 'evidence', 'brief.md'), 'brief\n');
+    fs.writeFileSync(path.join(fixture, 'brief.md'), 'brief\n');
     fs.mkdirSync(path.join(outside, 'state'), { recursive: true });
     fs.mkdirSync(path.join(outside, 'logs'), { recursive: true });
     fs.writeFileSync(path.join(outside, 'state', 'active-loop.json'), JSON.stringify({ loop_state: 'idle', goals: [] }));
@@ -122,7 +147,7 @@ test('persistent CLI and hook writers reject a symlinked .lazytrae directory', (
     fs.symlinkSync(outside, path.join(fixture, '.lazytrae'));
 
     const init = runCli(['init'], { cwd: fixture });
-    const loop = runCli(['loop', 'create-goals', '--brief', '.omo/evidence/brief.md', '--goal-id', 'g', '--criterion-id', 'c'], { cwd: fixture });
+    const loop = runCli(['loop', 'create-goals', '--brief', 'brief.md', '--goal-id', 'g', '--criterion-id', 'c'], { cwd: fixture });
     const hook = runCli(['hook', 'user-prompt-submit'], {
       cwd: fixture,
       input: JSON.stringify({ prompt: 'context compacted' }),
@@ -165,6 +190,230 @@ test('init and sync reject a symlinked .trae directory without touching its targ
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
     fs.rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+test('init rejects a dangling .lazytrae config symlink before it can create its target', () => {
+  const fixture = makeFixture('lazytrae-dangling-config-');
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-config.json`);
+  const configPath = path.join(fixture, '.lazytrae', 'config.json');
+  try {
+    fs.rmSync(configPath, { force: true });
+    fs.symlinkSync(outside, configPath);
+
+    const result = runCli(['init'], { cwd: fixture });
+
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stderr, /symlink/);
+    assert.equal(fs.existsSync(outside), false);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('sync rejects a dangling .trae mcp template target before it can create its target', () => {
+  const fixture = makeFixture('lazytrae-dangling-mcp-');
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-mcp.json`);
+  const mcpPath = path.join(fixture, '.trae', 'mcp.json');
+  try {
+    fs.rmSync(mcpPath, { force: true });
+    fs.symlinkSync(outside, mcpPath);
+
+    const result = runCli(['sync'], { cwd: fixture });
+
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stderr, /symlink/);
+    assert.equal(fs.existsSync(outside), false);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('loop JSON writes reject a predictable dangling atomic temporary symlink', () => {
+  const fixture = makeLoopFixture('lazytrae-loop-temp-symlink-');
+  const statePath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
+  const tempPath = `${statePath}.${process.pid}.tmp`;
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-loop.json`);
+  try {
+    fs.writeFileSync(outside, 'outside loop sentinel\n');
+    fs.symlinkSync(outside, tempPath);
+
+    assert.throws(() => saveLoop(fixture, defaultLoop()));
+
+    assert.equal(fs.readFileSync(outside, 'utf-8'), 'outside loop sentinel\n');
+    assert.equal(fs.lstatSync(statePath).isSymbolicLink(), false);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('public MCP state writes reject a predictable atomic temporary symlink without touching its target', () => {
+  const fixture = makeCompletionFixture('lazytrae-mcp-temp-symlink-', false);
+  const statePath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
+  const frozenPid = 4242;
+  const frozenNow = 1700000000000;
+  const tempPath = `${statePath}.${frozenPid}.${frozenNow}.0.tmp`;
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-mcp.json`);
+  const sentinel = 'outside MCP sentinel\n';
+  const pidDescriptor = Object.getOwnPropertyDescriptor(process, 'pid');
+  const originalNow = Date.now;
+  const initialState = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
+
+  try {
+    fs.writeFileSync(outside, sentinel);
+    fs.symlinkSync(outside, tempPath);
+    Object.defineProperty(process, 'pid', { ...pidDescriptor, value: frozenPid });
+    Date.now = () => frozenNow;
+
+    let outcome;
+    try {
+      outcome = { kind: 'success', value: HANDLERS['lazytrae.add_blocker'](fixture, { reason: 'symlink attack' }) };
+    } catch (error) {
+      outcome = { kind: 'error', value: error };
+    }
+
+    assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+    assert.equal(outcome.kind, 'error');
+    assert.match(outcome.value.message, /symlink|EEXIST|exist/);
+
+    fs.unlinkSync(tempPath);
+    const ordinary = HANDLERS['lazytrae.add_blocker'](fixture, { reason: 'ordinary write' });
+    assert.equal(ordinary.blocker_added, true);
+    assert.equal(ordinary.blocker.reason, 'ordinary write');
+    assert.equal(fs.lstatSync(statePath).isSymbolicLink(), false);
+    assert.notEqual(JSON.parse(fs.readFileSync(statePath, 'utf-8')).updated_at, initialState.updated_at);
+  } finally {
+    Date.now = originalNow;
+    Object.defineProperty(process, 'pid', pidDescriptor);
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('MCP source and fallback evidence writers do not follow a symlink swapped at their final write path', () => {
+  const fixture = makeCompletionFixture('lazytrae-mcp-final-symlink-', false);
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-evidence.md`);
+  const target = path.join(fixture, '.lazytrae', 'evidence', 'general.md');
+  const sentinel = 'outside evidence sentinel\n';
+  const fallback = require('../src/mcp/handlers-evidence');
+  const source = require('../../mcp/src/handlers-evidence');
+  try {
+    fs.writeFileSync(outside, sentinel);
+
+    for (const handler of [source.handleRecordEvidence, fallback.handleRecordEvidence]) {
+      fs.rmSync(target, { force: true });
+      const swapped = swapTargetWithSymlinkDuringFinalWrite(target, outside, () => {
+        handler(fixture, { gate_type: 'unknown', notes: 'final path race' });
+      });
+
+      assert.equal(swapped, true);
+      assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+      assert.equal(fs.lstatSync(target).isSymbolicLink(), false);
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('MCP source and fallback review and handoff writers do not follow a symlink swapped at their final write path', () => {
+  const fixture = makeCompletionFixture('lazytrae-mcp-review-handoff-symlink-', false);
+  const sourceReview = require('../../mcp/src/handlers-review');
+  const fallbackReview = require('../src/mcp/handlers-review');
+  const sourceHandoff = require('../../mcp/src/handlers-handoff');
+  const fallbackHandoff = require('../src/mcp/handlers-handoff');
+  const cases = [
+    {
+      target: path.join(fixture, '.lazytrae', 'evidence', 'oracle-review.md'),
+      handlers: [sourceReview.handleRequestReview, fallbackReview.handleRequestReview],
+      args: { review_type: 'security', context: 'final path race' },
+    },
+    {
+      target: path.join(fixture, '.lazytrae', 'evidence', 'handoff.md'),
+      handlers: [sourceHandoff.handleGenerateHandoff, fallbackHandoff.handleGenerateHandoff],
+      args: undefined,
+    },
+  ];
+  try {
+    for (const writer of cases) {
+      for (const handler of writer.handlers) {
+        const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-${path.basename(writer.target)}-outside`);
+        const sentinel = `outside ${path.basename(writer.target)} sentinel\n`;
+        fs.rmSync(writer.target, { force: true });
+        fs.writeFileSync(outside, sentinel);
+        const swapped = swapTargetWithSymlinkDuringFinalWrite(writer.target, outside, () => {
+          handler(fixture, writer.args);
+        });
+
+        assert.equal(swapped, true);
+        assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+        assert.equal(fs.lstatSync(writer.target).isSymbolicLink(), false);
+        fs.rmSync(outside, { force: true });
+      }
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('CLI template writers do not follow a symlink swapped at their final write path', () => {
+  const fixture = makeFixture('lazytrae-template-final-symlink-');
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-template.txt`);
+  const target = path.join(fixture, '.lazytrae', 'state', 'race-safe.txt');
+  const source = path.join(fixture, 'source.txt');
+  const sentinel = 'outside template sentinel\n';
+  try {
+    fs.writeFileSync(outside, sentinel);
+    fs.writeFileSync(source, 'template content\n');
+
+    const writeSwapped = swapTargetWithSymlinkDuringFinalWrite(target, outside, () => {
+      writeRepoFile(fixture, target, 'template content\n');
+    });
+    assert.equal(writeSwapped, true);
+    assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+    assert.equal(fs.lstatSync(target).isSymbolicLink(), false);
+
+    fs.rmSync(target, { force: true });
+    const changedSwapped = swapTargetWithSymlinkDuringFinalWrite(target, outside, () => {
+      assert.equal(copyRepoFileIfChanged(fixture, source, target), true);
+    });
+    assert.equal(changedSwapped, true);
+    assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+    assert.equal(fs.lstatSync(target).isSymbolicLink(), false);
+
+    fs.rmSync(target, { force: true });
+    const copySwapped = swapTargetWithSymlinkDuringFinalWrite(target, outside, () => {
+      copyRepoFile(fixture, source, target);
+    });
+    assert.equal(copySwapped, true);
+    assert.equal(fs.readFileSync(outside, 'utf-8'), sentinel);
+    assert.equal(fs.lstatSync(target).isSymbolicLink(), false);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  }
+});
+
+test('sync rejects an existing hard-linked template target without changing its peer', () => {
+  const fixture = makeFixture('lazytrae-hard-linked-mcp-');
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-mcp.json`);
+  const mcpPath = path.join(fixture, '.trae', 'mcp.json');
+  try {
+    fs.writeFileSync(outside, 'outside hard-link sentinel\n');
+    fs.rmSync(mcpPath, { force: true });
+    fs.linkSync(outside, mcpPath);
+
+    const result = runCli(['sync'], { cwd: fixture });
+
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stderr, /hard-linked/);
+    assert.equal(fs.readFileSync(outside, 'utf-8'), 'outside hard-link sentinel\n');
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
   }
 });
 

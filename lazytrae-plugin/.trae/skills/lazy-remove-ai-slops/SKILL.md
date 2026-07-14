@@ -7,8 +7,6 @@ description: "Remove AI-generated code smells (slop) from branch changes or an e
 
 Clean AI-generated slop from a bounded set of changed files while strictly preserving behavior. Locks behavior with regression tests first, then runs a categorized multi-pass cleanup, then verifies with quality gates and a critical review.
 
-## Scope
-
 
 ## Purpose
 
@@ -23,7 +21,7 @@ Remove AI-generated code smells from changed files while preserving behavior. Th
 
 ## Step-by-Step Procedure
 
-### Phase 0: Plan with TodoWrite
+### Phase 0: Plan with an available host capability
 
 Create todos for all phases. Mark in_progress one at a time.
 

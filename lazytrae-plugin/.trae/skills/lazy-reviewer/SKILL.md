@@ -7,8 +7,6 @@ description: "Post-implementation reviewer/Oracle protocol. Launches parallel re
 
 Post-implementation review orchestrator. Launches multiple parallel review sub-agents covering complementary concerns. Together they form a comprehensive review that no single reviewer could match. All must pass for the review to pass.
 
-## Scope
-
 
 ## Purpose
 

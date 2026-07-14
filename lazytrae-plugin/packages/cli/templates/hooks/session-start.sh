@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # LazyTrae v0.7 — SessionStart hook
 # Reads state files and outputs active plan/loop/blockers/next action.
-# Mirrors LazyCodex: rules loading, bootstrap, codegraph (simplified).
+# Load rules and bootstrap the session; CodeGraph remains optional.
 # Always exits 0 — never blocks a session.
 
 set -euo pipefail

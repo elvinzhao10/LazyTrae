@@ -3,36 +3,76 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const { listSkills, readSkillsDir } = require('../src/commands/work');
 const { runCli } = require('./test-helpers');
+
+test('work resolves its documented macOS skills directory only on macOS', () => {
+  if (process.platform === 'darwin') {
+    assert.equal(readSkillsDir([]), path.join(os.homedir(), '.trae-cn', 'skills'));
+    return;
+  }
+  assert.throws(() => readSkillsDir([]), /only known on macOS/);
+});
 
 test('work install and status manage a global-style Trae Work skills directory', () => {
   const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-skills-'));
+  const skillCount = listSkills().length;
   try {
     const install = runCli(['work', 'install', '--skills-dir', skillsDir]);
     assert.equal(install.status, 0, install.stderr);
-    assert.match(install.stdout, /17 installed, 0 updated, 0 already current/);
+    assert.match(install.stdout, new RegExp(`${skillCount} installed, 0 updated, 0 already current`));
     assert.match(install.stdout, /Settings → MCP/);
     assert.equal(fs.existsSync(path.join(skillsDir, 'lazy-ulw-plan', 'SKILL.md')), true);
     const sessionsSkill = fs.readFileSync(path.join(skillsDir, 'lazy-coding-agent-sessions', 'SKILL.md'), 'utf8');
     assert.match(sessionsSkill, /Global Trae Work fallback/);
     assert.doesNotMatch(sessionsSkill, /lazycodex\/plugins/);
     const migrationSkill = fs.readFileSync(path.join(skillsDir, 'lazy-migration-planner', 'SKILL.md'), 'utf8');
-    assert.match(migrationSkill, /optional user-provided LazyCodex checkout/);
+    assert.doesNotMatch(migrationSkill, /lazycodex|\bomo\b/i);
     assert.match(migrationSkill, /Global Trae Work fallback/);
     assert.doesNotMatch(migrationSkill, /docs\/lazytrae-(architecture-plan|host-adaptation-map|parity-ledger)\.md/);
 
     const status = runCli(['work', 'status', '--skills-dir', skillsDir]);
     assert.equal(status.status, 0, status.stderr);
-    assert.match(status.stdout, /17\/17 current, 0 missing, 0 outdated/);
+    assert.match(status.stdout, new RegExp(`${skillCount}\/${skillCount} current, 0 missing, 0 outdated`));
 
     fs.writeFileSync(path.join(skillsDir, 'lazy-ulw-plan', 'SKILL.md'), 'stale\n');
     const stale = runCli(['work', 'status', '--skills-dir', skillsDir]);
     assert.equal(stale.status, 1);
-    assert.match(stale.stdout, /16\/17 current, 0 missing, 1 outdated/);
+    assert.match(stale.stdout, new RegExp(`${skillCount - 1}\/${skillCount} current, 0 missing, 1 outdated`));
 
     const repair = runCli(['work', 'install', '--skills-dir', skillsDir]);
     assert.equal(repair.status, 0, repair.stderr);
-    assert.match(repair.stdout, /0 installed, 1 updated, 16 already current/);
+    assert.match(repair.stdout, new RegExp(`0 installed, 1 updated, ${skillCount - 1} already current`));
+  } finally {
+    fs.rmSync(skillsDir, { recursive: true, force: true });
+  }
+});
+
+test('work lifecycle help does not mutate its explicit skills directory', () => {
+  const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-help-'));
+  try {
+    const installHelp = runCli(['work', 'install', '--help', '--skills-dir', skillsDir]);
+    assert.equal(installHelp.status, 0, installHelp.stderr);
+    assert.match(installHelp.stdout, /Usage: lazytrae work <command> \[options\]/);
+    assert.deepEqual(fs.readdirSync(skillsDir), []);
+
+    const install = runCli(['work', 'install', '--skills-dir', skillsDir]);
+    assert.equal(install.status, 0, install.stderr);
+    const skillsBeforeHelp = fs.readdirSync(skillsDir).sort();
+    const contentBeforeHelp = skillsBeforeHelp.map(name => fs.readFileSync(path.join(skillsDir, name, 'SKILL.md'), 'utf8'));
+
+    const uninstallHelp = runCli(['work', 'uninstall', '--help', '--skills-dir', skillsDir]);
+    assert.equal(uninstallHelp.status, 0, uninstallHelp.stderr);
+    assert.match(uninstallHelp.stdout, /Usage: lazytrae work <command> \[options\]/);
+    assert.deepEqual(fs.readdirSync(skillsDir).sort(), skillsBeforeHelp);
+    assert.deepEqual(
+      skillsBeforeHelp.map(name => fs.readFileSync(path.join(skillsDir, name, 'SKILL.md'), 'utf8')),
+      contentBeforeHelp,
+    );
+
+    const uninstall = runCli(['work', 'uninstall', '--skills-dir', skillsDir]);
+    assert.equal(uninstall.status, 0, uninstall.stderr);
+    assert.deepEqual(fs.readdirSync(skillsDir), []);
   } finally {
     fs.rmSync(skillsDir, { recursive: true, force: true });
   }

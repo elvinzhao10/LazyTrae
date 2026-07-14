@@ -67,10 +67,10 @@
 - Created `.lazytrae/state/sessions.json` — session tracking with compaction state.
 - Created 6 evidence templates in `.lazytrae/evidence/` (test-runs, verifier, reviewer, oracle-review, completion, handoff).
 - Created 3 JSON Schemas in `.lazytrae/schemas/` (boulder, active-loop, evidence).
-- Created `.lazytrae/` current mirror directories.
-- Created `docs/lazytrae-state-machine.md` — comprehensive state machine documentation.
+- Created `.lazytrae/plans/` and `.lazytrae/loop/` runtime directories.
+- Created a consumer-owned state-machine explanation when the project needs one.
 - Created `.lazytrae/plans/sample-plan.md` — sample plan for verification.
-- Updated status ledger, command index, and AGENTS.md with COMPLETE statuses.
+- Updated parity ledger, command index, and AGENTS.md with COMPLETE statuses.
 
 ### Current State
 

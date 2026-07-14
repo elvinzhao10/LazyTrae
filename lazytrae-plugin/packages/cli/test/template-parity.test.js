@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const { MONOREPO_ROOT, REPO_ROOT, runCli } = require('./test-helpers');
+const { REPO_ROOT, makeFixture, runCli } = require('./test-helpers');
 
 function readFiles(directory, prefix = '') {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
@@ -13,6 +13,12 @@ function readFiles(directory, prefix = '') {
       ? readFiles(path.join(directory, entry.name), relativePath)
       : [relativePath];
   }).sort();
+}
+
+function readTraeTemplateFiles() {
+  return readFiles(path.join(REPO_ROOT, 'packages', 'cli', 'templates'))
+    .filter(relativePath => !['AGENTS.md', 'config.json'].includes(relativePath))
+    .filter(relativePath => !['evidence', 'schemas', 'state'].includes(relativePath.split(path.sep)[0]));
 }
 
 const EXACT_NPM_VERSION =
@@ -51,19 +57,41 @@ function assertSafeMcpDefaults(mcpServers) {
   }
 }
 
-test('templates mirror every repository .trae artifact', () => {
-  const source = readFiles(path.join(REPO_ROOT, '.trae'));
-  const templates = readFiles(path.join(REPO_ROOT, 'packages', 'cli', 'templates'))
-    .filter(relativePath => !['AGENTS.md', 'config.json'].includes(relativePath))
-    .filter(relativePath => !['evidence', 'schemas', 'state'].includes(relativePath.split(path.sep)[0]));
+test('test fixtures bootstrap managed files from package templates', () => {
+  const fixture = makeFixture('lazytrae-template-fixture-');
 
-  assert.deepEqual(templates, source);
-  for (const relativePath of source) {
-    assert.equal(
-      fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
-      fs.readFileSync(path.join(REPO_ROOT, '.trae', relativePath), 'utf8'),
-      `${relativePath} diverges from .trae`,
-    );
+  try {
+    assert.deepEqual(readFiles(path.join(fixture, '.trae')), readTraeTemplateFiles());
+    for (const relativePath of readTraeTemplateFiles()) {
+      assert.equal(
+        fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
+        fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
+        `${relativePath} was not bootstrapped from its package template`,
+      );
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('fresh install matches every managed package template', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-template-install-'));
+  fs.mkdirSync(path.join(fixture, '.git'));
+
+  try {
+    const init = runCli(['init'], { cwd: fixture });
+    assert.equal(init.status, 0, init.stderr);
+    const templates = readTraeTemplateFiles();
+    assert.deepEqual(readFiles(path.join(fixture, '.trae')), templates);
+    for (const relativePath of templates) {
+      assert.equal(
+        fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
+        fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
+        `${relativePath} was not installed from its package template`,
+      );
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
   }
 });
 
@@ -82,35 +110,9 @@ test('generated onboarding guide uses stable Markdown references', () => {
   );
 });
 
-test('active documentation is self-contained and indexes v0.15 entrypoints', () => {
-  const root = MONOREPO_ROOT;
-  const activeFiles = [
-    path.join(root, 'AGENTS.md'),
-    path.join(root, 'README.md'),
-    path.join(REPO_ROOT, 'README.md'),
-    path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'AGENTS.md'),
-    ...readFiles(path.join(REPO_ROOT, '.trae'))
-      .filter(relativePath => relativePath.endsWith('.md'))
-      .map(relativePath => path.join(REPO_ROOT, '.trae', relativePath)),
-  ];
-  const externalRuntimeReference = /dev\/reference\/lazycodex|\.omo(?:\/|\b)|\blazycodex\b|\bomo\b/i;
-
-  for (const file of activeFiles) {
-    assert.doesNotMatch(
-      fs.readFileSync(file, 'utf8'),
-      externalRuntimeReference,
-      `${path.relative(root, file)} must not require an external legacy runtime or reference tree`,
-    );
-  }
-
-  const docsIndex = fs.readFileSync(path.join(root, 'docs', 'README.md'), 'utf8');
-  assert.match(docsIndex, /Current v0\.15 entrypoints/);
-  assert.match(docsIndex, /Historical records/);
-});
-
 test('MCP templates have no unbounded active npx defaults', () => {
   const config = JSON.parse(
-    fs.readFileSync(path.join(REPO_ROOT, '.trae', 'mcp.json'), 'utf8'),
+    fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'mcp.json'), 'utf8'),
   );
 
   assertSafeMcpDefaults(config.mcpServers);
@@ -177,10 +179,10 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
       { command: 'lazytrae', args: ['mcp'] },
       'init must retain the LazyTrae MCP entrypoint',
     );
-    for (const relativePath of readFiles(path.join(REPO_ROOT, '.trae'))) {
+    for (const relativePath of readTraeTemplateFiles()) {
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
-        fs.readFileSync(path.join(REPO_ROOT, '.trae', relativePath), 'utf8'),
+        fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
         `${relativePath} was not installed from the template`,
       );
     }

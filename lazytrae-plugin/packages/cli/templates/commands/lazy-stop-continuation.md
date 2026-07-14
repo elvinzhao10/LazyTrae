@@ -12,7 +12,7 @@ None — stops the current execution immediately.
 
 ## Outputs
 
-- Halted state recorded in `.lazytrae/state/active-loop.json` or `.lazytrae/boulder.json`.
+- Halted state recorded in `.lazytrae/state/active-loop.json` or `.lazytrae/state/boulder.json`.
 - Summary of what was completed and what was interrupted.
 - Cleanup request for any running resources.
 
@@ -25,7 +25,7 @@ None — stops the current execution immediately.
 
 ## Linked Skill
 
-(Uses the active loop/start-work state from `.lazytrae/state/` and `.lazytrae/`)
+(Uses the active loop/start-work state from `.lazytrae/state/`.)
 
 ## Workflow Phase
 

@@ -7,8 +7,6 @@ description: "Safe refactoring discipline. Use when changing code structure with
 
 Safe refactoring discipline for LazyTrae. Changes the structure of code without changing its external behavior. Refactoring requires discipline — you must prove the behavior didn't change through tests and small, reversible steps.
 
-## Scope
-
 
 ## Purpose
 

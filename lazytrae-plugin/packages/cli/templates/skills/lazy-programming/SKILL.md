@@ -7,8 +7,6 @@ description: "General programming discipline and best practices. Use for any imp
 
 General programming discipline for LazyTrae. Ensures implementation work follows best practices for correctness, maintainability, and quality. This skill is not a substitute for domain-specific skills — it provides the baseline discipline that every implementation task should follow.
 
-## Scope
-
 
 ## Purpose
 

@@ -7,8 +7,6 @@ description: "Hierarchical repo understanding and AGENTS.md generation. Use when
 
 Generate hierarchical AGENTS.md files for a project. Root AGENTS.md + complexity-scored subdirectory AGENTS.md files.
 
-## Scope
-
 
 ## Purpose
 
@@ -23,9 +21,9 @@ Give agents local, scoped, telegraphic context before they touch code. A root AG
 - Git history (recent commits, branch structure).
 - Build/test/dev commands.
 
-## Mandatory host load check
+## Mandatory package load check
 
-Before any repository discovery, identify the current host and run its status check. This is required every time `lazy-init-deep` is invoked, including an existing project:
+Before any repository discovery, identify the target host and run its package load check. This is required every time `lazy-init-deep` is invoked, including an existing project:
 
 ```bash
 # Trae IDE
@@ -38,13 +36,35 @@ lazytrae load-check --host work
 lazytrae load-check --host cli
 ```
 
-Record the exact result in the final report. If project components are missing, run `lazytrae init --host <host>`; use `lazytrae sync` for an existing installation. For Trae Work, run `lazytrae work install` if global skills are missing. Re-run the check before continuing. Do not claim the project is initialized while the host load check fails. The Trae Work MCP setting remains manual.
+This is package readiness only: it verifies skills, commands, agents, hooks, and the MCP declaration. It does not establish host discovery or a live MCP connection. Record the actual result in the final report. If project components are missing, run `lazytrae init --host <host>`; use `lazytrae sync` for an existing installation. For Trae Work, run `lazytrae work install` if global skills are missing. Re-run the check before continuing. Do not claim the project is initialized while the package load check fails. The Trae Work MCP setting remains manual.
+
+## Optional Integration Boundary
+
+The load check and any repair above handle core LazyTrae assets only: installed
+skills, commands, rules, hooks, agents, schemas, and the base LazyTrae MCP
+declaration. Do NOT run `lazytrae tooling ...`. Do NOT enable optional MCP
+capabilities or install external dependencies during InitDeep. If an optional
+tool is genuinely needed, report its explicit lifecycle command and wait for a
+separate user-triggered request before provisioning it. Leave optional capabilities unchanged unless separately explicitly requested.
+
+## Required Readiness Evidence
+
+Record actual observations with these exact keys in the final report:
+
+- `readiness_result`: the final package load-check result.
+- `readiness_host`: the host argument used for that check.
+- `capability_statuses`: read-only optional-capability observations, or `not inspected` when unavailable.
+- `optional_policy`: `unchanged; no optional lifecycle invoked` unless a separate explicit request authorized it.
+- `receipt_state`: observed receipt state, or `not inspected` when no receipt check was requested.
+- `evidence_paths`: paths to the load-check output and generated AGENTS.md files.
+
+Never substitute assumptions for observations. InitDeep may report package readiness, but it cannot establish host discovery or a live MCP connection.
 
 ## Step-by-Step Procedure
 
 ### Phase 1: Discovery + Analysis
 
-1. **Confirm host readiness** — run the mandatory host load check above and report its observed counts before modifying or mapping the repository.
+1. **Confirm package readiness** — run the mandatory package load check above first, verify skills, commands, agents, hooks, and the MCP declaration, then report the observed result before modifying or mapping the repository.
 2. **Fire parallel read-only exploration** — use Trae Subagents or parallel tool calls to explore:
    - Project structure (directory layout, file counts, code concentration).
    - Entry points (main files, CLI entry, server bootstrap).
@@ -55,12 +75,12 @@ Record the exact result in the final report. If project components are missing, 
 3. **Main session analysis** — while sub-agents run:
    - Run directory structure analysis (depth, file counts per directory, code concentration by extension).
    - Read existing AGENTS.md / CLAUDE.md files.
-   - Use Trae built-in tools (SearchCodebase, Grep, Glob) to map symbols and references.
+   - Use Trae built-in tools (an available host capability, Grep, Glob) to map symbols and references.
 4. **Collect and merge** all findings.
 
 ### Phase 2: Scoring & Location Decision
 
-Score each directory using this matrix (adapted from LazyTrae):
+Score each directory using this matrix:
 
 | Factor | Weight | High Threshold |
 |--------|--------|----------------|
@@ -141,8 +161,17 @@ Decision rules:
 
 Mode: {update | create-new}
 
-Host load check: {PASS | repaired then PASS}
-Host: {Trae IDE | Trae Work | Trae CLI}
+Readiness:
+  readiness_result: {PASS | repaired then PASS | FAIL}
+  readiness_host: {ide | work | cli}
+  capability_statuses: {read-only observed values | not inspected}
+  optional_policy: unchanged; no optional lifecycle invoked
+  receipt_state: {observed value | not inspected}
+  evidence_paths:
+    - {load-check output path}
+    - {generated AGENTS.md path}
+
+Package readiness does not establish host discovery or a live MCP connection.
 
 Files:
   [OK] ./AGENTS.md (root, {N} lines)
@@ -164,7 +193,7 @@ After init-deep completes, the project is ready for `ulw-plan` (planning) or `st
 ## Anti-Patterns
 
 - **Static exploration**: Must vary exploration depth based on project size.
-- **Skipping host status**: Never begin discovery before the mandatory load check passes.
+- **Skipping package status**: Never begin discovery before the mandatory load check passes.
 - **Sequential execution**: Must parallelize independent discoveries.
 - **Ignoring existing**: Always read existing AGENTS.md first, even with --create-new.
 - **Over-documenting**: Not every directory needs AGENTS.md.

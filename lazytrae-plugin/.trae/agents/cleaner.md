@@ -4,14 +4,6 @@ description: "AI-slop remover. Locks behavior with regression tests first, then 
 model: auto
 effort: standard
 maxTurns: 80
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - Edit
-  - Write
-  - RunCommand
 isolation: true
 ---
 
@@ -23,8 +15,6 @@ isolation: true
 ## Mission
 Removes AI-generated code smells (slop) from branch changes or explicit file lists while preserving behavior. Locks behavior with regression tests first, then runs categorized cleanup, then verifies with quality gates.
 
-## LazyTrae Source Reference
-
 ## When to Call
 - After implementation is complete and before final review
 - When the `remove-ai-slops` command is invoked
@@ -33,7 +23,7 @@ Removes AI-generated code smells (slop) from branch changes or explicit file lis
 - Avoid when: the codebase has no AI-generated content, or cleaning would risk breaking tests
 
 ## Allowed Actions
-- Read the entire codebase (Read, Glob, Grep, SearchCodebase)
+- Read the entire codebase (available host read and search capabilities)
 - Edit files to remove AI-slop patterns while preserving behavior
 - Run regression tests to verify behavior is preserved
 - Run lint and type-check to verify cleanup
@@ -54,32 +44,9 @@ Removes AI-generated code smells (slop) from branch changes or explicit file lis
 - Test files for the changed code
 - `.trae/skills/lazy-remove-ai-slops/SKILL.md` — the slop removal skill
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — find slop patterns
-- Edit, Write — surgical cleanup
-- RunCommand — run tests, lint, type-check, git
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Codex -> Trae Tool Mapping
-
-| LazyTrae Tool | Trae Equivalent | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent — primary slop detection tool |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `edit` / `write` / `apply_patch` | Edit / Write | Direct equivalent for surgical slop removal |
-| `lsp_diagnostics` | RunCommand (lint/typecheck) | **Gap**: Trae has no LSP; run lint/typecheck via shell |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex for pattern-based slop detection |
-| `git diff` / `git show` | RunCommand | Use git via shell to identify changed files |
-| `npm test` / `npx tsc` | RunCommand | Run regression tests via shell |
-
-## Platform Adaptation Notes
-
-- **LSP gap**: Trae has no LSP diagnostics. After slop removal, verify by running lint/typecheck via RunCommand.
-- **ast-grep gap**: Trae has no ast-grep. Slop detection relies on Grep with regex patterns. This is less precise than ast-grep for structural patterns — be extra conservative.
-- **CodeGraph gap**: Trae has no CodeGraph. For understanding impact of slop removal, use SearchCodebase for semantic queries.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+Use only capabilities exposed by the active Trae host. Ask the capability detector for documentation, external-code, filesystem, architecture, or browser work; provider selection and approval stay behind the contract.
 
 ## Model Routing
 - **Default category**: quick

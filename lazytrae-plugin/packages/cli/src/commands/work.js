@@ -13,6 +13,7 @@ Install and inspect LazyTrae's global Trae Work skills.
 Commands:
   install     Copy every lazy-* skill into Trae Work's global skills directory
   status      Report whether the global skills are current
+  uninstall   Remove only exact, unmodified LazyTrae skills
 
 Options:
   --skills-dir <path>  Override the macOS default (~/.trae-cn/skills)
@@ -121,6 +122,28 @@ function install(skillsDir) {
   printMcpReminder();
 }
 
+function uninstall(skillsDir) {
+  rejectSymlink(skillsDir);
+  for (const name of listSkills()) assertSafeSkillPath(skillsDir, name);
+
+  let removed = 0;
+  let preserved = 0;
+  for (const name of listSkills()) {
+    const { destination, destinationDir } = assertSafeSkillPath(skillsDir, name);
+    if (!fs.existsSync(destination)) continue;
+    if (skillState(skillsDir, name) !== 'current' || fs.readdirSync(destinationDir).length !== 1) {
+      preserved++;
+      continue;
+    }
+    fs.unlinkSync(destination);
+    fs.rmdirSync(destinationDir);
+    removed++;
+  }
+  console.log(`Trae Work global skills: ${removed} removed, ${preserved} preserved.`);
+  console.log(`Directory: ${skillsDir}`);
+  console.log('Remove the LazyTrae MCP server manually in Settings → MCP; host installation paths are never guessed.');
+}
+
 function withSkillsDirOverride(skillsDir, callback) {
   const previous = process.env[WORK_SKILLS_DIR_ENV];
   process.env[WORK_SKILLS_DIR_ENV] = skillsDir;
@@ -146,17 +169,18 @@ function status(skillsDir) {
 
 function run(args) {
   const command = args[0];
-  if (!command || command === '--help' || command === '-h') {
+  if (!command || args.includes('--help') || args.includes('-h')) {
     printHelp();
     return;
   }
-  if (!['install', 'status'].includes(command)) {
+  if (!['install', 'status', 'uninstall'].includes(command)) {
     throw new Error(`Unknown Trae Work command '${command}'. Run \`lazytrae work --help\`.`);
   }
 
   const skillsDir = readSkillsDir(args.slice(1));
   if (command === 'install') install(skillsDir);
-  else process.exitCode = status(skillsDir);
+  else if (command === 'status') process.exitCode = status(skillsDir);
+  else uninstall(skillsDir);
 }
 
 module.exports = {
@@ -169,5 +193,6 @@ module.exports = {
   run,
   skillState,
   status,
+  uninstall,
   withSkillsDirOverride,
 };

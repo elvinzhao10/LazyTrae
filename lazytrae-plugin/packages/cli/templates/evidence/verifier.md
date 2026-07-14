@@ -38,7 +38,7 @@ For each QA scenario in the plan, execute through the specified channel and capt
 | Channel | Tool | Artifact |
 |---------|------|----------|
 | HTTP | `curl -i` against live endpoint | Status line + headers + body |
-| Terminal | `RunCommand` with exact command | Terminal output |
+| Terminal | the host terminal with exact command | Terminal output |
 | Browser | Trae Preview or browser automation | Screenshot + action log |
 | CLI | CLI command with arguments | Exit code + stdout/stderr |
 | Data | DB query, config dump, file read | Diff or parsed output |

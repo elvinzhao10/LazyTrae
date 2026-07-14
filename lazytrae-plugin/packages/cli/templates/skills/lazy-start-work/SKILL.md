@@ -7,8 +7,6 @@ description: "Execute a Prometheus work plan one task at a time with Boulder sta
 
 Execute a Prometheus work plan until every top-level checkbox is complete. You are an ORCHESTRATOR — you delegate implementation to subagents, never implement yourself.
 
-## Scope
-
 
 ## Purpose
 
@@ -17,16 +15,16 @@ Execute an approved plan one checkbox at a time, with durable state tracking, ev
 ## Required Context to Inspect
 
 - The approved plan file at `.lazytrae/plans/<slug>.md`.
-- The Boulder state file at `.lazytrae/boulder.json` (if resuming).
+- The Boulder state file at `.lazytrae/state/boulder.json` (if resuming).
 - The project's AGENTS.md and `.trae/rules/lazytrae.md`.
-- The evidence ledger at `.lazytrae/start-work/ledger.jsonl` (if resuming).
+- The evidence ledger at `.lazytrae/logs/start-work-ledger.jsonl` (if resuming).
 - Recent git history and branch state.
 
 ## Step-by-Step Procedure
 
 ### Phase 1: Select the Plan
 
-1. Read `.lazytrae/boulder.json` if it exists.
+1. Read `.lazytrae/state/boulder.json` if it exists.
 2. List plan files under `.lazytrae/plans/`.
 3. If a plan name was provided, select the matching plan.
 4. If exactly one active or paused Boulder work exists for this session, resume it.
@@ -36,7 +34,7 @@ Execute an approved plan one checkbox at a time, with durable state tracking, ev
 
 ### Phase 2: Create or Update Boulder State
 
-Write `.lazytrae/boulder.json` before implementation starts:
+Write `.lazytrae/state/boulder.json` before implementation starts:
 
 ```json
 {
@@ -78,7 +76,7 @@ For each checkbox, complete all five gates before marking it done:
 4. **Adversarial QA**: Exercise edge cases, regression scenarios, adversarial inputs.
 5. **Cleanup**: Tear down QA resources (servers, tmux sessions, browser contexts, temp files).
 
-Append evidence to `.lazytrae/start-work/ledger.jsonl`.
+Append evidence to `.lazytrae/logs/start-work-ledger.jsonl`.
 
 ### Phase 5: Mark Progress
 
@@ -101,7 +99,7 @@ When all top-level checkboxes are complete:
 
 ## Allowed Edits
 
-- Write to `.lazytrae/boulder.json`, `.lazytrae/start-work/ledger.jsonl`.
+- Write to `.lazytrae/state/boulder.json`, `.lazytrae/logs/start-work-ledger.jsonl`.
 - Edit plan file checkboxes (from `[ ]` to `[x]`).
 - Create evidence files under `.lazytrae/evidence/`.
 - Read project files, run verification commands.

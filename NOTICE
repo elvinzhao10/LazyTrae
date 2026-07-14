@@ -16,6 +16,29 @@ repository. All implementations are original work based on studying the
 canonical behavior. The SUL governs omo itself; it does not extend to this
 repo's original Trae-native output.
 
+## v0.16 direct tooling dependencies
+
+LazyTrae v0.16.0-alpha.1 provisions the following direct, pinned optional
+tooling dependencies into package-owned roots only. Their lockfiles are the
+source of the exact resolved versions; this list records attribution and does
+not make any upstream tool an operational dependency of LazyCodex or omo.
+
+- [Ajv](https://github.com/ajv-validator/ajv) 8.20.0 — MIT.
+- [ast-grep](https://github.com/ast-grep/ast-grep) CLI 0.44.1 — MIT.
+- [VS Code ripgrep](https://github.com/microsoft/vscode-ripgrep) 1.18.0 — MIT.
+- [CodeGraph](https://github.com/colbymchenry/codegraph) 1.4.1, including its
+  platform-specific optional bundles — MIT.
+- [TypeScript](https://github.com/microsoft/TypeScript) 5.9.3 — Apache-2.0.
+- [TypeScript Language Server](https://github.com/typescript-language-server/typescript-language-server)
+  5.3.0 — Apache-2.0.
+- [basedpyright](https://github.com/detachhead/basedpyright) 1.39.9 — MIT.
+
+These dependencies are installed only when the corresponding optional
+LazyTrae tooling command provisions an explicit, receipt-owned root. Their
+own package license files remain with their installed distributions. See the
+package lockfiles under `lazytrae-plugin/packages/cli/` for checksums and
+complete transitive dependency records.
+
 The MIT License of the lazycodex reference layer is reproduced below.
 
 ---

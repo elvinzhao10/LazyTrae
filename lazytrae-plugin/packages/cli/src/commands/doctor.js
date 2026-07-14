@@ -7,6 +7,10 @@ const { checkModelRouting } = require('../lib/model-routing-check');
 const { checkTraeStructure } = require('../lib/trae-checks');
 const { checkTeamMode } = require('../lib/team-check');
 const { checkStaleRecovery } = require('../lib/context-recovery');
+const { validateActivePlans } = require('../lib/active-plan');
+const { providerMatrix } = require('../lib/provider-lifecycle');
+const { readLedger } = require('../lib/automatic-tooling-policy');
+const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -140,11 +144,10 @@ Options:
     addResult('.lazytrae/evidence/', 'WARN', 'Directory not found');
   }
 
-  // .omo/ directories
-  const omoPlans = path.join(repoRoot, '.omo', 'plans');
-  const omoUlw = path.join(repoRoot, '.omo', 'ulw-loop');
-  addResult('.omo/plans/', fs.existsSync(omoPlans) ? 'PASS' : 'WARN');
-  addResult('.omo/ulw-loop/', fs.existsSync(omoUlw) ? 'PASS' : 'WARN');
+  const plansDir = path.join(repoRoot, '.lazytrae', 'plans');
+  const loopDir = path.join(repoRoot, '.lazytrae', 'loop');
+  addResult('.lazytrae/plans/', fs.existsSync(plansDir) ? 'PASS' : 'WARN');
+  addResult('.lazytrae/loop/', fs.existsSync(loopDir) ? 'PASS' : 'WARN');
 
   // AGENTS.md with managed blocks
   const agentsPath = path.join(repoRoot, 'AGENTS.md');
@@ -176,6 +179,15 @@ Options:
   addResult('Completed task evidence gate', evidenceGate.valid ? 'PASS' : 'FAIL',
     evidenceGate.valid ? 'All completed tasks have evidence paths' : evidenceGate.errors.join('; '));
 
+  const boulderPath = path.join(repoRoot, '.lazytrae', 'state', 'boulder.json');
+  try {
+    const activePlanErrors = validateActivePlans(repoRoot, JSON.parse(fs.readFileSync(boulderPath, 'utf-8')));
+    addResult('Active plan validation', activePlanErrors.length === 0 ? 'PASS' : 'FAIL',
+      activePlanErrors.length === 0 ? 'No active plan to validate or active plan is safe' : activePlanErrors.join('; '));
+  } catch (error) {
+    addResult('Active plan validation', 'FAIL', `Cannot inspect boulder state: ${error.message}`);
+  }
+
   const recoveryResult = checkStaleRecovery(repoRoot);
   addResult(recoveryResult.label, recoveryResult.status, recoveryResult.detail);
 
@@ -188,6 +200,21 @@ Options:
     ? checkTeamMode(repoRoot)
     : { label: 'Team mode', status: 'WARN', detail: 'No team state initialized' };
   addResult(teamResult.label, teamResult.status, teamResult.detail);
+
+  try {
+    const providers = providerMatrix({ environment: process.env });
+    const configured = providers.filter(provider => provider.credential !== null).length;
+    addResult('Provider status', 'PASS', `${providers.length} declared; ${configured} credential reference(s), values redacted`);
+  } catch (error) {
+    addResult('Provider status', 'WARN', `Unavailable: ${error.message}`);
+  }
+
+  try {
+    const ledger = readLedger({ environment: process.env });
+    addResult('Approval status', 'PASS', `${Object.keys(ledger.approvals).length} persisted approval decision(s)`);
+  } catch (error) {
+    addResult('Approval status', 'WARN', `Unavailable: ${error.message}`);
+  }
 
   // Parity ledger
   if (sourceTree) {
@@ -205,7 +232,7 @@ Options:
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v0.15.0-alpha.2`);
+  console.log(`LazyTrae Doctor v0.16.0-alpha.1`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);
@@ -219,6 +246,7 @@ Options:
   }
 
   console.log(`\n=== Results: ${pass} PASS, ${warn} WARN, ${fail} FAIL ===`);
+  console.log(formatReadinessSummary(readinessReport(repoRoot)));
 
   const effectiveFail = strict ? (fail + warn) : fail;
   process.exit(effectiveFail > 0 ? 1 : 0);

@@ -4,12 +4,6 @@ description: "Codebase search specialist. Finds files and code in the working tr
 model: lite
 effort: low
 maxTurns: 40
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - RunCommand
 disallowed:
   - Edit
   - Write
@@ -24,8 +18,6 @@ isolation: true
 ## Mission
 Fast codebase search specialist that finds files, code, and patterns in the working tree. Returns absolute paths with structured, actionable results. Read-only.
 
-## LazyTrae Source Reference
-
 ## When to Call
 - When the question is "Where is X?" / "Which files do Y?" / "Find code that does Z"
 - When multiple search angles are needed and the module structure is unfamiliar
@@ -34,7 +26,7 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - Avoid when: the caller already knows the exact file or symbol, or a single keyword search suffices
 
 ## Allowed Actions
-- All read-only tools: Read, Glob, Grep, SearchCodebase
+- All read-only tools: available host read and search capabilities
 - Run read-only shell commands: `git log`, `git blame`, `git show`
 - Fire 3+ parallel searches in the first wave — cross-validate across multiple tools
 - Multiple search waves based on thoroughness level
@@ -49,31 +41,9 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - None required — the explorer is called for specific search questions
 - May read AGENTS.md for project-specific conventions if needed
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — all search tools
-- RunCommand — `git log`, `git blame`, `git show`, `rg`, `find`
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Codex -> Trae Tool Mapping
-
-| LazyTrae Tool | Trae Equivalent | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `lsp_goto_definition` / `lsp_find_references` / `lsp_symbols` / `lsp_diagnostics` | SearchCodebase | **Gap**: Trae has no LSP tools; compensate with Grep + SearchCodebase |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex patterns |
-| `git log` / `git blame` / `git show` | RunCommand | Use git via shell |
-| `multi_agent_v1.spawn_agent` | Task (subagent_type: search) | **Adaptation**: Trae Task is synchronous; isolation: true by default |
-
-## Platform Adaptation Notes
-
-- **fork_context: false -> isolation: true**: LazyTrae spawns subagents with `fork_context: false` for context isolation. In Trae, the Task tool provides independent context by default.
-- **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase (semantic search) and Grep (text search) for symbol-level queries.
-- **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries.
-- **ast-grep gap**: Trae has no ast-grep. Use Grep with regex patterns for structural code search.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+Use only capabilities exposed by the active Trae host. Ask the capability detector for documentation, external-code, filesystem, architecture, or browser work; provider selection and approval stay behind the contract.
 
 ## Model Routing
 - **Default category**: quick
@@ -81,7 +51,7 @@ Fast codebase search specialist that finds files, code, and patterns in the work
 - **Escalate to deep**: When search results reveal architectural complexity requiring sustained reasoning across layers.
 
 ## Model/Mode Guidance
-- **Model**: lite (LazyTrae explorer.toml uses `gpt-5.4-mini` with `low` effort)
+- **Model**: lite
 - **Effort**: low
 - **Max turns**: 40
 - Guidance: Fast, parallel, thorough. Not reasoning-heavy — focus on search coverage.
@@ -120,7 +90,7 @@ Always produce both blocks:
 
 ## Team Mode
 
-This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode (see `docs/lazytrae-team-mode.md`):
+This agent is read-only by default and suitable for parallel team membership. When invoked as a team member through the LazyTrae team mode:
 
 - Write the deliverable report to `.lazytrae/team/members/<id>/report.md`
 - Use `WORKING:` / `BLOCKED:` heartbeat markers in `.lazytrae/team/mailbox/<id>/outbox.md`

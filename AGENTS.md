@@ -1,17 +1,27 @@
+<!-- lazytrae:managed:start:onboarding -->
 # AGENTS.md — LazyTrae Setup Guide
 
 > **Agent:** this file is the **setup** guide. It tells you how to install and configure LazyTrae. For *how to use* the harness once installed, see the [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme).
 
-LazyTrae is a self-contained workflow harness for Trae IDE, Trae Work, and Trae CLI. The `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
+LazyTrae is a Trae-native workflow harness. It supports Trae IDE, Trae Work, and Trae CLI; the `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
+
+This repository carries a **v0.17 alignment candidate**; published package
+manifests remain **v0.16.0-alpha.1** until a separate release-version bump.
+The candidate is verified on macOS only. Automatic
+capability work is temporary and package-owned: it may use safe local tools in
+a private receipt-owned toolpack, but never changes a project MCP file, host
+configuration, dependencies, or lockfile. Use `rg` for local search, `sg` for
+structural search, the separate LSP bridge for semantic navigation, and
+CodeGraph only for explicit architecture/dependency work.
 
 ## `onboard` protocol
 
 When the user types `onboard`:
 
 1. Read this guide and ask which installed host/version they are using: **Trae IDE**, **Trae Work**, or **Trae CLI**.
-2. Follow only that host's setup path. Perform safe repository and CLI steps automatically. If the separate `lazytrae` companion command is available, run `lazytrae init --host ide|work|cli`; for Trae Work, also run `lazytrae work install` and `lazytrae work status`. If it is absent, do not claim the cloned repository supplies it; offer the repo-only fallback in Step A and explain its MCP limit.
-3. Report each completed action and its observed result. Label the final `load-check` as **package readiness**: it verifies copied files and declared configuration, not host discovery, MCP connection, or a running session. A read-only capability status may report optional state but must not activate a provider, install globally, or register MCP.
-4. Stop before account, marketplace, model, or app-setting changes. Give exact manual directions for those steps. For Trae Work, manual **Settings → MCP** registration is required.
+2. Follow only that host's setup path. Perform safe repository and CLI steps automatically. If the separate `lazytrae` companion command is available, run `lazytrae init --host ide|work|cli`; for Trae Work, `lazytrae init --host work` invokes the bounded Work skill installation, then run `lazytrae work status`. If it is absent, do not claim the cloned repository supplies it; offer the repo-only fallback in Step A and explain its MCP limit.
+3. Report each completed action and its observed result. Label the final `load-check` as **package readiness**: it verifies copied files and declared configuration, not host discovery, MCP connection, or a running session.
+4. Stop before account, marketplace, model, or app-setting changes. Do not use `tooling enable` during onboarding or InitDeep: it is an explicit persistent compatibility choice. Give exact manual directions for those steps. For Trae Work, manual **Settings → MCP** registration is required.
 5. End by explaining that the copied repository can be deleted after installation, or retained to explore and study the project.
 
 ## Step 0 — Which platform are you on?
@@ -19,11 +29,11 @@ When the user types `onboard`:
 | Platform | Skills | Commands | Rules / Agents / Hooks | MCP server |
 |---|---|---|---|---|
 | **Trae IDE** | project `.trae/skills/` | project commands | project hooks | declaration in project `.trae/mcp.json`; reconnect/reopen to verify |
-| **Trae Work** | global `lazytrae work install` → `~/.trae-cn/skills/` (macOS) | no global commands; use skills or natural language | CLI verification gates | manually add `lazytrae mcp` in Settings → MCP |
+| **Trae Work** | `lazytrae work install` → `~/.trae-cn/skills/` on macOS | no global commands; use skills or natural language | CLI verification gates | manually add `lazytrae mcp` in Settings → MCP |
 | **Trae CLI** | local project configuration | `trae-cli` agent session + `lazytrae` gates | CLI verification gates | register with `trae-cli mcp add-json` before starting a session |
 
 - **Trae IDE** → Step A, then open the project in Trae IDE.
-- **Trae Work** → Step A, then follow the [Trae Work setup guide](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/lazytrae-setup-guide.md).
+- **Trae Work** → Step A, then use the Work setup below.
 - **Trae CLI** → [Step C](#step-c--trae-cli-no-ide).
 
 ## Step A — Install
@@ -52,7 +62,7 @@ This fallback copies the project `.trae/` and `.lazytrae/` trees without `npm` o
 
 ## Step B — Trae Work setup
 
-Trae Work does not auto-load project configuration. Install the 17 global LazyTrae skills with `lazytrae work install`, then restart or reload Trae Work. The command copies the bundled skills to `~/.trae-cn/skills/` on macOS; use `lazytrae work status` to check them later. Trae Work has no global command registry, so invoke those skills or describe the workflow in natural language. Then manually add the LazyTrae server through **Settings → MCP** with command `lazytrae` and argument `mcp`. Full steps: [setup guide](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/lazytrae-setup-guide.md).
+Trae Work does not auto-load project configuration. On macOS, install the 17 global LazyTrae skills with `lazytrae work install`, then inspect them with `lazytrae work status`. The macOS destination is `~/.trae-cn/skills/`; host reload/discovery still requires manual confirmation. Trae Work has no global command registry, so invoke skills or use natural language. Add the LazyTrae server manually through **Settings → MCP** with command `lazytrae` and argument `mcp`. Linux and Windows paths and host behavior are unverified; use `--skills-dir` only with a directory manually reported by Trae Work.
 
 ## Step C — Trae CLI (no IDE)
 
@@ -68,14 +78,43 @@ The registration command completes the CLI configuration; the new session is whe
 
 ```bash
 lazytrae doctor    # expect 0 FAIL (WARNs are environmental: empty evidence, etc.)
+lazytrae setup --non-interactive --json  # provider readiness; no credential read
+lazytrae providers --json                # redacted provider and approval state
 ```
+
+## Provider and approval boundary
+
+`lazytrae setup`, `providers`, `providers configure`, and `providers test`
+manage only redacted provider metadata and opaque credential references. They
+do not print raw credential values. Automatic remote use is bounded by the
+contract's approval, egress, timeout, and cost rules: metered use requires an
+explicit budget; CodeGraph and Playwright require approval; authenticated
+browser work, forms, publishing, external writes, purchases, destructive work,
+and secret reads always require approval. `lazytrae tooling enable <capability>`
+is the separate explicit persistent compatibility path and is never chosen by
+onboarding, InitDeep, doctor, or automatic capability routing.
+
+## Uninstall
+
+From the initialized project, use the documented safe modes:
+
+```bash
+lazytrae uninstall --yes                # exact managed assets only; normal runtime data remains
+lazytrae uninstall --yes --soft         # exact .trae/ assets only
+lazytrae uninstall --yes --purge-state  # exact runtime templates too
+```
+
+For Trae Work on macOS, run `lazytrae work uninstall`; it removes only unmodified LazyTrae skills and preserves edited or nonempty folders. Remove the `lazytrae` MCP server manually in **Settings → MCP**. Linux and Windows host directories are unverified: pass `--skills-dir <host-reported-directory>` only after manually confirming it. For Trae CLI, remove the separately registered server with `trae-cli mcp remove lazytrae`; project uninstall never changes that registration. Remove the global companion only when unused: `npm uninstall -g lazytrae-ai`.
 
 ## What gets installed
 
-`.trae/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, 8 hook scripts for 5 events, and 10 MCP declarations), `.lazytrae/` (canonical schemas, configuration, plans, loop state, and evidence), and this `AGENTS.md` (setup guide). The `lazytrae` MCP declaration supplies 15 tools when connected. All skills/commands are `lazy-` prefixed.
+`.trae/` (rules, 17 `lazy-` skills, 9 `lazy-` commands, 11 agents, 8 hook scripts for 5 events, and 8 MCP declarations), `.lazytrae/` (canonical LazyTrae schemas, config, plans, loop, and runtime data), and this `AGENTS.md` (setup guide). The base MCP configuration has one executable `lazytrae` core server and seven disabled placeholders. InitDeep copies these package-owned assets only. It never enables remote MCP services or creates persistent provider state. The `lazytrae` MCP declaration supplies 15 tools when connected. All skills/commands are `lazy-` prefixed.
 
 ## Reference
 
-- Full setup detail (Trae Work + CLI): [setup guide](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/lazytrae-setup-guide.md)
+- Repository handoff: [docs/handoff.md](docs/handoff.md). Private legacy root
+  documentation belongs in ignored `dev/docs/root/`.
+- Trae Work: `lazytrae work install`, then `lazytrae work status`
 - How to use the harness: [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme)
-- Historical records: [documentation index](https://github.com/elvinzhao10/LazyTrae/tree/main/docs)
+- Parity assessment: [LazyTrae evaluation](https://github.com/elvinzhao10/LazyTrae/blob/main/lazytrae-evaluation.md)
+<!-- lazytrae:managed:end:onboarding -->

@@ -4,12 +4,6 @@ description: "Pre-planning analyst. Detects contradictions, ambiguity, missing c
 model: max
 effort: high
 maxTurns: 120
-tools:
-  - Read
-  - Glob
-  - Grep
-  - SearchCodebase
-  - RunCommand
 disallowed:
   - Edit
   - Write
@@ -24,8 +18,6 @@ isolation: true
 ## Mission
 Pre-planning analyst that examines a draft plan or vague request and surfaces contradictions, ambiguity, missing constraints, and execution risks before the planner finalizes. Read-only.
 
-## LazyTrae Source Reference
-
 ## When to Call
 - After Prometheus drafts a plan but before Momus reviews it
 - Before a large planning effort when the user's request contains ambiguity
@@ -33,7 +25,7 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 - Avoid when: the request is trivial, the plan is already reviewed, or the requirements are clear and unambiguous
 
 ## Allowed Actions
-- Read the entire codebase (Read, Glob, Grep, SearchCodebase)
+- Read the entire codebase (available host read and search capabilities)
 - Read the draft plan file
 - Read relevant context files (AGENTS.md, architecture docs, existing plans)
 - Read referenced files to verify constraints
@@ -47,34 +39,15 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 - Invent problems — report only gaps that would block a competent executor
 
 ## Required Context Files
-- The draft plan file (from `.lazytrae/plans/` or `.lazytrae/plans/`)
-- `AGENTS.md` — project constitution and constraints
-- `docs/lazytrae-architecture-plan.md` — architecture decisions
+- The draft plan file (from `.lazytrae/plans/`)
+- Project instructions and constraints available in the current workspace
 - The user's original request or brief
 - Any referenced specification files
+- Project-specific architecture, parity, command, or operating documents only if the project or user provides them
 
-## Tools/MCP Expectations
-- Read, Glob, Grep, SearchCodebase — verify referenced files and patterns
-- RunCommand — read-only analysis (grep for patterns, check structure)
-- No MCP servers required beyond project-level configuration
+## Host capability boundary
 
-## Codex -> Trae Tool Mapping
-
-| LazyTrae Tool | Trae Equivalent | Notes |
-|----------------|-----------------|-------|
-| `rg` (ripgrep) | Grep | Direct equivalent |
-| `rg --files` / `find` / `glob` | Glob | Direct equivalent |
-| `cat` / `read` | Read | Direct equivalent |
-| `lsp_goto_definition` / `lsp_find_references` | SearchCodebase | **Gap**: Trae has no LSP tools; compensate with Grep + SearchCodebase |
-| `codegraph_explore` | SearchCodebase | **Gap**: Trae has no CodeGraph; compensate with Grep + SearchCodebase |
-| `ast-grep` / `sg` | Grep (with regex) | **Gap**: Trae has no ast-grep; use Grep with regex patterns |
-
-## Platform Adaptation Notes
-
-- **Read-only enforcement**: Trae enforces read-only via `disallowed` frontmatter (Edit, Write). No runtime tool restriction needed.
-- **LSP gap**: Trae has no LSP tools. Compensate with SearchCodebase for verifying referenced patterns and file contents.
-- **CodeGraph gap**: Trae has no CodeGraph. Compensate with SearchCodebase for structural queries during risk analysis.
-- **PostCompact hook**: Trae has no PostCompact hook event. State recovery relies on durable state files.
+Use only capabilities exposed by the active Trae host. Ask the capability detector for documentation, external-code, filesystem, architecture, or browser work; provider selection and approval stay behind the contract.
 
 ## Model Routing
 - **Default category**: ultrabrain
@@ -82,7 +55,7 @@ Pre-planning analyst that examines a draft plan or vague request and surfaces co
 - **Escalate to review**: When gap analysis is complete and the plan needs formal review before execution.
 
 ## Model/Mode Guidance
-- **Model**: max (LazyTrae metis.toml uses `gpt-5.5` with `high` effort)
+- **Model**: max
 - **Effort**: high
 - **Max turns**: 120
 - Guidance: Needs strong analytical reasoning to detect subtle contradictions and missing constraints.

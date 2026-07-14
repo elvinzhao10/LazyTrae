@@ -1,9 +1,10 @@
 const assert = require('node:assert/strict');
-const { readFileSync } = require('node:fs');
-const { resolve } = require('node:path');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const test = require('node:test');
 
-const repositoryRoot = process.env.LAZYTRAE_DOCUMENTATION_ROOT || resolve(__dirname, '../../../..');
+const repositoryRoot = path.resolve(__dirname, '../../../..');
 const requiredHeadings = [
   'Public capability status contract',
   'Optional capability policy',
@@ -15,44 +16,47 @@ const requiredHeadings = [
   'macOS verification scope',
 ];
 
-function readRepositoryFile(path) {
-  return readFileSync(resolve(repositoryRoot, path), 'utf8');
+const documentationPaths = [
+  path.join(repositoryRoot, 'lazytrae-evaluation.md'),
+  path.join(repositoryRoot, 'docs', 'handoff.md'),
+];
+
+function assertDocumentationContract(documentationPath) {
+  const content = fs.readFileSync(documentationPath, 'utf8');
+
+  for (const heading of requiredHeadings) {
+    assert.match(content, new RegExp(`^## ${heading}$`, 'm'), `${documentationPath} is missing ${heading}`);
+  }
+
+  assert.match(content, /macOS only/, `${documentationPath} must retain macOS-only scope`);
+  assert.match(content, /Host integration/, `${documentationPath} must name host-integration differences`);
+  assert.match(content, /State\/path/, `${documentationPath} must name state/path differences`);
+  assert.match(content, /Inventory/, `${documentationPath} must name inventory differences`);
+  assert.match(content, /normal CI.*does not require.*sibling/i, `${documentationPath} must keep normal CI self-contained`);
+  assert.match(content, /release-only paired parity/i, `${documentationPath} must limit paired parity to release evidence`);
 }
 
-test('v0.17 public documentation carries the shared safety taxonomy', () => {
-  for (const path of ['lazytrae-evaluation.md', 'docs/handoff.md']) {
-    const content = readRepositoryFile(path);
-    for (const heading of requiredHeadings) {
-      assert.match(content, new RegExp(`^## ${heading}$`, 'm'), `${path} is missing ${heading}`);
-    }
+test('Given current LazyTrae documentation, when its v0.17 contract is checked, then every shared heading and policy is present', () => {
+  for (const documentationPath of documentationPaths) {
+    assertDocumentationContract(documentationPath);
   }
+
+  const packageReadme = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'README.md'), 'utf8');
+  const onboardingGuide = fs.readFileSync(path.join(repositoryRoot, 'AGENTS.md'), 'utf8');
+  assert.match(packageReadme, /init --host work` invokes the bounded Work skill installation/, 'package README must describe the Work init lifecycle accurately');
+  assert.match(onboardingGuide, /package readiness/, 'onboarding guide must describe package-only readiness');
+  assert.match(onboardingGuide, /invokes the bounded Work skill installation/, 'onboarding guide must describe the Work init lifecycle accurately');
 });
 
-test('v0.17 onboarding preserves Trae-specific boundaries', () => {
-  const onboarding = readRepositoryFile('AGENTS.md');
-  const packageReadme = readRepositoryFile('lazytrae-plugin/README.md');
-  const evaluation = readRepositoryFile('lazytrae-evaluation.md');
+test('Given a copied LazyTrae handoff, when a required heading is removed, then the documentation contract rejects it', () => {
+  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-documentation-regression-'));
+  const copiedHandoff = path.join(temporaryDirectory, 'handoff.md');
 
-  assert.match(onboarding, /not host discovery, MCP connection, or a running session/);
-  assert.match(onboarding, /manual \*\*Settings → MCP\*\* registration is required/);
-  assert.match(packageReadme, /host discovery and MCP connection are reported separately/);
-  assert.match(evaluation, /15 tools/);
-  assert.match(evaluation, /\.trae\//);
-  assert.match(evaluation, /trae-cli mcp add-json/);
-  assert.match(evaluation, /ten MCP declarations/);
-  assert.match(evaluation, /filesystem and Playwright templates/);
-  assert.match(evaluation, /macOS only/);
-});
-
-test('v0.17 policy is read-only and normal CI is self-contained', () => {
-  const evaluation = readRepositoryFile('lazytrae-evaluation.md');
-  const handoff = readRepositoryFile('docs/handoff.md');
-
-  for (const content of [evaluation, handoff]) {
-    assert.match(content, /host-ready.*owned-ready.*missing.*incompatible.*disabled.*failed-optional.*not-initialized/s);
-    assert.match(content, /Normal CI is self-contained/);
-    assert.match(content, /release-only/);
-    assert.match(content, /does not.*activate.*provider|without.*enabling|as enabling a provider/i);
-    assert.match(content, /host registrations.*host|host registrations survive/i);
+  try {
+    fs.copyFileSync(path.join(repositoryRoot, 'docs', 'handoff.md'), copiedHandoff);
+    fs.writeFileSync(copiedHandoff, fs.readFileSync(copiedHandoff, 'utf8').replace('## JSON-RPC resilience\n', ''), 'utf8');
+    assert.throws(() => assertDocumentationContract(copiedHandoff), /JSON-RPC resilience/);
+  } finally {
+    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
   }
 });

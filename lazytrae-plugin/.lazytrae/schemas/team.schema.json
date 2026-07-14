@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://lazytrae.dev/schemas/team.schema.json",
   "title": "LazyTrae Team State",
-  "description": "Durable team state shape (schemaVersion 2). Mirrors LazyCodex team-state.mjs shape.",
+  "description": "Durable LazyTrae team state shape (schemaVersion 2).",
   "type": "object",
   "required": [
     "schemaVersion",

@@ -9,7 +9,7 @@ Find and inspect coding-agent sessions across Trae and other platforms before an
 
 ## Global Trae Work fallback
 
-This installed skill is self-contained. It does not require a LazyTrae checkout, helper script, or reference bundle. Use the local paths listed below when they are available; for an unlisted platform, ask the user for its documented transcript location before searching.
+This installed skill is self-contained. It does not require a helper script or reference bundle. Use the local paths listed below when they are available; for an unlisted platform, ask the user for its documented transcript location before searching.
 
 ## Purpose
 
@@ -59,7 +59,7 @@ When the user asks about sessions from other coding agents:
 - Use Grep/Glob only in the user's approved local path.
 - For Codex: `.codex/state_*.sqlite`, rollout JSONL files.
 - For Claude: `~/.claude/projects/`, `~/.claude/transcripts/`.
-- For OpenCode: `~/.opencode/`, `~/.lazytrae/share/opencode/`.
+- For OpenCode: `~/.opencode/`, `~/.local/share/opencode/`.
 - For another platform: ask the user for the official local storage path, or consult that platform's official documentation before searching.
 
 ### 5. Reconstruct Past Work

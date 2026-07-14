@@ -1,15 +1,15 @@
 ---
 name: lazy-migration-planner
-description: "Migration planning for converting LazyTrae methods to other host platforms. Use when adapting LazyTrae workflows to a different IDE, tool, or platform. Triggers: migration plan, adapt to platform, convert to host, migrate workflow, port to."
+description: "Migration planning for adapting LazyTrae workflows to other host platforms. Use when adapting to a different IDE, tool, or platform. Triggers: migration plan, adapt to platform, convert to host, migrate workflow, port to."
 ---
 
 # migration-planner
 
-Migration planning skill for adapting LazyTrae workflows to other host platforms. This is a LazyTrae addition — it has no direct LazyTrae equivalent, as LazyTrae is a single-platform (Codex) system.
+Migration planning skill for adapting LazyTrae workflows to other host platforms.
 
 ## Global Trae Work fallback
 
-This installed skill is self-contained. It does not require repository documentation, a status ledger, or a LazyTrae checkout. Build the comparison from the current project's available LazyTrae components and the target platform's official documentation. A user-provided LazyTrae checkout may be used only as optional comparison material.
+This installed skill is self-contained. It does not require repository documentation or a parity ledger. Build the comparison from the current project's available LazyTrae components and the target platform's official documentation.
 
 ## Purpose
 
@@ -19,21 +19,20 @@ Plan the adaptation of LazyTrae workflows (skills, commands, agents, hooks, stat
 
 - The target platform's capabilities (rules, skills, commands, agents, hooks, MCP, subagents).
 - The current project's available LazyTrae components (skills, commands, agents, hooks, MCP configuration, and state files).
-- The target platform's documentation (from web search or provided by user).
-- An optional user-provided LazyTrae checkout, when one is available for comparison.
+- The target platform's documentation (from documentation-search or provided by user).
 
 ## Step-by-Step Procedure
 
 ### Phase 1: Platform Discovery
 
-1. **Research the target platform** — use web search and documentation to understand:
+1. **Research the target platform** — request documentation-search to understand:
    - Does it have a rules/config system? How are rules injected?
    - Does it have a skills/plugins system? What is the format?
    - Does it have custom agents/subagents? How are they defined?
    - Does it have hooks/events? What events are available?
    - Does it have MCP support? What is the config format?
    - Does it have state management? Is there a runtime?
-2. **Map capabilities** — create a capability matrix: LazyTrae → LazyTrae → Target Platform.
+2. **Map capabilities** — create a capability matrix: LazyTrae → Target Platform.
 
 ### Phase 2: Gap Analysis
 
@@ -57,8 +56,8 @@ Produce a migration plan document at `.lazytrae/plans/migration-<target>.md` wit
 ## Allowed Edits
 
 - Create `.lazytrae/plans/migration-<target>.md`.
-- Read project files, search documentation, run web searches.
-- Update a project status record only when the current project already provides one.
+- Read project files and request documentation or web-search capabilities.
+- Update a project parity record only when the current project already provides one.
 
 ## Forbidden Behavior
 

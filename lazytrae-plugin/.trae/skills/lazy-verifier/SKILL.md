@@ -5,9 +5,7 @@ description: "Verification gate enforcement. Runs automated tests, captures Manu
 
 # verifier
 
-Verification gate enforcement for LazyTrae. Runs automated verification, captures Manual-QA evidence, and exercises adversarial scenarios. This skill enforces the five evidence gates from the LazyTrae workflow.
-
-## Scope
+Verification gate enforcement for LazyTrae. Runs automated verification, captures Manual-QA evidence, and exercises adversarial scenarios. This skill enforces the five LazyTrae evidence gates.
 
 
 ## Purpose
@@ -21,7 +19,7 @@ Verify that implementation work is complete and correct before claiming done. Th
 - The project's test runner and lint configuration.
 - The project's build/typecheck commands.
 - The evidence directory: `.lazytrae/evidence/`.
-- The ledger file: `.lazytrae/start-work/ledger.jsonl`.
+- The ledger file: `.lazytrae/logs/start-work-ledger.jsonl`.
 
 ## Step-by-Step Procedure
 
@@ -45,7 +43,7 @@ Verify that implementation work is complete and correct before claiming done. Th
 For each QA scenario in the plan:
 1. Execute the scenario through the specified channel:
    - **HTTP**: `curl -i` against the live endpoint; capture status line + headers + body.
-   - **Terminal**: `RunCommand` with exact command; capture exit code + stdout/stderr.
+   - **Terminal**: `the host terminal` with exact command; capture exit code + stdout/stderr.
    - **Browser**: Trae Preview or browser automation; capture screenshot + action log.
    - **CLI/D**ata: Execute the exact invocation; capture the observable result.
 2. Compare actual vs expected. Record PASS or FAIL.
@@ -79,7 +77,7 @@ Exercise edge cases, regression scenarios, and adversarial inputs:
 ## Allowed Edits
 
 - Write evidence files to `.lazytrae/evidence/`.
-- Append to `.lazytrae/start-work/ledger.jsonl`.
+- Append to `.lazytrae/logs/start-work-ledger.jsonl`.
 - Run verification commands (tests, lint, typecheck, build).
 - Execute curl commands, browser automation, terminal commands for Manual-QA.
 

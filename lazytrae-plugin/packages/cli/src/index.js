@@ -5,6 +5,8 @@ const path = require('path');
 
 const commands = {
   init: () => require('./commands/init').run,
+  onboard: () => require('./commands/init').run,
+  initdeep: () => require('./commands/init').run,
   doctor: () => require('./commands/doctor').run,
   sync: () => require('./commands/sync').run,
   uninstall: () => require('./commands/uninstall').run,
@@ -17,6 +19,11 @@ const commands = {
   run: () => require('./commands/run').run,
   team: () => require('./commands/team').run,
   work: () => require('./commands/work').run,
+  tooling: () => require('./commands/tooling').run,
+  setup: () => require('./commands/setup').run,
+  providers: () => require('./commands/providers').run,
+  lsp: () => require('./commands/lsp').run,
+  codegraph: () => require('./commands/codegraph').run,
   'load-check': () => require('./commands/load-check').run,
 };
 
@@ -33,12 +40,14 @@ const aliases = {
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v0.15.0-alpha.2 — Trae-native LazyCodex/OmO workflows
+  console.log(`LazyTrae CLI v0.16.0-alpha.1 — Trae-native workflows
 
 Usage: lazytrae <command> [options]
 
 Commands:
   init        Install LazyTrae into the current repo
+  onboard     Compatible onboarding alias for safe core installation
+  initdeep    Compatible InitDeep alias for safe core installation
   doctor      Check LazyTrae installation health
   sync        Update managed templates and managed blocks
   uninstall   Remove LazyTrae from the current repo
@@ -52,6 +61,11 @@ Commands:
   run         Execute a task with explicit model routing (optional trae-agent backend)
   team        Team mode / parallel-work coordination
   work        Install or inspect global Trae Work skills
+  tooling     Manage a package-owned local tooling root
+  setup       Inspect provider setup without consuming credentials
+  providers   Inspect, configure, or safely test providers
+  lsp         Start the separate managed read-only LSP MCP bridge
+  codegraph   Start the separate optional receipt-owned CodeGraph MCP bridge
   load-check  Verify every host component is ready after init
 
 Aliases: i, d, s, rm, v, h, l, r, t
@@ -85,6 +99,10 @@ function main() {
   const cmdArgs = args.slice(1);
   const run = commands[resolved]();
   const exitCode = run(cmdArgs);
+  if (exitCode && typeof exitCode.then === 'function') {
+    exitCode.then(code => { if (typeof code === 'number') process.exitCode = code; });
+    return;
+  }
   if (typeof exitCode === 'number') process.exitCode = exitCode;
 }
 

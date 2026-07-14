@@ -1,21 +1,80 @@
 # LazyTrae
 
-> **A practice project:** a self-contained workflow harness for the [Trae](https://docs.trae.cn/) platform. No longer maintained; open-sourced for learning.
+> **A practice project:** a workflow harness for the [Trae](https://docs.trae.cn/) platform. No longer maintained; open-sourced for learning.
 
-LazyTrae provides disciplined planning, delegated execution, evidence-gated verification, review, and durable run state for **Trae IDE**, **Trae Work**, and **Trae CLI**.
+LazyTrae provides disciplined agent-harness workflows (planning → delegated execution → evidence-gated verification → review → durable run state) for **Trae IDE**, **Trae Work**, and **Trae CLI**.
+
+Repository state: **v0.17 alignment candidate**. Published package manifests
+remain **v0.16.0-alpha.1** until a separate release-version bump. Candidate
+checks are verified on macOS only; other operating systems remain unverified.
 
 > **Setup?** See [AGENTS.md](AGENTS.md) (the setup guide). This README is about **how to use** the harness once installed.
+
+> **Repository map?** See [docs/handoff.md](docs/handoff.md). Private legacy
+> root documentation belongs in ignored `dev/docs/root/`.
 
 ## Onboard with AI
 
 1. Copy or clone [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae) into a local folder.
 2. Open that folder in your Trae host and type `onboard`.
 
-The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 10 MCP declarations. It cannot prove host discovery, a host-loaded plugin, or an MCP connection. The `lazytrae` declaration exposes 15 tools only after its server connects. The macOS Trae Work skill destination is the tested CLI behavior; reload/discovery and all non-macOS locations remain manual and unverified.
-
-The read-only capability report uses the shared seven-state readiness vocabulary and can describe an optional integration as unavailable without changing it. It never activates a provider, installs globally, registers MCP, or proves a live host connection. Normal checks are self-contained; the paired sibling comparison is release-only and takes an explicit sibling path.
+The agent reads `AGENTS.md`, asks which installed host you use (**Trae IDE**, **Trae Work**, or **Trae CLI**), and performs the matching safe steps. `lazytrae init --host <host>` ends with a **package-readiness** check: 17 skills, 9 commands, 11 agents, 8 hook scripts mapped to 5 events, and 8 MCP declarations. The base MCP configuration has one executable core server (`lazytrae`) and seven disabled placeholders. It cannot prove host discovery, a loaded plugin, or an MCP connection. The `lazytrae` declaration exposes 15 tools only after its server connects. Trae Work's built-in global-skills location is documented and tested only for macOS; reload/discovery and all non-macOS locations remain manual and unverified.
 
 After onboarding, you can delete the copied repository if you only needed the installed setup, or keep it to explore and study how LazyTrae works.
+
+## LazySeries tooling
+
+The v0.17 alignment candidate preserves the package-owned tooling foundation
+and remains explicit about
+ownership. A capability request may temporarily provision safe local search
+tools in the private receipt-owned toolpack; it never changes a project MCP
+file, lockfile, dependencies, or host configuration. Use `rg` for local text/file search and `sg` for structural search.
+Use the read-only LSP bridge for definitions, references, symbols, hover, and
+diagnostics in supported JavaScript/TypeScript or Python projects. Use
+CodeGraph only after an explicit architecture or dependency-tracing request;
+it requires the explicit caller action `lazytrae tooling codegraph-init` and a
+separate receipt-owned tooling root. Context7, `grep_app`, filesystem, and
+Playwright are selected through the capability contract and respect its approval,
+cost, egress, and timeout limits. CodeGraph and Playwright require approval;
+authenticated browser actions, forms, external writes, purchases, destructive
+actions, and secret reads always require a new approval.
+
+```bash
+# Provision only missing local search tools in a caller-owned empty directory.
+lazytrae tooling install --tooling-root /absolute/lazytrae-tools
+lazytrae tooling status --tooling-root /absolute/lazytrae-tools
+
+# Detect native checks first; run a selected declared check only when requested.
+lazytrae tooling verify --dry-run
+lazytrae tooling verify --run test
+
+# Inspect redacted provider/approval readiness without consuming a credential.
+lazytrae setup --non-interactive --json
+lazytrae providers --json
+lazytrae providers test --json
+```
+
+`lazytrae tooling enable <capability>` is a separate legacy compatibility path:
+it is the only command that persists a namespaced optional MCP selection in the
+project. It is never performed by onboarding, InitDeep, doctor, or automatic
+capability routing. Configure a provider only with an opaque credential reference
+using `lazytrae providers configure`; provider status and doctor redact values.
+Metered providers are unavailable automatically unless the request has an
+explicit bounded budget. `lazytrae tooling uninstall` removes only an
+unmodified receipt-owned tooling root and never guesses a host path.
+
+## Uninstall safely
+
+Review the command in the initialized project, then choose the required project-removal scope:
+
+```bash
+lazytrae uninstall --help
+lazytrae uninstall --yes                # remove only exact managed assets; preserve normal runtime data
+lazytrae uninstall --yes --soft         # remove verified .trae/ assets only
+lazytrae uninstall --yes --purge-state  # also remove only exact runtime templates
+```
+
+The command preserves modified or unknown project files and never unregisters an MCP server. On macOS, remove global skills with `lazytrae work uninstall`; it removes only unmodified LazyTrae skill folders and preserves edited or nonempty folders. Then remove the `lazytrae` server manually in **Settings → MCP**. For Linux or Windows, host locations and behavior are unverified: use `lazytrae work uninstall --skills-dir <host-reported-directory>` only after manually confirming the location. For Trae CLI, remove the separately registered server with `trae-cli mcp remove lazytrae`. Remove the global companion command with `npm uninstall -g lazytrae-ai` only after no host configuration references `lazytrae mcp`.
 
 ## A first task, from request to evidence
 
@@ -72,16 +131,17 @@ Binding, not advisory — but because **Trae hooks can't block**, the completion
 | Agents | 11 | Sisyphus, Prometheus, Metis, Momus, Atlas, Hephaestus, Oracle, Explorer, Librarian, Cleaner, Migration-Planner |
 | Commands | 9 | lazy-init-deep, lazy-ulw-plan, lazy-start-work, lazy-ulw-loop, lazy-review-work, lazy-handoff, lazy-ralph-loop, lazy-remove-ai-slops, lazy-stop-continuation |
 | MCP tools | 15 | 9 state/evidence/review/handoff + 6 context |
-| CLI | 11 | init, doctor, sync, verify, handoff, loop, team, run, mcp |
+| CLI | 17 | init, doctor, sync, uninstall, verify, completion-status, handoff, hook, mcp, loop, run, team, work, tooling, lsp, codegraph, load-check |
 
 ## Developing on this repo (open-source)
 
 Practice repo; contributions welcome as learning exercises.
 
-1. **Two canonical configuration trees:** work in `lazytrae-plugin/.trae/` for Trae integration and `lazytrae-plugin/.lazytrae/` for LazyTrae configuration and workflow data. `lazytrae-plugin/packages/cli/templates/` remains the installer source; run `lazytrae sync` to regenerate the live project tree.
+1. **Two configuration trees:** work in `lazytrae-plugin/.trae/` for Trae integration and `lazytrae-plugin/.lazytrae/` for all LazyTrae configuration and workflow data. Consumer projects store plans in `.lazytrae/plans/` and per-run loop files in `.lazytrae/loop/`. `lazytrae-plugin/packages/cli/templates/` remains the installer source; run `lazytrae sync` to regenerate the live project tree.
 2. **Naming discipline:** all skills & commands are `lazy-` prefixed. Keep new ones prefixed.
 3. **Test:** `cd lazytrae-plugin/packages/cli && node --test`.
 4. **Verify:** `lazytrae doctor` (0 FAIL expected) + `node --test`.
+5. **Commit:** conventional, atomic, stage only files you changed, no `--no-verify`.
 
 ## Repository structure
 
@@ -91,13 +151,15 @@ lazytrae/
 │   ├── .trae/               #   Trae IDE config; source for Trae Work global skills
 │   ├── .lazytrae/           #   LazyTrae schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
-├── docs/                    # current v0.15 index plus historical records
-├── lazytrae-evaluation.md   # historical evaluation record
+├── docs/                    # tracked handoff only; private root docs are in ignored dev/docs/root/
+├── lazytrae-evaluation.md   # v0.17 alignment evidence; v0.16.0-alpha.1 package baseline
 ├── AGENTS.md                # setup guide
 ├── README.md                # this file (how to use)
 ├── LICENSE                  # MIT
-└── NOTICE                   # legal attribution and provenance
+└── NOTICE                   # attribution and provenance
 ```
+
+Consumer projects initialized with `lazytrae init` receive `.lazytrae/plans/` and `.lazytrae/loop/` as their runtime workspace. They are not part of the `lazytrae-plugin/` source layout.
 
 ## Related
 
@@ -105,7 +167,7 @@ lazytrae/
 
 ## License
 
-[MIT](LICENSE) — see [NOTICE](NOTICE) for the scoped legal attribution and provenance record.
+[MIT](LICENSE) — see [NOTICE](NOTICE) for attribution and provenance details.
 
 ## Disclaimer
 

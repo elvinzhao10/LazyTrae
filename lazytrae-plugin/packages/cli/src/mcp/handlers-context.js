@@ -3,7 +3,7 @@ const path = require('path');
 const { resolveRepoPath } = require('../lib/path-boundary');
 
 const TEXT_EXTENSIONS = new Set(['.js', '.json', '.md', '.sh', '.ts', '.tsx', '.mjs', '.cjs', '.html', '.css', '.toml', '.yaml', '.yml']);
-const SKIP_DIRS = new Set(['.git', 'node_modules', 'reference', 'lazycodex', '.DS_Store']);
+const SKIP_DIRS = new Set(['.git', 'node_modules', 'reference', 'dev', '.DS_Store']);
 
 function walk(root, dir = root, files = []) {
   if (!fs.existsSync(dir) || files.length >= 1000) return files;

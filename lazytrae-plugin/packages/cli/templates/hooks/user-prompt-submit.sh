@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # LazyTrae v0.7 — UserPromptSubmit hook
 # Detects ulw/ultrawork keywords, ulw-loop steering, and context-pressure markers.
-# Mirrors LazyCodex: ultrawork trigger detection, ulw-loop steering, rules re-injection.
+# Detect ultrawork triggers, ulw-loop steering, and rule reinjection needs.
 # Always exits 0 — never blocks a session.
 
 set -euo pipefail
@@ -31,7 +31,7 @@ if [ -z "$prompt" ] && [ $# -gt 0 ]; then
   prompt="$*"
 fi
 
-# ULTRAWORK trigger detection (mirrors lazycodex/plugins/omo/components/ultrawork/src/codex-hook.ts)
+# ULTRAWORK trigger detection
 if echo "$prompt" | grep -qiE '\b(ultrawork|ulw)\b' 2>/dev/null; then
   cat <<'ULTRAWORK_DIRECTIVE'
 [LazyTrae] ⚡ ULTRAWORK MODE ENABLED!
@@ -73,12 +73,12 @@ if echo "$prompt" | grep -qiE "\\b($keywords)\\b" 2>/dev/null; then
   echo "[LazyTrae] LazyTrae workflow keyword detected. Ensure relevant skill is loaded."
 fi
 
-# Ulw-loop steering detection (mirrors lazycodex/plugins/omo/components/ulw-loop/src/steering.ts)
-if echo "$prompt" | grep -qiE '(OMO_ULW_LOOP_STEER|omo\.ulw-loop\.steer|omo ulw-loop steer)' 2>/dev/null; then
+# Ulw-loop steering detection
+if echo "$prompt" | grep -qiE '(LAZYTRAE_ULW_LOOP_STEER|lazytrae\.ulw-loop\.steer|lazytrae ulw-loop steer)' 2>/dev/null; then
   echo "[LazyTrae] Ulw-loop steering directive detected. Will be processed by loop engine."
 fi
 
-# Context-pressure detection (mirrors lazycodex/plugins/omo/components/rules/src/context-pressure.ts)
+# Context-pressure detection
 CONTEXT_MARKERS="context compacted|context_length_exceeded|skill descriptions were shortened|context_too_large|codex ran out of room|your input exceeds the context window|long threads and multiple compactions"
 if echo "$prompt" | grep -qiE "($CONTEXT_MARKERS)" 2>/dev/null; then
   if [ -x "$RECOVERY" ]; then

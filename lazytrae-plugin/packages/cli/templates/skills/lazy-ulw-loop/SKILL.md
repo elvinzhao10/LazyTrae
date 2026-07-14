@@ -5,9 +5,7 @@ description: "Long-horizon execution loop with ultrawork mode. Decomposes work i
 
 # ulw-loop
 
-Long-horizon execution loop that decomposes work into systematic, evidence-bound steps and runs until verified completion. Combines the LazyTrae ulw-loop skill and ultrawork directive into a single Trae-native workflow.
-
-## Scope
+Long-horizon execution loop that decomposes work into systematic, evidence-bound steps and runs until verified completion through a single Trae-native workflow.
 
 
 ## Mandatory First Line
@@ -61,7 +59,7 @@ These scenarios are the contract. You are not done until every one of them PASSE
 
 ### 2. Open the durable notepad
 
-Create a notepad file with `RunCommand`: `NOTE=$(mktemp -t ulw-$(date +%Y%m%d-%H%M%S).XXXXXX.md)`. Echo the path. Initialise it with these sections and APPEND (never rewrite) as you work:
+Create a notepad file with `the host terminal`: `NOTE=$(mktemp -t ulw-$(date +%Y%m%d-%H%M%S).XXXXXX.md)`. Echo the path. Initialise it with these sections and APPEND (never rewrite) as you work:
 
 ```
 # Ultrawork Notepad — <one-line goal>
@@ -88,11 +86,11 @@ Started: <ISO timestamp>
 
 Append each finding, decision, command, RED/GREEN capture, and QA artifact path the moment it happens. Update `## Now` and `## Todo` on every transition. Append-only — never rewrite. This notepad is your durable memory and it OUTLIVES the context window. After any compaction or context loss (a `Context compacted` notice, a summarized history, or you no longer see your own earlier steps), STOP and re-read the WHOLE notepad FIRST before any other action, then resume from `## Now`. Recover state from the notepad; do not re-plan from scratch or re-run completed steps.
 
-### 3. Register obsessive todos via TodoWrite
+### 3. Register obsessive todos via an available host capability
 
-The todo tool is Trae `TodoWrite` — your live, user-visible checklist. Translate every action from the plan into one todo step — one step per atomic work unit: an edit plus its verification, a QA scenario run, a teardown. Keep each step small enough to finish within a few tool calls.
+The todo tool is Trae `an available host capability` — your live, user-visible checklist. Translate every action from the plan into one todo step — one step per atomic work unit: an edit plus its verification, a QA scenario run, a teardown. Keep each step small enough to finish within a few tool calls.
 
-Call `TodoWrite` on EVERY state transition — the instant a step starts (mark it `in_progress`) and the instant it finishes (mark it `completed` and the next `in_progress`). Exactly ONE `in_progress` at a time. Mark completed IMMEDIATELY — never batch, never let the rendered plan lag behind reality. Add newly discovered steps the moment they surface instead of waiting for the next pass. Step text encodes WHERE / WHY (which criterion it advances) / HOW / VERIFY:
+Call `an available host capability` on EVERY state transition — the instant a step starts (mark it `in_progress`) and the instant it finishes (mark it `completed` and the next `in_progress`). Exactly ONE `in_progress` at a time. Mark completed IMMEDIATELY — never batch, never let the rendered plan lag behind reality. Add newly discovered steps the moment they surface instead of waiting for the next pass. Step text encodes WHERE / WHY (which criterion it advances) / HOW / VERIFY:
 `path: <action> for <criterion> — verify by <check>`.
 
 GOOD pair (test-first, ordered):
@@ -110,10 +108,10 @@ Run real-surface proof yourself through the channel that faithfully exercises th
 
 | Channel | Tool | Artifact |
 |---------|------|----------|
-| HTTP call | `curl -i` against live endpoint (or RunCommand) | Status line + headers + body |
-| Terminal | `RunCommand` with exact command | Terminal output |
-| Browser | Trae Preview (OpenPreview) or agent-browser skill | Screenshot + action log |
-| CLI | CLI command with arguments via RunCommand | Exit code + stdout/stderr |
+| HTTP call | `curl -i` against live endpoint (or the host terminal) | Status line + headers + body |
+| Terminal | `the host terminal` with exact command | Terminal output |
+| Browser | Trae Preview (an available host capability) or agent-browser skill | Screenshot + action log |
+| CLI | CLI command with arguments via the host terminal | Exit code + stdout/stderr |
 | Data | DB query, config dump, file read | Diff or parsed output |
 
 For EVERY scenario name the exact tool and the exact invocation upfront: the literal command / API call / page action with its concrete inputs (URL, payload, keystrokes, selectors) and the single binary observable that decides PASS vs FAIL. "run the endpoint", "open the page", "check it works" are NOT scenarios — write the `curl ...`, the `send-keys ...`, the Browser action, the `page.click(...)`, the expected status/text.
@@ -124,10 +122,10 @@ Auxiliary surfaces (CLI stdout / DB state diff / parsed config dump) are first-c
 
 Never guess from memory — locate with the right tool, and re-read before you claim or change. Fire 3+ independent lookups in one action; serialize only when one output strictly feeds the next.
 
-- Repo-wide inspection, CLI smoke tests, git/history, bounded command output -> use RunCommand directly: `rg`, `rg --files`, `cat`, and `git`. Narrow huge output before reading it.
-- Semantic code questions -> SearchCodebase (Trae's semantic search). Use this for "how/where/what" questions.
+- Repo-wide inspection, CLI smoke tests, git/history, bounded command output -> use the host terminal directly: `rg`, `rg --files`, `cat`, and `git`. Narrow huge output before reading it.
+- Semantic code questions -> an available host capability (Trae's semantic search). Use this for "how/where/what" questions.
 - Text / strings / comments / logs -> Grep. File-name discovery -> Glob. Verbatim content -> Read.
-- History -> `git log` / `git blame` / `git show` via RunCommand.
+- History -> `git log` / `git blame` / `git show` via the host terminal.
 
 When discovery needs multiple angles or the module layout is unfamiliar, delegate to the `explorer` subagent (read-only codebase search, absolute-path results). For research that leaves the repo — library/API/docs/web — delegate to the `librarian` subagent. Spawn them via the Task tool with `subagent_type: "search"` and keep doing root work while they run.
 
@@ -148,17 +146,17 @@ Parallel-batch independent reads / searches / subagents within a step, but NEVER
 
 ## Subagent Reliability (Trae Adaptation)
 
-Every Task tool subagent invocation is self-contained and starts with `TASK: <imperative assignment>`, then names `DELIVERABLE`, `SCOPE`, and `VERIFY`. State that it is an executable assignment, not a context handoff. The Trae Task tool provides independent context by default (equivalent to LazyTrae `fork_context: false`). Paste only the context the child needs.
+Every Task tool subagent invocation is self-contained and starts with `TASK: <imperative assignment>`, then names `DELIVERABLE`, `SCOPE`, and `VERIFY`. State that it is an executable assignment, not a context handoff. The Trae Task tool provides independent context by default. Paste only the context the child needs.
 
 ### Trae vs Codex Subagent Differences
 
-- **Synchronous execution**: Trae's Task tool is synchronous — the parent waits for the subagent to return. Unlike LazyTrae's `multi_agent_v1.wait_agent`, there is no async polling. Plan around this by doing independent root work before spawning, and processing the result when it returns.
-- **No TOML-backed role routing**: The Trae Task tool accepts `subagent_type` (e.g., `search`, `general_purpose_task`) but cannot select a LazyTrae TOML-backed role by name. Paste the role requirements into the task description and judge the result from delivered evidence. Never claim a specific role was selected unless runtime evidence confirms it.
+- **Synchronous execution**: Trae's Task tool is synchronous — the parent waits for the subagent to return. Plan around this by doing independent root work before spawning, and processing the result when it returns.
+- **No named-role routing**: The Trae Task tool accepts `subagent_type` (e.g., `search`, `general_purpose_task`) but cannot select a named role by configuration. Paste the role requirements into the task description and judge the result from delivered evidence. Never claim a specific role was selected unless runtime evidence confirms it.
 - **Result is a single message**: The subagent returns one final summary. There is no mailbox or incremental updates. Structure the task description to request a complete deliverable in the final response.
 
 ### Subagent-Dependent Transition Barrier
 
-Do not mark a `TodoWrite` step `completed` while a Task subagent result for that step has not been integrated. Do not start dependent implementation until the audit, research, or review result is integrated or explicitly recorded as inconclusive. Do not generate a plan before spawned research lanes that feed the plan have returned or been closed as inconclusive.
+Do not mark a `an available host capability` step `completed` while a Task subagent result for that step has not been integrated. Do not start dependent implementation until the audit, research, or review result is integrated or explicitly recorded as inconclusive. Do not generate a plan before spawned research lanes that feed the plan have returned or been closed as inconclusive.
 
 ## Verification Gate (TRIGGERED, NOT OPTIONAL)
 

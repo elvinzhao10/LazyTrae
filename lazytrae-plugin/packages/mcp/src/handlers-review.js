@@ -1,8 +1,7 @@
 // LazyTrae MCP — Blocker and review handlers (add_blocker, request_review)
 
-const fs = require('fs');
 const path = require('path');
-const { assertSafeWrite, readJSON, writeJSON, iso, withFileLock, getActiveWork } = require('./state-access');
+const { appendText, assertSafeWrite, readJSON, writeJSON, iso, withFileLock, getActiveWork } = require('./state-access');
 
 function handleAddBlocker(root, args) {
   const bp = path.join(root, '.lazytrae', 'state', 'boulder.json');
@@ -39,7 +38,6 @@ function handleAddBlocker(root, args) {
 function handleRequestReview(root, args) {
   const evidencePath = path.join(root, '.lazytrae', 'evidence', 'oracle-review.md');
   assertSafeWrite(evidencePath);
-  fs.mkdirSync(path.dirname(evidencePath), { recursive: true });
 
   const ts = iso();
   const reviewType = args.review_type;
@@ -64,7 +62,7 @@ function handleRequestReview(root, args) {
     '## Notes', '', '_Review requested at ' + ts + '_', '',
   ].join('\n');
 
-  fs.appendFileSync(evidencePath, entry, 'utf-8');
+  appendText(evidencePath, entry);
 
   return {
     review_requested: true, review_type: reviewType,

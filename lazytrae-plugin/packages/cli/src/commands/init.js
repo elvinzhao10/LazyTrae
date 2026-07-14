@@ -4,6 +4,8 @@ const {
   chmodRepoFile, copyRepoDir, copyRepoFile, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
 } = require('../lib/templates');
 const { replaceBlock, hasManagedBlock, extractBlock } = require('../lib/managed-blocks');
+const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
+const { ensureToolingState, mergeMcpTemplate } = require('../lib/tooling-state');
 
 const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
 
@@ -49,14 +51,14 @@ Options:
 
   const summary = { created: [], updated: [], skipped: [], merged: [] };
 
-  console.log(`LazyTrae init v0.15.0-alpha.2`);
+  console.log(`LazyTrae init v0.16.0-alpha.1`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Create directory structure
   const dirs = [
     '.trae/rules', '.trae/skills', '.trae/commands', '.trae/agents', '.trae/hooks',
     '.lazytrae/state', '.lazytrae/evidence', '.lazytrae/schemas', '.lazytrae/logs',
-    '.omo/plans', '.omo/ulw-loop',
+    '.lazytrae/plans', '.lazytrae/loop',
   ];
   for (const dir of dirs) {
     const fullPath = path.join(repoRoot, dir);
@@ -95,9 +97,8 @@ Options:
   if (rulesResult.created > 0) summary.created.push(`${rulesResult.created} rule files`);
   if (rulesResult.updated > 0) summary.updated.push(`${rulesResult.updated} rule files`);
 
-  // Copy .trae/mcp.json
   try {
-    if (copyRepoFileIfChanged(repoRoot,
+    if (mergeMcpTemplate(repoRoot,
       path.join(templatesDir, 'mcp.json'),
       path.join(repoRoot, '.trae', 'mcp.json')
     )) {
@@ -174,6 +175,8 @@ Options:
   if (stateResult.created > 0) summary.created.push(`${stateResult.created} state files`);
   if (stateResult.updated > 0) summary.updated.push(`${stateResult.updated} state files`);
 
+  if (ensureToolingState(repoRoot)) summary.created.push('.lazytrae/state/tooling.json');
+
   // Handle AGENTS.md with managed blocks
   const agentsTemplatePath = path.join(templatesDir, 'AGENTS.md');
   const agentsDestPath = path.join(repoRoot, 'AGENTS.md');
@@ -216,19 +219,11 @@ Options:
 
   // Handle .gitignore entries
   const gitignorePath = path.join(repoRoot, '.gitignore');
-  const gitignoreEntries = [
-    '',
-    '# LazyTrae runtime (managed by lazytrae init)',
-    '.lazytrae/state/',
-    '.lazytrae/logs/',
-    '.lazytrae/evidence/',
-  ].join('\n');
-
   if (fs.existsSync(gitignorePath)) {
-    let gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
-    if (!gitignoreContent.includes('# LazyTrae runtime')) {
-      gitignoreContent = gitignoreContent.trimEnd() + '\n' + gitignoreEntries + '\n';
-      writeRepoFile(repoRoot, gitignorePath, gitignoreContent);
+    const gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
+    const nextGitignoreContent = appendManagedGitignoreBlock(gitignoreContent);
+    if (nextGitignoreContent !== gitignoreContent) {
+      writeRepoFile(repoRoot, gitignorePath, nextGitignoreContent);
       summary.updated.push('.gitignore');
     } else {
       summary.skipped.push('.gitignore (already has LazyTrae entries)');

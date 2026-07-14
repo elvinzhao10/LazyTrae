@@ -15,7 +15,8 @@
     "evidence": ".lazytrae/evidence",
     "schemas": ".lazytrae/schemas",
     "logs": ".lazytrae/logs",
-    "compatibility_mirror": ".omo"
+    "plans": ".lazytrae/plans",
+    "loop": ".lazytrae/loop"
   },
   "routing": {
     "quick": {
