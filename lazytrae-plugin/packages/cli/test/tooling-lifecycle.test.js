@@ -35,12 +35,13 @@ function install(root, toolingRoot) {
   });
 }
 
-test('tooling lifecycle owns only an explicit empty root and sync preserves user MCP and capability state', () => {
+test('tooling lifecycle owns only an explicit empty root and preserves project lockfiles and host registrations', () => {
   const root = makeRepo('lazytrae-tooling-lifecycle-');
   const toolingRoot = path.join(root, 'tooling-root');
   try {
     // Given: an initialized project with caller-owned MCP configuration and explicit capability state.
     assert.equal(runCli(['init'], { cwd: root }).status, 0);
+    fs.writeFileSync(path.join(root, 'package-lock.json'), '{"lockfileVersion":3}\n');
     const before = snapshotTarget(root);
     const mcpPath = path.join(root, '.trae', 'mcp.json');
     const mcp = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
@@ -79,6 +80,21 @@ test('tooling lifecycle owns only an explicit empty root and sync preserves user
     const uninstalled = runCli(['tooling', 'uninstall', '--tooling-root', toolingRoot], { cwd: root });
     assert.equal(uninstalled.status, 0, uninstalled.stderr);
     assert.equal(fs.existsSync(toolingRoot), false);
+    assert.deepEqual(snapshotTarget(root), before, 'receipt removal must not change project dependency files');
+    assert.deepEqual(
+      JSON.parse(fs.readFileSync(mcpPath, 'utf8')).mcpServers.user_owned,
+      { command: 'user-mcp', args: ['serve'] },
+      'receipt removal must preserve caller host registration',
+    );
+
+    // When: the caller repeats removal after the receipt-owned root is gone.
+    const repeated = runCli(['tooling', 'uninstall', '--tooling-root', toolingRoot], { cwd: root });
+
+    // Then: it is a safe no-op refusal rather than a destructive guess without a receipt.
+    assert.equal(repeated.status, 1);
+    assert.match(repeated.stderr, /no LazyTrae tooling receipt exists/);
+    assert.equal(fs.existsSync(toolingRoot), false);
+    assert.deepEqual(snapshotTarget(root), before);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -133,6 +149,17 @@ test('tooling lifecycle rejects unsafe roots and preserves unverified files', ()
     const hardLinkUninstall = runCli(['tooling', 'uninstall', '--tooling-root', hardLinkedRoot], { cwd: root });
     assert.equal(hardLinkUninstall.status, 1);
     assert.equal(fs.readFileSync(outsideFile, 'utf8'), 'outside\n');
+
+    const symlinkedRoot = path.join(root, 'symlinked-root');
+    assert.equal(install(root, symlinkedRoot).status, 0);
+    const symlinkedManifest = path.join(symlinkedRoot, 'package.json');
+    fs.rmSync(symlinkedManifest);
+    fs.symlinkSync(outsideFile, symlinkedManifest);
+    const symlinkUninstall = runCli(['tooling', 'uninstall', '--tooling-root', symlinkedRoot], { cwd: root });
+    assert.equal(symlinkUninstall.status, 1);
+    assert.match(symlinkUninstall.stderr, /refusing tooling symlink outside tooling-root/);
+    assert.equal(fs.readFileSync(outsideFile, 'utf8'), 'outside\n');
+    assert.equal(fs.lstatSync(symlinkedManifest).isSymbolicLink(), true);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
     fs.rmSync(outside, { recursive: true, force: true });

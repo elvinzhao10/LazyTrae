@@ -4,9 +4,14 @@
 
 LazyTrae provides disciplined agent-harness workflows (planning → delegated execution → evidence-gated verification → review → durable run state) for **Trae IDE**, **Trae Work**, and **Trae CLI**.
 
-Current LazySeries tooling release: **v0.16.0-alpha.1**. Its package checks are verified on macOS only; other operating systems remain unverified.
+Repository state: **v0.17 alignment candidate**. Published package manifests
+remain **v0.16.0-alpha.1** until a separate release-version bump. Candidate
+checks are verified on macOS only; other operating systems remain unverified.
 
 > **Setup?** See [AGENTS.md](AGENTS.md) (the setup guide). This README is about **how to use** the harness once installed.
+
+> **Repository map?** See [docs/handoff.md](docs/handoff.md). Private legacy
+> root documentation belongs in ignored `dev/docs/root/`.
 
 ## Onboard with AI
 
@@ -19,7 +24,8 @@ After onboarding, you can delete the copied repository if you only needed the in
 
 ## LazySeries tooling
 
-The v0.16 tooling foundation is package-owned and always explicit about
+The v0.17 alignment candidate preserves the package-owned tooling foundation
+and remains explicit about
 ownership. A capability request may temporarily provision safe local search
 tools in the private receipt-owned toolpack; it never changes a project MCP
 file, lockfile, dependencies, or host configuration. Use `rg` for local text/file search and `sg` for structural search.
@@ -145,8 +151,8 @@ lazytrae/
 │   ├── .trae/               #   Trae IDE config; source for Trae Work global skills
 │   ├── .lazytrae/           #   LazyTrae schemas and configuration templates
 │   └── packages/            #   cli (Node) + mcp (15 tools, stdio JSON-RPC)
-├── docs/                    # current v0.16.0-alpha.1 learning entrypoints
-├── lazytrae-evaluation.md   # v0.16.0-alpha.1 implementation evidence and limitations
+├── docs/                    # tracked handoff only; private root docs are in ignored dev/docs/root/
+├── lazytrae-evaluation.md   # v0.17 alignment evidence; v0.16.0-alpha.1 package baseline
 ├── AGENTS.md                # setup guide
 ├── README.md                # this file (how to use)
 ├── LICENSE                  # MIT

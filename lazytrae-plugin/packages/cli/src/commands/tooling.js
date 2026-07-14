@@ -17,6 +17,7 @@ const { runVerification } = require('../lib/tooling-verify');
 const { runPolicy } = require('../lib/automatic-tooling-policy-cli');
 const { runCapability } = require('../lib/automatic-tooling-broker');
 const { runDetector } = require('../lib/automatic-tooling-detector');
+const { formatLegacyCapabilityStatus, readinessReport } = require('../lib/lazyseries-capability-readiness');
 const {
   doctor: lspDoctor,
   formatStatus: formatLspStatus,
@@ -38,7 +39,6 @@ const {
 const {
   OPTIONAL_CAPABILITIES,
   mergeMcpTemplate,
-  readToolingState,
   setOptionalCapability,
 } = require('../lib/tooling-state');
 const TOOLING_PACKAGE = path.resolve(__dirname, '..', '..', 'tooling');
@@ -68,7 +68,7 @@ Commands:
   codegraph-uninstall Remove only an unmodified receipt-owned CodeGraph tooling root
   enable <capability> Enable an optional external MCP in this initialized project
   disable <capability> Disable an optional external MCP in this initialized project
-  capability-status Report optional external MCP state without network access
+  capability-status [--json] Report optional state; --json emits canonical read-only readiness records
   remote-status Backward-compatible alias for capability-status
   policy status Report contract-backed policy resolution without execution or mutation
   capability run Execute a canonical local capability in an ephemeral receipt-owned toolpack
@@ -83,13 +83,6 @@ function detectRepoRoot() {
     directory = path.dirname(directory);
   }
   return process.cwd();
-}
-function capabilityStatus(repoRoot) {
-  const capabilities = readToolingState(repoRoot).capabilities;
-  return Object.entries(OPTIONAL_CAPABILITIES).map(([name, capability]) => {
-    const state = capabilities[name]?.enabled === true ? 'enabled' : 'disabled';
-    return `${name}: ${state} (optional, configuration only; ${capability.description})`;
-  }).join('\n');
 }
 function runOptionalCapability(command, args) {
   const credentialArgument = args.slice(1).some(argument => /(?:api[_-]?key|credential|secret|token|password)/i.test(argument));
@@ -203,8 +196,9 @@ function runCommand(args) {
   }
   if (command === 'enable' || command === 'disable') return runOptionalCapability(command, args.slice(1));
   if (command === 'capability-status' || command === 'remote-status') {
-    if (args.length !== 1) throw new Error(`${command} does not accept arguments.`);
-    console.log(capabilityStatus(detectRepoRoot()));
+    if (args.length !== 1 && !(args.length === 2 && args[1] === '--json')) throw new Error(`${command} accepts only --json.`);
+    const repoRoot = detectRepoRoot();
+    console.log(args[1] === '--json' ? JSON.stringify(readinessReport(repoRoot), null, 2) : formatLegacyCapabilityStatus(repoRoot));
     return 0;
   }
   if (command === 'policy') return runPolicy(args.slice(1));

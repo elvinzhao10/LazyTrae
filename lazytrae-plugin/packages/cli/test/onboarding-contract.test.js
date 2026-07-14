@@ -9,6 +9,15 @@ function readTemplate(relativePath) {
   return fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8');
 }
 
+function readInitDeepSkills() {
+  const relativePath = path.join('.trae', 'skills', 'lazy-init-deep', 'SKILL.md');
+  return [
+    readTemplate(path.join('skills', 'lazy-init-deep', 'SKILL.md')),
+    fs.readFileSync(path.join(REPO_ROOT, relativePath), 'utf8'),
+    fs.readFileSync(path.resolve(REPO_ROOT, '..', relativePath), 'utf8'),
+  ];
+}
+
 test('onboarding documents all host routes without claiming host discovery', () => {
   const agents = readTemplate('AGENTS.md');
 
@@ -31,6 +40,29 @@ test('InitDeep repairs core assets but never provisions optional integrations', 
   assert.match(skill, /Do NOT run `lazytrae tooling/);
   assert.match(skill, /Do NOT enable optional MCP\s+capabilities/);
   assert.doesNotMatch(skill, /npm install|npx /);
+});
+
+test('InitDeep records package-readiness evidence without claiming a host or MCP connection', () => {
+  // Given: the package template and both checked-in installed skill mirrors.
+  const skills = readInitDeepSkills();
+
+  // When: each skill is checked against the v0.17 InitDeep evidence contract.
+  for (const skill of skills) {
+    // Then: the contract requires a load check first, core inventory verification, and all evidence keys.
+    assert.ok(skill.indexOf('lazytrae load-check') < skill.indexOf('### Phase 1'));
+    assert.match(skill, /verify skills, commands, agents, hooks, and the MCP declaration/i);
+    assert.match(skill, /readiness_result/);
+    assert.match(skill, /readiness_host/);
+    assert.match(skill, /capability_statuses/);
+    assert.match(skill, /optional_policy/);
+    assert.match(skill, /receipt_state/);
+    assert.match(skill, /evidence_paths/);
+    assert.match(skill, /leave optional capabilities unchanged unless separately explicitly requested/i);
+    assert.match(skill, /does not establish host discovery or a live MCP connection/i);
+    assert.doesNotMatch(skill, /(?:proves?|verifies?|confirms?) (?:a )?(?:live )?(?:host (?:discovery|connection)|MCP connection)/i);
+  }
+  assert.equal(skills[1], skills[0], 'plugin installed skill must match the package template');
+  assert.equal(skills[2], skills[0], 'repository installed skill must match the package template');
 });
 
 test('init appends removable onboarding guidance to an existing user AGENTS.md', () => {

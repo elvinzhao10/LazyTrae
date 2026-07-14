@@ -50,7 +50,6 @@ test('v0.16 tooling release manifests are pinned to alpha.1', () => {
     '../../../.trae/mcp.json',
     '../../../../README.md',
     '../../../../AGENTS.md',
-    '../../../../docs/README.md',
     '../../../../docs/handoff.md',
     '../../../../lazytrae-evaluation.md',
     '../../../README.md',
@@ -62,4 +61,11 @@ test('v0.16 tooling release manifests are pinned to alpha.1', () => {
     assert.doesNotMatch(contents, /0\.15\.0-alpha\.3/, `${relativePath} retained alpha.3`);
     assert.match(contents, /0\.16\.0-alpha\.1/, `${relativePath} omitted alpha.1`);
   }
+});
+
+test('Given the repository root documentation, when its public layout is checked, then only the handoff remains tracked', () => {
+  const rootDocs = path.join(__dirname, '../../../../docs');
+  assert.deepEqual(fs.readdirSync(rootDocs).sort(), ['handoff.md']);
+  assert.match(fs.readFileSync(path.join(__dirname, '../../../../README.md'), 'utf8'), /docs\/handoff\.md/);
+  assert.match(fs.readFileSync(path.join(__dirname, '../../../../AGENTS.md'), 'utf8'), /docs\/handoff\.md/);
 });

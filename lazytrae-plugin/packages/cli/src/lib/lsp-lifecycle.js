@@ -11,7 +11,7 @@ const {
   validateReceipt,
   writeReceipt,
 } = require('./tooling-root');
-const { PROVIDERS, assertTarget, providerFor } = require('./lsp-provider');
+const { PROVIDERS, assertTarget, providerFor, readinessProviderFor } = require('./lsp-provider');
 
 const SOURCE_ROOT = path.resolve(__dirname, '..', '..', 'tooling', 'lsp');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -45,6 +45,10 @@ function ownsRoot(root, language) {
 
 function status(target, toolingRoot) {
   return providerFor(target, toolingRoot, ownsRoot);
+}
+
+function readinessStatus(target, toolingRoot) {
+  return readinessProviderFor(target, toolingRoot, ownsRoot);
 }
 
 function formatStatus(result) {
@@ -101,4 +105,4 @@ function uninstall(_target, toolingRoot) {
   return { state: 'removed', language };
 }
 
-module.exports = { doctor, formatStatus, install, parseLspArgs, status, uninstall };
+module.exports = { doctor, formatStatus, install, parseLspArgs, readinessStatus, status, uninstall };

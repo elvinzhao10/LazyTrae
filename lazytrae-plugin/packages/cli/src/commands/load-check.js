@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 
 const V015_ARTIFACT_CONTRACT = Object.freeze({
   skills: [
@@ -156,6 +157,8 @@ configuration only; it does not claim that a host has registered or loaded them.
   const hookCount = V015_ARTIFACT_CONTRACT.hooks.length;
   console.log(`${hookPermissions.length ? 'FAIL' : 'PASS'} hook executability: ${hookCount - hookPermissions.length}/${hookCount}${hookPermissions.length ? ` (not executable: ${hookPermissions.join(', ')})` : ''}`);
   console.log(`${mcpError ? 'FAIL' : 'PASS'} LazyTrae MCP declaration: ${mcpError || 'command "lazytrae" args ["mcp"]'}`);
+  const readiness = readinessReport(repoRoot);
+  console.log(formatReadinessSummary(readiness));
 
   let workSkillsFailed = false;
   if (host === 'work') {
@@ -168,7 +171,8 @@ configuration only; it does not claim that a host has registered or loaded them.
   }
 
   printHostRegistrationStatus(host);
-  const failed = checks.some(result => result.missing.length) || hookMappings.failures.length > 0 || hookPermissions.length > 0 || Boolean(mcpError) || workSkillsFailed;
+  const readinessStateInvalid = readiness.some(record => record.reason_code === 'STATE_INVALID');
+  const failed = checks.some(result => result.missing.length) || hookMappings.failures.length > 0 || hookPermissions.length > 0 || Boolean(mcpError) || workSkillsFailed || readinessStateInvalid;
   console.log(failed
     ? 'Package readiness failed. Run lazytrae sync, then re-run this check.'
     : 'Package readiness passed. Load check passed for package readiness; complete the host registration step shown above.');

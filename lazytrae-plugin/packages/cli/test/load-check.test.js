@@ -77,3 +77,17 @@ test('load-check fails when lazytrae MCP command or args are malformed', () => {
     assert.match(result.stdout, /CLI registration: NOT VERIFIED/);
   });
 });
+
+test('load-check fails when canonical readiness reports malformed tooling state', () => {
+  withFixture('lazytrae-load-check-malformed-tooling-state-', fixture => {
+    const statePath = path.join(fixture, '.lazytrae', 'state', 'tooling.json');
+    fs.writeFileSync(statePath, '{bad-json\n');
+
+    const result = runCli(['load-check', '--host', 'ide'], { cwd: fixture });
+
+    assert.equal(result.status, 1, result.stdout);
+    assert.match(result.stdout, /Capability readiness .*failed-optional=9/);
+    assert.match(result.stdout, /Package readiness failed\. Run lazytrae sync, then re-run this check\./);
+    assert.equal(fs.readFileSync(statePath, 'utf8'), '{bad-json\n');
+  });
+});

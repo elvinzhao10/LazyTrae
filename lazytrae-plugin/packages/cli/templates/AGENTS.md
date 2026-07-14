@@ -17,7 +17,7 @@ CodeGraph only for explicit architecture/dependency work.
 When the user types `onboard`:
 
 1. Read this guide and ask which installed host/version they are using: **Trae IDE**, **Trae Work**, or **Trae CLI**.
-2. Follow only that host's setup path. Perform safe repository and CLI steps automatically. If the separate `lazytrae` companion command is available, run `lazytrae init --host ide|work|cli`; for Trae Work, also run `lazytrae work install` and `lazytrae work status`. If it is absent, do not claim the cloned repository supplies it; offer the repo-only fallback in Step A and explain its MCP limit.
+2. Follow only that host's setup path. Perform safe repository and CLI steps automatically. If the separate `lazytrae` companion command is available, run `lazytrae init --host ide|work|cli`; for Trae Work, `lazytrae init --host work` invokes the bounded Work skill installation, then run `lazytrae work status`. If it is absent, do not claim the cloned repository supplies it; offer the repo-only fallback in Step A and explain its MCP limit.
 3. Report each completed action and its observed result. Label the final `load-check` as **package readiness**: it verifies copied files and declared configuration, not host discovery, MCP connection, or a running session.
 4. Stop before account, marketplace, model, or app-setting changes. Do not use `tooling enable` during onboarding or InitDeep: it is an explicit persistent compatibility choice. Give exact manual directions for those steps. For Trae Work, manual **Settings → MCP** registration is required.
 5. End by explaining that the copied repository can be deleted after installation, or retained to explore and study the project.

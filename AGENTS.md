@@ -5,7 +5,9 @@
 
 LazyTrae is a Trae-native workflow harness. It supports Trae IDE, Trae Work, and Trae CLI; the `lazytrae` command supplies the portable installer, verification gate, and local MCP server on each surface.
 
-This guide covers **v0.16.0-alpha.1**, verified on macOS only. Automatic
+This repository carries a **v0.17 alignment candidate**; published package
+manifests remain **v0.16.0-alpha.1** until a separate release-version bump.
+The candidate is verified on macOS only. Automatic
 capability work is temporary and package-owned: it may use safe local tools in
 a private receipt-owned toolpack, but never changes a project MCP file, host
 configuration, dependencies, or lockfile. Use `rg` for local search, `sg` for
@@ -17,7 +19,7 @@ CodeGraph only for explicit architecture/dependency work.
 When the user types `onboard`:
 
 1. Read this guide and ask which installed host/version they are using: **Trae IDE**, **Trae Work**, or **Trae CLI**.
-2. Follow only that host's setup path. Perform safe repository and CLI steps automatically. If the separate `lazytrae` companion command is available, run `lazytrae init --host ide|work|cli`; for Trae Work, also run `lazytrae work install` and `lazytrae work status`. If it is absent, do not claim the cloned repository supplies it; offer the repo-only fallback in Step A and explain its MCP limit.
+2. Follow only that host's setup path. Perform safe repository and CLI steps automatically. If the separate `lazytrae` companion command is available, run `lazytrae init --host ide|work|cli`; for Trae Work, `lazytrae init --host work` invokes the bounded Work skill installation, then run `lazytrae work status`. If it is absent, do not claim the cloned repository supplies it; offer the repo-only fallback in Step A and explain its MCP limit.
 3. Report each completed action and its observed result. Label the final `load-check` as **package readiness**: it verifies copied files and declared configuration, not host discovery, MCP connection, or a running session.
 4. Stop before account, marketplace, model, or app-setting changes. Do not use `tooling enable` during onboarding or InitDeep: it is an explicit persistent compatibility choice. Give exact manual directions for those steps. For Trae Work, manual **Settings → MCP** registration is required.
 5. End by explaining that the copied repository can be deleted after installation, or retained to explore and study the project.
@@ -110,6 +112,8 @@ For Trae Work on macOS, run `lazytrae work uninstall`; it removes only unmodifie
 
 ## Reference
 
+- Repository handoff: [docs/handoff.md](docs/handoff.md). Private legacy root
+  documentation belongs in ignored `dev/docs/root/`.
 - Trae Work: `lazytrae work install`, then `lazytrae work status`
 - How to use the harness: [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme)
 - Parity assessment: [LazyTrae evaluation](https://github.com/elvinzhao10/LazyTrae/blob/main/lazytrae-evaluation.md)

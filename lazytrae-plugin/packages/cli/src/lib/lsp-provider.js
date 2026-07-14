@@ -84,6 +84,37 @@ function hostCommand(provider) {
   return candidate && runnable(candidate, provider) ? candidate : null;
 }
 
+function readinessExecutable(root, candidate) {
+  try {
+    const resolved = fs.realpathSync(candidate);
+    const stat = fs.statSync(resolved);
+    return isWithin(root, resolved) && stat.isFile() && (stat.mode & 0o111) !== 0 ? resolved : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function readinessHostCandidate(candidate) {
+  try {
+    const stat = fs.statSync(candidate);
+    return stat.isFile() && (stat.mode & 0o111) !== 0 ? fs.realpathSync(candidate) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function readinessHostCommand(provider) {
+  const names = process.platform === 'win32' ? [`${provider.command}.exe`, `${provider.command}.cmd`, provider.command] : [provider.command];
+  for (const directory of (process.env.PATH || '').split(path.delimiter)) {
+    if (!directory) continue;
+    for (const name of names) {
+      const candidate = readinessHostCandidate(path.join(directory, name));
+      if (candidate) return candidate;
+    }
+  }
+  return null;
+}
+
 function providerFor(target, toolingRoot, ownsRoot) {
   const language = detectLanguage(target);
   if (!language) return { state: 'unsupported', reason: 'no supported JavaScript/TypeScript or Python source/configuration detected' };
@@ -101,8 +132,25 @@ function providerFor(target, toolingRoot, ownsRoot) {
   return { state: 'missing', language, reason: 'no compatible project, host, or receipt-owned LSP provider is available' };
 }
 
+function readinessProviderFor(target, toolingRoot, ownsRoot) {
+  const language = detectLanguage(target);
+  if (!language) return { state: 'unsupported', reason: 'no supported JavaScript/TypeScript or Python source/configuration detected' };
+  const provider = PROVIDERS[language];
+  const readiness = nodeReadiness(provider);
+  if (readiness) return { ...readiness, language };
+  const project = readinessExecutable(target, path.join(target, 'node_modules', '.bin', provider.command));
+  if (project) return { state: 'ready', language, source: 'project', command: project };
+  const host = readinessHostCommand(provider);
+  if (host) return { state: 'ready', language, source: 'host', command: host };
+  if (ownsRoot(toolingRoot, language)) {
+    const owned = readinessExecutable(toolingRoot, path.join(toolingRoot, 'lsp', provider.packageDirectory, 'node_modules', '.bin', provider.command));
+    if (owned) return { state: 'ready', language, source: 'owned', command: owned };
+  }
+  return { state: 'missing', language, reason: 'no executable project, host, or receipt-owned LSP provider is available' };
+}
+
 function lspInvocation(provider) {
   return [provider.command, '--stdio'];
 }
 
-module.exports = { PROVIDERS, assertTarget, detectLanguage, lspInvocation, providerFor };
+module.exports = { PROVIDERS, assertTarget, detectLanguage, lspInvocation, providerFor, readinessProviderFor };

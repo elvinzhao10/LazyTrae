@@ -43,7 +43,8 @@ function ownedExecutable(root) {
     if (!receipt.provisioned_capabilities.includes('codegraph')) return null;
     const executable = path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'codegraph.cmd' : 'codegraph');
     const resolved = fs.realpathSync(executable);
-    return inside(root, resolved) && fs.statSync(resolved).isFile() ? resolved : null;
+    const stat = fs.statSync(resolved);
+    return inside(root, resolved) && stat.isFile() && (stat.mode & 0o111) !== 0 ? resolved : null;
   } catch (_) {
     return null;
   }
@@ -185,4 +186,4 @@ function uninstall(target, toolingRoot) {
   disable(target);
 }
 
-module.exports = { disable, enable, formatStatus, initialize, install, ownedExecutable, parseCodeGraphArgs, status, uninstall };
+module.exports = { disable, enable, formatStatus, indexState, initialize, install, ownedExecutable, parseCodeGraphArgs, status, uninstall };

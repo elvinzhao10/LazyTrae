@@ -52,17 +52,19 @@ function sendRequests(requests, expectedResponses) {
   });
 }
 
-test('MCP returns JSON-RPC errors for malformed input without blocking a later valid request', async () => {
-  // Given: malformed JSON, JSON null, an invalid request envelope, and a valid tools/list request.
+test('MCP returns JSON-RPC errors for malformed input without blocking later valid requests', async () => {
+  // Given: malformed JSON, invalid envelopes, a notification, then initialize and tools/list requests.
   const responses = await sendRequests([
     '{bad json',
     'null',
     JSON.stringify({ jsonrpc: '2.0', id: 3 }),
     JSON.stringify({ jsonrpc: '2.0', id: 4, method: 'rpc.reserved' }),
-    JSON.stringify({ jsonrpc: '2.0', id: 5, method: 'tools/list' }),
-  ], 5);
+    JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} }),
+    JSON.stringify({ jsonrpc: '2.0', id: 5, method: 'initialize' }),
+    JSON.stringify({ jsonrpc: '2.0', id: 6, method: 'tools/list' }),
+  ], 6);
 
-  // Then: each invalid input has the protocol error and the valid request still receives all 15 tools.
+  // Then: invalid inputs have protocol errors, the notification is silent, and later valid requests succeed.
   assert.deepEqual(responses[0], {
     jsonrpc: '2.0',
     id: null,
@@ -85,5 +87,8 @@ test('MCP returns JSON-RPC errors for malformed input without blocking a later v
   });
   assert.equal(responses[4].id, 5);
   assert.equal(responses[4].error, undefined);
-  assert.equal(responses[4].result.tools.length, 15);
+  assert.equal(responses[4].result.serverInfo.name, 'lazytrae-mcp');
+  assert.equal(responses[5].id, 6);
+  assert.equal(responses[5].error, undefined);
+  assert.equal(responses[5].result.tools.length, 15);
 });

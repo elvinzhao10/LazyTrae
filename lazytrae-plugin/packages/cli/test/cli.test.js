@@ -141,6 +141,26 @@ test('lazytrae mcp wrapper starts the packages/mcp server', async () => {
   assert.match(stdout, /lazytrae-mcp/);
 });
 
+test('lazytrae mcp startup status does not disclose the repository path', async () => {
+  const child = spawn(process.execPath, [CLI, 'mcp'], { cwd: REPO_ROOT, stdio: ['pipe', 'pipe', 'pipe'] });
+  let stderr = '';
+  child.stderr.on('data', chunk => { stderr += chunk; });
+
+  child.stdin.end(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize' }) + '\n');
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`mcp wrapper did not exit; stderr=${stderr}`)), 2_000);
+    child.on('exit', code => {
+      clearTimeout(timer);
+      if (code === 0) resolve();
+      else reject(new Error(`mcp wrapper exited ${code}; stderr=${stderr}`));
+    });
+    child.on('error', reject);
+  });
+
+  assert.match(stderr, /LazyTrae MCP server v[\d.\-a-z]+ started/);
+  assert.doesNotMatch(stderr, new RegExp(REPO_ROOT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});
+
 test('doctor reports broken hook syntax with an actionable fix', () => {
   const fixture = makeFixture('lazytrae-broken-hook-');
   const hookPath = path.join(fixture, '.trae', 'hooks', 'stop.sh');

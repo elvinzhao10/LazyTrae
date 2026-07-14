@@ -101,8 +101,7 @@ function main() {
     process.exit(0);
   });
 
-  // Log startup info to stderr (not stdout, which is the JSON-RPC transport)
-  process.stderr.write('LazyTrae MCP server v0.16.0-alpha.1 started (repo: ' + repoRoot + ')\n');
+  process.stderr.write('LazyTrae MCP server v0.16.0-alpha.1 started\n');
 }
 
 // Run directly if executed as a script

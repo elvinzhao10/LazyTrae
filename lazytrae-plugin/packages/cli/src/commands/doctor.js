@@ -10,6 +10,7 @@ const { checkStaleRecovery } = require('../lib/context-recovery');
 const { validateActivePlans } = require('../lib/active-plan');
 const { providerMatrix } = require('../lib/provider-lifecycle');
 const { readLedger } = require('../lib/automatic-tooling-policy');
+const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -245,6 +246,7 @@ Options:
   }
 
   console.log(`\n=== Results: ${pass} PASS, ${warn} WARN, ${fail} FAIL ===`);
+  console.log(formatReadinessSummary(readinessReport(repoRoot)));
 
   const effectiveFail = strict ? (fail + warn) : fail;
   process.exit(effectiveFail > 0 ? 1 : 0);

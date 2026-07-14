@@ -1,4 +1,7 @@
-# LazyTrae v0.16.0-alpha.1 Implementation Evidence
+# LazyTrae v0.17 Alignment Candidate Evidence
+
+> Published package baseline: v0.16.0-alpha.1. The v0.17 candidate is not a
+> separate published package version until a release-version bump is made.
 
 > Current release evidence, not a historical parity score or a certification of a Trae host session.
 
@@ -50,6 +53,61 @@ The 15-tool count applies only after the local MCP server connects. Package read
 ## Safe removal contract
 
 `lazytrae uninstall --yes` removes only exact bundled project assets. `--soft` limits removal to verified `.trae/` assets; `--purge-state` also removes only exact runtime templates, and the two options cannot be combined. The command does not change host MCP registration. On macOS, `lazytrae work uninstall` removes only exact, unmodified installed skills. Remove host MCP registrations separately; for non-macOS paths, use an explicitly confirmed `--skills-dir` value.
+
+## Public capability status contract
+
+`tooling capability-status --json`, `load-check`, and `doctor` report canonical
+package readiness without enabling, installing, or registering a capability.
+The records distinguish package data and observed local state from a host
+session; they are evidence for a copied package, not a claim that Trae loaded it.
+
+## Optional capability policy
+
+Optional Context7, `grep_app`, filesystem, Playwright, LSP, and CodeGraph
+paths remain disabled or inactive until an operator makes the documented
+explicit request. Status and readiness commands are read-only. Approval,
+budget, egress, and host-UI merge decisions remain separate from package
+verification.
+
+## Receipt and safe removal
+
+Receipt ownership is the boundary for managed tooling removal. Modified,
+foreign, linked, caller-owned, project, and host-managed paths are preserved;
+the host's MCP registration is removed manually through the host.
+
+## Package readiness versus host verification
+
+Package readiness checks copied files, declarations, and local contracts. It
+does not prove discovery, hook execution, a running session, or an MCP
+connection; those require manual observation in the selected Trae host.
+
+## JSON-RPC resilience
+
+The packaged stdio server is checked for JSON-RPC request handling and stdout
+protocol discipline. That package-level check does not prove that a host has
+started, connected, or exercised the server.
+
+## Host-specific exclusions
+
+- **Host integration:** Trae IDE, Work, and CLI each require their documented
+  reopen, reload, registration, or new-session observation.
+- **State/path:** project assets use `.trae/` and `.lazytrae/`; the verified
+  Trae Work skills location is macOS `~/.trae-cn/skills/`.
+- **Inventory:** LazyTrae declares eight MCP entries, with one executable core
+  server and seven disabled placeholders; filesystem and Playwright are not
+  enabled by the base package.
+
+## Known unverified host behavior
+
+Live host discovery, hook execution, marketplace behavior, and MCP connection
+remain unverified until observed in the chosen host. Linux and Windows Trae
+Work locations are not asserted by this release.
+
+## macOS verification scope
+
+This release is verified on macOS only. Normal CI does not require a sibling
+repository; release-only paired parity uses explicitly supplied sibling roots
+as evidence and never becomes a runtime or install dependency.
 
 ## Attribution and limits
 
