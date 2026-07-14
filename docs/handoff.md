@@ -1,96 +1,113 @@
 # LazyTrae documentation handoff
 
-## Purpose
+This is the public learning map for the next person who documents, maintains,
+or evaluates LazyTrae. It describes the present repository and points claims
+back to the source and tests that prove them.
 
-The root `docs/` directory intentionally contains only this handoff. Put
-private historical and working material in ignored `dev/docs/root/`; it may
-describe superseded workflows, assumptions, or release states and must not be
-presented as current behavior without verification against source and tests.
-Do not add another tracked root documentation guide without replacing this
-handoff arrangement deliberately.
+The current package version is `0.16.0-alpha.1`.
 
-## Current release state
+## Learn the repository
 
-This repository carries a **v0.17 alignment candidate**. Published package
-manifests remain **v0.16.0-alpha.1** until a separate release-version bump is
-made. Package validation is verified on macOS only. The local foundation selects `rg` for
-text/file search, `sg` for structural search, the separate read-only LSP MCP
-for supported JavaScript/TypeScript and Python semantic navigation, and
-repository-native verification only when the caller explicitly runs a declared
-check. CodeGraph is a separate, explicit architecture/dependency MCP: it
-requires a receipt-owned tooling root and the caller-selected
-`lazytrae tooling codegraph-init` project-index step. The automatic capability
-broker is temporary and never writes host MCP configuration, project tooling
-state, dependencies, or lockfiles. `lazytrae tooling enable <capability>` is
-the separate explicit persistent compatibility command; onboarding and InitDeep
-do not invoke it. `setup` and `providers` show redacted metadata and opaque
-credential references only. Document approval, budget, egress, CodeGraph, and
-Playwright boundaries accurately: CodeGraph/Playwright require approval, and
-authenticated browser work, forms, external writes, purchases, destructive
-actions, and secret reads always require approval. Do not document any optional
-capability as a required install dependency or as verified on a non-macOS host.
+Read [README.md](../README.md) for user workflows, then [AGENTS.md](../AGENTS.md)
+for safe onboarding and offboarding. Read `lazytrae-plugin/README.md` for the
+package boundary. The CLI source and tests live in
+`lazytrae-plugin/packages/cli/`; the standalone stdio JSON-RPC server lives in
+`lazytrae-plugin/packages/mcp/`; `packages/cli/src/mcp/` is the packaged mirror.
 
-## Repository map
+The root `docs/` directory intentionally contains this learning map only.
+Public documentation belongs in the README, setup guide, package README, and
+evaluation. Keep private notes outside the package and never make them an
+installation or runtime dependency.
+
+## Repository boundaries and source of truth
 
 | Area | Responsibility |
 | --- | --- |
-| `lazytrae-plugin/packages/cli/` | The distributable `lazytrae` CLI, templates, install/sync/doctor/verify/uninstall commands, and CLI tests. |
-| `lazytrae-plugin/packages/mcp/` | The standalone MCP server source and its tests. |
-| `lazytrae-plugin/packages/cli/src/mcp/` | The packaged CLI mirror of the MCP implementation; keep it aligned with `packages/mcp/`. |
-| `lazytrae-plugin/.trae/` | Repository development configuration used to exercise the harness. |
-| `lazytrae-plugin/packages/cli/templates/` | Files copied into user projects by `lazytrae init`; they must be self-contained. |
-| `docs/` | This tracked handoff only. |
-| `dev/` | Ignored personal working material, including legacy root docs. It is never a package, runtime, test, or installation input. |
+| `lazytrae-plugin/packages/cli/templates/` | Installation source of truth for files copied into user projects. |
+| `lazytrae-plugin/.trae/` | Repository Trae development configuration. |
+| `lazytrae-plugin/.lazytrae/` | Repository LazyTrae schemas and configuration. |
+| `lazytrae-plugin/packages/cli/` | Distributable `lazytrae` CLI and its tests. |
+| `lazytrae-plugin/packages/mcp/` | Standalone MCP server source and tests. |
+| `lazytrae-plugin/packages/cli/src/mcp/` | Packaged MCP mirror; keep it aligned with `packages/mcp/`. |
 
-## Documentation rules
+When a template and an installed mirror differ, treat that as a product defect
+before changing public guidance. Consumer projects receive `.trae/` and
+`.lazytrae/` package assets; plans and loop records are runtime state.
 
-1. Verify a claim against the CLI/MCP source and its tests before documenting it.
-2. Keep package instructions self-contained: do not direct installed users or
-   package code to repository-root `docs/` or `dev/`.
-3. Document only macOS as verified. Describe other host operating systems as
-   unverified unless new evidence is added.
-4. Preserve the distinction between package readiness checks and live host MCP
-   registration or connection checks.
-5. When source and template behavior differ, treat that as a defect to resolve
-   before publishing guidance.
+## How the workflow fits together
 
-## Useful validation entry points
+Skills are playbooks selected from natural language or invoked with `lazy-`
+commands. Commands choose planning, execution, review, or durable-loop paths.
+The 11 agent roles perform focused work. Trae hooks provide advisory context;
+the CLI/MCP completion gate supplies the binding evidence check. The core MCP
+server is declared in project configuration and exposes 15 tools only after a
+host connects.
 
-Run commands from `lazytrae-plugin/packages/cli/` unless a command says
-otherwise:
+InitDeep verifies package-owned skills, commands, agents, hooks, and MCP
+declarations. Planning records an approval-ready path. Start-work executes
+approved work and records evidence. Review checks significant completed work
+independently. Do not document this as proof that a host executed a hook or
+connected an MCP server.
+
+## Capability and receipt lifecycle
+
+LazyTrae routes ordinary local work to `rg` for text/file search, `sg` for
+structural search, the read-only LSP bridge for supported semantic navigation,
+and repository-native lint, typecheck, test, or build commands when a task
+selects them. It detects a compatible tool before provisioning a fallback. A
+fallback is private and receipt-owned, so automatic routing does not edit
+project MCP configuration, dependencies, lockfiles, or host settings.
+
+CodeGraph is for explicit architecture and dependency work. It requires
+`lazytrae tooling codegraph-init` and a receipt-owned tooling root; its project
+index stays caller-owned. Context7, `grep_app`, filesystem, and Playwright have
+explicit capability and approval paths. CodeGraph and Playwright require
+approval. Browser authentication, forms, publishing, external writes,
+purchases, destructive actions, secret reads, and metered provider use require
+their stated approval or budget boundary.
+
+`lazytrae tooling enable <capability>` is the explicit persistent compatibility
+path for a namespaced optional MCP selection. Onboarding, InitDeep, doctor, and
+automatic routing never invoke it. Receipts are also the removal boundary:
+exact package-owned roots can be removed, while modified, linked, foreign,
+caller-owned, project, and host-managed paths stay preserved.
+
+## Test map and claim verification
+
+Run commands from `lazytrae-plugin/packages/cli/`:
 
 ```bash
+node --test test/documentation-regression.test.js test/onboarding-contract.test.js
 npm test
 node src/index.js --help
-node src/index.js doctor
-node src/index.js verify
-node src/index.js tooling --help
-node src/index.js setup --non-interactive --json
-node src/index.js providers --json
 ```
 
-The package README and `AGENTS.md` remain the concise current starting points.
-Do not restore the ignored legacy tree as a dependency of these commands.
+Use `test/documentation-regression.test.js` for public-documentation claims,
+`test/onboarding-contract.test.js` for installed setup guidance, template-parity
+tests for copied assets, lifecycle tests for receipt-safe removal, and MCP
+tests for protocol behaviour. Use `node src/index.js --help` as a real CLI
+surface check. Use `npm test` before handing off a broad change. An installed project uses `load-check` as a package readiness tool; do not run it against this source checkout and treat its result as contributor verification. Host
+discovery, Work reload, and MCP connection require actual observation in the
+selected host; package tests do not substitute for it.
 
 ## Public capability status contract
 
 Document `tooling capability-status --json`, `load-check`, and `doctor` as
-read-only reports of canonical package capability status. They report package
-and local evidence only; they do not install, enable, register, or prove a
-host capability.
+read-only reports of package readiness and local evidence. They do not install,
+enable, register, or prove a host capability.
 
 ## Optional capability policy
 
-Keep Context7, `grep_app`, filesystem, Playwright, LSP, and CodeGraph language
-explicit: optional paths stay inactive until the operator requests their
-documented lifecycle. Never turn a readiness report into an activation,
-approval, credential, budget, egress, or host-merge claim.
+Context7, `grep_app`, filesystem, Playwright, LSP, and CodeGraph remain
+inactive until their documented lifecycle is selected. Never describe a status
+report as activation, approval, credential use, budget approval, egress
+permission, or a host-configuration change.
 
 ## Receipt and safe removal
 
-Describe tooling removal as receipt-bound. Exact owned roots may be removed;
-modified, foreign, linked, project, caller-owned, and host-managed paths stay
-preserved, and host MCP entries are removed manually through the host.
+Removal is receipt-bound. Exact owned assets may be removed; modified, foreign,
+linked, caller-owned, project, and host-managed paths remain. Host MCP entries
+are removed manually through the selected host.
 
 ## Package readiness versus host verification
 
@@ -101,24 +118,27 @@ or MCP connection; the user observes those separately in Trae.
 ## JSON-RPC resilience
 
 The packaged stdio server has package-level JSON-RPC resilience coverage.
-Document that as protocol evidence, never as proof that a Trae host started or
+Document it as protocol evidence, never as proof that a Trae host started or
 connected the server.
 
 ## Host-specific exclusions
 
-- **Host integration:** IDE reopen, Work reload and Settings registration, and
-  CLI new-session observation are host actions.
+- **Host integration:** Trae IDE reopen, Work reload and Settings registration,
+  and CLI new-session observation are host actions.
 - **State/path:** project configuration is `.trae/` and `.lazytrae/`; the
   verified Work skills destination is macOS `~/.trae-cn/skills/`.
 - **Inventory:** eight MCP declarations contain one executable core server and
-  seven disabled placeholders; filesystem and Playwright remain excluded from
-  the base activation set.
+  seven disabled placeholders; filesystem and Playwright are excluded from the
+  base activation set.
 
 ## Known unverified host behavior
 
-Do not claim live host discovery, hook execution, marketplace behavior, or MCP
-connection. Trae Work locations and behavior outside macOS are unverified.
+Do not claim live host discovery, hook execution, marketplace behaviour, or
+MCP connection without observing it. Trae Work locations and behaviour outside
+macOS are unverified.
 
 ## macOS verification scope
 
-The documentation describes macOS only as verified. Normal CI does not require a sibling repository; release-only paired parity takes explicit sibling roots for release evidence and never creates a runtime or installation dependency.
+LazyTrae is verified on macOS only. Normal CI does not require a sibling
+repository; release-only paired parity takes explicit sibling roots as evidence
+and never creates a runtime or installation dependency.

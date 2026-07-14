@@ -8,8 +8,29 @@ Triggers: `init-deep`, `initialize repo`, `generate AGENTS.md`, `understand this
 
 ## Inputs
 
-- `--create-new` (optional): Delete all existing AGENTS.md files and regenerate from scratch. If omitted, update existing AGENTS.md.
+- `--create-new` (optional): Request a destructive-recovery proposal; it does
+  not itself authorize replacement. Otherwise, create only missing AGENTS.md
+  files.
 - Path (optional): Specify the directory to initialize. Defaults to project root.
+
+## User-Owned AGENTS.md Safety
+
+Content outside every delimited `lazytrae:managed:start` /
+`lazytrae:managed:end` managed block is user-owned and preserved byte-for-byte,
+including in malformed or unparseable files; report every exact affected path.
+Do not delete, replace, regenerate, or edit that user-owned content
+automatically. A complete delimited managed block itself is package-owned.
+
+Any full-file replacement requires a separately confirmed destructive request
+after listing the exact AGENTS.md files to be replaced. Before replacement,
+create and report a byte-for-byte backup of every confirmed original at
+`.lazytrae/backups/init-deep/<timestamp>/<relative-path>`. Leave every AGENTS.md
+not included in that confirmation unchanged.
+
+`lazytrae init` updates a complete delimited package-owned
+`lazytrae:managed:start` / `lazytrae:managed:end` block in AGENTS.md, or
+appends a new delimited managed block when none is present, preserving all
+existing surrounding bytes.
 
 ## Outputs
 

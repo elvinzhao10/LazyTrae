@@ -24,11 +24,14 @@ Search and transform code structurally. Use ast-grep when regex isn't enough: fi
 
 ### Phase 1: Explore and Understand
 
-1. **Install ast-grep if needed:**
+1. **Check ast-grep availability.** Run `sg --version`. If it is unavailable, do not install a global package. Inspect a dedicated receipt-owned tooling root instead:
    ```bash
-   npm install -g @ast-grep/cli
-   # or
-   brew install ast-grep
+   lazytrae tooling status --tooling-root /absolute/lazytrae-tools
+   ```
+   Provision the pinned managed provider only when explicitly requested, then recheck its receipt-owned status:
+   ```bash
+   lazytrae tooling install --tooling-root /absolute/lazytrae-tools
+   lazytrae tooling status --tooling-root /absolute/lazytrae-tools
    ```
 2. **Check language support.** ast-grep supports: JavaScript, TypeScript, Python, Java, C, C++, C#, Go, Ruby, PHP, HTML, CSS, and more.
 3. **Understand the target code.** Read a few examples of the pattern you're looking for.

@@ -127,10 +127,28 @@ Decision rules:
 
 ## Allowed Edits
 
-- Create new AGENTS.md files.
-- Edit existing AGENTS.md files (update mode).
-- Delete all AGENTS.md and regenerate (--create-new mode).
+- Create only missing AGENTS.md files.
 - Only write under the project root and its subdirectories.
+
+## User-Owned AGENTS.md Safety
+
+Content outside every delimited `lazytrae:managed:start` /
+`lazytrae:managed:end` managed block is user-owned. Preserve it byte-for-byte,
+including malformed or unparseable content, and report its exact path; never
+delete, replace, regenerate, or edit that user-owned content automatically. A
+complete delimited managed block itself is package-owned.
+
+`--create-new` only requests a destructive-recovery proposal; it is not
+authorization. Before full-file replacement, list the exact AGENTS.md files and
+obtain separate confirmation naming that same list. Before replacement, make a
+byte-for-byte backup of every confirmed original at
+`.lazytrae/backups/init-deep/<timestamp>/<relative-path>` and report each backup
+path. Leave every unlisted AGENTS.md unchanged.
+
+`lazytrae init` updates a complete delimited package-owned
+`lazytrae:managed:start` / `lazytrae:managed:end` block in AGENTS.md, or
+appends a new delimited managed block when none is present, preserving all
+existing surrounding bytes.
 
 ## Forbidden Behavior
 
@@ -151,7 +169,11 @@ Decision rules:
 ## Failure Handling
 
 - If exploration cannot complete (e.g., no tools available for symbol analysis): proceed with file-based analysis only, note the limitation.
-- If existing AGENTS.md is corrupted or unparseable: treat as --create-new.
+- If existing AGENTS.md is corrupted or unparseable: preserve all content
+  outside complete delimited managed blocks byte-for-byte, report the exact
+  file and parse problem, and continue without full-file replacement. Offer
+  destructive recovery only through the separately confirmed, backed-up
+  process above.
 - If project is too small (<10 files): only generate root AGENTS.md.
 
 ## Output Format
