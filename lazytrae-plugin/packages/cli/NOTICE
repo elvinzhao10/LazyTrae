@@ -1,0 +1,66 @@
+NOTICE
+
+This project is a clean-room adaptation of the agent-harness design of
+omo (oh-my-openagent), Copyright (c) 2026 Yeongyu Kim.
+
+Upstream license note:
+- omo (oh-my-openagent) is licensed under the Sustainable Use License (SUL).
+- lazycodex is a separate, thin layer of omo; the lazycodex package is
+  MIT-licensed (the author re-licensed the ported omo source under MIT).
+  Upstream: https://github.com/code-yeongyu/oh-my-openagent
+
+The lazycodex/omo source is used here only as a local, read-only reference
+(bundled under reference/lazycodex/, which is gitignored and NOT distributed).
+No upstream source code, prompts, or protected material is shipped with this
+repository. All implementations are original work based on studying the
+canonical behavior. The SUL governs omo itself; it does not extend to this
+repo's original Trae-native output.
+
+## v0.17 direct tooling dependencies
+
+LazyTrae v0.17.0 provisions the following direct, pinned optional
+tooling dependencies into package-owned roots only. Their lockfiles are the
+source of the exact resolved versions; this list records attribution and does
+not make any upstream tool an operational dependency of LazyCodex or omo.
+
+- [Ajv](https://github.com/ajv-validator/ajv) 8.20.0 — MIT.
+- [ast-grep](https://github.com/ast-grep/ast-grep) CLI 0.44.1 — MIT.
+- [VS Code ripgrep](https://github.com/microsoft/vscode-ripgrep) 1.18.0 — MIT.
+- [CodeGraph](https://github.com/colbymchenry/codegraph) 1.4.1, including its
+  platform-specific optional bundles — MIT.
+- [TypeScript](https://github.com/microsoft/TypeScript) 5.9.3 — Apache-2.0.
+- [TypeScript Language Server](https://github.com/typescript-language-server/typescript-language-server)
+  5.3.0 — Apache-2.0.
+- [basedpyright](https://github.com/detachhead/basedpyright) 1.39.9 — MIT.
+
+These dependencies are installed only when the corresponding optional
+LazyTrae tooling command provisions an explicit, receipt-owned root. Their
+own package license files remain with their installed distributions. See the
+package lockfiles under `lazytrae-plugin/packages/cli/` for checksums and
+complete transitive dependency records.
+
+The MIT License of the lazycodex reference layer is reproduced below.
+
+---
+
+MIT License
+
+Copyright (c) 2026 Yeongyu Kim
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

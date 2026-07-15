@@ -149,4 +149,5 @@ For Trae IDE, remove the project configuration with `lazytrae uninstall --yes`, 
 
 ## License
 
-MIT
+This package is distributed under the [MIT License](LICENSE). Attribution and
+third-party notices are in the package-local [NOTICE](NOTICE).

@@ -27,14 +27,34 @@ test('packed release carries the automatic-tooling contract, adapters, and CLI s
   // When: its publish manifest is inspected.
   // Then: the self-contained contract and runtime entry points are present.
   for (const file of [
+    'LICENSE',
+    'NOTICE',
     'contracts/automatic-tooling-contract.v1.json',
     'contracts/automatic-tooling-contract.v1.json.sha256',
+    'contracts/lazyseries-capability-readiness.v1.json',
+    'contracts/lazyseries-capability-readiness.v1.json.sha256',
+    'templates/AGENTS.md',
+    'templates/mcp.json',
+    'src/index.js',
+    'src/mcp/index.js',
     'src/commands/setup.js',
     'src/commands/providers.js',
     'src/lib/automatic-tooling-broker.js',
     'src/lib/automatic-tooling-policy.js',
     'src/lib/provider-lifecycle.js',
   ]) assert.equal(files.has(file), true, `${file} must be packed`);
+});
+
+test('package-local legal records exactly preserve the repository records', () => {
+  const repositoryRoot = path.resolve(CLI_ROOT, '..', '..', '..');
+
+  for (const record of ['LICENSE', 'NOTICE']) {
+    assert.deepEqual(
+      fs.readFileSync(path.join(CLI_ROOT, record)),
+      fs.readFileSync(path.join(repositoryRoot, record)),
+      `${record} must remain byte-identical to the repository record`,
+    );
+  }
 });
 
 test('init onboarding installs only the core MCP declaration and leaves remote capability state disabled', () => {
