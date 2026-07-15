@@ -45,6 +45,13 @@ migration, path boundaries, receipt-safe uninstall, Work skill installation and
 removal, and JSON-RPC handling. The Work lifecycle tests use an explicit skills
 directory and reject symlink or hard-link traversal.
 
+The self-contained CLI tarball is checked by a cold offline installation. The
+artifact contains the CLI, local MCP implementation, templates, package-local
+`LICENSE` and `NOTICE`, and its production dependency closure; this remains
+package evidence rather than host integration evidence. The local macOS CI
+readiness workflow runs installation, the test suite, and package inspection;
+it does not publish, tag, or modify a remote.
+
 `lazytrae uninstall --yes`, `--soft`, and `--purge-state` are content-checked:
 modified or unknown files and normal runtime records remain preserved. Toolpacks
 and policy artifacts are removed only through their exact receipt lifecycle.

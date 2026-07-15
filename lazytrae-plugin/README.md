@@ -9,6 +9,11 @@ stdio MCP server. It is verified on macOS only. Package readiness verifies
 copied assets and declarations; it does not prove host discovery or an MCP
 connection.
 
+The self-contained CLI tarball carries the CLI, local MCP implementation,
+templates, package-local `LICENSE` and `NOTICE`, and its production dependency
+closure. A cold offline install checks that artifact; it does not prove host
+discovery or an MCP connection.
+
 The current package version is `0.17.0`. For Trae Work,
 `lazytrae init --host work` invokes the bounded Work skill installation; use
 `lazytrae work status` to inspect the copied package assets.

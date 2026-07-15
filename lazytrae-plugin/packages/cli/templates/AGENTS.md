@@ -63,7 +63,8 @@ lazytrae load-check --host ide
 
 Do not run `npm` or `npx` merely to inspect workflow files. The separate
 `lazytrae` companion is needed for its installer, verification gate, and local
-MCP server.
+MCP server. Its self-contained installed package does not require a source
+checkout after installation.
 
 **Repo-only project configuration (no companion command):**
 

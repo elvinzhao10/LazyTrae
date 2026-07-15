@@ -65,9 +65,20 @@ test('Given current LazyTrae documentation, when its v0.17 contract is checked, 
 
   const packageReadme = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'README.md'), 'utf8');
   const onboardingGuide = fs.readFileSync(path.join(repositoryRoot, 'AGENTS.md'), 'utf8');
+  const installedGuide = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'templates', 'AGENTS.md'), 'utf8');
+  const rootReadme = fs.readFileSync(path.join(repositoryRoot, 'README.md'), 'utf8');
+  const cliReadme = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'README.md'), 'utf8');
   assert.match(packageReadme, /init --host work` invokes the bounded Work skill installation/, 'package README must describe the Work init lifecycle accurately');
+  assert.match(packageReadme, /self-contained CLI tarball/i, 'package README must describe the self-contained CLI artifact');
+  assert.match(packageReadme, /cold offline/i, 'package README must describe the cold-offline artifact check');
   assert.match(onboardingGuide, /package readiness/, 'onboarding guide must describe package-only readiness');
   assert.match(onboardingGuide, /invokes the bounded Work skill installation/, 'onboarding guide must describe the Work init lifecycle accurately');
+  assert.match(onboardingGuide, /does not require a source\s+checkout\s+after installation/i, 'onboarding guide must distinguish an installed package from the repo-only fallback');
+  assert.match(installedGuide, /does not require a source\s+checkout\s+after installation/i, 'installed onboarding guidance must distinguish an installed package from the repo-only fallback');
+  assert.match(rootReadme, /self-contained CLI tarball/i, 'root README must describe the self-contained CLI artifact');
+  assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI README must describe the self-contained CLI artifact');
+  assert.match(fs.readFileSync(path.join(repositoryRoot, 'lazytrae-evaluation.md'), 'utf8'), /cold offline/i, 'evaluation must record the cold-offline artifact evidence');
+  assert.match(fs.readFileSync(path.join(repositoryRoot, 'lazytrae-evaluation.md'), 'utf8'), /macOS CI[\s\S]*does not publish/i, 'evaluation must keep the macOS CI boundary explicit');
 });
 
 function assertNoRemovedRootDocsLink(content, documentationPath) {

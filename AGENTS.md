@@ -92,7 +92,8 @@ lazytrae load-check --host ide
 
 The copied repository is enough to inspect workflow files, but the separate
 `lazytrae` companion supplies the installer, verification gate, and local MCP
-server. If it is absent, use this repo-only project configuration fallback:
+server. Its self-contained installed package does not require a source checkout
+after installation. If it is absent, use this repo-only project configuration fallback:
 
 ```bash
 node /path/to/LazyTrae/lazytrae-plugin/packages/cli/src/index.js init --host ide

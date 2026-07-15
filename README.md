@@ -142,6 +142,11 @@ For package layout, template ownership, and the test map, read the
 [package README](lazytrae-plugin/README.md). The repository keeps attribution
 and provenance in [NOTICE](NOTICE).
 
+The self-contained CLI tarball carries the CLI, local MCP implementation,
+templates, package-local legal notices, and its production dependency closure.
+It is checked by a cold offline install; that package check does not establish
+host discovery or an MCP connection.
+
 ## Remove it safely
 
 Review removal from the initialized project, then choose only the scope you

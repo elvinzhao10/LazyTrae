@@ -2,9 +2,12 @@
 
 LazyTrae CLI — Trae-native workflow installer and runtime.
 
-Release **v0.17.0** is verified on macOS only.
+Release **v0.17.0** is verified on macOS only. Its self-contained CLI tarball
+carries the CLI, local MCP implementation, templates, package-local `LICENSE`
+and `NOTICE`, and its production dependency closure; a cold offline install
+checks that artifact without asserting host discovery or an MCP connection.
 
-A developer installs LazyTrae from this repository, then uses the local `lazytrae` command in any project.
+A developer installs the package, then uses the local `lazytrae` command in any project.
 
 ## Commands
 
