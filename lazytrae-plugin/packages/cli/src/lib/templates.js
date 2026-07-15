@@ -89,19 +89,26 @@ function copyRepoFileIfChanged(repoRoot, src, dest) {
   return true;
 }
 
-function copyRepoDir(repoRoot, src, dest) {
-  if (!fs.existsSync(src)) return { created: 0, updated: 0 };
+function copyRepoDir(repoRoot, src, dest, { overwrite = true } = {}) {
+  if (!fs.existsSync(src)) return { created: 0, updated: 0, skipped: 0 };
   ensureRepoDir(repoRoot, dest);
   let created = 0;
   let updated = 0;
+  let skipped = 0;
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
     if (entry.isDirectory()) {
-      const result = copyRepoDir(repoRoot, srcPath, destPath);
+      const result = copyRepoDir(repoRoot, srcPath, destPath, { overwrite });
       created += result.created;
       updated += result.updated;
+      skipped += result.skipped;
     } else {
+      const existing = readExistingFile(repoRoot, destPath, 'utf-8');
+      if (!overwrite && existing.exists && existing.content !== fs.readFileSync(srcPath, 'utf-8')) {
+        skipped++;
+        continue;
+      }
       const existed = fs.existsSync(destPath);
       if (copyRepoFileIfChanged(repoRoot, srcPath, destPath)) {
         if (existed) updated++;
@@ -109,7 +116,7 @@ function copyRepoDir(repoRoot, src, dest) {
       }
     }
   }
-  return { created, updated };
+  return { created, updated, skipped };
 }
 
 function writeRepoFile(repoRoot, filePath, content, encoding = 'utf-8') {

@@ -112,6 +112,35 @@ test('packed CLI retains safe onboard and initdeep aliases', () => {
   } finally { fs.rmSync(temporaryRoot, { recursive: true, force: true }); }
 });
 
+test('packed CLI re-init refuses to overwrite a modified managed command', () => {
+  // Given: a project initialized by the installed package, with a caller edit in one managed command.
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-release-packed-reinit-'));
+  try {
+    const [packageInfo] = JSON.parse(run(npm, ['pack', '--json', '--pack-destination', temporaryRoot]));
+    const installRoot = path.join(temporaryRoot, 'install');
+    run(npm, ['install', '--prefix', installRoot, '--ignore-scripts', '--no-audit', '--no-fund', '--offline', '--package-lock=false', path.join(temporaryRoot, packageInfo.filename)]);
+    const binary = path.join(installRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lazytrae.cmd' : 'lazytrae');
+    const project = path.join(temporaryRoot, 'project');
+    fs.mkdirSync(path.join(project, '.git'), { recursive: true });
+    const firstInit = require('node:child_process').spawnSync(binary, ['init', '--host', 'ide'], { cwd: project, encoding: 'utf8' });
+    assert.equal(firstInit.status, 0, firstInit.stderr);
+    const command = path.join(project, '.trae', 'commands', 'lazy-init-deep.md');
+    fs.appendFileSync(command, '\ncaller note\n');
+
+    // When: the installed CLI is run again without an explicit overwrite request.
+    const reinit = require('node:child_process').spawnSync(binary, ['init', '--host', 'ide'], { cwd: project, encoding: 'utf8' });
+
+    // Then: the caller edit survives and the CLI refuses the unsafe re-init.
+    assert.equal(reinit.status, 1, `${reinit.stdout}${reinit.stderr}`);
+    assert.match(`${reinit.stdout}${reinit.stderr}`, /refused to overwrite 1 modified command files .*--force/);
+    assert.match(fs.readFileSync(command, 'utf8'), /caller note/);
+
+    const forced = require('node:child_process').spawnSync(binary, ['init', '--host', 'ide', '--force'], { cwd: project, encoding: 'utf8' });
+    assert.equal(forced.status, 0, `${forced.stdout}${forced.stderr}`);
+    assert.doesNotMatch(fs.readFileSync(command, 'utf8'), /caller note/);
+  } finally { fs.rmSync(temporaryRoot, { recursive: true, force: true }); }
+});
+
 test('doctor reports redacted provider and approval status after onboarding', () => {
   // Given: an initialized project and an environment credential.
   const project = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-release-doctor-'));

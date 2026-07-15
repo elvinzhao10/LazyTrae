@@ -84,10 +84,15 @@ Options:
   // Copy .trae/commands/
   const commandsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'commands'),
-    path.join(repoRoot, '.trae', 'commands')
+    path.join(repoRoot, '.trae', 'commands'),
+    { overwrite: force },
   );
   if (commandsResult.created > 0) summary.created.push(`${commandsResult.created} command files`);
   if (commandsResult.updated > 0) summary.updated.push(`${commandsResult.updated} command files`);
+  if (commandsResult.skipped > 0) {
+    summary.skipped.push(`refused to overwrite ${commandsResult.skipped} modified command files (preserved; rerun with --force to overwrite)`);
+    process.exitCode = 1;
+  }
 
   // Copy .trae/rules/
   const rulesResult = copyRepoDir(repoRoot,
