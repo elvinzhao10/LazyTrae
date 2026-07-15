@@ -3,7 +3,7 @@
 
 ## OVERVIEW
 
-LazyTrae v0.16.0-alpha.1 is a workflow harness for Trae IDE, Trae Work, and Trae CLI: 17 skills, 9 commands, 11 agents, and an MCP server for repository understanding, planning, execution, and verification.
+LazyTrae v0.17.0 is a workflow harness for Trae IDE, Trae Work, and Trae CLI: 17 skills, 9 commands, 11 agents, and an MCP server for repository understanding, planning, execution, and verification.
 
 It is verified on macOS only. Automatic local capability selection is
 temporary and receipt-owned: it may use `rg`, `sg`, or a read-only LSP bridge,
@@ -17,7 +17,6 @@ them.
 - `lazytrae-plugin/`: Distributable package (CLI, MCP, templates).
 - `.trae/`: Trae config (skills, commands, agents, rules, hooks).
 - `.lazytrae/`: Schemas, state, plans, evidence, loops.
-- `docs/handoff.md`: Repository learning map.
 
 ## WHERE TO LOOK
 
@@ -133,6 +132,5 @@ the manual steps in `offboard` above after package removal.
 ## Reference
 
 - [README.md](README.md)
-- [docs/handoff.md](docs/handoff.md)
 - [lazytrae-evaluation.md](lazytrae-evaluation.md)
 <!-- lazytrae:managed:end:onboarding -->

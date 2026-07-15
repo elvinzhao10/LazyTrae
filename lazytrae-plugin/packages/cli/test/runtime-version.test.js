@@ -6,7 +6,7 @@ const test = require('node:test');
 const expectedVersion = require('../package.json').version;
 const packagedMcp = require('../src/mcp');
 const sourceMcp = require('../../mcp/src');
-const RELEASE_VERSION = '0.16.0-alpha.1';
+const RELEASE_VERSION = '0.17.0';
 
 function initializeVersion(server) {
   let output = '';
@@ -23,12 +23,12 @@ function initializeVersion(server) {
   return JSON.parse(output).result.serverInfo.version;
 }
 
-test('all LazyTrae MCP runtime entry points report the package version', () => {
+test('all LazyTrae MCP runtime entry points report the v0.17.0 package version', () => {
   assert.equal(initializeVersion(packagedMcp), expectedVersion);
   assert.equal(initializeVersion(sourceMcp), expectedVersion);
 });
 
-test('v0.16 tooling release manifests are pinned to alpha.1', () => {
+test('v0.17.0 package release identities are consistent', () => {
   assert.equal(expectedVersion, RELEASE_VERSION);
   assert.equal(require('../../mcp/package.json').version, RELEASE_VERSION);
 
@@ -40,6 +40,7 @@ test('v0.16 tooling release manifests are pinned to alpha.1', () => {
     '../src/commands/doctor.js',
     '../src/commands/sync.js',
     '../src/commands/uninstall.js',
+    '../src/commands/lsp.js',
     '../src/lib/trae-checks.js',
     '../src/mcp/index.js',
     '../../mcp/src/index.js',
@@ -48,24 +49,47 @@ test('v0.16 tooling release manifests are pinned to alpha.1', () => {
     '../templates/AGENTS.md',
     '../../../.trae/hooks.json',
     '../../../.trae/mcp.json',
-    '../../../../README.md',
-    '../../../../AGENTS.md',
-    '../../../../docs/handoff.md',
-    '../../../../lazytrae-evaluation.md',
+    '../../../../NOTICE',
+    '../contracts/automatic-tooling-contract.v1.json',
     '../../../README.md',
     '../README.md',
+    '../package.json',
+    '../../mcp/package.json',
+    '../tooling/package.json',
+    '../tooling/codegraph/package.json',
+    '../tooling/lsp/python/package.json',
+    '../tooling/lsp/typescript/package.json',
+    '../tooling/package-lock.json',
+    '../tooling/codegraph/package-lock.json',
+    '../tooling/lsp/python/package-lock.json',
+    '../tooling/lsp/typescript/package-lock.json',
   ];
 
   for (const relativePath of releasePaths) {
     const contents = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
-    assert.doesNotMatch(contents, /0\.15\.0-alpha\.3/, `${relativePath} retained alpha.3`);
-    assert.match(contents, /0\.16\.0-alpha\.1/, `${relativePath} omitted alpha.1`);
+    assert.doesNotMatch(contents, /0\.16\.0-alpha\.1/, `${relativePath} retained the prior release identity`);
+    assert.match(contents, /0\.17\.0/, `${relativePath} omitted v0.17.0`);
   }
 });
 
-test('Given the repository root documentation, when its public layout is checked, then only the handoff remains tracked', () => {
-  const rootDocs = path.join(__dirname, '../../../../docs');
-  assert.deepEqual(fs.readdirSync(rootDocs).sort(), ['handoff.md']);
-  assert.match(fs.readFileSync(path.join(__dirname, '../../../../README.md'), 'utf8'), /docs\/handoff\.md/);
-  assert.match(fs.readFileSync(path.join(__dirname, '../../../../AGENTS.md'), 'utf8'), /docs\/handoff\.md/);
+test('active package Trae configuration declares the current release version', () => {
+  const packageRoot = path.join(__dirname, '../../..');
+  const mcpConfiguration = JSON.parse(fs.readFileSync(path.join(packageRoot, '.trae/mcp.json'), 'utf8'));
+  const hooksConfiguration = JSON.parse(fs.readFileSync(path.join(packageRoot, '.trae/hooks.json'), 'utf8'));
+
+  assert.match(mcpConfiguration.lazytrae.description, new RegExp(`v${RELEASE_VERSION.replaceAll('.', '\\.')}`));
+  assert.equal(hooksConfiguration.lazytrae.version, `v${RELEASE_VERSION}`);
+});
+
+test('MCP entry points reject malformed input without misreporting their release version', () => {
+  for (const entryPoint of ['../src/mcp/index.js', '../../mcp/src/index.js']) {
+    const result = require('node:child_process').spawnSync(process.execPath, [path.join(__dirname, entryPoint)], {
+      input: '{not json}\n',
+      encoding: 'utf8',
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stderr, /LazyTrae MCP server v0\.17\.0 started/);
+    assert.match(result.stdout, /"code":-32700/);
+    assert.doesNotMatch(result.stdout, /0\.16\.0-alpha\.1/);
+  }
 });

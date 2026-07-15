@@ -158,11 +158,11 @@ function receiptPath(root) {
   return path.join(root, RECEIPT_FILE);
 }
 
-function writeReceipt(root, entries, provisionedCapabilities = []) {
+function writeReceipt(root, entries, provisionedCapabilities = [], receiptRoot = root) {
   const receipt = {
     schema_version: 1,
     owner: RECEIPT_OWNER,
-    tooling_root: root,
+    tooling_root: receiptRoot,
     files: entries.filter(entry => !isExpectedMutableRuntimeEntry(entry)),
     provisioned_capabilities: provisionedCapabilities,
   };

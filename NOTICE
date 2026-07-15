@@ -16,9 +16,9 @@ repository. All implementations are original work based on studying the
 canonical behavior. The SUL governs omo itself; it does not extend to this
 repo's original Trae-native output.
 
-## v0.16 direct tooling dependencies
+## v0.17 direct tooling dependencies
 
-LazyTrae v0.16.0-alpha.1 provisions the following direct, pinned optional
+LazyTrae v0.17.0 provisions the following direct, pinned optional
 tooling dependencies into package-owned roots only. Their lockfiles are the
 source of the exact resolved versions; this list records attribution and does
 not make any upstream tool an operational dependency of LazyCodex or omo.

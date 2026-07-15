@@ -8,13 +8,12 @@ work, make changes, verify them on the real user surface, and retain evidence
 for the next task.
 
 > **Install and host setup:** [AGENTS.md](AGENTS.md).
-> **Learn the repository:** [docs/handoff.md](docs/handoff.md).
 > **Package details:** [lazytrae-plugin/README.md](lazytrae-plugin/README.md).
 
 LazyTrae is verified on macOS only. Other operating systems and live host
 behaviour need local confirmation before they are relied on.
 
-The current package version is `0.16.0-alpha.1`.
+The current package version is `0.17.0`.
 
 ## What you do with it
 
@@ -139,9 +138,9 @@ natural language because Work has no global command registry.
 | MCP declarations | 8 | One core server; 15 core tools after connection |
 | CLI | 17 | Installer, doctor, verification gate, lifecycle, MCP launcher, and tooling commands |
 
-For package layout, template ownership, and the test map, read
-[docs/handoff.md](docs/handoff.md). The repository keeps attribution and
-provenance in [NOTICE](NOTICE).
+For package layout, template ownership, and the test map, read the
+[package README](lazytrae-plugin/README.md). The repository keeps attribution
+and provenance in [NOTICE](NOTICE).
 
 ## Remove it safely
 

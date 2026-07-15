@@ -18,7 +18,6 @@ const requiredHeadings = [
 
 const documentationPaths = [
   path.join(repositoryRoot, 'lazytrae-evaluation.md'),
-  path.join(repositoryRoot, 'docs', 'handoff.md'),
 ];
 
 function assertDocumentationContract(documentationPath) {
@@ -71,39 +70,52 @@ test('Given current LazyTrae documentation, when its v0.17 contract is checked, 
   assert.match(onboardingGuide, /invokes the bounded Work skill installation/, 'onboarding guide must describe the Work init lifecycle accurately');
 });
 
+function assertNoRemovedRootDocsLink(content, documentationPath) {
+  assert.doesNotMatch(content, /\]\((?:\.\/|\.\.\/)*docs\//, `${documentationPath} must not link to removed repository-root docs/`);
+}
+
+test('Given root documentation, when repository-root docs are intentionally absent, then active root guidance has no stale docs links', () => {
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'docs')), false, 'repository-root docs/ must remain absent');
+
+  for (const filename of ['README.md', 'AGENTS.md', 'lazytrae-evaluation.md']) {
+    const documentationPath = path.join(repositoryRoot, filename);
+    assertNoRemovedRootDocsLink(fs.readFileSync(documentationPath, 'utf8'), documentationPath);
+  }
+});
+
 test('Given public LazyTrae documentation, when its release-facing contract is checked, then it presents the banner and safe onboarding and offboarding paths', () => {
   const readme = fs.readFileSync(path.join(repositoryRoot, 'README.md'), 'utf8');
   const onboardingGuide = fs.readFileSync(path.join(repositoryRoot, 'AGENTS.md'), 'utf8');
   const installedGuide = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'templates', 'AGENTS.md'), 'utf8');
-  const handoff = fs.readFileSync(path.join(repositoryRoot, 'docs', 'handoff.md'), 'utf8');
 
   assert.match(readme, /^!\[LazyTrae.*\]\(lazytrae-banner\.jpg\)$/m, 'README must embed the public LazyTrae banner');
   assert.doesNotMatch(readme, /practice project|no longer maintained|alignment candidate/i, 'README must not use legacy release framing');
   assert.match(onboardingGuide, /## `offboard` protocol/, 'root setup guide must provide safe offboarding');
   assert.match(installedGuide, /## `offboard` protocol/, 'installed setup guide must provide safe offboarding');
-  assert.match(handoff, /## Learn the repository/, 'handoff must orient the next documentation owner');
 });
 
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {
   const packageAgents = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'AGENTS.md'), 'utf8');
-  const handoff = fs.readFileSync(path.join(repositoryRoot, 'docs', 'handoff.md'), 'utf8');
 
-  assert.match(packageAgents, /0\.16\.0-alpha\.1/, 'CLI maintainer guidance must name the packaged baseline');
+  assert.match(packageAgents, /0\.17\.0/, 'CLI maintainer guidance must name the packaged baseline');
   assert.match(packageAgents, /broad Node test suite/i, 'CLI maintainer guidance must describe the current suite');
   assert.doesNotMatch(packageAgents, /v0\.13|250 LOC|Currently thin/i, 'CLI maintainer guidance must not retain stale constraints');
-  assert.doesNotMatch(handoff, /node src\/index\.js load-check --host ide/, 'handoff must not advertise unsupported source-tree load-check');
-  assert.match(handoff, /node --test test\/documentation-regression\.test\.js/, 'handoff must name a focused passing contributor check');
-  assert.match(handoff, /installed project.*package readiness/i, 'handoff must retain the installed-package readiness boundary');
+  assert.match(packageAgents, /node --test test\/documentation-regression\.test\.js/, 'CLI maintainer guidance must name a focused documentation check');
+  assert.match(packageAgents, /package-readiness/i, 'CLI maintainer guidance must retain the installed-package readiness boundary');
 });
 
-test('Given a copied LazyTrae handoff, when a required heading is removed, then the documentation contract rejects it', () => {
+test('Given copied LazyTrae documentation, when a required heading or removed-root-doc link is introduced, then the documentation contract rejects it', () => {
   const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-documentation-regression-'));
-  const copiedHandoff = path.join(temporaryDirectory, 'handoff.md');
+  const copiedDocumentation = path.join(temporaryDirectory, 'lazytrae-evaluation.md');
 
   try {
-    fs.copyFileSync(path.join(repositoryRoot, 'docs', 'handoff.md'), copiedHandoff);
-    fs.writeFileSync(copiedHandoff, fs.readFileSync(copiedHandoff, 'utf8').replace('## JSON-RPC resilience\n', ''), 'utf8');
-    assert.throws(() => assertDocumentationContract(copiedHandoff), /JSON-RPC resilience/);
+    fs.copyFileSync(path.join(repositoryRoot, 'lazytrae-evaluation.md'), copiedDocumentation);
+    fs.writeFileSync(copiedDocumentation, fs.readFileSync(copiedDocumentation, 'utf8').replace('## JSON-RPC resilience\n', ''), 'utf8');
+    assert.throws(() => assertDocumentationContract(copiedDocumentation), /JSON-RPC resilience/);
+    for (const staleLink of ['docs/handoff.md', './docs/handoff.md']) {
+      fs.writeFileSync(copiedDocumentation, `[stale handoff](${staleLink})\n`, 'utf8');
+      assert.throws(() => assertNoRemovedRootDocsLink(fs.readFileSync(copiedDocumentation, 'utf8'), copiedDocumentation), /removed repository-root docs/);
+    }
   } finally {
     fs.rmSync(temporaryDirectory, { recursive: true, force: true });
   }

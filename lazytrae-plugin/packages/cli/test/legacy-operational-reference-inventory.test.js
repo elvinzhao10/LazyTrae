@@ -97,11 +97,12 @@ test('operational CLI and MCP sources use LazyTrae-native names', () => {
 });
 
 test('active installable surfaces, documentation, and runtime source allow only named historical records', () => {
+  assert.equal(fs.existsSync(path.join(MONOREPO_ROOT, 'docs')), false, 'repository-root docs/ must remain absent');
+
   const inventory = inventoryRecords([
     path.join(MONOREPO_ROOT, 'AGENTS.md'),
     path.join(MONOREPO_ROOT, 'README.md'),
     path.join(MONOREPO_ROOT, 'lazytrae-evaluation.md'),
-    path.join(MONOREPO_ROOT, 'docs'),
     path.join(REPO_ROOT, '.trae'),
     path.join(REPO_ROOT, '.lazytrae'),
     path.join(REPO_ROOT, 'packages/cli/AGENTS.md'),

@@ -164,8 +164,9 @@ test('automatic capability timeout kills a provider grandchild before removing i
   }
 });
 
-test('automatic capability SIGINT kills a provider tree without waiting for its timeout', async () => {
+test('automatic capability SIGINT kills a provider tree without waiting for its timeout', async t => {
   const root = repository('lazytrae-broker-tree-signal-');
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const toolpack = path.join(root, 'empty-toolpack');
   const bin = path.join(root, 'bin');
   const pidFile = path.join(root, 'grandchild.pid');

@@ -8,8 +8,8 @@ const { readReceipt, validateReceipt } = require('./tooling-root');
 const { OPTIONAL_CAPABILITIES, readToolingState, toolingStatePath } = require('./tooling-state');
 
 const CONTRACT_VERSION = '0.17.0';
-const CONTRACT_DIGEST = '0c098d88c2e14b8b600c9ce345a70787baf44229794eac7331ed010b47b459c5';
-const READINESS_CONTRACT_SHA256 = '4b315447039a61d7c53e9dbb28aadb6720705e4634a08b6f224ec922d7695f90';
+const CONTRACT_DIGEST = 'e73aa8a942df5609c57e70a7e5e0ac21adf53ef63f688e8caaed2801f946470a';
+const READINESS_CONTRACT_SHA256 = 'd74a0aaac8801b04655d873bd3b7651f22096b63ba60a10fa1d9241fd18f34af';
 const READINESS_CONTRACT_PATH = path.resolve(__dirname, '..', '..', 'contracts', 'lazyseries-capability-readiness.v1.json');
 const CAPABILITIES = [
   ['local_search', 'ripgrep'], ['structural_search', 'ast-grep'], ['code_navigation', 'lsp'],

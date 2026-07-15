@@ -13,12 +13,13 @@ function withFixture(prefix, callback) {
   }
 }
 
-test('load-check reports v0.16 package readiness separately from unverified IDE registration', () => {
+test('load-check reports v0.17 package readiness separately from unverified IDE registration', () => {
   withFixture('lazytrae-load-check-ready-', fixture => {
     const result = runCli(['load-check', '--host', 'ide'], { cwd: fixture });
 
     assert.equal(result.status, 0, result.stdout);
-    assert.match(result.stdout, /LazyTrae Tool Load Check — v0\.16 Package Readiness/);
+    assert.match(result.stdout, /LazyTrae Tool Load Check — v0\.17 Package Readiness/);
+    assert.doesNotMatch(result.stdout, /v0\.16/);
     assert.match(result.stdout, /PASS hooks\.json event mappings: 5\/5/);
     assert.match(result.stdout, /PASS hook executability: 8\/8/);
     assert.match(result.stdout, /PASS LazyTrae MCP declaration: command "lazytrae" args \["mcp"\]/);

@@ -6,7 +6,7 @@ const test = require('node:test');
 
 const contractPath = path.join(__dirname, '..', 'contracts', 'lazyseries-capability-readiness.v1.json');
 const fixturePath = path.join(__dirname, '..', 'contracts', 'fixtures', 'v017', 'readiness-records.json');
-const policyDigest = '0c098d88c2e14b8b600c9ce345a70787baf44229794eac7331ed010b47b459c5';
+const policyDigest = 'e73aa8a942df5609c57e70a7e5e0ac21adf53ef63f688e8caaed2801f946470a';
 const statuses = [
   'host-ready',
   'owned-ready',

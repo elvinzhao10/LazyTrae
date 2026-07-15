@@ -2,7 +2,6 @@ const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const {
-  assertSafeRoot,
   listOwnedEntries,
   ownedRuntimeEnvironment,
   prepareOwnedRuntime,
@@ -11,6 +10,8 @@ const {
   validateReceipt,
   writeReceipt,
 } = require('./tooling-root');
+const { createStagingRoot, discardStagingRoot, promoteStagingRoot } = require('./tooling-staging');
+const { runOwnedCommand } = require('./owned-process-runner');
 const { assertTarget } = require('./lsp-provider');
 const { setCodeGraphCapability } = require('./tooling-state');
 
@@ -128,32 +129,43 @@ function formatStatus(value) {
   return lines.join('\n');
 }
 
-function install(target, toolingRoot) {
-  assertSafeRoot(toolingRoot, true);
-  fs.cpSync(SOURCE_ROOT, toolingRoot, { recursive: true, dereference: false });
-  prepareOwnedRuntime(toolingRoot);
-  const result = spawnSync(npm, ['ci', '--ignore-scripts', '--no-audit', '--no-fund'], {
-    cwd: toolingRoot,
-    encoding: 'utf8',
-    timeout: 120000,
-    env: ownedRuntimeEnvironment(toolingRoot),
-  });
-  if (result.error || result.status !== 0) {
-    fs.rmSync(toolingRoot, { recursive: true, force: true });
-    throw new Error(`CodeGraph install failed: ${(result.error && result.error.message) || result.stderr || result.stdout}`.trim());
+function install(target, toolingRoot, options = {}) {
+  const staging = createStagingRoot(toolingRoot);
+  try {
+    fs.cpSync(SOURCE_ROOT, staging, { recursive: true, dereference: false });
+    prepareOwnedRuntime(staging);
+    const result = runOwnedCommand(npm, ['ci', '--ignore-scripts', '--no-audit', '--no-fund'], {
+      cwd: staging,
+      encoding: 'utf8',
+      timeout: options.timeout ?? 120000,
+      env: ownedRuntimeEnvironment(staging),
+      timeoutCode: 'CODEGRAPH_INSTALL_TIMEOUT',
+    });
+    if (result.error || result.status !== 0) {
+      throw new Error(`CodeGraph install failed: ${(result.error && result.error.message) || result.stderr || result.stdout}`.trim());
+    }
+    writeReceipt(staging, listOwnedEntries(staging), ['codegraph'], toolingRoot);
+    promoteStagingRoot(staging, toolingRoot);
+  } catch (error) {
+    try {
+      discardStagingRoot(staging);
+    } catch (cleanupError) {
+      throw new Error(`${error.message}; staging cleanup refused: ${cleanupError.message}`);
+    }
+    throw new Error(`${error.message}; caller tooling root preserved and no receipt was created.`);
   }
-  writeReceipt(toolingRoot, listOwnedEntries(toolingRoot), ['codegraph']);
   return status(target, toolingRoot);
 }
 
-function initialize(target, toolingRoot) {
+function initialize(target, toolingRoot, options = {}) {
   const executable = ownedExecutable(toolingRoot);
   if (!executable) throw new Error('CodeGraph cannot initialize without an unmodified receipt-owned binary.');
-  const result = spawnSync(executable, ['init', '.'], {
+  const result = runOwnedCommand(executable, ['init', '.'], {
     cwd: target,
     encoding: 'utf8',
-    timeout: 120_000,
+    timeout: options.timeout ?? 120_000,
     env: { ...ownedRuntimeEnvironment(toolingRoot), CODEGRAPH_NO_DOWNLOAD: '1' },
+    timeoutCode: 'CODEGRAPH_INIT_TIMEOUT',
   });
   if (result.error || result.status !== 0) {
     throw new Error(`CodeGraph initialization failed: ${(result.error && result.error.message) || result.stderr || result.stdout}`.trim());

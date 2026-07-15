@@ -8,7 +8,7 @@ LazyTrae supports **Trae IDE**, **Trae Work**, and **Trae CLI**. The
 `lazytrae` companion command supplies the portable installer, verification
 gate, and local MCP server. This setup is verified on macOS only.
 
-The current package version is `0.16.0-alpha.1`.
+The current package version is `0.17.0`.
 
 Automatic local capability selection is temporary and receipt-owned. It may
 use `rg`, `sg`, or the read-only LSP bridge for a task, but it never changes a
@@ -124,6 +124,6 @@ registration. Use the `offboard` protocol above for the manual host step.
 ## Reference
 
 - Everyday workflows: [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme)
-- Repository learning map: [LazyTrae handoff](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/handoff.md)
+- Package overview: [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme)
 - Public verification evidence: [LazyTrae evaluation](https://github.com/elvinzhao10/LazyTrae/blob/main/lazytrae-evaluation.md)
 <!-- lazytrae:managed:end:onboarding -->

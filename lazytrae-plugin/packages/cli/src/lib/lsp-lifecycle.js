@@ -1,8 +1,6 @@
-const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const {
-  assertSafeRoot,
   listOwnedEntries,
   ownedRuntimeEnvironment,
   prepareOwnedRuntime,
@@ -11,6 +9,8 @@ const {
   validateReceipt,
   writeReceipt,
 } = require('./tooling-root');
+const { createStagingRoot, discardStagingRoot, promoteStagingRoot } = require('./tooling-staging');
+const { runOwnedCommand } = require('./owned-process-runner');
 const { PROVIDERS, assertTarget, providerFor, readinessProviderFor } = require('./lsp-provider');
 
 const SOURCE_ROOT = path.resolve(__dirname, '..', '..', 'tooling', 'lsp');
@@ -59,28 +59,38 @@ function formatStatus(result) {
   return lines.join('\n');
 }
 
-function install(target, toolingRoot) {
+function install(target, toolingRoot, options = {}) {
   const initial = status(target, toolingRoot);
   if (initial.state !== 'missing') return initial;
-  assertSafeRoot(toolingRoot, true);
-  prepareOwnedRuntime(toolingRoot);
   const provider = PROVIDERS[initial.language];
   if (!provider) throw new Error('no supported provider can be provisioned for this target.');
+  const staging = createStagingRoot(toolingRoot);
   const source = path.join(SOURCE_ROOT, provider.packageDirectory);
-  const destination = path.join(toolingRoot, 'lsp', provider.packageDirectory);
-  fs.mkdirSync(path.dirname(destination), { recursive: true, mode: 0o700 });
-  fs.cpSync(source, destination, { recursive: true, dereference: false });
-  const result = spawnSync(npm, ['ci', '--ignore-scripts', '--no-audit', '--no-fund'], {
-    cwd: destination,
-    encoding: 'utf8',
-    timeout: 120000,
-    env: ownedRuntimeEnvironment(toolingRoot),
-  });
-  if (result.error || result.status !== 0) {
-    fs.rmSync(toolingRoot, { recursive: true, force: true });
-    throw new Error(`LSP provider install failed: ${(result.error && result.error.message) || result.stderr || result.stdout}`.trim());
+  const destination = path.join(staging, 'lsp', provider.packageDirectory);
+  try {
+    prepareOwnedRuntime(staging);
+    fs.mkdirSync(path.dirname(destination), { recursive: true, mode: 0o700 });
+    fs.cpSync(source, destination, { recursive: true, dereference: false });
+    const result = runOwnedCommand(npm, ['ci', '--ignore-scripts', '--no-audit', '--no-fund'], {
+      cwd: destination,
+      encoding: 'utf8',
+      timeout: options.timeout ?? 120000,
+      env: ownedRuntimeEnvironment(staging),
+      timeoutCode: 'LSP_INSTALL_TIMEOUT',
+    });
+    if (result.error || result.status !== 0) {
+      throw new Error(`LSP provider install failed: ${(result.error && result.error.message) || result.stderr || result.stdout}`.trim());
+    }
+    writeReceipt(staging, listOwnedEntries(staging), [ownedCapability(initial.language)], toolingRoot);
+    promoteStagingRoot(staging, toolingRoot);
+  } catch (error) {
+    try {
+      discardStagingRoot(staging);
+    } catch (cleanupError) {
+      throw new Error(`${error.message}; staging cleanup refused: ${cleanupError.message}`);
+    }
+    throw new Error(`${error.message}; caller tooling root preserved and no receipt was created.`);
   }
-  writeReceipt(toolingRoot, listOwnedEntries(toolingRoot), [ownedCapability(initial.language)]);
   const installed = status(target, toolingRoot);
   if (installed.state !== 'ready' || installed.source !== 'owned') throw new Error('LSP provisioning did not produce a verified owned provider.');
   return installed;

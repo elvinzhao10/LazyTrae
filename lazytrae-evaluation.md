@@ -4,7 +4,7 @@ This document records what the public package implements and what its tests
 verify. It is evidence for the package and its local CLI/MCP behaviour, not a
 claim that a chosen Trae host has already loaded or connected it.
 
-The current package version is `0.16.0-alpha.1`.
+The current package version is `0.17.0`.
 
 ## Features and verified package behaviour
 
