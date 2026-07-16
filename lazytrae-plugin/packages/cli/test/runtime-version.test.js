@@ -49,10 +49,7 @@ test('v0.17.0 package release identities are consistent', () => {
     '../templates/AGENTS.md',
     '../../../.trae/hooks.json',
     '../../../.trae/mcp.json',
-    '../../../../NOTICE',
     '../contracts/automatic-tooling-contract.v1.json',
-    '../../../README.md',
-    '../README.md',
     '../package.json',
     '../../mcp/package.json',
     '../tooling/package.json',
@@ -70,6 +67,10 @@ test('v0.17.0 package release identities are consistent', () => {
     assert.doesNotMatch(contents, /0\.16\.0-alpha\.1/, `${relativePath} retained the prior release identity`);
     assert.match(contents, /0\.17\.0/, `${relativePath} omitted v0.17.0`);
   }
+
+  const notice = fs.readFileSync(path.join(__dirname, '../../../../NOTICE'), 'utf8');
+  assert.match(notice, /LazyCodex: https:\/\/github\.com\/code-yeongyu\/lazycodex — MIT\./);
+  assert.match(notice, /## Optional tooling dependencies/);
 });
 
 test('active package Trae configuration declares the current release version', () => {
