@@ -93,7 +93,8 @@ function nonExecutableHooks(repoRoot) {
   });
 }
 
-function mcpDeclarationError(repoRoot) {
+function mcpDeclarationError(repoRoot, host) {
+  if (host === 'work') return '';
   const mcpPath = path.join(repoRoot, '.trae', 'mcp.json');
   try {
     const config = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
@@ -123,7 +124,7 @@ function run(args) {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae load-check [--host ide|work|cli]
 
-Check v0.17 package readiness after initialization. This validates local files and
+Check v0.18.0 package readiness after initialization. This validates local files and
 configuration only; it does not claim that a host has registered or loaded them.
 `);
     return 0;
@@ -143,9 +144,9 @@ configuration only; it does not claim that a host has registered or loaded them.
   ];
   const hookMappings = hookMappingFailures(repoRoot);
   const hookPermissions = nonExecutableHooks(repoRoot);
-  const mcpError = mcpDeclarationError(repoRoot);
+  const mcpError = mcpDeclarationError(repoRoot, host);
 
-  console.log('=== LazyTrae Tool Load Check — v0.17 Package Readiness ===');
+  console.log('=== LazyTrae Tool Load Check — v0.18.0 Package Readiness ===');
   console.log(`Host: ${host}`);
   for (const result of checks) {
     const expected = V015_ARTIFACT_CONTRACT[result.label].length;
@@ -156,7 +157,9 @@ configuration only; it does not claim that a host has registered or loaded them.
   console.log(`${hookMappings.failures.length ? 'FAIL' : 'PASS'} hooks.json event mappings: ${hookMappings.ready}/${eventCount}${hookMappings.failures.length ? ` (${hookMappings.failures.join('; ')})` : ''}`);
   const hookCount = V015_ARTIFACT_CONTRACT.hooks.length;
   console.log(`${hookPermissions.length ? 'FAIL' : 'PASS'} hook executability: ${hookCount - hookPermissions.length}/${hookCount}${hookPermissions.length ? ` (not executable: ${hookPermissions.join(', ')})` : ''}`);
-  console.log(`${mcpError ? 'FAIL' : 'PASS'} LazyTrae MCP declaration: ${mcpError || 'command "lazytrae" args ["mcp"]'}`);
+  console.log(host === 'work'
+    ? 'SKIP LazyTrae MCP declaration: Trae Work requires manual Settings → MCP registration'
+    : `${mcpError ? 'FAIL' : 'PASS'} LazyTrae MCP declaration: ${mcpError || 'command "lazytrae" args ["mcp"]'}`);
   const readiness = readinessReport(repoRoot);
   console.log(formatReadinessSummary(readiness));
 

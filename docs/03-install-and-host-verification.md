@@ -52,3 +52,4 @@ in [the setup guide](../AGENTS.md); the proof boundary is documented in
 [verification evidence](../lazytrae-evaluation.md).
 
 Once the host is proven, continue to [your first task](02-first-task.md).
+For what the connection exposes, see [MCP lifecycle](07b-mcp-lifecycle.md).

@@ -37,4 +37,6 @@ declaration remains pending until the companion is installed.
 
 That boundary keeps an installation claim honest: package readiness means the
 local assets are present; host proof means you saw the selected host load or
-connect them. Continue with [install and host verification](03-install-and-host-verification.md).
+connect them. Continue with [install and host verification](03-install-and-host-verification.md),
+then see [MCP lifecycle](07b-mcp-lifecycle.md) for the declaration-to-connection
+boundary.

@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile } = require('../lib/templates');
 const { replaceBlock, extractBlock, hasManagedBlock, extractBlockNames } = require('../lib/managed-blocks');
-const { ensureToolingState, mergeMcpTemplate } = require('../lib/tooling-state');
+const { ensureToolingState, updateMcpDeclaration } = require('../lib/tooling-state');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -30,7 +30,7 @@ Options:
 
   const summary = { updated: [], skipped: [] };
 
-  console.log(`LazyTrae sync v0.17.0`);
+  console.log(`LazyTrae sync v0.18.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   for (const relativePath of ['.lazytrae/plans', '.lazytrae/loop']) {
@@ -81,7 +81,10 @@ Options:
 
   const mcpTemplatePath = path.join(templatesDir, 'mcp.json');
   const mcpDestinationPath = path.join(repoRoot, '.trae', 'mcp.json');
-  if (mergeMcpTemplate(repoRoot, mcpTemplatePath, mcpDestinationPath)) summary.updated.push('.trae/mcp.json');
+  const mcpUpdate = updateMcpDeclaration(repoRoot, mcpTemplatePath, mcpDestinationPath);
+  if (mcpUpdate.status === 'updated') summary.updated.push('.trae/mcp.json');
+  else if (mcpUpdate.status === 'unavailable_existing') summary.skipped.push('.trae/mcp.json (protected destination; existing declaration preserved; complete MCP registration manually with your host)');
+  else if (mcpUpdate.status === 'unavailable_absent') summary.skipped.push('.trae/mcp.json (protected destination; declaration was not written; complete MCP registration manually with your host)');
   else summary.skipped.push('.trae/mcp.json (no changes)');
 
   const hooksResult = copyRepoDir(repoRoot,

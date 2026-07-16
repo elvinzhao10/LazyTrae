@@ -8,6 +8,7 @@ const test = require('node:test');
 const CLI_ROOT = path.resolve(__dirname, '..');
 const SOURCE_MCP_ROOT = path.resolve(CLI_ROOT, '..', 'mcp', 'src');
 const FALLBACK_MCP_ROOT = path.join(CLI_ROOT, 'src', 'mcp');
+const CLI_RUNTIME_ROOT = path.join(CLI_ROOT, 'src', 'lib');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 function run(command, args, options = {}) {
@@ -20,15 +21,39 @@ function run(command, args, options = {}) {
   return result.stdout;
 }
 
-function readJavaScriptFiles(root) {
-  return fs.readdirSync(root, { withFileTypes: true })
-    .filter(entry => entry.isFile() && entry.name.endsWith('.js'))
-    .map(entry => entry.name)
-    .sort();
+function readJavaScriptFiles(root, prefix = '') {
+  const files = [];
+  for (const entry of fs.readdirSync(path.join(root, prefix), { withFileTypes: true })) {
+    const relativePath = path.join(prefix, entry.name);
+    if (entry.isDirectory()) files.push(...readJavaScriptFiles(root, relativePath));
+    else if (entry.isFile() && entry.name.endsWith('.js')) files.push(relativePath);
+  }
+  return files.sort();
 }
 
-function normalizeFallbackImports(source) {
-  return source.replaceAll('../../cli/src/lib/', '../lib/');
+function normalizeMcpSourceForCli(source) {
+  return source.replaceAll('./runtime/', '../lib/');
+}
+
+function cliParityPath(relativePath, fallbackMcpRoot, cliRuntimeRoot) {
+  const runtimePrefix = `runtime${path.sep}`;
+  return relativePath.startsWith(runtimePrefix)
+    ? path.join(cliRuntimeRoot, relativePath.slice(runtimePrefix.length))
+    : path.join(fallbackMcpRoot, relativePath);
+}
+
+function assertMcpSourceParity(sourceMcpRoot, fallbackMcpRoot, cliRuntimeRoot) {
+  const sourceFiles = readJavaScriptFiles(sourceMcpRoot);
+  const handlerFiles = sourceFiles.filter(file => !file.startsWith(`runtime${path.sep}`));
+  assert.deepEqual(readJavaScriptFiles(fallbackMcpRoot), handlerFiles);
+
+  for (const file of sourceFiles) {
+    const fallbackPath = cliParityPath(file, fallbackMcpRoot, cliRuntimeRoot);
+    assert.equal(fs.existsSync(fallbackPath), true, `${file} is missing from the CLI parity source`);
+    const source = fs.readFileSync(path.join(sourceMcpRoot, file), 'utf8');
+    const fallback = fs.readFileSync(fallbackPath, 'utf8');
+    assert.equal(fallback, normalizeMcpSourceForCli(source), `${file} drifted from the publishable fallback`);
+  }
 }
 
 function queryInstalledMcp(binary) {
@@ -78,13 +103,27 @@ function queryInstalledMcp(binary) {
 }
 
 test('packaged CLI fallback MCP stays source-equivalent', () => {
-  const sourceFiles = readJavaScriptFiles(SOURCE_MCP_ROOT);
-  assert.deepEqual(readJavaScriptFiles(FALLBACK_MCP_ROOT), sourceFiles);
+  assertMcpSourceParity(SOURCE_MCP_ROOT, FALLBACK_MCP_ROOT, CLI_RUNTIME_ROOT);
+});
 
-  for (const file of sourceFiles) {
-    const source = fs.readFileSync(path.join(SOURCE_MCP_ROOT, file), 'utf8');
-    const fallback = fs.readFileSync(path.join(FALLBACK_MCP_ROOT, file), 'utf8');
-    assert.equal(fallback, normalizeFallbackImports(source), `${file} drifted from the publishable fallback`);
+test('packaged CLI parity check rejects runtime drift', () => {
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-mcp-parity-'));
+  const sourceMcpRoot = path.join(temporaryRoot, 'mcp');
+  const fallbackMcpRoot = path.join(temporaryRoot, 'cli-mcp');
+  const cliRuntimeRoot = path.join(temporaryRoot, 'cli-lib');
+  fs.mkdirSync(path.join(sourceMcpRoot, 'runtime'), { recursive: true });
+  fs.mkdirSync(fallbackMcpRoot, { recursive: true });
+  fs.mkdirSync(cliRuntimeRoot, { recursive: true });
+  fs.writeFileSync(path.join(sourceMcpRoot, 'runtime', 'path-boundary.js'), 'module.exports = { safe: true };\n');
+  fs.writeFileSync(path.join(cliRuntimeRoot, 'path-boundary.js'), 'module.exports = { safe: false };\n');
+
+  try {
+    assert.throws(
+      () => assertMcpSourceParity(sourceMcpRoot, fallbackMcpRoot, cliRuntimeRoot),
+      /runtime\/path-boundary\.js drifted from the publishable fallback/,
+    );
+  } finally {
+    fs.rmSync(temporaryRoot, { recursive: true, force: true });
   }
 });
 

@@ -3,10 +3,13 @@ const path = require('path');
 const { resolveRepoPath } = require('./path-boundary');
 
 let Ajv;
+let addFormats;
 try {
   Ajv = require('ajv');
+  addFormats = require('ajv-formats');
 } catch (e) {
   Ajv = null;
+  addFormats = null;
 }
 
 const STATE_CONTRACTS = Object.freeze({
@@ -51,13 +54,14 @@ function validateStateFile(repoRoot, stateFileName, schemaFileName, versionContr
     return { valid: false, errors: [`Invalid JSON schema ${schemaFileName}: ${e.message}`] };
   }
 
-  if (!Ajv) {
-    return { valid: false, errors: ['Ajv is unavailable; cannot validate state schema'] };
+  if (!Ajv || !addFormats) {
+    return { valid: false, errors: ['Ajv formats are unavailable; cannot validate state schema'] };
   }
 
   let validate;
   try {
     const ajv = new Ajv({ allErrors: true, strict: false });
+    addFormats(ajv);
     validate = ajv.compile(schemaData);
   } catch (e) {
     return { valid: false, errors: [`Cannot compile schema ${schemaFileName}: ${e.message}`] };

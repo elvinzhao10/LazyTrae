@@ -5,7 +5,7 @@ const {
 } = require('../lib/templates');
 const { replaceBlock, hasManagedBlock, extractBlock } = require('../lib/managed-blocks');
 const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
-const { ensureToolingState, mergeMcpTemplate } = require('../lib/tooling-state');
+const { ensureToolingState, updateMcpDeclaration } = require('../lib/tooling-state');
 
 const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
 
@@ -51,7 +51,7 @@ Options:
 
   const summary = { created: [], updated: [], skipped: [], merged: [] };
 
-  console.log(`LazyTrae init v0.17.0`);
+  console.log(`LazyTrae init v0.18.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   // Create directory structure
@@ -103,14 +103,24 @@ Options:
   if (rulesResult.updated > 0) summary.updated.push(`${rulesResult.updated} rule files`);
 
   try {
-    if (mergeMcpTemplate(repoRoot,
+    const mcpUpdate = updateMcpDeclaration(repoRoot,
       path.join(templatesDir, 'mcp.json'),
       path.join(repoRoot, '.trae', 'mcp.json')
-    )) {
+    );
+    if (mcpUpdate.status === 'updated') {
       summary.created.push('.trae/mcp.json');
+    } else if (mcpUpdate.status === 'unavailable_existing' || mcpUpdate.status === 'unavailable_absent') {
+      const manualHostAction = host === 'work'
+        ? 'Trae Work requires manual Settings → MCP registration'
+        : 'complete MCP registration manually with your host';
+      const declarationState = mcpUpdate.status === 'unavailable_existing'
+        ? 'existing declaration preserved'
+        : 'declaration was not written';
+      summary.skipped.push(`.trae/mcp.json (protected destination; ${declarationState}; ${manualHostAction})`);
     }
   } catch (e) {
     summary.skipped.push(`.trae/mcp.json (copy failed: ${e.message})`);
+    process.exitCode = 1;
   }
 
   // Copy .trae/hooks.json

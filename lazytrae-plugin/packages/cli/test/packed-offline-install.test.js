@@ -71,8 +71,8 @@ test('packed CLI installs from a cold offline npm cache with only production dep
     // Then: the artifact carries exactly the runtime dependency closure and its CLI/MCP work.
     assert.deepEqual(
       bundledPackages,
-      new Set(['ajv', 'fast-deep-equal', 'fast-uri', 'json-schema-traverse', 'require-from-string']),
-      'the tarball must bundle only ajv and its production closure',
+      new Set(['ajv', 'ajv-formats', 'fast-deep-equal', 'fast-uri', 'json-schema-traverse', 'require-from-string']),
+      'the tarball must bundle the complete production dependency closure',
     );
     assert.equal(
       members.includes('package/node_modules/.package-lock.json'),

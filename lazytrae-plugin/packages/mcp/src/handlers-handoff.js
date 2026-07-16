@@ -2,7 +2,7 @@
 
 const path = require('path');
 const { assertSafeWrite, getBoulderState, getLoopState, getSessionsState, listEvidence, iso, writeText } = require('./state-access');
-const { formatCompletionStatus, getCompletionStatus } = require('../../cli/src/lib/completion-gates');
+const { formatCompletionStatus, getCompletionStatus } = require('./runtime/completion-gates');
 
 function handleGenerateHandoff(root) {
   const b = getBoulderState(root);

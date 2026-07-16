@@ -60,3 +60,5 @@ entry. See [Capabilities and approvals](06-capabilities-and-approvals.md).
 If removal preserves something, treat that as a safety result rather than an
 error to work around. Inspect ownership and decide explicitly before deleting a
 modified or host-managed asset.
+
+For the underlying rules, see [Receipts and owned tooling](06b-receipts-and-owned-tooling.md).

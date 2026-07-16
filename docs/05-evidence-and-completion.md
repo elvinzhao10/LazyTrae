@@ -45,7 +45,8 @@ not independently run tests or prove a host connection.
 The core server has 15 tools only after a host has connected it. Its tool list
 and the distinction between a declaration and a connection are in
 [Capabilities and approvals](06-capabilities-and-approvals.md) and
-[Verification contract](reference/verification-contract.md).
+[MCP lifecycle](07b-mcp-lifecycle.md). For package and release evidence, use
+[Test and release verification](09-test-and-release-verification.md).
 
 ## A compact completion statement
 

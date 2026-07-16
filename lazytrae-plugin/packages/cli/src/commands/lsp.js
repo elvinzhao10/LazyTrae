@@ -22,7 +22,7 @@ function content(value) {
 async function handle(request, context) {
   const id = Object.hasOwn(request, 'id') ? request.id : 0;
   if (request.method === 'initialize') {
-    result(id, { protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'lazytrae-lsp', version: '0.17.0' } });
+    result(id, { protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'lazytrae-lsp', version: '0.18.0' } });
     return;
   }
   const provider = status(context.target, context.toolingRoot);

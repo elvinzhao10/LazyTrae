@@ -40,7 +40,7 @@ const aliases = {
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v0.17.0 — Trae-native workflows
+  console.log(`LazyTrae CLI v0.18.0 — Trae-native workflows
 
 Usage: lazytrae <command> [options]
 

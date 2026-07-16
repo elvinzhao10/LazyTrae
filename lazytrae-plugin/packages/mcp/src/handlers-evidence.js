@@ -2,7 +2,7 @@
 
 const path = require('path');
 const { appendText, assertSafeWrite, readJSON, writeJSON, iso, withFileLock } = require('./state-access');
-const { validateEvidencePaths } = require('../../cli/src/lib/completion-gates');
+const { validateEvidencePaths } = require('./runtime/completion-gates');
 
 const GATE_FILE_MAP = {
   plan_reread: 'reviewer.md',

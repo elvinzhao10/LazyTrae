@@ -92,7 +92,7 @@
 
 - No automated schema validation CLI (deferred to v0.6).
 - No runtime loop execution (deferred to v0.9).
-- No hook integration for state persistence (deferred to v0.7).
+- No hook integration for state persistence (deferred to v0.18.0).
 
 ### Blockers
 

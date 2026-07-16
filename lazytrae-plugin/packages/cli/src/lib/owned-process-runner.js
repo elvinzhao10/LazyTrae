@@ -2,7 +2,7 @@ const { spawnSync } = require('node:child_process');
 
 class OwnedCommandTimeoutError extends Error {
   constructor(timeoutCode, timeout) {
-    super(`${timeoutCode}: package-owned command timed out after ${timeout}ms; its child process tree was terminated.`);
+    super(`${timeoutCode}: package-owned command timed out after ${timeout}ms; best-effort termination was requested for its owned process group.`);
     this.code = timeoutCode;
   }
 }

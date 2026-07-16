@@ -57,8 +57,8 @@ test('workflow regression rejects omitted verification and prohibited publicatio
   assert.throws(() => validateWorkflow('jobs: [invalid'), /Psych::SyntaxError/);
   assert.throws(() => validateWorkflow(contents.replace('run: npm test\n', '')), /workflow must run npm test/);
   assert.throws(() => validateWorkflow(`${contents}\n      - run: npm publish\n`), /npm publish/);
-  assert.throws(() => validateWorkflow(`${contents}\n      - run: gh release create v0.17.0\n`), /release action/);
-  assert.throws(() => validateWorkflow(`${contents}\n      - run: git tag v0.17.0\n`), /tag action/);
+  assert.throws(() => validateWorkflow(`${contents}\n      - run: gh release create v0.18.0\n`), /release action/);
+  assert.throws(() => validateWorkflow(`${contents}\n      - run: git tag v0.18.0\n`), /tag action/);
   assert.throws(() => validateWorkflow(`${contents}\n      - uses: actions/checkout@v4\n        with:\n          repository: example/LazyBuddy\n`), /sibling checkout/);
   assert.throws(() => validateWorkflow(`${contents}\n      - run: lazytrae tooling enable codegraph\n`), /optional-tool activation/);
 });

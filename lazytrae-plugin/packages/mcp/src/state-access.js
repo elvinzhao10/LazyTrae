@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { assertSafeRepoWritePath } = require('../../cli/src/lib/path-boundary');
-const { atomicAppendFile, atomicWriteFile } = require('../../cli/src/lib/safe-write');
+const { assertSafeRepoWritePath } = require('./runtime/path-boundary');
+const { atomicAppendFile, atomicWriteFile } = require('./runtime/safe-write');
 
 /**
  * State file read/write helpers for MCP tools and CLI.

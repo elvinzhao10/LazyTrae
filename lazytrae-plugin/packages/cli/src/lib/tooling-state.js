@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { writeRepoFile } = require('./templates');
-const { readExistingFile } = require('./safe-write');
+const { isAtomicRenamePermissionError, readExistingFile } = require('./safe-write');
 
 const TOOLING_STATE_PATH = path.join('.lazytrae', 'state', 'tooling.json');
 const MANAGED_CODEGRAPH_SERVER = 'lazytrae_codegraph';
@@ -225,6 +225,18 @@ function mergeMcpTemplate(repoRoot, templatePath, destinationPath) {
   return true;
 }
 
+function updateMcpDeclaration(repoRoot, templatePath, destinationPath) {
+  const existingDeclaration = readExistingFile(repoRoot, destinationPath, 'utf8');
+  try {
+    return { status: mergeMcpTemplate(repoRoot, templatePath, destinationPath) ? 'updated' : 'unchanged' };
+  } catch (error) {
+    if (isAtomicRenamePermissionError(error)) {
+      return { status: existingDeclaration.exists ? 'unavailable_existing' : 'unavailable_absent' };
+    }
+    throw error;
+  }
+}
+
 module.exports = {
   TOOLING_STATE_PATH,
   defaultToolingState,
@@ -234,6 +246,7 @@ module.exports = {
   managedCodeGraphServer,
   managedOptionalServers,
   mergeMcpTemplate,
+  updateMcpDeclaration,
   readToolingState,
   setCodeGraphCapability,
   setOptionalCapability,

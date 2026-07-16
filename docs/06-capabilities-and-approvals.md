@@ -60,3 +60,6 @@ directory.
 The same ownership logic governs every optional dependency listed in
 [NOTICE](../NOTICE): it is provisioned only into an explicit receipt-owned root
 with locked records, and is not an operational dependency of this project.
+Read [Security and authority](06a-security-and-authority.md) for the decision
+boundary and [Receipts and owned tooling](06b-receipts-and-owned-tooling.md)
+for its removal boundary.

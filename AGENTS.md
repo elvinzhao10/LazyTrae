@@ -136,5 +136,7 @@ the manual steps in `offboard` above after package removal.
 ## Reference
 
 - [README.md](README.md)
+- [Learner guide](docs/README.md), including [MCP lifecycle](docs/07b-mcp-lifecycle.md)
+  and [test and release verification](docs/09-test-and-release-verification.md)
 - [lazytrae-evaluation.md](lazytrae-evaluation.md)
 <!-- lazytrae:managed:end:onboarding -->

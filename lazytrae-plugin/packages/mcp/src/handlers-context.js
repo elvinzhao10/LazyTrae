@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { resolveRepoPath } = require('../../cli/src/lib/path-boundary');
+const { resolveRepoPath } = require('./runtime/path-boundary');
 
 const TEXT_EXTENSIONS = new Set(['.js', '.json', '.md', '.sh', '.ts', '.tsx', '.mjs', '.cjs', '.html', '.css', '.toml', '.yaml', '.yml']);
 const SKIP_DIRS = new Set(['.git', 'node_modules', 'reference', 'dev', '.DS_Store']);

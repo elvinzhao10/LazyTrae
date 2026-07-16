@@ -1,6 +1,6 @@
 {
   "name": "lazytrae-ai",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "LazyTrae CLI installer and doctor — Trae-native workflows with MCP support",
   "main": "src/index.js",
   "bin": {
@@ -29,10 +29,12 @@
   },
   "homepage": "https://github.com/elvinzhao10/LazyTrae#readme",
   "dependencies": {
-    "ajv": "^8.12.0"
+    "ajv": "^8.12.0",
+    "ajv-formats": "3.0.1"
   },
   "bundledDependencies": [
-    "ajv"
+    "ajv",
+    "ajv-formats"
   ],
   "engines": {
     "node": ">=18.0.0"

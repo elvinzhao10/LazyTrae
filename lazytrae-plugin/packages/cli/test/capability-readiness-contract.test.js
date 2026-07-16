@@ -5,8 +5,8 @@ const path = require('node:path');
 const test = require('node:test');
 
 const contractPath = path.join(__dirname, '..', 'contracts', 'lazyseries-capability-readiness.v1.json');
-const fixturePath = path.join(__dirname, '..', 'contracts', 'fixtures', 'v017', 'readiness-records.json');
-const policyDigest = 'e73aa8a942df5609c57e70a7e5e0ac21adf53ef63f688e8caaed2801f946470a';
+const fixturePath = path.join(__dirname, '..', 'contracts', 'fixtures', 'v018', 'readiness-records.json');
+const policyDigest = '3a65e1d7108c1a607035cbb127117dc5c18d0116ddf88c3e9ca5aaa4db032c4a';
 const statuses = [
   'host-ready',
   'owned-ready',
@@ -54,7 +54,7 @@ test('capability readiness contract and fixture are checksummed and fail closed'
 
   const schema = readJson(contractPath);
   assert.equal(schema.schema_version, 1);
-  assert.equal(schema.contract_version, '0.17.0');
+  assert.equal(schema.contract_version, '0.18.0');
   assert.equal(schema.properties.contract_digest.const, policyDigest, 'v1.1 automatic-tooling policy digest changed');
   assert.deepEqual(schema.properties.status.enum, statuses, 'status enum must remain exact and ordered');
 

@@ -2,7 +2,7 @@
 
 const { getBoulderState, getActiveWork } = require('./state-access');
 const { getParityStatus } = require('./parity');
-const { validateActivePlan } = require('../../cli/src/lib/active-plan');
+const { validateActivePlan } = require('./runtime/active-plan');
 
 function handleGetActivePlan(root) {
   const b = getBoulderState(root);

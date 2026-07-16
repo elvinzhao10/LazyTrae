@@ -3,21 +3,56 @@
 ![LazyTrae banner](lazytrae-banner.jpg)
 
 LazyTrae is a learning project and workflow harness for **Trae IDE**, **Trae
-Work**, and **Trae CLI**. It gives an agent a disciplined way to understand a
-repository, plan work, make changes, verify them on the real user surface, and
-retain evidence for the next task. It is primarily inspired by LazyCodex
+Work**, and **Trae CLI**. This public repository is a code-study project: it
+shows how an agent harness copies canonical project assets, validates durable
+state, exposes a local stdio MCP server, and keeps host-owned configuration
+outside its removal boundary. It is primarily inspired by LazyCodex
 ([upstream project](https://github.com/code-yeongyu/lazycodex));
 [NOTICE](NOTICE) records the related OmO upstream attribution. LazyTrae is an
 independent implementation and does not require LazyCodex or OmO at runtime.
 
+> **Study the implementation:** [docs/README.md](docs/README.md), then
+> [the package map](docs/07-package-map.md), [state and validation](docs/07a-state-and-validation.md),
+> [MCP lifecycle](docs/07b-mcp-lifecycle.md), and [verification](docs/09-test-and-release-verification.md).
+>
 > **Install and host setup:** [AGENTS.md](AGENTS.md).
 > **Learner guide:** [docs/README.md](docs/README.md).
 > **Package details:** [lazytrae-plugin/README.md](lazytrae-plugin/README.md).
 
+The learner guide continues from [host verification](docs/03-install-and-host-verification.md)
+through [MCP lifecycle](docs/07b-mcp-lifecycle.md) and [test and release
+verification](docs/09-test-and-release-verification.md).
+
 LazyTrae is verified on macOS only. Other operating systems and live host
 behaviour need local confirmation before they are relied on.
 
-## What you do with it
+## How to study the harness
+
+Read LazyTrae as a pipeline:
+
+```text
+canonical templates ── init / sync ──> .trae + .lazytrae project assets
+        │                                      │
+        ├── CLI validates ownership and state   ├── selected Trae host may load them
+        └── packaged stdio MCP reads/writes      └── host connection remains separately observed
+```
+
+`lazytrae-plugin/packages/cli/` is the distributable control plane: it owns
+template installation, state validation, doctor/load-check output, safe
+uninstall, and the MCP launcher. `packages/mcp/` is the standalone local stdio
+server. The copied `.trae/` and `.lazytrae/` directories are project assets,
+while Trae Work settings, marketplace state, credentials, and active host
+connections remain host-owned. That distinction is the reason the package can
+verify copied files without claiming that a host loaded them.
+
+Study [docs/07-package-map.md](docs/07-package-map.md) first, then trace
+[docs/07a-state-and-validation.md](docs/07a-state-and-validation.md),
+[docs/07b-mcp-lifecycle.md](docs/07b-mcp-lifecycle.md), and
+[docs/09-test-and-release-verification.md](docs/09-test-and-release-verification.md).
+The remainder of this README describes the host surface those components
+support.
+
+## Host-facing workflow
 
 Open a project in a supported Trae surface and describe the outcome you need.
 For a small, clear task, ask normally. For a new, broad, or risky task, use the

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v0.7 — Stop hook
+# LazyTrae v0.18.0 — Stop hook
 # Emits continuation reminder if active work is incomplete.
 # Provide start-work continuation and executor evidence verification.
 # Always exits 0 — never blocks a session.

@@ -94,7 +94,9 @@ test('owned timeout kills a TERM-ignoring descendant without signaling its calle
     // When: the bounded runner reaches its deadline.
     assert.throws(
       () => runOwnedCommand(process.execPath, ['-e', childProgram], { timeout: 150, timeoutCode: 'FIXTURE_TIMEOUT' }),
-      error => error && error.code === 'FIXTURE_TIMEOUT',
+      error => error
+        && error.code === 'FIXTURE_TIMEOUT'
+        && error.message.includes('best-effort termination was requested for its owned process group'),
     );
     waitForFile(pidPath);
     const descendantPid = Number(fs.readFileSync(pidPath, 'utf8'));

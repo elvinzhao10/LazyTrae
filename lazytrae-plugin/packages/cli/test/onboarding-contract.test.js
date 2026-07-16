@@ -46,7 +46,7 @@ test('InitDeep records package-readiness evidence without claiming a host or MCP
   // Given: the package template and both checked-in installed skill mirrors.
   const skills = readInitDeepSkills();
 
-  // When: each skill is checked against the v0.17 InitDeep evidence contract.
+  // When: each skill is checked against the current InitDeep evidence contract.
   for (const skill of skills) {
     // Then: the contract requires a load check first, core inventory verification, and all evidence keys.
     assert.ok(skill.indexOf('lazytrae load-check') < skill.indexOf('### Phase 1'));

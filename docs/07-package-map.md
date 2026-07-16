@@ -45,3 +45,30 @@ companion CLI ── doctor / verify / lifecycle / tooling ────┘
 
 Use [Workflow playbooks](04-workflow-playbooks.md) to choose among the
 components and [Safe removal](08-safe-removal.md) before deleting any of them.
+The durable files are detailed in [State and validation](07a-state-and-validation.md);
+the MCP configuration is detailed in [MCP lifecycle](07b-mcp-lifecycle.md).
+
+## Trace one request through the code
+
+Start with `packages/cli/src/index.js`: it routes a CLI request to a command.
+`init` and `sync` read from `packages/cli/templates/`, then use managed-block,
+path-boundary, and safe-write helpers before changing a project. A template is
+therefore not copied blindly: managed content can be refreshed while unknown
+caller content, linked paths, and host-managed registration remain out of scope.
+
+`doctor` reads resulting state through `validator.js`. The five state schemas
+are kept identical between the package mirror and install templates, so an idle
+project and a freshly installed project validate the same way. Study those
+schemas to see how optional recovery detail is tolerated while required
+identifiers, counters, and timestamps remain checked.
+
+The CLI launches a package-local stdio MCP implementation rather than importing
+files from a checkout. The MCP server dispatches a fixed tool inventory,
+validates project-relative paths, and returns JSON-RPC errors rather than
+terminating its stream on malformed input. Packed-install tests prove this
+closure; a host connection is still a separate, deliberately unproven layer.
+
+For trusted package-owned tooling commands, timeout cleanup is best effort: an
+owned process group is signaled, but a deliberately detached descendant is not
+represented as an impossible cleanup guarantee. This is lifecycle cleanup, not
+a sandbox; use a VM or container when the command itself is untrusted.

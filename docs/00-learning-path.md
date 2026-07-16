@@ -13,6 +13,11 @@ small task so you can see the full loop before choosing a larger workflow.
    would use it.
 5. For a broad, risky, or unfamiliar change, use the documented workflow:
    inspect, plan, approve, implement, and verify with evidence.
+6. Before enabling a provider or removing assets, read [security and
+   authority](06a-security-and-authority.md) and [receipts and owned
+   tooling](06b-receipts-and-owned-tooling.md).
+7. For MCP work, follow [the lifecycle](07b-mcp-lifecycle.md), then use
+   [test and release verification](09-test-and-release-verification.md).
 
 ## Choose the smallest workflow
 
