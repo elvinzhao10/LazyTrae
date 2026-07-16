@@ -1,31 +1,30 @@
 # MCP lifecycle
 
-MCP has distinct stages: a copied declaration, host registration where needed,
-a host connection, and a tool call. Do not collapse a passing package check
-into proof of the later stages.
+An MCP declaration is static configuration. A connected MCP tool is a running stdio process speaking JSON-RPC. LazyTrae documents and tests both layers without confusing either with host proof.
+
+```mermaid
+sequenceDiagram
+    participant Template as templates/mcp.json
+    participant CLI as lazytrae init / mcp
+    participant Host as Trae IDE, Work, or CLI
+    participant Server as packages/mcp/src/index.js
+    participant State as .lazytrae state
+    Template->>CLI: managed declaration content
+    CLI->>Host: project declaration or manual route
+    Host->>Server: spawn only after host selection
+    Host->>Server: initialize / tools/list / tools/call
+    Server->>State: bounded read or write
+    Server-->>Host: JSON-RPC result or structured error
+```
 
 ## Declaration is not connection
 
-`lazytrae init` copies the project declaration and `lazytrae load-check` checks
-that package asset. Trae IDE still needs a project reopen and observation.
-Trae Work needs manual **Settings → MCP** registration with command `lazytrae`
-and argument `mcp`. Trae CLI needs `trae-cli mcp add-json` before a new session.
-Only a host connection makes the core server's tools available.
-
-The companion package is self-contained: its tarball includes the CLI, local
-MCP implementation, templates, package-local legal notices, and production
-dependency closure. A cold offline install tests that distribution layer; it
-does not prove a host launched or connected the server.
+`packages/cli/templates/mcp.json` is copied or merged by `init` into a project declaration when the destination is writable under policy. It names one executable core server and seven disabled placeholders. Trae Work still requires manual MCP registration; Trae CLI requires its own registration command. A declaration in either location proves configuration content, not a launched connection.
 
 ## Core server and optional declarations
 
-The base `.trae/mcp.json` contains eight declarations: one executable local
-`lazytrae` core server and seven disabled placeholders. After host connection,
-the core server exposes 15 tools for local state, evidence, handoff, and
-context work. The exact inventory is in [MCP inventory](reference/mcp-inventory.md).
+`packages/mcp/src/index.js` reads one JSON object per stdin line, validates request shape, dispatches `initialize`, `tools/list`, `tools/call`, and `ping`, then writes a JSON-RPC result or error line to stdout. `tools.js` maps the 15 namespaced core tools to handlers. `state-access.js` and runtime helpers restrict state mutations to the `.lazytrae/` domain.
 
-Optional providers are disabled by default. `lazytrae tooling enable
-<capability>` is an explicit persistent selection for supported optional
-capabilities; it is not part of normal install or automatic routing. Follow
-[Host routes](reference/host-routes.md) and finish with [Test and release
-verification](09-test-and-release-verification.md).
+Malformed JSON yields `-32700`; structurally invalid requests yield `-32600`; unknown methods and tools yield `-32601`. The loop continues after errors, which makes the server robust to a malformed stream without pretending that the host connected successfully.
+
+Optional capability entries are separate from the base core. They remain disabled until their explicit lifecycle changes project state and regenerates the managed declaration. CodeGraph has its own receipt-owned package lifecycle and caller-owned index; remote providers, filesystem, and Playwright remain host-mediated decisions.

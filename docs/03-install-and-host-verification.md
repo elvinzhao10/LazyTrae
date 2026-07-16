@@ -1,55 +1,24 @@
-# Install and host verification
+# Package delivery
 
-Install for one host at a time: Trae IDE, Trae Work, or Trae CLI. LazyTrae is
-verified on macOS only; do not assume a non-macOS host path or host behavior.
+This page explains the deployment boundary in code terms. The CLI contains canonical templates and a local MCP runtime; it does not contain Trae's settings database, session state, or live connector process table.
 
-## 1. Establish the companion command
+## Template installation pipeline
 
-The installed `lazytrae` companion provides the portable installer,
-verification gate, and local MCP server. With it available, initialize only
-your selected host:
+`packages/cli/src/commands/init.js` is the installer. It resolves the target project, copies or merges files from `packages/cli/templates/`, and then runs the selected host's load check. `sync.js` follows the same managed-content rules for later updates. The safe-write and managed-block helpers prevent an update from silently overwriting protected destinations.
 
-```bash
-lazytrae init --host ide|work|cli
-lazytrae load-check --host ide|work|cli
-lazytrae doctor
+The templates produce `.trae/` workflow assets and `.lazytrae/` schemas/state defaults. The executable `lazytrae` companion and packaged MCP server are separate installed artifacts; the self-contained CLI tarball does not need the source checkout after installation.
+
+## Two evidence channels
+
+```mermaid
+flowchart LR
+    Templates["canonical templates"] --> Init["init / sync"] --> Ready["load-check + doctor"]
+    Host["selected Trae surface"] --> Session["reopen/reload/new session"] --> Live["observed integration"]
+    Ready -. does not imply .-> Live
 ```
 
-`load-check` reports **package readiness**: copied assets and declarations. It
-does not prove a loaded plugin, host discovery, hook execution, an active
-session, or an MCP connection.
+The first channel supports claims about project assets and local contracts. The second supports claims about Trae discovery, hook execution, and MCP connection. Keeping them separate is what lets uninstall be safe: package removal cannot guess where a host stored registrations or settings.
 
-If the companion command is unavailable, do not claim that copying this
-repository installed it. The repository-only fallback is:
+## Delivery surfaces
 
-```bash
-node /path/to/LazyTrae/lazytrae-plugin/packages/cli/src/index.js init --host ide
-```
-
-It can copy `.trae/` and `.lazytrae/` project assets but does not create the
-global `lazytrae` executable, so its MCP declaration remains pending.
-
-## 2. Prove the selected host separately
-
-Follow the exact host procedure and observe its final condition in
-[Host routes](reference/host-routes.md):
-
-- **Trae IDE:** reopen the project and observe asset discovery and the MCP
-  connection.
-- **Trae Work:** after you explicitly approve installing skills in your global
-  Work location, run `lazytrae init --host work` on macOS. Then run
-  `lazytrae work status`, reload Work, and observe skill discovery. Separately,
-  after you explicitly approve the host change, add `lazytrae mcp` manually in
-  **Settings → MCP** and observe the connection.
-- **Trae CLI:** after you explicitly approve the host registration, run the
-  documented `trae-cli mcp add-json` command, start a new session, and observe
-  the connection.
-
-The Work skill location `~/.trae-cn/skills/` is verified only on macOS. Linux
-and Windows locations need a directory reported by the host and local
-observation. The companion package's source, install, and removal details are
-in [the setup guide](../AGENTS.md); the proof boundary is documented in
-[verification evidence](../lazytrae-evaluation.md).
-
-Once the host is proven, continue to [your first task](02-first-task.md).
-For what the connection exposes, see [MCP lifecycle](07b-mcp-lifecycle.md).
+Trae IDE loads project assets, Trae Work uses its separate skills lifecycle and manual MCP route, and Trae CLI requires its own registration/new-session sequence. The detailed host adapters are in [Host capability matrix](10-host-capability-matrix.md) and [Host routes](reference/host-routes.md).

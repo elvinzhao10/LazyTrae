@@ -67,3 +67,18 @@ the CLI completion check and the MCP task-completion tool; see
 
 Next: learn how to distinguish useful evidence from a package-only check in
 [Evidence and completion](05-evidence-and-completion.md).
+
+## How policy becomes behavior
+
+The playbooks are deliberately declarative. `templates/skills/lazy-*/SKILL.md` tells an agent which evidence and constraints matter; `templates/commands/` gives a host named entry point; `templates/agents/` narrows the prompt to a specialist role. The operational side effects live elsewhere, in CLI commands, hooks, the packaged MCP endpoint, and the project being changed.
+
+```mermaid
+flowchart LR
+    Skill["template skill policy"] --> Command["optional command wrapper"]
+    Command --> Agent["specialist role"]
+    Agent --> CLI["CLI / host tool calls"]
+    CLI --> State[".lazytrae state + gates"]
+    State --> Evidence["durable evidence"]
+```
+
+This split is intentional. A host can expose a skill without exposing a slash command, and a declared agent can exist without being selected for a task. The package tests templates and CLI behavior; actual selection and execution are host/session observations.

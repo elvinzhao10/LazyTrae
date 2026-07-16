@@ -1,31 +1,26 @@
-# Your first task
+# Request decomposition
 
-Choose one small, observable improvement in a project you can safely change.
-State the result, acceptance criteria, and how you will inspect it. For
-example:
+The workflow layer converts an open-ended request into three durable concepts: an outcome, acceptance criteria, and a proof surface. The package does not parse product intent automatically; skills and agents make these concepts explicit so later state and verification have something concrete to reference.
 
-> Add project search. It must work on a real project, include focused tests,
-> and be exercised in the user interface before it is called done.
+## Input shape
 
-This gives the agent an outcome to verify instead of a vague implementation
-checklist. It can choose a light workflow for a simple change or use planning
-and review for work with more uncertainty or risk.
+An effective workflow request has this conceptual shape:
 
-## A practical loop
+```text
+outcome: what changes for the user
+constraints: scope, safety, compatibility, ownership limits
+acceptance criteria: observable pass/fail conditions
+proof surface: test, CLI, API, browser, or host session
+```
 
-1. Describe the desired outcome and the user-visible check.
-2. Ask the agent to inspect the repository and make the smallest effective
-   change.
-3. Run the relevant focused checks.
-4. Exercise the result on the real user surface: a page, CLI, API, or other
-   interface the user will actually use.
-5. Record the evidence and, when appropriate, run `lazytrae verify --must-pass`
-   before reporting the task complete.
+The `lazy-ulw-plan` template teaches the planning role to preserve uncertainty as a decision rather than silently inventing it. `lazy-start-work` assumes that a plan has already identified the acceptance criteria. This is why planning and execution are separate template files and separate CLI/host actions.
 
-LazyTrae's verification gate is intentionally outside Trae hooks, because hooks
-are advisory. The CLI gate and `mark_task_done` MCP tool require evidence before
-completion is reported.
+## From request to records
 
-Before trying this loop, complete the host observation in
-[install and host verification](03-install-and-host-verification.md). A package
-check alone is not evidence that your selected Trae surface has loaded LazyTrae.
+The CLI and MCP persistence layer writes plans, tasks, blockers, evidence references, loop state, and handoffs under `.lazytrae/`. The loop and completion helpers operate on that state rather than trying to infer current work from the latest chat message. A verifier can therefore inspect the claimed outcome, named checks, and recorded result independently.
+
+## Proof surface selection
+
+The proof surface is intentionally not always a test suite. A library change may be proved by tests; a command requires a command invocation; a UI needs a visual/user interaction check; a host integration requires host observation. The workflow text only directs that selection. The CLI/MCP gates record package-local checks, while the person or host supplies the final surface observation.
+
+See [Workflow playbooks](04-workflow-playbooks.md) for policy roles and [State and validation](07a-state-and-validation.md) for the persisted representation.

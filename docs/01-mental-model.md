@@ -1,42 +1,27 @@
-# Mental model
+# Execution model
 
-LazyTrae has three layers:
+LazyTrae separates *policy*, *installation*, *execution*, *durable state*, and *proof*. That separation prevents a template, an installed declaration, or a passing local check from being mistaken for a live Trae capability.
 
-| Layer | What it does | What it cannot prove by itself |
-| --- | --- | --- |
-| Package | Supplies project assets, the `lazytrae` companion CLI, and the local MCP server. | That Trae discovered the assets or connected to MCP. |
-| Host | Trae IDE, Trae Work, or Trae CLI loads configuration and starts a session. | That your requested feature works. |
-| Evidence | Records checks such as `load-check`, `doctor`, and task verification. | A host event or connection that you have not observed. |
+```mermaid
+flowchart TB
+    Policy["skills + commands\nwhat the workflow asks for"]
+    CLI["CLI commands\ninstall, check, gate, launch"]
+    Templates["templates\nmanaged project assets"]
+    State[".lazytrae state + schemas"]
+    MCP["packaged MCP\nJSON-RPC handlers"]
+    Proof["test/CLI/API/host observation"]
+    Policy --> CLI --> Templates --> State --> Proof
+    CLI --> MCP --> State
+```
 
-## Package readiness is not host proof
+## Policy is not execution
 
-`lazytrae load-check --host <ide|work|cli>` checks the copied package assets
-and declarations. `lazytrae doctor` reports installation health. Both are
-useful, but neither proves host discovery, hook execution, a running session,
-or an MCP connection.
+Skills and commands describe how an agent should approach planning, debugging, review, or completion. Agent files narrow that guidance to a role. They do not gain authority merely by existing: a host must select and load them, and an agent must still perform the described work.
 
-The required final observation depends on the host:
+## Installation is not host proof
 
-- **Trae IDE:** reopen the project and observe discovery and the MCP connection.
-- **Trae Work:** on macOS, reload Work, confirm skill discovery, and manually
-  add or confirm `lazytrae mcp` in **Settings → MCP**.
-- **Trae CLI:** add the registration, start a new session, and observe the
-  connection.
+The CLI copies canonical templates into `.trae/` and `.lazytrae/`, merging managed blocks and refusing protected destinations where required. This proves the project layout only. Trae IDE, Work, or CLI must separately discover the assets, run hooks, and connect MCP.
 
-The exact routes are in [Host routes](reference/host-routes.md). Package tests
-cover local behavior; their boundary is described in
-[verification evidence](../lazytrae-evaluation.md).
+## Execution is not proof
 
-## The companion boundary
-
-A copied repository is useful for reading the workflow files. The installed
-`lazytrae` companion supplies the portable installer, verification gate, and
-local MCP server. If that command is absent, the repo-only fallback can copy
-project configuration, but it does not create a global executable; the MCP
-declaration remains pending until the companion is installed.
-
-That boundary keeps an installation claim honest: package readiness means the
-local assets are present; host proof means you saw the selected host load or
-connect them. Continue with [install and host verification](03-install-and-host-verification.md),
-then see [MCP lifecycle](07b-mcp-lifecycle.md) for the declaration-to-connection
-boundary.
+Commands implement the operational layer: state writes, schema validation, doctor, completion gates, tooling lifecycle, and the MCP launcher. Their output is package evidence. Proof must be chosen for the requested surface: a test for library behavior, a CLI invocation for a CLI, a browser check for a page, or an observed host session for an integration.

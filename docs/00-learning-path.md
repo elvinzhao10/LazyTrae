@@ -1,32 +1,34 @@
-# Learning path
+# Architecture tour
 
-Use this sequence when you are new to LazyTrae. It deliberately starts with a
-small task so you can see the full loop before choosing a larger workflow.
+LazyTrae is not one runtime. It is a distributable CLI plus declarative Trae assets and a packaged local MCP server. The technical question at every boundary is: *who owns this file or process, and what observation can prove it ran?*
 
-1. Read the [mental model](01-mental-model.md). The important distinction is
-   that installed files are package evidence, not proof of a live host session.
-2. Pick a supported surface: Trae IDE, Trae Work, or Trae CLI. Follow the
-   matching route in [install and host verification](03-install-and-host-verification.md).
-3. Confirm the host-specific observation the route asks for: project reopen,
-   Work reload and MCP registration, or a new CLI session.
-4. Try the [first task](02-first-task.md) and verify the result where a user
-   would use it.
-5. For a broad, risky, or unfamiliar change, use the documented workflow:
-   inspect, plan, approve, implement, and verify with evidence.
-6. Before enabling a provider or removing assets, read [security and
-   authority](06a-security-and-authority.md) and [receipts and owned
-   tooling](06b-receipts-and-owned-tooling.md).
-7. For MCP work, follow [the lifecycle](07b-mcp-lifecycle.md), then use
-   [test and release verification](09-test-and-release-verification.md).
+```mermaid
+flowchart LR
+    Request["user request"] --> Policy["skill / command text"]
+    Policy --> CLI["lazytrae command router"]
+    CLI --> Templates["canonical templates"]
+    Templates --> Project[".trae + .lazytrae"]
+    Project --> Hook["advisory hook payload"]
+    CLI --> State["schema-backed state"]
+    CLI --> Verify["doctor + completion gate"]
+    CLI --> MCP["packaged MCP stdio process"]
+    MCP --> State
+```
 
-## Choose the smallest workflow
+The arrows are not all automatic. Skills and commands are instructions that a host or agent may invoke; the host decides whether it loads them. `init` copies or merges only permitted project assets. MCP declarations merely tell a host how to start a local process. The package can validate every file in that path, but only a host observation proves discovery or connection.
 
-For a clear, limited change, describe the outcome and acceptance criteria in
-ordinary language. For a larger change, LazyTrae provides `lazy-` skills and
-commands for repository orientation, planning, execution, review, and
-long-running work. The repository overview lists the common workflow commands
-and their intended use in [README.md](../README.md).
+## Package boundary
 
-Do not treat a passing package check as the final task check. Confirm the
-feature on its real user surface, then use `lazytrae verify --must-pass` when
-the task calls for the completion gate.
+`lazytrae-plugin/` is the distributable unit. It contains:
+
+- `.trae/` and `.lazytrae/`: reference host assets, schemas, and defaults;
+- `packages/cli/`: command router, installer, safe-write helpers, doctor, completion gates, tooling lifecycle, and templates;
+- `packages/mcp/`: self-contained local JSON-RPC server and handlers;
+- `packages/cli/templates/`: the canonical assets copied into a consumer project;
+- `packages/cli/test/` and `packages/mcp/test/`: package, lifecycle, and protocol regressions.
+
+The repository root holds public explanations and evaluation evidence. It is not required after the self-contained CLI tarball is installed. Trae settings, credentials, marketplace state, and live sessions remain host/user state.
+
+## Follow one real path
+
+Start in [07 — Package map](07-package-map.md). Then trace a workflow request through [04 — Workflow playbooks](04-workflow-playbooks.md), an `init` write through [03 — Package delivery](03-install-and-host-verification.md), a persisted record through [07a — State and validation](07a-state-and-validation.md), and a protocol request through [07b — MCP lifecycle](07b-mcp-lifecycle.md). Finish with [09 — Test and release verification](09-test-and-release-verification.md) to see how the repository tests each boundary.
