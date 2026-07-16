@@ -26,3 +26,12 @@
 For component locations, see [Package map](../07-package-map.md). For proof
 boundaries, see [Verification contract](verification-contract.md). For removal,
 see [Safe removal](../08-safe-removal.md).
+
+## How to read these terms in the code
+
+Start with **package readiness**, **host observation**, and **base MCP
+declaration** for an install or connection route. Then use **receipt-owned**,
+**caller-owned**, and **host-native capability** to decide whether a command
+may write or remove a path. Finally, use **evidence gate** and **Boulder state**
+when following a workflow to completion. This mirrors package facts, host
+boundaries, and outcome claims in that order.

@@ -22,3 +22,17 @@ schema, version, or date-time values rather than treating them as valid.
 
 Completed tasks require existing non-empty evidence paths. Paths are resolved
 inside the project boundary. See [State and validation](../07a-state-and-validation.md).
+
+## State transition ownership
+
+```mermaid
+flowchart LR
+  A["CLI command or MCP tool"] --> B["Validate a project path"]
+  B --> C["Read or safely write .lazytrae state"]
+  C --> D["Record evidence or a gate result"]
+  D --> E["Interpret the recorded scope"]
+```
+
+`state-access.js` confines MCP paths to the initialized project. CLI
+safe-write helpers atomically replace approved targets. Completion reads
+evidence before changing status, but state never proves a host connection.

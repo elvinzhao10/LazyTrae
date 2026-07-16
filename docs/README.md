@@ -68,3 +68,7 @@ these explanations.
 For the full split between package-built functions, receipt-owned dependencies,
 optional providers, and raw host capabilities, read the [dependency and host
 boundary reference](reference/dependency-and-host-boundaries.md).
+
+For a complete source-family index, including command families, templates,
+hooks, helper libraries, provider lifecycle, and release checks, read the
+[runtime subsystem reference](reference/runtime-subsystems.md).

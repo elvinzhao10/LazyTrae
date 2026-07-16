@@ -41,3 +41,17 @@ This boundary keeps claims specific: say “package readiness passed,” “the 
 connection was observed,” or “the feature was manually verified,” rather than
 collapsing those into one assertion. See [Mental model](../01-mental-model.md)
 and the repository [verification evidence](../../lazytrae-evaluation.md).
+
+## Claim matrix
+
+| Evidence type | Establishes | Does not establish |
+| --- | --- | --- |
+| Template, init, and load checks | Canonical package assets and declarations were copied and inspected. | Discovery, a running host session, or MCP connection. |
+| Schema and state checks | The recorded local state matches its supported contract. | That a task outcome is correct or user-visible. |
+| Packaged MCP tests | The local JSON-RPC server handles its supported protocol behavior. | That a host launched or authorized it. |
+| Focused tests and manual QA | The requested behavior was checked on the named surface. | Behavior outside the test or observation scope. |
+| Host-session observation | The selected Trae surface exposed the observed integration. | A claim about another host, version, or operating system. |
+
+Use the narrowest matching sentence in a release note or completion record.
+Multiple evidence forms complement each other; one never silently upgrades
+into another.

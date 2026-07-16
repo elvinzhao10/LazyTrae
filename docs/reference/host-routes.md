@@ -35,3 +35,11 @@ node /path/to/LazyTrae/lazytrae-plugin/packages/cli/src/index.js init --host ide
 
 After any route, apply [Verification contract](verification-contract.md). For
 safe cleanup, use [Safe removal](../08-safe-removal.md).
+
+## What the route actually changes
+
+`init` copies the package-owned project recipe. `work install` copies only
+bounded Work skills. CLI registration and Work Settings → MCP are separate
+because they change host-owned state. LazyTrae validates templates and receipts
+but never scans settings to infer ownership or silently repair registration.
+A user observation after reload or session start marks active integration.

@@ -24,3 +24,18 @@ The CLI and MCP persistence layer writes plans, tasks, blockers, evidence refere
 The proof surface is intentionally not always a test suite. A library change may be proved by tests; a command requires a command invocation; a UI needs a visual/user interaction check; a host integration requires host observation. The workflow text only directs that selection. The CLI/MCP gates record package-local checks, while the person or host supplies the final surface observation.
 
 See [Workflow playbooks](04-workflow-playbooks.md) for policy roles and [State and validation](07a-state-and-validation.md) for the persisted representation.
+
+## Implementation handoff
+
+The request text is interpreted by template policy first, then becomes project state only when an execution path chooses to record it. `templates/skills/` defines planning/execution expectations; `loop.js`, `run.js`, MCP handlers, and completion helpers turn those expectations into `.lazytrae` plans, task state, evidence references, and gates.
+
+```mermaid
+flowchart LR
+    Prompt["request text"] --> Skill["template workflow policy"]
+    Skill --> Plan["plan/acceptance criteria"]
+    Plan --> State[".lazytrae task state"]
+    State --> Gate["doctor + completion gate"]
+    Gate --> Evidence["evidence/task record"]
+```
+
+Nothing in this flow infers success from the prompt itself. Each transition is an explicit CLI/MCP operation, host invocation, or recorded observation; that makes the result inspectable after the original conversation has ended.

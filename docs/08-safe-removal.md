@@ -62,3 +62,19 @@ error to work around. Inspect ownership and decide explicitly before deleting a
 modified or host-managed asset.
 
 For the underlying rules, see [Receipts and owned tooling](06b-receipts-and-owned-tooling.md).
+
+## Removal decision flow
+
+```mermaid
+flowchart TD
+    Request["requested removal"] --> Scope["select project, Work skills, tooling, or host scope"]
+    Scope --> Owned{exact receipt/template-owned asset?}
+    Owned -->|yes| Match{unmodified and unlinked?}
+    Match -->|yes| Remove["remove only recorded asset"]
+    Match -->|no| Preserve["preserve and report"]
+    Owned -->|no| Host{host/user-managed?}
+    Host -->|yes| Manual["direct user to host UI/command"]
+    Host -->|no| Preserve
+```
+
+The important implementation rule is that a refusal is a successful safety outcome. `uninstall.js` and tooling-root helpers validate ownership before deleting project/tooling assets; Work removal separately checks each installed skill. No command turns a directory name, host registration, or `.codegraph` index into proof of package ownership.
