@@ -63,3 +63,21 @@ with locked records, and is not an operational dependency of this project.
 Read [Security and authority](06a-security-and-authority.md) for the decision
 boundary and [Receipts and owned tooling](06b-receipts-and-owned-tooling.md)
 for its removal boundary.
+
+## Capability decision pipeline
+
+The tooling implementation separates discovery, policy, execution, and ownership so a missing executable cannot silently become an install request:
+
+```mermaid
+flowchart LR
+    Task["structured capability request"] --> Detect["detect local/project provider"]
+    Detect --> Policy["contract + approval decision"]
+    Policy -->|allowed local| Run["ephemeral capability run"]
+    Policy -->|missing + explicit install| Toolpack["receipt-owned tooling root"]
+    Policy -->|remote/approval absent| Refuse["disabled or ask"]
+    Toolpack --> Receipt["locked manifest + receipt"]
+```
+
+`commands/tooling.js` is a dispatcher, not a provider itself. `runCommand` routes lifecycle verbs to `runLsp`, `runCodeGraph`, `runOptionalCapability`, or the automatic capability broker/detector. `install` first calls `assertSafeRoot`, determines the missing capabilities, writes a package/lock pair inside the caller-selected root, runs `npm ci --ignore-scripts`, and only then writes a receipt for the owned entries.
+
+The separation matters for failure behavior: `status`, `doctor`, and `capability-status` are read-only; `install`, `codegraph-install`, and `lsp-install` require an explicit root; `enable`/`disable` update only managed namespaced optional entries after the project has been initialized. The command router rejects raw credential-looking arguments before optional capability state is touched.

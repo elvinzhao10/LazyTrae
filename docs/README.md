@@ -64,3 +64,7 @@ settings and live integration remain outside package ownership.
 The lookup tables in [reference](reference/) provide the concrete state
 artifacts, MCP inventory, verification vocabulary, and host routes used by
 these explanations.
+
+For the full split between package-built functions, receipt-owned dependencies,
+optional providers, and raw host capabilities, read the [dependency and host
+boundary reference](reference/dependency-and-host-boundaries.md).

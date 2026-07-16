@@ -35,3 +35,35 @@ The checked-in `.trae/` and `.lazytrae/` directories show the reference layout. 
 3. State-changing commands use `.lazytrae/` paths and schema-backed records. `validator.js` compiles schemas with `ajv-formats`, so required RFC3339 timestamps are actually checked.
 4. `doctor.js` reports package/project health; `verify.js --must-pass` combines doctor output with completion-gate status. Trae hook scripts remain advisory, so hard completion enforcement is kept in these CLI/MCP paths.
 5. `mcp.js` launches the packaged stdio server. It parses one JSON-RPC request per line, returns structured errors for malformed input, and continues to process later requests.
+
+## Source-level reading map
+
+The following table is the shortest route from an observed behavior to the
+function that implements it. Read the call sites before changing a helper: most
+of the safety rules are composed across a command module, a shared helper, and
+a template or package test.
+
+| Question | Entry point | Implementation to follow | Invariant |
+| --- | --- | --- | --- |
+| How is a command selected? | `packages/cli/src/index.js` | `main`, command map, argument forwarding | The router accepts a known command and delegates; command modules own their own argument policy. |
+| How are project assets installed? | `commands/init.js` | `readHost`, `run`, template-copy calls | The host is chosen explicitly and every destination is rooted in the target project. |
+| How are later updates applied? | `commands/sync.js` | `detectRepoRoot`, `run`, managed-block operations | Managed content changes only inside its marker boundary; unrelated user content remains outside it. |
+| How is a write made durable? | `lib/safe-write.js` | `ensureSafeParent`, `createTemporaryFile`, `atomicWriteFile` | The parent is safe, the temporary file is adjacent, and rename replaces atomically where permitted. |
+| How is state checked? | `lib/validator.js` | `validateStateFile`, `validateAllState`, `checkCompletedTaskEvidence` | JSON shape, schema version, date-time formats, and evidence paths are all checked. |
+| How is completion decided? | `lib/completion-gates.js` | `inspectBoulder`, `inspectLoop`, `getCompletionStatus` | A completed task needs usable evidence; a non-ready loop blocks the gate. |
+| How does MCP mutate state? | `packages/mcp/src/state-access.js` | `repoRootFor`, `assertSafeWrite`, `withFileLock` | Writes stay inside `.lazytrae/` and are serialized through a short-lived lock. |
+
+## Control-plane versus data-plane
+
+LazyTrae has a useful internal split:
+
+- The **control plane** is templates, command routing, managed-block policy,
+  schemas, tooling receipts, and MCP declarations. It decides what the package
+  may install or expose.
+- The **data plane** is initialized project files, `.lazytrae` state, evidence
+  content, JSON-RPC messages, and subprocess output. It carries work through
+  the CLI and MCP runtime.
+
+This distinction explains why a template cannot prove host discovery, why a
+managed declaration cannot start a service by itself, and why every state write
+must repeat a path-boundary check at the data-plane edge.

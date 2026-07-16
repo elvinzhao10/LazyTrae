@@ -55,3 +55,24 @@ observed, and any limitation. For example: “Added project search; focused test
 passed; verified a search in the browser; no known remaining blocker.” Do not
 say “complete” solely because files were copied, a doctor passed, or a host was
 not observed.
+
+## Evidence data flow
+
+Evidence is not a single boolean. The package carries several facts from a
+check into the final report:
+
+```mermaid
+flowchart LR
+    Request["acceptance criteria"] --> Check["chosen package or project check"]
+    Check --> Doctor["doctor / completion gate"]
+    Doctor --> Status["pass, warn, fail, reasons"]
+    Status --> State[".lazytrae evidence + task state"]
+    State --> Claim["scoped completion claim"]
+    Host["manual Trae observation"] -. separate evidence .-> Claim
+```
+
+`doctor.js` reports health checks; `verify.js --must-pass` combines its result
+with `getCompletionStatus`; evidence/task handlers keep state references
+separate from the check output. This lets a reviewer distinguish “project
+assets are ready,” “completion gates are ready,” “the requested surface was
+observed,” and “a host fact remains unverified.”

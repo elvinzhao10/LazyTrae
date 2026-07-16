@@ -31,3 +31,15 @@ permission to run an external server.
 Continue with [Receipts and owned tooling](06b-receipts-and-owned-tooling.md)
 for lifecycle ownership, or [MCP lifecycle](07b-mcp-lifecycle.md) for the
 connection boundary.
+
+## Enforcement points and deliberate limits
+
+| Boundary | Enforced by | What it deliberately does not claim |
+| --- | --- | --- |
+| Project write path | `lib/path-boundary` plus `lib/safe-write` | Permission to write arbitrary host or parent paths. |
+| Managed documentation/config block | `lib/managed-blocks` | Ownership of text outside the named marker block. |
+| State write | MCP `runtime/path-boundary` plus atomic safe write | Permission to mutate files outside `.lazytrae/`. |
+| Optional capability credentials | `runOptionalCapability` rejects raw credential arguments | Secure storage of raw secrets in project state. |
+| Provider and browser activity | Explicit enable/approval/budget policy | Automatic consent based on package readiness. |
+
+Security is therefore fail-closed at the boundaries the package can model, not a claim that the package can sandbox a host or make arbitrary external code safe. Tests attack the safe-write, managed-content, state, and optional-provider boundaries directly.

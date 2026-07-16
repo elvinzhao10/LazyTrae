@@ -31,3 +31,26 @@ entry. Optional dependencies live in an explicit receipt-owned tooling root,
 never as an implicit runtime dependency of the project.
 
 For the decision rule, see [Security and authority](06a-security-and-authority.md).
+
+## Receipt verification sequence
+
+The tooling implementation treats installation and removal as inverse operations, not as two directory commands:
+
+```mermaid
+sequenceDiagram
+    participant User as caller-selected root
+    participant CLI as lazytrae tooling
+    participant Receipt as receipt file
+    User->>CLI: install with absolute empty root
+    CLI->>CLI: assert safe root and prepare runtime
+    CLI->>Receipt: record owned entries
+    User->>CLI: uninstall with same root
+    CLI->>Receipt: validate receipt and owned entries
+    alt receipt and entries match
+        CLI->>User: remove owned root
+    else mismatch, link, or foreign entry
+        CLI-->>User: refuse and preserve root
+    end
+```
+
+`lib/tooling-root` supplies `assertSafeRoot`, `readReceipt`, `validateReceipt`, `listOwnedEntries`, and `removeReceiptOwnedRoot`. `commands/tooling.js:checkRoot` uses the read/validate path for status and doctor; `install` writes the receipt only after a successful package install; `uninstall` delegates to exact receipt-owned removal. LSP and CodeGraph use their own lifecycle helpers, but retain the same explicit-root rule. A project `.codegraph/` index is not an owned toolpack entry, so it remains caller-owned.
