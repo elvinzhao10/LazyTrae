@@ -14,7 +14,10 @@ templates, package-local `LICENSE` and `NOTICE`, and its production dependency
 closure. A cold offline install checks that artifact; it does not prove host
 discovery or an MCP connection.
 
-The current package version is `0.17.0`. For Trae Work,
+This package is part of the LazyTrae learning project. It is
+primarily inspired by LazyCodex; [NOTICE](../NOTICE) records the LazyCodex and
+OmO upstream attribution. It is an independent implementation and does not
+require LazyCodex or OmO at runtime. For Trae Work,
 `lazytrae init --host work` invokes the bounded Work skill installation; use
 `lazytrae work status` to inspect the copied package assets.
 

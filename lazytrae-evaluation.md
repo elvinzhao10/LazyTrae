@@ -4,7 +4,13 @@ This document records what the public package implements and what its tests
 verify. It is evidence for the package and its local CLI/MCP behaviour, not a
 claim that a chosen Trae host has already loaded or connected it.
 
-The current package version is `0.17.0`.
+## Project purpose and attribution
+
+LazyTrae is a learning project for evidence-led agent workflows. It is
+primarily inspired by LazyCodex
+([upstream project](https://github.com/code-yeongyu/lazycodex)). OmO upstream
+attribution is recorded in [NOTICE](NOTICE). The package is an independent
+implementation and does not require LazyCodex or OmO at runtime.
 
 ## Features and verified package behaviour
 

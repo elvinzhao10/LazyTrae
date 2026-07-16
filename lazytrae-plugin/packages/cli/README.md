@@ -2,10 +2,14 @@
 
 LazyTrae CLI — Trae-native workflow installer and runtime.
 
-Release **v0.17.0** is verified on macOS only. Its self-contained CLI tarball
-carries the CLI, local MCP implementation, templates, package-local `LICENSE`
-and `NOTICE`, and its production dependency closure; a cold offline install
-checks that artifact without asserting host discovery or an MCP connection.
+This CLI belongs to the LazyTrae learning project. It is
+primarily inspired by LazyCodex. Its package-local [NOTICE](NOTICE) records
+the LazyCodex and OmO upstream attribution; it is an independent implementation
+and does not require LazyCodex or OmO at runtime. It is verified on macOS only.
+Its self-contained CLI tarball carries the CLI, local MCP implementation,
+templates, package-local `LICENSE` and `NOTICE`, and its production dependency
+closure; a cold offline install checks that artifact without asserting host
+discovery or an MCP connection.
 
 A developer installs the package, then uses the local `lazytrae` command in any project.
 
@@ -141,7 +145,7 @@ For Trae IDE, remove the project configuration with `lazytrae uninstall --yes`, 
 | `.trae/skills/*/SKILL.md` | 17 workflow skills (init-deep, ulw-plan, start-work, etc.) |
 | `.trae/commands/*.md` | 9 slash command definitions |
 | `.trae/agents/*.md` | 11 custom agent role definitions |
-| `.trae/hooks.json` | Five configured events referencing eight hook scripts (v0.17.0) |
+| `.trae/hooks.json` | Five configured events referencing eight hook scripts |
 | `.trae/mcp.json` | 8 MCP declarations; one executable core server and seven disabled placeholders. The `lazytrae` declaration exposes 15 tools when connected. |
 | `.lazytrae/config.json` | LazyTrae configuration |
 | `.lazytrae/state/` | Durable runtime state (boulder, active-loop, sessions) |

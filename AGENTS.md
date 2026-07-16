@@ -3,7 +3,10 @@
 
 ## OVERVIEW
 
-LazyTrae v0.17.0 is a workflow harness for Trae IDE, Trae Work, and Trae CLI: 17 skills, 9 commands, 11 agents, and an MCP server for repository understanding, planning, execution, and verification.
+LazyTrae is a learning project and workflow harness for Trae IDE, Trae Work,
+and Trae CLI. It is primarily inspired by LazyCodex, with OmO and upstream
+attribution recorded in [NOTICE](NOTICE). It is an independent implementation
+and does not require LazyCodex or OmO at runtime.
 
 It is verified on macOS only. Automatic local capability selection is
 temporary and receipt-owned: it may use `rg`, `sg`, or a read-only LSP bridge,

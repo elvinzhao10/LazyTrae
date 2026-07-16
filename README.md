@@ -2,18 +2,19 @@
 
 ![LazyTrae banner](lazytrae-banner.jpg)
 
-LazyTrae is a workflow harness for **Trae IDE**, **Trae Work**, and **Trae
-CLI**. It gives an agent a disciplined way to understand a repository, plan
-work, make changes, verify them on the real user surface, and retain evidence
-for the next task.
+LazyTrae is a learning project and workflow harness for **Trae IDE**, **Trae
+Work**, and **Trae CLI**. It gives an agent a disciplined way to understand a
+repository, plan work, make changes, verify them on the real user surface, and
+retain evidence for the next task. It is primarily inspired by LazyCodex
+([upstream project](https://github.com/code-yeongyu/lazycodex));
+[NOTICE](NOTICE) records the related OmO upstream attribution. LazyTrae is an
+independent implementation and does not require LazyCodex or OmO at runtime.
 
 > **Install and host setup:** [AGENTS.md](AGENTS.md).
 > **Package details:** [lazytrae-plugin/README.md](lazytrae-plugin/README.md).
 
 LazyTrae is verified on macOS only. Other operating systems and live host
 behaviour need local confirmation before they are relied on.
-
-The current package version is `0.17.0`.
 
 ## What you do with it
 
