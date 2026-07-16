@@ -49,6 +49,10 @@ function assertRootDocumentationLinks(documentationPath, documentationRoot = rep
     const localTarget = target.split('#', 1)[0];
     const resolvedTarget = path.resolve(path.dirname(documentationPath), localTarget);
     const relativeTarget = path.relative(documentationRoot, resolvedTarget).split(path.sep).join('/');
+    const escapesDocumentationRoot = relativeTarget === '..'
+      || relativeTarget.startsWith('../')
+      || path.isAbsolute(relativeTarget);
+    assert.equal(escapesDocumentationRoot, false, `${documentationPath} links outside repository root: ${target}`);
     assert.notEqual(relativeTarget, 'docs/handoff.md', `${documentationPath} must not link to docs/handoff.md`);
     assert.equal(fs.existsSync(resolvedTarget), true, `${documentationPath} links to missing local target ${target}`);
   }
@@ -150,6 +154,7 @@ test('Given maintainer documentation, when contributor verification guidance is 
 
 test('Given copied LazyTrae documentation, when a required heading or invalid root-doc link is introduced, then the documentation contract rejects it', () => {
   const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-documentation-regression-'));
+  const outsideDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-documentation-outside-'));
   const copiedDocumentation = path.join(temporaryDirectory, 'lazytrae-evaluation.md');
 
   try {
@@ -164,8 +169,14 @@ test('Given copied LazyTrae documentation, when a required heading or invalid ro
     assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /empty local target/);
     fs.writeFileSync(copiedRootDocumentation, '[stale handoff](handoff.md)\n', 'utf8');
     assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /docs\/handoff\.md/);
+    const outsideTarget = path.join(outsideDirectory, 'outside.md');
+    fs.writeFileSync(outsideTarget, '# outside\n', 'utf8');
+    const escapingTarget = path.relative(path.dirname(copiedRootDocumentation), outsideTarget);
+    fs.writeFileSync(copiedRootDocumentation, `[escaping](${escapingTarget})\n`, 'utf8');
+    assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /outside repository root/);
   } finally {
     fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+    fs.rmSync(outsideDirectory, { recursive: true, force: true });
   }
 });
 

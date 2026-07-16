@@ -11,6 +11,7 @@ retain evidence for the next task. It is primarily inspired by LazyCodex
 independent implementation and does not require LazyCodex or OmO at runtime.
 
 > **Install and host setup:** [AGENTS.md](AGENTS.md).
+> **Learner guide:** [docs/README.md](docs/README.md).
 > **Package details:** [lazytrae-plugin/README.md](lazytrae-plugin/README.md).
 
 LazyTrae is verified on macOS only. Other operating systems and live host

@@ -36,11 +36,14 @@ Follow the exact host procedure and observe its final condition in
 
 - **Trae IDE:** reopen the project and observe asset discovery and the MCP
   connection.
-- **Trae Work:** `lazytrae init --host work` installs the bounded global skills
-  on macOS; run `lazytrae work status`, reload Work, then add `lazytrae mcp`
-  manually in **Settings → MCP** and observe discovery/connection.
-- **Trae CLI:** initialize for CLI, run the documented `trae-cli mcp add-json`
-  registration, start a new session, and observe the connection.
+- **Trae Work:** after you explicitly approve installing skills in your global
+  Work location, run `lazytrae init --host work` on macOS. Then run
+  `lazytrae work status`, reload Work, and observe skill discovery. Separately,
+  after you explicitly approve the host change, add `lazytrae mcp` manually in
+  **Settings → MCP** and observe the connection.
+- **Trae CLI:** after you explicitly approve the host registration, run the
+  documented `trae-cli mcp add-json` command, start a new session, and observe
+  the connection.
 
 The Work skill location `~/.trae-cn/skills/` is verified only on macOS. Linux
 and Windows locations need a directory reported by the host and local

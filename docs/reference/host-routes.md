@@ -7,10 +7,12 @@ LazyTrae is verified on macOS only.
 | Host | Safe package steps | Observation still required |
 | --- | --- | --- |
 | Trae IDE | `lazytrae init --host ide`, `lazytrae load-check --host ide`, `lazytrae doctor` | Reopen the project; observe discovery and MCP connection. |
-| Trae Work (macOS) | `lazytrae init --host work`, then `lazytrae work status` | Reload Work; confirm skill discovery; add or confirm `lazytrae mcp` in **Settings → MCP**. |
+| Trae Work (macOS) | After explicit operator approval to install global Work skills, run `lazytrae init --host work`, then `lazytrae work status`. | Reload Work and confirm skill discovery. After separate explicit approval for the host change, add or confirm `lazytrae mcp` in **Settings → MCP** and observe the connection. |
 | Trae CLI | `lazytrae init --host cli`; register below | Start a new session and observe the connection. |
 
-For Trae CLI, register before the new session:
+For Trae CLI, register before the new session only after the operator explicitly
+approves this host-managed change. Then start a new session and observe the
+connection:
 
 ```bash
 trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'
