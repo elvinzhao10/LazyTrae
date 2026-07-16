@@ -19,6 +19,48 @@ const requiredHeadings = [
 const documentationPaths = [
   path.join(repositoryRoot, 'lazytrae-evaluation.md'),
 ];
+const requiredRootDocumentationPaths = [
+  'docs/README.md',
+  'docs/00-learning-path.md',
+  'docs/01-mental-model.md',
+  'docs/02-first-task.md',
+  'docs/03-install-and-host-verification.md',
+  'docs/04-workflow-playbooks.md',
+  'docs/05-evidence-and-completion.md',
+  'docs/06-capabilities-and-approvals.md',
+  'docs/07-package-map.md',
+  'docs/08-safe-removal.md',
+  'docs/reference/host-routes.md',
+  'docs/reference/verification-contract.md',
+  'docs/reference/terminology.md',
+];
+
+function assertRootDocumentationLinks(documentationPath, documentationRoot = repositoryRoot) {
+  const content = fs.readFileSync(documentationPath, 'utf8');
+  const markdownLinks = /\[[^\]]*\]\(([^)]*)\)/g;
+
+  for (const match of content.matchAll(markdownLinks)) {
+    const target = match[1].trim().replace(/^<|>$/g, '');
+    assert.notEqual(target, '', `${documentationPath} links to an empty local target`);
+    if (target.startsWith('#') || /^(?:https?:|mailto:)/i.test(target)) {
+      continue;
+    }
+
+    const localTarget = target.split('#', 1)[0];
+    const resolvedTarget = path.resolve(path.dirname(documentationPath), localTarget);
+    const relativeTarget = path.relative(documentationRoot, resolvedTarget).split(path.sep).join('/');
+    assert.notEqual(relativeTarget, 'docs/handoff.md', `${documentationPath} must not link to docs/handoff.md`);
+    assert.equal(fs.existsSync(resolvedTarget), true, `${documentationPath} links to missing local target ${target}`);
+  }
+}
+
+function assertRootDocumentationContract() {
+  for (const relativePath of requiredRootDocumentationPaths) {
+    const documentationPath = path.join(repositoryRoot, relativePath);
+    assert.equal(fs.existsSync(documentationPath), true, `required root documentation is missing: ${relativePath}`);
+    assertRootDocumentationLinks(documentationPath);
+  }
+}
 
 function assertDocumentationContract(documentationPath) {
   const content = fs.readFileSync(documentationPath, 'utf8');
@@ -81,17 +123,8 @@ test('Given current LazyTrae documentation, when its v0.17 contract is checked, 
   assert.match(fs.readFileSync(path.join(repositoryRoot, 'lazytrae-evaluation.md'), 'utf8'), /macOS CI[\s\S]*does not publish/i, 'evaluation must keep the macOS CI boundary explicit');
 });
 
-function assertNoRemovedRootDocsLink(content, documentationPath) {
-  assert.doesNotMatch(content, /\]\((?:\.\/|\.\.\/)*docs\//, `${documentationPath} must not link to removed repository-root docs/`);
-}
-
-test('Given root documentation, when repository-root docs are intentionally absent, then active root guidance has no stale docs links', () => {
-  assert.equal(fs.existsSync(path.join(repositoryRoot, 'docs')), false, 'repository-root docs/ must remain absent');
-
-  for (const filename of ['README.md', 'AGENTS.md', 'lazytrae-evaluation.md']) {
-    const documentationPath = path.join(repositoryRoot, filename);
-    assertNoRemovedRootDocsLink(fs.readFileSync(documentationPath, 'utf8'), documentationPath);
-  }
+test('Given root learner documentation, when its public contract is checked, then every required page and local link is present', () => {
+  assertRootDocumentationContract();
 });
 
 test('Given public LazyTrae documentation, when its release-facing contract is checked, then it presents the banner and safe onboarding and offboarding paths', () => {
@@ -115,7 +148,7 @@ test('Given maintainer documentation, when contributor verification guidance is 
   assert.match(packageAgents, /package-readiness/i, 'CLI maintainer guidance must retain the installed-package readiness boundary');
 });
 
-test('Given copied LazyTrae documentation, when a required heading or removed-root-doc link is introduced, then the documentation contract rejects it', () => {
+test('Given copied LazyTrae documentation, when a required heading or invalid root-doc link is introduced, then the documentation contract rejects it', () => {
   const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-documentation-regression-'));
   const copiedDocumentation = path.join(temporaryDirectory, 'lazytrae-evaluation.md');
 
@@ -123,10 +156,14 @@ test('Given copied LazyTrae documentation, when a required heading or removed-ro
     fs.copyFileSync(path.join(repositoryRoot, 'lazytrae-evaluation.md'), copiedDocumentation);
     fs.writeFileSync(copiedDocumentation, fs.readFileSync(copiedDocumentation, 'utf8').replace('## JSON-RPC resilience\n', ''), 'utf8');
     assert.throws(() => assertDocumentationContract(copiedDocumentation), /JSON-RPC resilience/);
-    for (const staleLink of ['docs/handoff.md', './docs/handoff.md']) {
-      fs.writeFileSync(copiedDocumentation, `[stale handoff](${staleLink})\n`, 'utf8');
-      assert.throws(() => assertNoRemovedRootDocsLink(fs.readFileSync(copiedDocumentation, 'utf8'), copiedDocumentation), /removed repository-root docs/);
-    }
+    const copiedRootDocumentation = path.join(temporaryDirectory, 'docs', 'README.md');
+    fs.mkdirSync(path.dirname(copiedRootDocumentation), { recursive: true });
+    fs.writeFileSync(copiedRootDocumentation, '[missing](missing.md)\n', 'utf8');
+    assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /missing local target/);
+    fs.writeFileSync(copiedRootDocumentation, '[empty]()\n', 'utf8');
+    assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /empty local target/);
+    fs.writeFileSync(copiedRootDocumentation, '[stale handoff](handoff.md)\n', 'utf8');
+    assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /docs\/handoff\.md/);
   } finally {
     fs.rmSync(temporaryDirectory, { recursive: true, force: true });
   }

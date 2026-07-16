@@ -5,6 +5,24 @@ const test = require('node:test');
 const { MONOREPO_ROOT, REPO_ROOT, runCli } = require('./test-helpers');
 
 const LEGACY_REFERENCE = /lazycodex|\bomo\b|dev\/reference\/lazycodex|old checkout|reference\/lazycodex/i;
+const PRESENT_TENSE_ATTRIBUTIONS = new Map([
+  ['README.md', `It is primarily inspired by LazyCodex
+([upstream project](https://github.com/code-yeongyu/lazycodex));
+[NOTICE](NOTICE) records the related OmO upstream attribution. LazyTrae is an
+independent implementation and does not require LazyCodex or OmO at runtime.`],
+  ['AGENTS.md', `It is primarily inspired by LazyCodex, with OmO and upstream
+attribution recorded in [NOTICE](NOTICE). It is an independent implementation
+and does not require LazyCodex or OmO at runtime.`],
+  ['lazytrae-evaluation.md', `It is
+primarily inspired by LazyCodex
+([upstream project](https://github.com/code-yeongyu/lazycodex)). OmO upstream
+attribution is recorded in [NOTICE](NOTICE). The package is an independent
+implementation and does not require LazyCodex or OmO at runtime.`],
+  ['packages/cli/README.md', `It is
+primarily inspired by LazyCodex. Its package-local [NOTICE](NOTICE) records
+the LazyCodex and OmO upstream attribution; it is an independent implementation
+and does not require LazyCodex or OmO at runtime.`],
+]);
 const HISTORICAL_ARCHIVES = new Set([
   'docs/archive/lazytrae-diagnosis-evaluation-vs-lazycodex-lazyworkbuddy.md',
   'docs/archive/lazytrae-dogfood-plan.md',
@@ -13,6 +31,21 @@ const HISTORICAL_ARCHIVES = new Set([
 const HISTORICAL_BANNER = /^> \*\*Historical record \(non-operational\):\*\*/m;
 const UNSUPPORTED_HOST_API = /\b(?:SearchCodebase|RunCommand|WebSearch|WebFetch|Defuddle|TodoWrite|OpenPreview)\b/;
 const EXTERNAL_CAPABILITIES = ['context7', 'grep_app', 'filesystem', 'playwright'];
+const REQUIRED_ROOT_DOCUMENTATION_PATHS = [
+  'docs/README.md',
+  'docs/00-learning-path.md',
+  'docs/01-mental-model.md',
+  'docs/02-first-task.md',
+  'docs/03-install-and-host-verification.md',
+  'docs/04-workflow-playbooks.md',
+  'docs/05-evidence-and-completion.md',
+  'docs/06-capabilities-and-approvals.md',
+  'docs/07-package-map.md',
+  'docs/08-safe-removal.md',
+  'docs/reference/host-routes.md',
+  'docs/reference/verification-contract.md',
+  'docs/reference/terminology.md',
+];
 
 function walkFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -27,9 +60,14 @@ function relativeFromRepo(filePath) {
 
 function legacyReferenceOffenders(records) {
   return records
-    .filter(({ relativePath, content }) => LEGACY_REFERENCE.test(content) && !isHistoricalArchiveRecord(relativePath, content))
+    .filter(({ relativePath, content }) => LEGACY_REFERENCE.test(removePermittedAttribution(relativePath, content)) && !isHistoricalArchiveRecord(relativePath, content))
     .map(({ relativePath }) => relativePath)
     .sort();
+}
+
+function removePermittedAttribution(relativePath, content) {
+  const attribution = PRESENT_TENSE_ATTRIBUTIONS.get(relativePath);
+  return attribution === undefined ? content : content.replace(attribution, '');
 }
 
 function isHistoricalArchiveRecord(relativePath, content) {
@@ -62,11 +100,16 @@ test('legacy-reference inventory rejects active guidance and unlabeled archives'
     relativePath: 'docs/archive/newly-added-record.md',
     content: '> **Historical record (non-operational):** Archived for study only.\nAdapted from OmO guidance.',
   };
+  const prohibitedOperationalReference = {
+    relativePath: 'README.md',
+    content: 'LazyCodex is required to operate LazyTrae.',
+  };
 
   assert.deepEqual(legacyReferenceOffenders([activeInstruction]), ['docs/current-setup.md']);
   assert.deepEqual(legacyReferenceOffenders([unlabeledArchive]), ['docs/archive/lazytrae-dogfood-plan.md']);
   assert.deepEqual(legacyReferenceOffenders([namedHistoricalArchive]), []);
   assert.deepEqual(legacyReferenceOffenders([unlistedHistoricalArchive]), ['docs/archive/newly-added-record.md']);
+  assert.deepEqual(legacyReferenceOffenders([prohibitedOperationalReference]), ['README.md']);
 });
 
 const OPERATIONAL_SOURCES = [
@@ -92,17 +135,20 @@ test('operational CLI and MCP sources use LazyTrae-native names', () => {
 
   for (const relativePath of OPERATIONAL_SOURCES) {
     const source = fs.readFileSync(path.join(REPO_ROOT, relativePath), 'utf8');
-    assert.doesNotMatch(source, /lazycodex|\bomo\b/i, relativePath);
+    assert.doesNotMatch(removePermittedAttribution(relativePath, source), /lazycodex|\bomo\b/i, relativePath);
   }
 });
 
 test('active installable surfaces, documentation, and runtime source allow only named historical records', () => {
-  assert.equal(fs.existsSync(path.join(MONOREPO_ROOT, 'docs')), false, 'repository-root docs/ must remain absent');
+  for (const relativePath of REQUIRED_ROOT_DOCUMENTATION_PATHS) {
+    assert.equal(fs.existsSync(path.join(MONOREPO_ROOT, relativePath)), true, `required root documentation is missing: ${relativePath}`);
+  }
 
   const inventory = inventoryRecords([
     path.join(MONOREPO_ROOT, 'AGENTS.md'),
     path.join(MONOREPO_ROOT, 'README.md'),
     path.join(MONOREPO_ROOT, 'lazytrae-evaluation.md'),
+    path.join(MONOREPO_ROOT, 'docs'),
     path.join(REPO_ROOT, '.trae'),
     path.join(REPO_ROOT, '.lazytrae'),
     path.join(REPO_ROOT, 'packages/cli/AGENTS.md'),
