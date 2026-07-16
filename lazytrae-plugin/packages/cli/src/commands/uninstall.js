@@ -47,7 +47,7 @@ Normal uninstall retains .lazytrae state/, evidence/, plans/, and loop/ data.
   const repoRoot = detectRepoRoot();
   const summary = { removed: [], preserved: [] };
 
-  console.log(`LazyTrae uninstall v0.18.0`);
+  console.log(`LazyTrae uninstall v0.19.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');

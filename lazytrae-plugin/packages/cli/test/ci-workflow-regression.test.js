@@ -10,6 +10,7 @@ const WORKFLOW_PATH = path.resolve(CLI_ROOT, '..', '..', '..', '.github', 'workf
 const REQUIRED_COMMANDS = [
   'npm ci --ignore-scripts',
   'npm test',
+  'npm run test:publication',
   'npm pack --dry-run --json',
 ];
 const FORBIDDEN_ACTIONS = [
@@ -55,7 +56,14 @@ test('workflow regression rejects omitted verification and prohibited publicatio
   const contents = fs.readFileSync(WORKFLOW_PATH, 'utf8');
 
   assert.throws(() => validateWorkflow('jobs: [invalid'), /Psych::SyntaxError/);
-  assert.throws(() => validateWorkflow(contents.replace('run: npm test\n', '')), /workflow must run npm test/);
+  assert.throws(() => validateWorkflow(contents.replace(
+    '      - name: Package and operational checks\n        run: npm test\n',
+    '',
+  )), /workflow must run npm test/);
+  assert.throws(() => validateWorkflow(contents.replace(
+    '      - name: Publication documentation checks\n        run: npm run test:publication\n',
+    '',
+  )), /workflow must run npm run test:publication/);
   assert.throws(() => validateWorkflow(`${contents}\n      - run: npm publish\n`), /npm publish/);
   assert.throws(() => validateWorkflow(`${contents}\n      - run: gh release create v0.18.0\n`), /release action/);
   assert.throws(() => validateWorkflow(`${contents}\n      - run: git tag v0.18.0\n`), /tag action/);

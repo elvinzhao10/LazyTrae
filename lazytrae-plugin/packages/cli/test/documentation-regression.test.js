@@ -5,107 +5,6 @@ const path = require('node:path');
 const test = require('node:test');
 
 const repositoryRoot = path.resolve(__dirname, '../../../..');
-const requiredHeadings = [
-  'Public capability status contract',
-  'Optional capability policy',
-  'Receipt and safe removal',
-  'Package readiness versus host verification',
-  'JSON-RPC resilience',
-  'Host-specific exclusions',
-  'Known unverified host behavior',
-  'macOS verification scope',
-];
-
-const documentationPaths = [
-  path.join(repositoryRoot, 'lazytrae-evaluation.md'),
-];
-const requiredRootDocumentationPaths = [
-  'docs/README.md',
-  'docs/00-learning-path.md',
-  'docs/01-mental-model.md',
-  'docs/02-first-task.md',
-  'docs/03-install-and-host-verification.md',
-  'docs/04-workflow-playbooks.md',
-  'docs/05-evidence-and-completion.md',
-  'docs/06-capabilities-and-approvals.md',
-  'docs/07-package-map.md',
-  'docs/08-safe-removal.md',
-  'docs/06a-security-and-authority.md',
-  'docs/06b-receipts-and-owned-tooling.md',
-  'docs/07a-state-and-validation.md',
-  'docs/07b-mcp-lifecycle.md',
-  'docs/09-test-and-release-verification.md',
-  'docs/10-host-capability-matrix.md',
-  'docs/reference/host-routes.md',
-  'docs/reference/mcp-inventory.md',
-  'docs/reference/state-artifact-reference.md',
-  'docs/reference/verification-contract.md',
-  'docs/reference/terminology.md',
-];
-
-const requiredLearnerHeadings = new Map([
-  ['docs/06a-security-and-authority.md', ['# Security and authority', '## Authority boundaries', '## Credentials and untrusted input']],
-  ['docs/06b-receipts-and-owned-tooling.md', ['# Receipts and owned tooling', '## Receipt-safe removal', '## Explicit tooling enablement']],
-  ['docs/07a-state-and-validation.md', ['# State and validation', '## State artifacts', '## Date-time validation']],
-  ['docs/07b-mcp-lifecycle.md', ['# MCP lifecycle', '## Declaration is not connection', '## Core server and optional declarations']],
-  ['docs/09-test-and-release-verification.md', ['# Test and release verification', '## Package checks', '## Release evidence boundary']],
-  ['docs/10-host-capability-matrix.md', ['# Host capability matrix', '## What each host needs', '## macOS-only scope']],
-  ['docs/reference/state-artifact-reference.md', ['# State artifact reference', '## Validation contract']],
-  ['docs/reference/mcp-inventory.md', ['# MCP inventory', '## Base declarations', '## Core tool inventory']],
-]);
-
-function assertRootDocumentationLinks(documentationPath, documentationRoot = repositoryRoot) {
-  const content = fs.readFileSync(documentationPath, 'utf8');
-  const markdownLinks = /\[[^\]]*\]\(([^)]*)\)/g;
-
-  for (const match of content.matchAll(markdownLinks)) {
-    const target = match[1].trim().replace(/^<|>$/g, '');
-    assert.notEqual(target, '', `${documentationPath} links to an empty local target`);
-    if (target.startsWith('#') || /^(?:https?:|mailto:)/i.test(target)) {
-      continue;
-    }
-
-    const localTarget = target.split('#', 1)[0];
-    const resolvedTarget = path.resolve(path.dirname(documentationPath), localTarget);
-    const relativeTarget = path.relative(documentationRoot, resolvedTarget).split(path.sep).join('/');
-    const escapesDocumentationRoot = relativeTarget === '..'
-      || relativeTarget.startsWith('../')
-      || path.isAbsolute(relativeTarget);
-    assert.equal(escapesDocumentationRoot, false, `${documentationPath} links outside repository root: ${target}`);
-    assert.notEqual(relativeTarget, 'docs/handoff.md', `${documentationPath} must not link to docs/handoff.md`);
-    assert.equal(fs.existsSync(resolvedTarget), true, `${documentationPath} links to missing local target ${target}`);
-  }
-}
-
-function assertRootDocumentationContract() {
-  for (const relativePath of requiredRootDocumentationPaths) {
-    const documentationPath = path.join(repositoryRoot, relativePath);
-    assert.equal(fs.existsSync(documentationPath), true, `required root documentation is missing: ${relativePath}`);
-    assertRootDocumentationLinks(documentationPath);
-    const headings = requiredLearnerHeadings.get(relativePath);
-    if (headings) {
-      const content = fs.readFileSync(documentationPath, 'utf8');
-      for (const heading of headings) {
-        assert.match(content, new RegExp(`^${heading.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}$`, 'm'), `${relativePath} is missing heading: ${heading}`);
-      }
-    }
-  }
-}
-
-function assertDocumentationContract(documentationPath) {
-  const content = fs.readFileSync(documentationPath, 'utf8');
-
-  for (const heading of requiredHeadings) {
-    assert.match(content, new RegExp(`^## ${heading}$`, 'm'), `${documentationPath} is missing ${heading}`);
-  }
-
-  assert.match(content, /macOS only/, `${documentationPath} must retain macOS-only scope`);
-  assert.match(content, /Host integration/, `${documentationPath} must name host-integration differences`);
-  assert.match(content, /State\/path/, `${documentationPath} must name state/path differences`);
-  assert.match(content, /Inventory/, `${documentationPath} must name inventory differences`);
-  assert.match(content, /normal CI.*does not require.*sibling/i, `${documentationPath} must keep normal CI self-contained`);
-  assert.match(content, /release-only paired parity/i, `${documentationPath} must limit paired parity to release evidence`);
-}
 
 function assertInitDeepSafety(content, initDeepPath) {
   assert.doesNotMatch(content, /corrupted or unparseable:\s*treat as --create-new/i, `${initDeepPath} must reject the unsafe malformed-file fallback`);
@@ -130,87 +29,26 @@ function assertManagedAstGrepGuidance(content, skillPath) {
   assert.match(content, /lazytrae tooling install --tooling-root \/absolute\/lazytrae-tools/, `${skillPath} must direct ast-grep setup through the managed tooling lifecycle`);
 }
 
-test('Given current LazyTrae documentation, when its current contract is checked, then every shared heading and policy is present', () => {
-  for (const documentationPath of documentationPaths) {
-    assertDocumentationContract(documentationPath);
-  }
-
+test('Given installed LazyTrae guidance, when its package boundary is checked, then readiness and offboarding remain explicit', () => {
   const packageReadme = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'README.md'), 'utf8');
-  const onboardingGuide = fs.readFileSync(path.join(repositoryRoot, 'AGENTS.md'), 'utf8');
   const installedGuide = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'templates', 'AGENTS.md'), 'utf8');
-  const rootReadme = fs.readFileSync(path.join(repositoryRoot, 'README.md'), 'utf8');
   const cliReadme = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'README.md'), 'utf8');
   assert.match(packageReadme, /init --host work` invokes the bounded Work skill installation/, 'package README must describe the Work init lifecycle accurately');
   assert.match(packageReadme, /self-contained CLI tarball/i, 'package README must describe the self-contained CLI artifact');
   assert.match(packageReadme, /cold offline/i, 'package README must describe the cold-offline artifact check');
-  assert.match(onboardingGuide, /package readiness/, 'onboarding guide must describe package-only readiness');
-  assert.match(onboardingGuide, /invokes the bounded Work skill installation/, 'onboarding guide must describe the Work init lifecycle accurately');
-  assert.match(onboardingGuide, /does not require a source\s+checkout\s+after installation/i, 'onboarding guide must distinguish an installed package from the repo-only fallback');
   assert.match(installedGuide, /does not require a source\s+checkout\s+after installation/i, 'installed onboarding guidance must distinguish an installed package from the repo-only fallback');
-  assert.match(rootReadme, /self-contained CLI tarball/i, 'root README must describe the self-contained CLI artifact');
-  assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI README must describe the self-contained CLI artifact');
-  assert.match(fs.readFileSync(path.join(repositoryRoot, 'lazytrae-evaluation.md'), 'utf8'), /cold offline/i, 'evaluation must record the cold-offline artifact evidence');
-  assert.match(fs.readFileSync(path.join(repositoryRoot, 'lazytrae-evaluation.md'), 'utf8'), /macOS CI[\s\S]*does not publish/i, 'evaluation must keep the macOS CI boundary explicit');
-});
-
-test('Given root learner documentation, when its public contract is checked, then every required page and local link is present', () => {
-  assertRootDocumentationContract();
-});
-
-test('Given public LazyTrae documentation, when its release-facing contract is checked, then it presents the banner and safe onboarding and offboarding paths', () => {
-  const readme = fs.readFileSync(path.join(repositoryRoot, 'README.md'), 'utf8');
-  const onboardingGuide = fs.readFileSync(path.join(repositoryRoot, 'AGENTS.md'), 'utf8');
-  const installedGuide = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'templates', 'AGENTS.md'), 'utf8');
-
-  assert.match(readme, /^!\[LazyTrae.*\]\(lazytrae-banner\.jpg\)$/m, 'README must embed the public LazyTrae banner');
-  assert.doesNotMatch(readme, /practice project|no longer maintained|alignment candidate/i, 'README must not use legacy release framing');
-  assert.match(onboardingGuide, /## `offboard` protocol/, 'root setup guide must provide safe offboarding');
   assert.match(installedGuide, /## `offboard` protocol/, 'installed setup guide must provide safe offboarding');
+  assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI README must describe the self-contained CLI artifact');
 });
 
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {
   const packageAgents = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'AGENTS.md'), 'utf8');
 
-  assert.match(packageAgents, /0\.18\.0/, 'CLI maintainer guidance must name the packaged baseline');
+  assert.match(packageAgents, /0\.19\.0/, 'CLI maintainer guidance must name the packaged baseline');
   assert.match(packageAgents, /broad Node test suite/i, 'CLI maintainer guidance must describe the current suite');
   assert.doesNotMatch(packageAgents, /v0\.13|250 LOC|Currently thin/i, 'CLI maintainer guidance must not retain stale constraints');
   assert.match(packageAgents, /node --test test\/documentation-regression\.test\.js/, 'CLI maintainer guidance must name a focused documentation check');
   assert.match(packageAgents, /package-readiness/i, 'CLI maintainer guidance must retain the installed-package readiness boundary');
-});
-
-test('Given copied LazyTrae documentation, when a required heading or invalid root-doc link is introduced, then the documentation contract rejects it', () => {
-  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-documentation-regression-'));
-  const outsideDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-documentation-outside-'));
-  const copiedDocumentation = path.join(temporaryDirectory, 'lazytrae-evaluation.md');
-
-  try {
-    fs.copyFileSync(path.join(repositoryRoot, 'lazytrae-evaluation.md'), copiedDocumentation);
-    fs.writeFileSync(copiedDocumentation, fs.readFileSync(copiedDocumentation, 'utf8').replace('## JSON-RPC resilience\n', ''), 'utf8');
-    assert.throws(() => assertDocumentationContract(copiedDocumentation), /JSON-RPC resilience/);
-    const copiedRootDocumentation = path.join(temporaryDirectory, 'docs', 'README.md');
-    fs.mkdirSync(path.dirname(copiedRootDocumentation), { recursive: true });
-    fs.writeFileSync(copiedRootDocumentation, '[missing](missing.md)\n', 'utf8');
-    assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /missing local target/);
-    fs.writeFileSync(copiedRootDocumentation, '[empty]()\n', 'utf8');
-    assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /empty local target/);
-    fs.writeFileSync(copiedRootDocumentation, '[stale handoff](handoff.md)\n', 'utf8');
-    assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /docs\/handoff\.md/);
-    const outsideTarget = path.join(outsideDirectory, 'outside.md');
-    fs.writeFileSync(outsideTarget, '# outside\n', 'utf8');
-    const escapingTarget = path.relative(path.dirname(copiedRootDocumentation), outsideTarget);
-    fs.writeFileSync(copiedRootDocumentation, `[escaping](${escapingTarget})\n`, 'utf8');
-    assert.throws(() => assertRootDocumentationLinks(copiedRootDocumentation, temporaryDirectory), /outside repository root/);
-
-    const copiedLearnerDirectory = path.join(temporaryDirectory, 'docs');
-    fs.writeFileSync(path.join(copiedLearnerDirectory, '07a-state-and-validation.md'), '[MCP lifecycle](07b-mcp-lifecycle.md)\n', 'utf8');
-    fs.writeFileSync(path.join(copiedLearnerDirectory, '07b-mcp-lifecycle.md'), '# MCP lifecycle\n', 'utf8');
-    assertRootDocumentationLinks(path.join(copiedLearnerDirectory, '07a-state-and-validation.md'), temporaryDirectory);
-    fs.rmSync(path.join(copiedLearnerDirectory, '07b-mcp-lifecycle.md'), { force: true });
-    assert.throws(() => assertRootDocumentationLinks(path.join(copiedLearnerDirectory, '07a-state-and-validation.md'), temporaryDirectory), /missing local target/);
-  } finally {
-    fs.rmSync(temporaryDirectory, { recursive: true, force: true });
-    fs.rmSync(outsideDirectory, { recursive: true, force: true });
-  }
 });
 
 test('Given InitDeep guidance, when AGENTS.md is malformed or a replacement is requested, then it preserves content until separately confirmed destructive recovery', () => {

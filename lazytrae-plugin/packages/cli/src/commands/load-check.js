@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 
-const V015_ARTIFACT_CONTRACT = Object.freeze({
+const ARTIFACT_CONTRACT = Object.freeze({
   skills: [
     'lazy-ast-grep', 'lazy-coding-agent-sessions', 'lazy-debugging', 'lazy-frontend', 'lazy-git-master',
     'lazy-init-deep', 'lazy-lcx-report-bug', 'lazy-librarian', 'lazy-migration-planner', 'lazy-programming',
@@ -69,7 +69,7 @@ function hookMappingFailures(repoRoot) {
     return { failures: ['missing hooks object'], ready: 0 };
   }
 
-  const failures = Object.entries(V015_ARTIFACT_CONTRACT.hookEvents).flatMap(([event, script]) => {
+  const failures = Object.entries(ARTIFACT_CONTRACT.hookEvents).flatMap(([event, script]) => {
     const expectedCommand = `bash "\${PROJECT_DIR}/.trae/hooks/${script}"`;
     const entries = hooks[event];
     const valid = Array.isArray(entries) && entries.some(entry => (
@@ -77,11 +77,11 @@ function hookMappingFailures(repoRoot) {
     ));
     return valid ? [] : [`${event} must invoke ${script}`];
   });
-  return { failures, ready: Object.keys(V015_ARTIFACT_CONTRACT.hookEvents).length - failures.length };
+  return { failures, ready: Object.keys(ARTIFACT_CONTRACT.hookEvents).length - failures.length };
 }
 
 function nonExecutableHooks(repoRoot) {
-  return V015_ARTIFACT_CONTRACT.hooks.filter(name => {
+  return ARTIFACT_CONTRACT.hooks.filter(name => {
     const hookPath = path.join(repoRoot, '.trae', 'hooks', name);
     try {
       if (!fs.statSync(hookPath).isFile()) return true;
@@ -99,7 +99,7 @@ function mcpDeclarationError(repoRoot, host) {
   try {
     const config = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
     const server = config && config.mcpServers && config.mcpServers.lazytrae;
-    const { command, args } = V015_ARTIFACT_CONTRACT.mcp;
+    const { command, args } = ARTIFACT_CONTRACT.mcp;
     if (!server || server.command !== command || !Array.isArray(server.args)
       || server.args.length !== args.length || server.args.some((arg, index) => arg !== args[index])) {
       return 'expected command "lazytrae" args ["mcp"]';
@@ -124,7 +124,7 @@ function run(args) {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae load-check [--host ide|work|cli]
 
-Check v0.18.0 package readiness after initialization. This validates local files and
+Check v0.19.0 package readiness after initialization. This validates local files and
 configuration only; it does not claim that a host has registered or loaded them.
 `);
     return 0;
@@ -136,26 +136,26 @@ configuration only; it does not claim that a host has registered or loaded them.
 
   const repoRoot = detectRepoRoot();
   const checks = [
-    { label: 'skills', missing: missingArtifacts(repoRoot, 'skills', V015_ARTIFACT_CONTRACT.skills, 'SKILL.md') },
-    { label: 'commands', missing: missingArtifacts(repoRoot, 'commands', V015_ARTIFACT_CONTRACT.commands) },
-    { label: 'agents', missing: missingArtifacts(repoRoot, 'agents', V015_ARTIFACT_CONTRACT.agents) },
-    { label: 'rules', missing: missingArtifacts(repoRoot, 'rules', V015_ARTIFACT_CONTRACT.rules) },
-    { label: 'hooks', missing: missingArtifacts(repoRoot, 'hooks', V015_ARTIFACT_CONTRACT.hooks) },
+    { label: 'skills', missing: missingArtifacts(repoRoot, 'skills', ARTIFACT_CONTRACT.skills, 'SKILL.md') },
+    { label: 'commands', missing: missingArtifacts(repoRoot, 'commands', ARTIFACT_CONTRACT.commands) },
+    { label: 'agents', missing: missingArtifacts(repoRoot, 'agents', ARTIFACT_CONTRACT.agents) },
+    { label: 'rules', missing: missingArtifacts(repoRoot, 'rules', ARTIFACT_CONTRACT.rules) },
+    { label: 'hooks', missing: missingArtifacts(repoRoot, 'hooks', ARTIFACT_CONTRACT.hooks) },
   ];
   const hookMappings = hookMappingFailures(repoRoot);
   const hookPermissions = nonExecutableHooks(repoRoot);
   const mcpError = mcpDeclarationError(repoRoot, host);
 
-  console.log('=== LazyTrae Tool Load Check — v0.18.0 Package Readiness ===');
+  console.log('=== LazyTrae Tool Load Check — v0.19.0 Package Readiness ===');
   console.log(`Host: ${host}`);
   for (const result of checks) {
-    const expected = V015_ARTIFACT_CONTRACT[result.label].length;
+    const expected = ARTIFACT_CONTRACT[result.label].length;
     const ready = expected - result.missing.length;
     console.log(`${result.missing.length ? 'FAIL' : 'PASS'} ${result.label}: ${ready}/${expected}${result.missing.length ? ` (missing: ${result.missing.join(', ')})` : ''}`);
   }
-  const eventCount = Object.keys(V015_ARTIFACT_CONTRACT.hookEvents).length;
+  const eventCount = Object.keys(ARTIFACT_CONTRACT.hookEvents).length;
   console.log(`${hookMappings.failures.length ? 'FAIL' : 'PASS'} hooks.json event mappings: ${hookMappings.ready}/${eventCount}${hookMappings.failures.length ? ` (${hookMappings.failures.join('; ')})` : ''}`);
-  const hookCount = V015_ARTIFACT_CONTRACT.hooks.length;
+  const hookCount = ARTIFACT_CONTRACT.hooks.length;
   console.log(`${hookPermissions.length ? 'FAIL' : 'PASS'} hook executability: ${hookCount - hookPermissions.length}/${hookCount}${hookPermissions.length ? ` (not executable: ${hookPermissions.join(', ')})` : ''}`);
   console.log(host === 'work'
     ? 'SKIP LazyTrae MCP declaration: Trae Work requires manual Settings → MCP registration'
@@ -182,4 +182,4 @@ configuration only; it does not claim that a host has registered or loaded them.
   return failed ? 1 : 0;
 }
 
-module.exports = { V015_ARTIFACT_CONTRACT, run };
+module.exports = { ARTIFACT_CONTRACT, run };

@@ -55,7 +55,7 @@
 
 ### Review Context
 
-- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
+- **Plan file**: `<plan-file>`
 - **Reviewer**: Oracle
 - **Date**: 2026-07-09
 - **Review type**: Post-implementation gate review
@@ -64,7 +64,7 @@
 
 | # | Gate | Status | Evidence |
 |---|------|--------|----------|
-| 1 | Plan Reread | PASS | All deliverables listed in plan/v0.5-state-machine.md have been created. |
+| 1 | Plan Reread | PASS | All deliverables listed in the selected plan have been created. |
 | 2 | Automated Verification | PASS | `.lazytrae/evidence/test-runs.md` — all state files are valid JSON. |
 | 3 | Manual-QA | PASS | `.lazytrae/evidence/verifier.md` — config file is valid, state files exist. |
 | 4 | Adversarial QA | PASS | `.lazytrae/evidence/reviewer.md` — malformed input probe passed, 8 classes N/A. |
@@ -78,5 +78,4 @@
 
 ### Recommendations (non-blocking)
 
-- Consider adding a `lazytrae state validate` CLI command in v0.6 to validate state files against schemas.
-- Consider adding automated schema validation in a pre-commit hook.
+- `<non-blocking recommendation or none>`

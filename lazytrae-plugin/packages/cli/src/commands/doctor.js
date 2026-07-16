@@ -191,7 +191,6 @@ Options:
   const recoveryResult = checkStaleRecovery(repoRoot);
   addResult(recoveryResult.label, recoveryResult.status, recoveryResult.detail);
 
-  // Model routing config check (v0.10)
   const routingResult = checkModelRouting(repoRoot);
   addResult(routingResult.label, routingResult.status, routingResult.detail);
 
@@ -232,7 +231,7 @@ Options:
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v0.18.0`);
+  console.log(`LazyTrae Doctor v0.19.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);

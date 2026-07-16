@@ -13,12 +13,12 @@ function withFixture(prefix, callback) {
   }
 }
 
-test('load-check reports v0.18.0 package readiness separately from unverified IDE registration', () => {
+test('load-check reports v0.19.0 package readiness separately from unverified IDE registration', () => {
   withFixture('lazytrae-load-check-ready-', fixture => {
     const result = runCli(['load-check', '--host', 'ide'], { cwd: fixture });
 
     assert.equal(result.status, 0, result.stdout);
-    assert.match(result.stdout, /LazyTrae Tool Load Check — v0\.18\.0 Package Readiness/);
+    assert.match(result.stdout, /LazyTrae Tool Load Check — v0\.19\.0 Package Readiness/);
     assert.doesNotMatch(result.stdout, /v0\.17/);
     assert.doesNotMatch(result.stdout, /v0\.16/);
     assert.match(result.stdout, /PASS hooks\.json event mappings: 5\/5/);
@@ -29,11 +29,11 @@ test('load-check reports v0.18.0 package readiness separately from unverified ID
   });
 });
 
-test('load-check help identifies the v0.18.0 package readiness check', () => {
+test('load-check help identifies the v0.19.0 package readiness check', () => {
   const result = runCli(['load-check', '--help']);
 
   assert.equal(result.status, 0, result.stdout);
-  assert.match(result.stdout, /Check v0\.18\.0 package readiness after initialization\./);
+  assert.match(result.stdout, /Check v0\.19\.0 package readiness after initialization\./);
   assert.doesNotMatch(result.stdout, /v0\.17/);
 });
 

@@ -11,7 +11,7 @@ const EXPECTED_CATEGORIES = [
 ];
 
 /**
- * Checks the .lazytrae/config.json routing section for the 6 v0.10 categories.
+ * Checks the .lazytrae/config.json routing section for the 6 routing categories.
  * Returns a result object compatible with doctor's addResult shape.
  *
  * @param {string} repoRoot - Absolute path to the repo root.
@@ -31,7 +31,7 @@ function checkModelRouting(repoRoot) {
   }
 
   if (!config.routing) {
-    return { checked: true, label: 'Model routing', status: 'WARN', detail: 'No routing section in config.json (v0.10)' };
+    return { checked: true, label: 'Model routing', status: 'WARN', detail: 'No routing section in config.json' };
   }
 
   const presentCategories = Object.keys(config.routing);

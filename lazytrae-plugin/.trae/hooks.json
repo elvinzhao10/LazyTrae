@@ -37,7 +37,7 @@
     ]
   },
   "lazytrae": {
-    "version": "v0.18.0",
+    "version": "v0.19.0",
     "note": "LazyTrae hooks configuration. Five configured Trae events invoke eight local scripts: SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, and Stop. PostCompact is handled through SessionStart recovery detection and UserPromptSubmit context-pressure markers.",
     "safety": "All hooks exit 0 always. They never block Trae operations. No network calls — pure local file I/O.",
     "postcompact_gap": "Trae has no PostCompact event. LazyTrae uses SessionStart to detect post_compact_recovery_needed and UserPromptSubmit to detect context-pressure markers."

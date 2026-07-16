@@ -55,7 +55,7 @@ For each QA scenario in the plan, execute through the specified channel and capt
 
 ### Plan Under Verification
 
-- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
+- **Plan file**: `<plan-file>`
 - **Task ID**: `task-1`
 - **Task description**: Create `.lazytrae/config.json`
 

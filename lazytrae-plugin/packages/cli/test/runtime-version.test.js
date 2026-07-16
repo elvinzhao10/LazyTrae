@@ -6,7 +6,7 @@ const test = require('node:test');
 const expectedVersion = require('../package.json').version;
 const packagedMcp = require('../src/mcp');
 const sourceMcp = require('../../mcp/src');
-const RELEASE_VERSION = '0.18.0';
+const RELEASE_VERSION = '0.19.0';
 
 function initializeVersion(server) {
   let output = '';
@@ -23,12 +23,12 @@ function initializeVersion(server) {
   return JSON.parse(output).result.serverInfo.version;
 }
 
-test('all LazyTrae MCP runtime entry points report the v0.18.0 package version', () => {
+test('all LazyTrae MCP runtime entry points report the v0.19.0 package version', () => {
   assert.equal(initializeVersion(packagedMcp), expectedVersion);
   assert.equal(initializeVersion(sourceMcp), expectedVersion);
 });
 
-test('v0.18.0 package release identities are consistent', () => {
+test('v0.19.0 package release identities are consistent', () => {
   assert.equal(expectedVersion, RELEASE_VERSION);
   assert.equal(require('../../mcp/package.json').version, RELEASE_VERSION);
 
@@ -49,7 +49,6 @@ test('v0.18.0 package release identities are consistent', () => {
     '../templates/AGENTS.md',
     '../../../.trae/hooks.json',
     '../../../.trae/mcp.json',
-    '../contracts/automatic-tooling-contract.v1.json',
     '../package.json',
     '../../mcp/package.json',
     '../tooling/package.json',
@@ -65,7 +64,7 @@ test('v0.18.0 package release identities are consistent', () => {
   for (const relativePath of releasePaths) {
     const contents = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
     assert.doesNotMatch(contents, /0\.16\.0-alpha\.1/, `${relativePath} retained the prior release identity`);
-    assert.match(contents, /0\.18\.0/, `${relativePath} omitted v0.18.0`);
+    assert.match(contents, /0\.19\.0/, `${relativePath} omitted v0.19.0`);
   }
 
   const notice = fs.readFileSync(path.join(__dirname, '../../../../NOTICE'), 'utf8');
@@ -85,7 +84,6 @@ test('active package Trae configuration declares the current release version', (
 test('active shipped runtime and template files contain no v0.7 release labels', () => {
   const activePaths = [
     '../src/lib/trae-checks.js',
-    '../templates/evidence/handoff.md',
     '../templates/hooks/dynamic-rules.sh',
     '../templates/hooks/post-tool-use.sh',
     '../templates/hooks/pre-tool-use.sh',
@@ -103,7 +101,7 @@ test('active shipped runtime and template files contain no v0.7 release labels',
   for (const relativePath of activePaths) {
     const contents = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
     assert.doesNotMatch(contents, /v0\.7\b/, `${relativePath} retained a superseded runtime release label`);
-    assert.match(contents, /v0\.18\.0\b/, `${relativePath} omitted the current runtime release label`);
+    assert.match(contents, /v0\.19\.0\b/, `${relativePath} omitted the current runtime release label`);
   }
 });
 
@@ -114,7 +112,7 @@ test('MCP entry points reject malformed input without misreporting their release
       encoding: 'utf8',
     });
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stderr, /LazyTrae MCP server v0\.18\.0 started/);
+    assert.match(result.stderr, /LazyTrae MCP server v0\.19\.0 started/);
     assert.match(result.stdout, /"code":-32700/);
     assert.doesNotMatch(result.stdout, /0\.16\.0-alpha\.1/);
   }

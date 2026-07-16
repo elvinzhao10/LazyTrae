@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v0.18.0 — UserPromptSubmit hook
+# LazyTrae v0.19.0 — UserPromptSubmit hook
 # Detects ulw/ultrawork keywords, ulw-loop steering, and context-pressure markers.
 # Detect ultrawork triggers, ulw-loop steering, and rule reinjection needs.
 # Always exits 0 — never blocks a session.

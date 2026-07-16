@@ -74,7 +74,7 @@
 
 ### Current State
 
-- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
+- **Plan file**: `<plan-file>`
 - **Tasks completed**: 10/10
 - **Current task**: None (all complete)
 - **Active loop**: Inactive
@@ -90,9 +90,7 @@
 
 ### Remaining Gaps
 
-- No automated schema validation CLI (deferred to v0.6).
-- No runtime loop execution (deferred to v0.9).
-- No hook integration for state persistence (deferred to v0.18.0).
+- `<remaining gap or none>`
 
 ### Blockers
 
@@ -101,8 +99,5 @@
 ### Next Prompt
 
 ```
-LazyTrae v0.6 — CLI Installer and Doctor.
-
-Read plan/v0.6-cli-installer.md for the full execution prompt.
-Implement `lazytrae init`, `lazytrae doctor`, `lazytrae sync`, `lazytrae verify`, `lazytrae handoff`, and `lazytrae uninstall`.
+Continue with `<next task>` from `<plan-file>` and preserve the recorded evidence boundary.
 ```

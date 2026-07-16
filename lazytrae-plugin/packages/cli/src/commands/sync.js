@@ -30,7 +30,7 @@ Options:
 
   const summary = { updated: [], skipped: [] };
 
-  console.log(`LazyTrae sync v0.18.0`);
+  console.log(`LazyTrae sync v0.19.0`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   for (const relativePath of ['.lazytrae/plans', '.lazytrae/loop']) {

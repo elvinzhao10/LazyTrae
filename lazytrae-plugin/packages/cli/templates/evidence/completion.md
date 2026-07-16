@@ -67,7 +67,7 @@ Evidence:
 
 ### Completion Claim
 
-- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
+- **Plan file**: `<plan-file>`
 - **Completed at**: 2026-07-09T12:00:00Z
 - **Completed by**: session-abc123
 
@@ -106,7 +106,7 @@ Evidence:
 ```
 COMPLETION CLAIMED
 
-Plan: .lazytrae/plans/v0.5-state-machine.md
+Plan: <plan-file>
 Tasks: 10/10 complete
 Verification: ALL 5 GATES PASS
 Reviewer: APPROVE

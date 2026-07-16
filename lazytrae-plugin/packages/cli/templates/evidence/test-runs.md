@@ -50,7 +50,7 @@
 
 ### Plan Under Verification
 
-- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
+- **Plan file**: `<plan-file>`
 - **Task ID**: `task-1`
 - **Task description**: Create `.lazytrae/config.json`
 

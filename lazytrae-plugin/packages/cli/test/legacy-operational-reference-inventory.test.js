@@ -5,24 +5,6 @@ const test = require('node:test');
 const { MONOREPO_ROOT, REPO_ROOT, runCli } = require('./test-helpers');
 
 const LEGACY_REFERENCE = /lazycodex|\bomo\b|dev\/reference\/lazycodex|old checkout|reference\/lazycodex/i;
-const PRESENT_TENSE_ATTRIBUTIONS = new Map([
-  ['README.md', `It is primarily inspired by LazyCodex
-([upstream project](https://github.com/code-yeongyu/lazycodex));
-[NOTICE](NOTICE) records the related OmO upstream attribution. LazyTrae is an
-independent implementation and does not require LazyCodex or OmO at runtime.`],
-  ['AGENTS.md', `It is primarily inspired by LazyCodex, with OmO and upstream
-attribution recorded in [NOTICE](NOTICE). It is an independent implementation
-and does not require LazyCodex or OmO at runtime.`],
-  ['lazytrae-evaluation.md', `It is
-primarily inspired by LazyCodex
-([upstream project](https://github.com/code-yeongyu/lazycodex)). OmO upstream
-attribution is recorded in [NOTICE](NOTICE). The package is an independent
-implementation and does not require LazyCodex or OmO at runtime.`],
-  ['packages/cli/README.md', `It is
-primarily inspired by LazyCodex. Its package-local [NOTICE](NOTICE) records
-the LazyCodex and OmO upstream attribution; it is an independent implementation
-and does not require LazyCodex or OmO at runtime.`],
-]);
 const HISTORICAL_ARCHIVES = new Set([
   'docs/archive/lazytrae-diagnosis-evaluation-vs-lazycodex-lazyworkbuddy.md',
   'docs/archive/lazytrae-dogfood-plan.md',
@@ -31,29 +13,6 @@ const HISTORICAL_ARCHIVES = new Set([
 const HISTORICAL_BANNER = /^> \*\*Historical record \(non-operational\):\*\*/m;
 const UNSUPPORTED_HOST_API = /\b(?:SearchCodebase|RunCommand|WebSearch|WebFetch|Defuddle|TodoWrite|OpenPreview)\b/;
 const EXTERNAL_CAPABILITIES = ['context7', 'grep_app', 'filesystem', 'playwright'];
-const REQUIRED_ROOT_DOCUMENTATION_PATHS = [
-  'docs/README.md',
-  'docs/00-learning-path.md',
-  'docs/01-mental-model.md',
-  'docs/02-first-task.md',
-  'docs/03-install-and-host-verification.md',
-  'docs/04-workflow-playbooks.md',
-  'docs/05-evidence-and-completion.md',
-  'docs/06-capabilities-and-approvals.md',
-  'docs/07-package-map.md',
-  'docs/08-safe-removal.md',
-  'docs/06a-security-and-authority.md',
-  'docs/06b-receipts-and-owned-tooling.md',
-  'docs/07a-state-and-validation.md',
-  'docs/07b-mcp-lifecycle.md',
-  'docs/09-test-and-release-verification.md',
-  'docs/10-host-capability-matrix.md',
-  'docs/reference/host-routes.md',
-  'docs/reference/mcp-inventory.md',
-  'docs/reference/state-artifact-reference.md',
-  'docs/reference/verification-contract.md',
-  'docs/reference/terminology.md',
-];
 
 function walkFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -68,14 +27,9 @@ function relativeFromRepo(filePath) {
 
 function legacyReferenceOffenders(records) {
   return records
-    .filter(({ relativePath, content }) => LEGACY_REFERENCE.test(removePermittedAttribution(relativePath, content)) && !isHistoricalArchiveRecord(relativePath, content))
+    .filter(({ relativePath, content }) => LEGACY_REFERENCE.test(content) && !isHistoricalArchiveRecord(relativePath, content))
     .map(({ relativePath }) => relativePath)
     .sort();
-}
-
-function removePermittedAttribution(relativePath, content) {
-  const attribution = PRESENT_TENSE_ATTRIBUTIONS.get(relativePath);
-  return attribution === undefined ? content : content.replace(attribution, '');
 }
 
 function isHistoricalArchiveRecord(relativePath, content) {
@@ -122,7 +76,6 @@ test('legacy-reference inventory rejects active guidance and unlabeled archives'
 
 const OPERATIONAL_SOURCES = [
   'packages/cli/package.json',
-  'packages/cli/README.md',
   'packages/cli/src/index.js',
   'packages/cli/src/commands/loop.js',
   'packages/cli/src/lib/loop-quality.js',
@@ -143,23 +96,14 @@ test('operational CLI and MCP sources use LazyTrae-native names', () => {
 
   for (const relativePath of OPERATIONAL_SOURCES) {
     const source = fs.readFileSync(path.join(REPO_ROOT, relativePath), 'utf8');
-    assert.doesNotMatch(removePermittedAttribution(relativePath, source), /lazycodex|\bomo\b/i, relativePath);
+    assert.doesNotMatch(source, /lazycodex|\bomo\b/i, relativePath);
   }
 });
 
-test('active installable surfaces, documentation, and runtime source allow only named historical records', () => {
-  for (const relativePath of REQUIRED_ROOT_DOCUMENTATION_PATHS) {
-    assert.equal(fs.existsSync(path.join(MONOREPO_ROOT, relativePath)), true, `required root documentation is missing: ${relativePath}`);
-  }
-
+test('active installable surfaces and runtime source use independent native identities', () => {
   const inventory = inventoryRecords([
-    path.join(MONOREPO_ROOT, 'AGENTS.md'),
-    path.join(MONOREPO_ROOT, 'README.md'),
-    path.join(MONOREPO_ROOT, 'lazytrae-evaluation.md'),
-    path.join(MONOREPO_ROOT, 'docs'),
     path.join(REPO_ROOT, '.trae'),
     path.join(REPO_ROOT, '.lazytrae'),
-    path.join(REPO_ROOT, 'packages/cli/AGENTS.md'),
     path.join(REPO_ROOT, 'packages/cli/templates'),
     path.join(REPO_ROOT, 'packages/cli/src'),
     path.join(REPO_ROOT, 'packages/mcp/src'),
@@ -189,13 +133,7 @@ test('published guidance matches the explicit external-capability contract', () 
   const packageReadme = fs.readFileSync(path.join(REPO_ROOT, 'packages/cli/README.md'), 'utf8');
   assert.match(packageReadme, /8 MCP declarations; one executable core server and seven disabled placeholders/);
 
-  const rootReadme = fs.readFileSync(path.join(MONOREPO_ROOT, 'README.md'), 'utf8');
-  assert.match(rootReadme, /\| CLI \| 17 \|/);
-
   const guidance = inventoryRecords([
-    path.join(MONOREPO_ROOT, 'AGENTS.md'),
-    path.join(MONOREPO_ROOT, 'README.md'),
-    path.join(MONOREPO_ROOT, 'lazytrae-evaluation.md'),
     path.join(REPO_ROOT, 'packages/cli/README.md'),
     path.join(REPO_ROOT, '.trae/agents'),
     path.join(REPO_ROOT, '.trae/skills'),
@@ -203,7 +141,10 @@ test('published guidance matches the explicit external-capability contract', () 
     path.join(templateRoot, 'skills'),
   ]);
   for (const record of guidance) {
+    const dependencyClaims = record.content.replace(/does not require[^.\n]*/gi, '');
     assert.doesNotMatch(record.content, UNSUPPORTED_HOST_API, `${record.relativePath} names an unsupported host API`);
     assert.doesNotMatch(record.content, /\.omo\//, `${record.relativePath} retains an obsolete operational path`);
+    assert.doesNotMatch(dependencyClaims, /(?:requires?|depends? on)[^\n]*(?:LazyCodex|\bOmO\b)|(?:LazyCodex|\bOmO\b)[^\n]*(?:required|dependency)/i,
+      `${record.relativePath} claims an upstream runtime dependency`);
   }
 });

@@ -18,5 +18,8 @@ jobs:
         with:
           node-version: 22
       - run: npm ci --ignore-scripts
-      - run: npm test
+      - name: Package and operational checks
+        run: npm test
+      - name: Publication documentation checks
+        run: npm run test:publication
       - run: npm pack --dry-run --json

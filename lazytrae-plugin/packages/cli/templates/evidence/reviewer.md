@@ -125,7 +125,7 @@ For each applicable adversarial class, run the specific probe and record the res
 
 ### Plan Under Review
 
-- **Plan file**: `.lazytrae/plans/v0.5-state-machine.md`
+- **Plan file**: `<plan-file>`
 - **Reviewer**: Oracle
 - **Date**: 2026-07-09
 
