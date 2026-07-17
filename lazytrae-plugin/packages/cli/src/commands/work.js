@@ -1,6 +1,13 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const {
+  assertSafeSkillPath,
+  installWorkSkills,
+  rejectHardLinkedFile,
+  rejectSymlink,
+  skillState: readSkillState,
+} = require('../lib/work-skill-transaction');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'templates');
 const WORK_SKILLS_DIR_ENV = 'LAZYTRAE_WORK_SKILLS_DIR';
@@ -49,43 +56,10 @@ function listSkills() {
     .sort();
 }
 
-function rejectSymlink(target) {
-  try {
-    if (!fs.lstatSync(target).isSymbolicLink()) return;
-    throw new Error(`Refusing to write through symlinked global skill path: ${target}`);
-  } catch (error) {
-    if (error.code === 'ENOENT') return;
-    throw error;
-  }
-}
-
-function rejectHardLinkedFile(target) {
-  try {
-    const stat = fs.lstatSync(target);
-    if (!stat.isFile() || stat.nlink <= 1) return;
-    throw new Error(`Refusing to write through hard-linked global skill file: ${target}`);
-  } catch (error) {
-    if (error.code === 'ENOENT') return;
-    throw error;
-  }
-}
-
-function assertSafeSkillPath(skillsDir, name) {
-  const destinationDir = path.join(skillsDir, name);
-  const destination = path.join(destinationDir, 'SKILL.md');
-  rejectSymlink(skillsDir);
-  rejectSymlink(destinationDir);
-  rejectSymlink(destination);
-  rejectHardLinkedFile(destination);
-  return { destination, destinationDir };
-}
-
 function skillState(skillsDir, name) {
   const source = path.join(TEMPLATES_DIR, 'skills', name, 'SKILL.md');
   const { destination } = assertSafeSkillPath(skillsDir, name);
-  if (!fs.existsSync(destination)) return 'missing';
-  if (fs.readFileSync(source, 'utf-8') === fs.readFileSync(destination, 'utf-8')) return 'current';
-  return 'outdated';
+  return readSkillState(source, destination);
 }
 
 function printMcpReminder() {
@@ -94,29 +68,13 @@ function printMcpReminder() {
 }
 
 function install(skillsDir) {
-  rejectSymlink(skillsDir);
-  fs.mkdirSync(skillsDir, { recursive: true });
-
   const skills = listSkills();
-  for (const name of skills) assertSafeSkillPath(skillsDir, name);
+  const result = installWorkSkills(skillsDir, skills.map(name => ({
+    name,
+    source: path.join(TEMPLATES_DIR, 'skills', name, 'SKILL.md'),
+  })));
 
-  let installed = 0;
-  let updated = 0;
-  let unchanged = 0;
-  for (const name of skills) {
-    const { destination, destinationDir } = assertSafeSkillPath(skillsDir, name);
-    const state = skillState(skillsDir, name);
-    if (state === 'current') {
-      unchanged++;
-      continue;
-    }
-    fs.mkdirSync(destinationDir, { recursive: true });
-    fs.copyFileSync(path.join(TEMPLATES_DIR, 'skills', name, 'SKILL.md'), destination);
-    if (state === 'missing') installed++;
-    else updated++;
-  }
-
-  console.log(`Trae Work global skills: ${installed} installed, ${updated} updated, ${unchanged} already current.`);
+  console.log(`Trae Work global skills: ${result.installed} installed, ${result.updated} updated, ${result.unchanged} already current.`);
   console.log(`Directory: ${skillsDir}`);
   console.log('Restart or reload Trae Work to discover newly copied skills.');
   printMcpReminder();

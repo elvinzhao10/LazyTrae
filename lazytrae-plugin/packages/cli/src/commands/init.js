@@ -11,11 +11,14 @@ const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
 
 function detectRepoRoot() {
   let dir = process.cwd();
-  while (dir !== path.dirname(dir)) {
+  while (true) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;
-    dir = path.dirname(dir);
+    const parent = path.dirname(dir);
+    if (parent === dir) {
+      throw new Error('LazyTrae init must run inside a Git project (no ancestor .git found).');
+    }
+    dir = parent;
   }
-  return process.cwd();
 }
 
 function readHost(args) {
@@ -263,14 +266,19 @@ Options:
     console.log('\nSkipped:');
     summary.skipped.forEach(s => console.log(`  - ${s}`));
   }
-  console.log('\nDone.');
+  if (process.exitCode) return process.exitCode;
   if (host === 'work') {
     work.install(workSkillsDir);
   }
   const loadCheckArgs = ['--host', host];
   const loadCheck = () => require('./load-check').run(loadCheckArgs);
   const loadStatus = work ? work.withSkillsDirOverride(workSkillsDir, loadCheck) : loadCheck();
-  if (loadStatus !== 0) process.exitCode = loadStatus;
+  if (loadStatus !== 0) {
+    process.exitCode = loadStatus;
+    return loadStatus;
+  }
+  console.log('\nDone.');
+  return 0;
 }
 
 module.exports = { readHost, run };
