@@ -11,6 +11,15 @@ All notable public changes to LazyTrae are documented here. Versions follow
   identities for the v1.0.2 release.
 - Prepared all six package and lockfile pairs for reproducible publication.
 
+### Fixed
+
+- Refused initialization without an ancestor Git project before any mutation,
+  preventing accidental wrong-parent changes.
+- Delayed the terminal `Done.` message until Work installation and load-check
+  both succeed.
+- Made Work skill installation rollback transaction-owned writes while
+  preserving concurrent or replaced caller content and allowing clean retry.
+
 ## [1.0.1] - 2026-07-17
 
 ### Fixed
