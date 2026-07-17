@@ -51,7 +51,7 @@
 
 ## Version Numbering
 
-All versions use the `v0.x` scheme. Do not use `v1.x`, `v2.x`, etc.
+Use semantic versioning. Stable releases use `v1.x` and later tags.
 
 ## Key References
 

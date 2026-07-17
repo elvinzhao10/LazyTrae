@@ -1,0 +1,55 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels: [dependencies, maintenance]
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /lazytrae-plugin/packages/cli
+    schedule:
+      interval: weekly
+      day: monday
+    labels: [dependencies]
+    groups:
+      cli:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /lazytrae-plugin/packages/mcp
+    schedule:
+      interval: weekly
+      day: monday
+    labels: [dependencies]
+    groups:
+      mcp:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /lazytrae-plugin/packages/cli/tooling
+    schedule:
+      interval: monthly
+    labels: [dependencies]
+
+  - package-ecosystem: npm
+    directory: /lazytrae-plugin/packages/cli/tooling/codegraph
+    schedule:
+      interval: monthly
+    labels: [dependencies]
+
+  - package-ecosystem: npm
+    directory: /lazytrae-plugin/packages/cli/tooling/lsp/python
+    schedule:
+      interval: monthly
+    labels: [dependencies]
+
+  - package-ecosystem: npm
+    directory: /lazytrae-plugin/packages/cli/tooling/lsp/typescript
+    schedule:
+      interval: monthly
+    labels: [dependencies]

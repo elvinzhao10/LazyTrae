@@ -32,7 +32,7 @@ them.
 
 ## CONVENTIONS
 
-- Versioning: `v0.x` scheme only.
+- Versioning: semantic versioning; stable releases use `v1.x` and later tags.
 - CLI files ≤250 lines; hook scripts ≤100 lines.
 - Conventional commits, atomic changes.
 - State files use JSON Schema validation.
@@ -87,16 +87,19 @@ When the user types `offboard`:
 ## Install
 
 ```bash
-git clone https://github.com/elvinzhao10/LazyTrae.git
+git clone --branch v1.0.0 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
+cd LazyTrae
+npm install --global ./lazytrae-plugin/packages/cli
 cd /path/to/your/project
 lazytrae init --host ide
 lazytrae load-check --host ide
 ```
 
-The copied repository is enough to inspect workflow files, but the separate
-`lazytrae` companion supplies the installer, verification gate, and local MCP
-server. Its self-contained installed package does not require a source checkout
-after installation. If it is absent, use this repo-only project configuration fallback:
+The local package installation above supplies the `lazytrae` companion,
+verification gate, and local MCP server from the checked-out v1.0.0 source. Its
+self-contained installed package does not require the source checkout during
+normal use. If the command is absent, use this repo-only project configuration
+fallback from the LazyTrae checkout:
 
 ```bash
 node /path/to/LazyTrae/lazytrae-plugin/packages/cli/src/index.js init --host ide
