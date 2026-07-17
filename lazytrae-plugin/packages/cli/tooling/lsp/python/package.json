@@ -1,0 +1,12 @@
+{
+  "name": "@lazyseries/lazytrae-lsp-python",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Locked Python LSP provider for LazyTrae.",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "basedpyright": "1.39.9"
+  }
+}

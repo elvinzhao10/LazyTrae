@@ -1,0 +1,62 @@
+# LazyTrae .gitignore
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime state (samples live in other/)
+lazytrae-plugin/.lazytrae/state/
+lazytrae-plugin/.lazytrae/logs/
+lazytrae-plugin/.lazytrae/evidence/
+
+# OmO compatibility state (samples live in other/)
+other/omo/boulder.json
+other/omo/ulw-loop/*/goals.json
+other/omo/ulw-loop/*/evidence.jsonl
+other/omo/ulw-loop/*/checkpoints.jsonl
+
+# Private local reference material (public docs/ paths are intentionally tracked).
+# Reference clone (MIT-licensed upstream, too large for repo)
+dev/
+
+# Host-specific symlink (non-portable)
+.codegraph
+
+# Local LazyTrae installation generated while developing the release package.
+/.trae/
+/.lazytrae/
+/.omo/
+/.trae
+/.lazytrae
+
+# lazytrae:managed:start:gitignore
+# LazyTrae runtime (managed by lazytrae init)
+.lazytrae/state/
+.lazytrae/logs/
+.lazytrae/evidence/
+# lazytrae:managed:end:gitignore

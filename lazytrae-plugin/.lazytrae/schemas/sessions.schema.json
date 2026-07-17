@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lazytrae.ai/schemas/sessions.schema.json",
+  "title": "Sessions State Schema",
+  "description": "LazyTrae session and post-compact recovery tracking state.",
+  "type": "object",
+  "required": ["schema_version", "current_session_id", "sessions", "compaction_state"],
+  "properties": {
+    "schema_version": { "type": "integer" },
+    "current_session_id": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "description": "Null when no session is active; otherwise a non-empty session identifier."
+    },
+    "sessions": { "type": "object" },
+    "compaction_state": {
+      "type": "object",
+      "required": ["last_compaction_at", "compaction_count", "post_compact_recovery_needed"],
+      "properties": {
+        "last_compaction_at": { "type": ["string", "null"], "format": "date-time" },
+        "compaction_count": { "type": "integer", "minimum": 0 },
+        "post_compact_recovery_needed": { "type": "boolean" },
+        "recovery_reason": { "type": ["string", "null"] },
+        "recovery_detected_at": { "type": ["string", "null"], "format": "date-time" },
+        "post_compact_recovered_at": { "type": ["string", "null"], "format": "date-time" },
+        "last_injected_rules_hash": { "type": ["string", "null"] },
+        "recovery_events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["at", "action"],
+            "properties": {
+              "at": { "type": "string", "format": "date-time" },
+              "action": { "type": "string" },
+              "reason": { "type": "string" },
+              "last_injected_rules_hash": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "metadata": { "type": "object" },
+    "_schema": { "type": "string" },
+    "_example": { "type": "object" }
+  },
+  "additionalProperties": true
+}

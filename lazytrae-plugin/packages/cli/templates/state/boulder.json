@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "active_work_id": null,
+  "works": {},
+  "metadata": {
+    "created_at": "2026-07-09T00:00:00Z",
+    "updated_at": "2026-07-09T00:00:00Z",
+    "description": "LazyTrae Boulder state — durable plan task tracker. Each work entry tracks an active plan, its tasks, evidence, blockers, and session ids."
+  },
+  "_schema": "See .lazytrae/schemas/boulder.schema.json for validation rules."
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lazytrae.ai/schemas/evidence.schema.json",
+  "title": "Evidence Record Schema",
+  "description": "LazyTrae evidence-record schema for verification evidence.",
+  "type": "object",
+  "required": ["gate_type", "recorded_at", "recorded_by"],
+  "properties": {
+    "gate_type": {
+      "type": "string",
+      "description": "Type of evidence gate this record is for.",
+      "enum": ["plan_reread", "automated_verification", "manual_qa", "adversarial_qa", "cleanup"]
+    },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "recorded_by": { "type": "string", "description": "Session ID that recorded this evidence." },
+    "plan_path": { "type": "string", "description": "Path to the plan file." },
+    "task_id": { "type": "string", "description": "Task ID this evidence is for." },
+    "commands": {
+      "type": "array",
+      "description": "List of commands that were executed.",
+      "items": { "$ref": "#/definitions/CommandRecord" }
+    },
+    "outputs": {
+      "type": "array",
+      "description": "Captured output from each command.",
+      "items": { "type": "string" }
+    },
+    "exit_status": {
+      "type": "object",
+      "description": "Exit status code for each command.",
+      "additionalProperties": { "type": "integer" }
+    },
+    "changed_files": {
+      "type": "array",
+      "description": "List of files changed in this step.",
+      "items": { "type": "string" }
+    },
+    "manual_checks": {
+      "type": "array",
+      "description": "Manual-QA results for each scenario.",
+      "items": { "$ref": "#/definitions/ManualCheck" }
+    },
+    "reviewer_findings": {
+      "type": "array",
+      "description": "Reviewer findings from adversarial or oracle review.",
+      "items": { "$ref": "#/definitions/ReviewerFinding" }
+    },
+    "verdict": {
+      "type": "string",
+      "description": "Overall verdict for this gate.",
+      "enum": ["pass", "fail", "blocked"]
+    },
+    "notes": { "type": "string", "description": "Additional notes." }
+  },
+  "definitions": {
+    "CommandRecord": {
+      "type": "object",
+      "required": ["command"],
+      "properties": {
+        "command": { "type": "string", "description": "The full command string that was executed." },
+        "description": { "type": "string", "description": "What this command does (for documentation)." },
+        "expected_exit_code": { "type": "integer", "description": "Expected exit code for success." }
+      }
+    },
+    "ManualCheck": {
+      "type": "object",
+      "required": ["scenario", "channel", "invocation", "expected", "actual", "verdict"],
+      "properties": {
+        "scenario": { "type": "string", "description": "Name/description of the QA scenario." },
+        "channel": {
+          "type": "string",
+          "description": "Manual-QA channel: cli, http, tmux, browser, data.",
+          "enum": ["cli", "http", "tmux", "browser", "gui", "data"]
+        },
+        "invocation": { "type": "string", "description": "Exact invocation (command or action)." },
+        "expected": { "type": "string", "description": "Expected outcome." },
+        "actual": { "type": "string", "description": "Actual outcome observed." },
+        "verdict": {
+          "type": "string",
+          "enum": ["pass", "fail"],
+          "description": "Whether the check passed."
+        },
+        "evidence_path": { "type": "string", "description": "Path to the captured evidence artifact." }
+      }
+    },
+    "ReviewerFinding": {
+      "type": "object",
+      "required": ["category", "finding", "severity"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Category of the finding: malformed_input, prompt_injection, cancel_resume, stale_state, dirty_worktree, hung_commands, flaky_tests, misleading_output, repeated_interruptions."
+        },
+        "finding": { "type": "string", "description": "Description of the finding." },
+        "severity": {
+          "type": "string",
+          "enum": ["pass", "info", "warning", "fail"],
+          "description": "Severity of the finding. fail = blocking."
+        },
+        "evidence_path": { "type": "string", "description": "Path to evidence for this finding." }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "current_session_id": null,
+  "sessions": {},
+  "compaction_state": {
+    "last_compaction_at": null,
+    "compaction_count": 0,
+    "post_compact_recovery_needed": false,
+    "recovery_reason": null,
+    "recovery_detected_at": null,
+    "post_compact_recovered_at": null,
+    "last_injected_rules_hash": null,
+    "recovery_events": []
+  },
+  "metadata": {
+    "description": "LazyTrae session tracking for active sessions, compaction state, and cross-session continuation.",
+    "lock_mechanism": "File-based mutation lock (mkdir-based, 20 retries, 5ms delay)."
+  },
+  "_schema": "See .lazytrae/schemas/ for validation rules."
+}

@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  cli:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: lazytrae-plugin/packages/cli
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - name: Package and operational checks
+        run: npm test
+      - name: Publication documentation checks
+        run: npm run test:publication
+      - run: npm pack --dry-run --json

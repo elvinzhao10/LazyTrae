@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "lazytrae": {
+      "command": "lazytrae",
+      "args": ["mcp"],
+      "description": "LazyTrae state, evidence, handoff, and local context MCP server — exposes 15 tools including heuristic symbol/reference/docs/dependency helpers"
+    },
+    "grep_app": {
+      "required": false,
+      "disabled": true,
+      "description": "Experimental optional grep_app public-code MCP. Enable with lazytrae tooling enable grep_app."
+    },
+    "context7": {
+      "required": false,
+      "disabled": true,
+      "description": "Optional Context7 library documentation MCP. Enable with lazytrae tooling enable context7; credentials stay in the host environment."
+    },
+    "filesystem": {
+      "required": false,
+      "disabled": true,
+      "description": "Optional project-scoped filesystem MCP. Enable with lazytrae tooling enable filesystem."
+    },
+    "git": {
+      "required": false,
+      "disabled": true,
+      "description": "Git operations MCP server — disabled manual option. The former package name is no longer published; install and configure a reviewed Git MCP server explicitly before enabling it."
+    },
+    "playwright": {
+      "required": false,
+      "disabled": true,
+      "description": "Optional Playwright browser MCP. Enable with lazytrae tooling enable playwright."
+    },
+    "ast_grep": {
+      "required": false,
+      "disabled": true,
+      "description": "Structural code search via ast-grep — disabled manual option. The former package name is no longer published; install and configure a reviewed MCP server explicitly before enabling it."
+    },
+    "lsp": {
+      "required": false,
+      "disabled": true,
+      "description": "Managed read-only LSP bridge — opt in with an explicit target and tooling root: lazytrae lsp --target <absolute-project-path> --tooling-root <absolute-owned-root>. It provisions only TypeScript/JavaScript or Python providers when requested and never mutates the target project."
+    }
+  },
+  "lazytrae": {
+    "description": "LazyTrae MCP configuration template for v1.0.0. The base configuration has one executable 'lazytrae' core server and seven disabled placeholders. Context7, grep_app, filesystem, and Playwright require explicit lazytrae tooling enable commands and are created as namespaced lazytrae_* servers. The core server provides 15 state, evidence, handoff, and local context tools after connection.",
+    "note": "Required: false servers are optional and will not cause errors if unavailable. Disable unwanted servers by setting 'disabled': true."
+  }
+}
