@@ -54,12 +54,17 @@ jobs:
           package_file="$(npm pack --json | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename));')"
           mv "$package_file" "lazytrae-ai-${RELEASE_TAG}.tgz"
 
-      - name: Publish immutable release entry
+      - name: Publish release entry and missing asset
         run: |
+          asset_name="lazytrae-ai-${RELEASE_TAG}.tgz"
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            echo "Release $RELEASE_TAG already exists; leaving it unchanged."
+            if gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' | grep -Fxq "$asset_name"; then
+              echo "Release $RELEASE_TAG already contains $asset_name; leaving it unchanged."
+            else
+              gh release upload "$RELEASE_TAG" "$asset_name"
+            fi
           else
-            gh release create "$RELEASE_TAG" "lazytrae-ai-${RELEASE_TAG}.tgz" \
+            gh release create "$RELEASE_TAG" "$asset_name" \
               --verify-tag \
               --generate-notes \
               --title "LazyTrae $RELEASE_TAG"
