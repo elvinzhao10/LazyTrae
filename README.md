@@ -43,21 +43,21 @@ a package readiness result into a claim about a running Trae host.
 
 ## Install and onboard
 
-LazyTrae v1.0.1 is installed from this repository because the companion CLI is
+LazyTrae v1.0.2 is installed from this repository because the companion CLI is
 not yet published to npm. You need macOS, Node.js 18 or newer, npm, and one of
 the supported Trae surfaces.
 
-1. Download the reviewed v1.0.1 source and install its CLI:
+1. Download the reviewed v1.0.2 source and install its CLI:
 
 ```bash
-git clone --branch v1.0.1 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
+git clone --branch v1.0.2 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
 cd LazyTrae
 npm install --global ./lazytrae-plugin/packages/cli
 ```
 
 You can review the source on the [LazyTrae repository](https://github.com/elvinzhao10/LazyTrae)
 or download the packaged archive and read the detailed notes on the
-[v1.0.1 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.1).
+[v1.0.2 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.2).
 
 2. Initialize the project where you want to use LazyTrae. Run this from that
 project's root, not from the LazyTrae source checkout:

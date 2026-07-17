@@ -87,7 +87,7 @@ When the user types `offboard`:
 ## Install
 
 ```bash
-git clone --branch v1.0.1 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
+git clone --branch v1.0.2 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
 cd LazyTrae
 npm install --global ./lazytrae-plugin/packages/cli
 cd /path/to/your/project
@@ -96,7 +96,7 @@ lazytrae load-check --host ide
 ```
 
 The local package installation above supplies the `lazytrae` companion,
-verification gate, and local MCP server from the checked-out v1.0.1 source. Its
+verification gate, and local MCP server from the checked-out v1.0.2 source. Its
 self-contained installed package does not require the source checkout during
 normal use. If the command is absent, use this repo-only project configuration
 fallback from the LazyTrae checkout:

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.0.1 — SessionStart hook
+# LazyTrae v1.0.2 — SessionStart hook
 # Reads state files and outputs active plan/loop/blockers/next action.
 # Load rules and bootstrap the session; CodeGraph remains optional.
 # Always exits 0 — never blocks a session.
@@ -67,7 +67,7 @@ fi
 
 # Output
 cat <<LAZYTRAE_SESSION_START
-[LazyTrae v1.0.1] Session started.
+[LazyTrae v1.0.2] Session started.
 
 Active plan: $active_plan
 Current task: $current_task
