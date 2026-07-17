@@ -57,6 +57,14 @@ const CURRENT_RELEASE_PATHS = [
   '../../mcp/test/json-rpc.test.js',
 ];
 
+const REGEX_EXPECTATION_PATHS = [
+  {
+    relativePath: '../test/documentation-regression.test.js',
+    previous: /1\\\.0\\\.1/,
+    current: /1\\\.0\\\.2/,
+  },
+];
+
 function initializeVersion(server) {
   let output = '';
   const write = process.stdout.write;
@@ -86,6 +94,12 @@ test(`v${RELEASE_VERSION} package release identities are consistent`, () => {
     assert.doesNotMatch(contents, /0\.16\.0-alpha\.1/, `${relativePath} retained the prior release identity`);
     assert.doesNotMatch(contents, new RegExp(previousReleaseVersion.replaceAll('.', '\\.')), `${relativePath} retained the previous current release`);
     assert.match(contents, new RegExp(RELEASE_VERSION.replaceAll('.', '\\.')), `${relativePath} omitted v${RELEASE_VERSION}`);
+  }
+
+  for (const { relativePath, previous, current } of REGEX_EXPECTATION_PATHS) {
+    const contents = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
+    assert.doesNotMatch(contents, previous, `${relativePath} retained the previous escaped release expectation`);
+    assert.match(contents, current, `${relativePath} omitted the current escaped release expectation`);
   }
 
   const changelog = fs.readFileSync(path.join(__dirname, '../../../../CHANGELOG.md'), 'utf8');
