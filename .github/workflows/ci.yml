@@ -5,10 +5,19 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   cli:
     runs-on: macos-latest
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: lazytrae-plugin/packages/cli
@@ -17,10 +26,12 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          package-manager-cache: false
+          cache: npm
+          cache-dependency-path: lazytrae-plugin/packages/cli/package-lock.json
       - run: npm ci --ignore-scripts
       - name: Package and operational checks
         run: npm test
       - name: Publication documentation checks
         run: npm run test:publication
       - run: npm pack --dry-run --json
+        name: Verify publishable package contents

@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to release
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: lazytrae-plugin/packages/cli
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: lazytrae-plugin/packages/cli/package-lock.json
+
+      - run: npm ci --ignore-scripts
+
+      - name: Validate release tag and package version
+        run: test "$RELEASE_TAG" = "v$(node -p 'require("./package.json").version')"
+
+      - name: Run package and operational checks
+        run: npm test
+
+      - name: Run publication documentation checks
+        run: npm run test:publication
+
+      - name: Build release package
+        run: |
+          package_file="$(npm pack --json | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename));')"
+          mv "$package_file" "lazytrae-ai-${RELEASE_TAG}.tgz"
+
+      - name: Publish immutable release entry
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists; leaving it unchanged."
+          else
+            gh release create "$RELEASE_TAG" "lazytrae-ai-${RELEASE_TAG}.tgz" \
+              --verify-tag \
+              --generate-notes \
+              --title "LazyTrae $RELEASE_TAG"
+          fi
