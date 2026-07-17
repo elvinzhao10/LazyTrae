@@ -11,14 +11,14 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: release-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  release:
+  verify:
     runs-on: macos-latest
     timeout-minutes: 45
     defaults:
@@ -26,13 +26,13 @@ jobs:
         working-directory: lazytrae-plugin/packages/cli
     env:
       RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
-      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           ref: ${{ env.RELEASE_TAG }}
+          persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: 22
           cache: npm
@@ -54,7 +54,28 @@ jobs:
           package_file="$(npm pack --json | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => console.log(JSON.parse(input)[0].filename));')"
           mv "$package_file" "lazytrae-ai-${RELEASE_TAG}.tgz"
 
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-package-${{ env.RELEASE_TAG }}
+          path: lazytrae-plugin/packages/cli/lazytrae-ai-${{ env.RELEASE_TAG }}.tgz
+          if-no-files-found: error
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-package-${{ env.RELEASE_TAG }}
+
       - name: Publish release entry and missing asset
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           asset_name="lazytrae-ai-${RELEASE_TAG}.tgz"
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then

@@ -2,13 +2,13 @@
   "session_id": "trae:session-abc123",
   "turn_id": "turn-002",
   "transcript_path": null,
-  "cwd": "/Users/Admin/Desktop/lazytrae",
+  "cwd": "/tmp/lazytrae-fixture",
   "hook_event_name": "PreToolUse",
   "model": "claude-sonnet-4",
   "permission_mode": "default",
   "tool_name": "Write",
   "tool_input": {
-    "filePath": "/Users/Admin/Desktop/lazytrae/src/foo.ts",
+    "filePath": "/tmp/lazytrae-fixture/src/foo.ts",
     "content": "// This function does nothing\nexport function foo() {}"
   },
   "tool_use_id": "tool-001"

@@ -105,6 +105,19 @@ test('active shipped runtime and template files contain no v0.7 release labels',
   }
 });
 
+test('active project rules permit stable semantic versions', () => {
+  const rulePaths = [
+    '../../../.trae/rules/lazytrae.md',
+    '../templates/rules/lazytrae.md',
+  ];
+
+  for (const relativePath of rulePaths) {
+    const contents = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
+    assert.match(contents, /Stable releases use `v1\.x` and later tags/);
+    assert.doesNotMatch(contents, /All versions use the `v0\.x` scheme/);
+  }
+});
+
 test('MCP entry points reject malformed input without misreporting their release version', () => {
   for (const entryPoint of ['../src/mcp/index.js', '../../mcp/src/index.js']) {
     const result = require('node:child_process').spawnSync(process.execPath, [path.join(__dirname, entryPoint)], {
