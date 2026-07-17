@@ -52,6 +52,8 @@ function destinationSnapshot(destination) {
   return {
     exists: true,
     content: fs.readFileSync(destination),
+    dev: stat.dev,
+    ino: stat.ino,
     mode: stat.mode & 0o777,
   };
 }
@@ -102,13 +104,18 @@ function rollbackEntry(entry) {
   detachStagedLink(entry);
   if (entry.promoted) {
     const current = destinationSnapshot(entry.destination);
-    if (snapshotsMatch(current, entry.after)) {
+    const transactionOwned = current.exists
+      && current.dev === entry.promotedIdentity.dev
+      && current.ino === entry.promotedIdentity.ino;
+    if (transactionOwned && snapshotsMatch(current, entry.after)) {
       if (entry.before.exists) {
         fs.renameSync(entry.backup, entry.destination);
         entry.originalMoved = false;
       } else {
         fs.unlinkSync(entry.destination);
       }
+    } else if (current.exists) {
+      throw new Error(`Work skill changed or was replaced during rollback; preserved caller content: ${entry.destination}`);
     }
   } else {
     restoreMovedOriginal(entry);
@@ -153,6 +160,8 @@ function promote(entry, mutations, skillsDir) {
     throw new Error(`Work skill changed during promotion; preserved caller content: ${entry.destination}`);
   }
 
+  const staged = fs.lstatSync(entry.next);
+  entry.promotedIdentity = { dev: staged.dev, ino: staged.ino };
   fs.linkSync(entry.next, entry.destination);
   entry.promoted = true;
   entry.stagedLinkExists = true;

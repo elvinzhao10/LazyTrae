@@ -340,6 +340,67 @@ test('Work rollback preserves a concurrent edit to a transaction-owned destinati
   }
 });
 
+test('Work rollback preserves a replacement inode with identical promoted bytes and mode', () => {
+  const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-replaced-inode-'));
+  const [first, second] = listSkills();
+  const firstPath = skillFile(skillsDir, first);
+  const secondPath = skillFile(skillsDir, second);
+  const displacedPath = path.join(skillsDir, '.fixture-promoted-inode');
+  let expectedContent;
+  let expectedMode;
+  let failure;
+  let promotedIdentity;
+  let replacementIdentity;
+  fs.mkdirSync(path.dirname(firstPath), { recursive: true });
+  fs.mkdirSync(path.dirname(secondPath), { recursive: true });
+  fs.writeFileSync(firstPath, 'first stale bytes\n', { mode: 0o640 });
+  fs.writeFileSync(secondPath, 'second stale bytes\n', { mode: 0o600 });
+
+  try {
+    // Given: a caller replaces the first promoted destination with a distinct inode
+    // containing the same bytes and mode before promotion of the second skill fails.
+    try {
+      withPatchedFs('linkSync', (original, source, destination) => {
+        if (destination === secondPath) {
+          const promoted = fs.lstatSync(firstPath);
+          expectedContent = fs.readFileSync(firstPath);
+          expectedMode = promoted.mode & 0o777;
+          promotedIdentity = { dev: promoted.dev, ino: promoted.ino };
+          original(firstPath, displacedPath);
+          fs.unlinkSync(firstPath);
+          fs.writeFileSync(firstPath, expectedContent, { mode: expectedMode });
+          fs.chmodSync(firstPath, expectedMode);
+          const replacement = fs.lstatSync(firstPath);
+          replacementIdentity = { dev: replacement.dev, ino: replacement.ino };
+          fs.unlinkSync(displacedPath);
+          throw new Error('fixture later promotion failure after inode replacement');
+        }
+        return original(source, destination);
+      }, () => install(skillsDir));
+    } catch (error) {
+      failure = error;
+    }
+
+    // When: rollback evaluates ownership and the installation is retried.
+    assert.notDeepEqual(replacementIdentity, promotedIdentity);
+
+    // Then: caller identity and content survive, cleanup completes, and retry reaches 17/17.
+    const preserved = fs.lstatSync(firstPath);
+    assert.deepEqual({ dev: preserved.dev, ino: preserved.ino }, replacementIdentity);
+    assert.ok(failure);
+    assert.match(failure.message, /fixture later promotion failure after inode replacement/);
+    assert.match(failure.message, /preserved caller content/);
+    assert.equal(fs.readFileSync(firstPath).equals(expectedContent), true);
+    assert.equal(preserved.mode & 0o777, expectedMode);
+    assert.deepEqual(stagingEntries(skillsDir), []);
+    install(skillsDir);
+    assert.equal(listSkills().filter(name => skillState(skillsDir, name) === 'current').length, listSkills().length);
+    assert.deepEqual(stagingEntries(skillsDir), []);
+  } finally {
+    fs.rmSync(skillsDir, { recursive: true, force: true });
+  }
+});
+
 test('Work installation reports both promotion and staging-cleanup failures', () => {
   const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-cleanup-failure-'));
   const secondPath = skillFile(skillsDir, listSkills()[1]);
