@@ -41,11 +41,29 @@ The package keeps `.trae/` and `.lazytrae/` project assets separate from host
 settings, credentials, marketplace state, and live sessions. It does not turn
 a package readiness result into a claim about a running Trae host.
 
-## Install, verify, and remove
+## Install and onboard
 
-Open a copied repository in the selected host and type `onboard`, or follow
-the exact host route in [AGENTS.md](AGENTS.md). Run `lazytrae init --host
-ide|work|cli`, then complete the host-specific observation step.
+LazyTrae v1.0.0 is installed from this repository because the companion CLI is
+not yet published to npm. Node.js 18 or newer and npm are required:
+
+```bash
+git clone --branch v1.0.0 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
+cd LazyTrae
+npm install --global ./lazytrae-plugin/packages/cli
+```
+
+The repository link is [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae),
+and downloadable release assets and notes are on the
+[v1.0.0 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.0).
+
+To try LazyTrae in the cloned repository, open that folder in Trae IDE, Trae
+Work, or Trae CLI and type `onboard`. To install it in another project, change
+to that project's root, run `lazytrae init --host ide|work|cli`, open the
+project in the matching host, and type `onboard`. The host-specific checklist
+in [AGENTS.md](AGENTS.md) keeps package readiness separate from the final live
+host and MCP observation.
+
+## Verify and remove
 
 `lazytrae load-check --host ide` reports **package readiness** only. Type
 `offboard` for the safe-removal protocol; it preserves host-managed paths and
@@ -80,3 +98,10 @@ no external harness runtime dependency.
 ## License
 
 [MIT](LICENSE). See [NOTICE](NOTICE) for attribution and provenance.
+
+## Contributing
+
+Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md)
+for the development checks, release expectations, and guidance for reporting
+sanitized reproduction details. Report vulnerabilities privately according to
+[SECURITY.md](SECURITY.md).
