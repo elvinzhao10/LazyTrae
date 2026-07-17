@@ -6,6 +6,15 @@ const path = require('node:path');
 const fixturePrefixes = ['lazytrae-', 'lazyseries-'];
 const suiteRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-suite-'));
 const preload = path.join(__dirname, '..', 'test', 'temp-fixture-cleanup.js');
+const testRoot = path.join(__dirname, '..', 'test');
+
+function selectedTests() {
+  const args = process.argv.slice(2);
+  if (args.length > 0) return args;
+  return fs.readdirSync(testRoot)
+    .filter(entry => entry.endsWith('.js'))
+    .map(entry => path.join(testRoot, entry));
+}
 
 function ownedFixtures() {
   return fs.readdirSync(suiteRoot, { withFileTypes: true })
@@ -20,10 +29,18 @@ try {
     '--require', preload,
     '--test-concurrency=1',
     '--test',
-    ...process.argv.slice(2),
+    ...selectedTests(),
   ], {
     stdio: 'inherit',
-    env: { ...process.env, TMPDIR: suiteRoot, TMP: suiteRoot, TEMP: suiteRoot },
+    env: {
+      ...process.env,
+      TMPDIR: suiteRoot,
+      TMP: suiteRoot,
+      TEMP: suiteRoot,
+      npm_config_cache: path.join(suiteRoot, 'npm-cache'),
+      npm_config_logs_dir: path.join(suiteRoot, 'npm-logs'),
+      npm_config_update_notifier: 'false',
+    },
   });
   status = result.status === null ? 1 : result.status;
   const remaining = ownedFixtures();

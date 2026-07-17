@@ -35,7 +35,7 @@ function handleRequest(req, repoRoot) {
       return send(id, {
         protocolVersion: '2024-11-05',
         capabilities: { tools: {} },
-        serverInfo: { name: 'lazytrae-mcp', version: '1.0.0' },
+        serverInfo: { name: 'lazytrae-mcp', version: '1.0.1' },
       });
     }
 
@@ -101,7 +101,7 @@ function main() {
     process.exit(0);
   });
 
-  process.stderr.write('LazyTrae MCP server v1.0.0 started\n');
+  process.stderr.write('LazyTrae MCP server v1.0.1 started\n');
 }
 
 // Run directly if executed as a script

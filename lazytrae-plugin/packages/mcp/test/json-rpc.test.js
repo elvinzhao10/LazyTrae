@@ -124,7 +124,7 @@ test('stdio MCP serves protocol errors, reads state, and writes receipt evidence
     assert.deepEqual(responses[0], {
       jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' },
     });
-    assert.equal(responses[1].result.serverInfo.version, '1.0.0');
+    assert.equal(responses[1].result.serverInfo.version, '1.0.1');
     assert.deepEqual(responses[2].result.tools.map(tool => tool.name), EXPECTED_TOOL_NAMES);
     assert.deepEqual(responses[3], {
       jsonrpc: '2.0', id: 3, error: { code: -32601, message: 'Unknown tool: missing.tool' },

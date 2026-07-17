@@ -43,25 +43,39 @@ a package readiness result into a claim about a running Trae host.
 
 ## Install and onboard
 
-LazyTrae v1.0.0 is installed from this repository because the companion CLI is
-not yet published to npm. Node.js 18 or newer and npm are required:
+LazyTrae v1.0.1 is installed from this repository because the companion CLI is
+not yet published to npm. You need macOS, Node.js 18 or newer, npm, and one of
+the supported Trae surfaces.
+
+1. Download the reviewed v1.0.1 source and install its CLI:
 
 ```bash
-git clone --branch v1.0.0 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
+git clone --branch v1.0.1 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
 cd LazyTrae
 npm install --global ./lazytrae-plugin/packages/cli
 ```
 
-The repository link is [github.com/elvinzhao10/LazyTrae](https://github.com/elvinzhao10/LazyTrae),
-and downloadable release assets and notes are on the
-[v1.0.0 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.0).
+You can review the source on the [LazyTrae repository](https://github.com/elvinzhao10/LazyTrae)
+or download the packaged archive and read the detailed notes on the
+[v1.0.1 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.1).
 
-To try LazyTrae in the cloned repository, open that folder in Trae IDE, Trae
-Work, or Trae CLI and type `onboard`. To install it in another project, change
-to that project's root, run `lazytrae init --host ide|work|cli`, open the
-project in the matching host, and type `onboard`. The host-specific checklist
-in [AGENTS.md](AGENTS.md) keeps package readiness separate from the final live
-host and MCP observation.
+2. Initialize the project where you want to use LazyTrae. Run this from that
+project's root, not from the LazyTrae source checkout:
+
+```bash
+lazytrae init --host ide
+# Use --host work or --host cli for the other supported surfaces.
+lazytrae load-check --host ide
+```
+
+3. Open the initialized project in the matching Trae surface and type
+`onboard` into the Trae chat. `onboard` is a host prompt, not a shell command.
+Follow the generated checklist until both the package readiness checks and the
+live host/MCP observation pass.
+
+To try LazyTrae in its own source repository, skip step 2, open the cloned
+folder in Trae, and type `onboard`. The host-specific checklist in
+[AGENTS.md](AGENTS.md) explains the final live verification.
 
 ## Verify and remove
 
@@ -101,7 +115,18 @@ no external harness runtime dependency.
 
 ## Contributing
 
-Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md)
-for the development checks, release expectations, and guidance for reporting
-sanitized reproduction details. Report vulnerabilities privately according to
-[SECURITY.md](SECURITY.md).
+Issues and focused pull requests are welcome:
+
+1. Search [existing issues](https://github.com/elvinzhao10/LazyTrae/issues) and
+   open one for substantial behavior changes or reproducible bugs.
+2. Fork the repository, create a short-lived branch from `main`, and make one
+   focused change.
+3. Run `npm ci --ignore-scripts`, `npm test`, `npm run test:publication`, and
+   `npm pack --dry-run --json` from `lazytrae-plugin/packages/cli`.
+4. Update user-facing documentation when behavior changes, then open a pull
+   request explaining the outcome, compatibility impact, and verification.
+5. Respond to review and wait for required checks before merge.
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for the complete workflow. Report
+vulnerabilities privately according to [SECURITY.md](SECURITY.md), never in a
+public issue.

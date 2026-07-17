@@ -1,6 +1,6 @@
 {
   "name": "@lazytrae/tooling",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Locked package-owned tooling root for LazyTrae",
   "license": "MIT",

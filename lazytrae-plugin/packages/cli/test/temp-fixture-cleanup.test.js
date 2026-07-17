@@ -27,6 +27,8 @@ test('test fixture runner isolates and inventories only this invocation temporar
   assert.match(packageManifest.scripts.test, /test-fixture-runner\.js/);
   const runner = fs.readFileSync(inventoryRunner, 'utf8');
   assert.match(runner, /TMPDIR: suiteRoot/);
+  assert.match(runner, /npm_config_cache: path\.join\(suiteRoot, 'npm-cache'\)/);
+  assert.match(runner, /fs\.readdirSync\(testRoot/);
   assert.match(runner, /LAZYTRAE_TEST_FIXTURE_INVENTORY/);
 });
 
