@@ -8,7 +8,7 @@ LazyTrae supports **Trae IDE**, **Trae Work**, and **Trae CLI**. The
 `lazytrae` companion command supplies the portable installer, verification
 gate, and local MCP server. This setup is verified on macOS only.
 
-The current package version is `1.0.0`.
+The current package version is `1.0.1`.
 
 Automatic local capability selection is temporary and receipt-owned. It may
 use `rg`, `sg`, or the read-only LSP bridge for a task, but it never changes a
