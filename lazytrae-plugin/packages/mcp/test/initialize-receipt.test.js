@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { spawn } = require('node:child_process');
+const { execFileSync, spawn } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -112,6 +112,24 @@ test('receipt write failure keeps initialize protocol-valid and preserves the ta
     fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(callerRoot, { recursive: true, force: true });
     fs.rmSync(outside, { force: true });
+  }
+});
+
+test('receipt write failure preserves a non-regular FIFO target', async () => {
+  const projectRoot = makeProject('lazytrae-mcp-receipt-fifo-');
+  const callerRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-mcp-fifo-caller '));
+  const target = path.join(projectRoot, '.lazytrae', 'state', RECEIPT_FILE);
+  execFileSync('mkfifo', [target]);
+  try {
+    const result = await runInitialize(projectRoot, callerRoot, 'Trae IDE');
+    assert.equal(result.response.result.serverInfo.version, SERVER_VERSION);
+    assert.equal(result.response.error, undefined);
+    assert.match(result.stderr, /initialize receipt write skipped/);
+    assert.equal(fs.statSync(target).isFIFO(), true);
+    assert.equal(inspectInitializeReceipt(projectRoot).state, 'invalid');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+    fs.rmSync(callerRoot, { recursive: true, force: true });
   }
 });
 

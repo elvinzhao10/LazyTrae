@@ -139,6 +139,21 @@ function requireExistingState(root) {
   }
 }
 
+function requireSafeReceiptTarget(target) {
+  let stat;
+  try {
+    stat = fs.lstatSync(target);
+  } catch (error) {
+    if (error && error.code === 'ENOENT') return;
+    throw error;
+  }
+  if (stat.isSymbolicLink() || !stat.isFile() || stat.nlink !== 1) {
+    const unsafe = new Error('receipt target is not a regular file');
+    unsafe.code = 'EUNSAFE';
+    throw unsafe;
+  }
+}
+
 function writeInitializeReceipt(repoRoot, params = {}, now = new Date()) {
   const target = receiptPath(repoRoot);
   const prior = inspectInitializeReceipt(repoRoot);
@@ -159,6 +174,7 @@ function writeInitializeReceipt(repoRoot, params = {}, now = new Date()) {
   if (clientLabel) receipt.client_label = clientLabel;
   const root = path.resolve(repoRoot);
   requireExistingState(root);
+  requireSafeReceiptTarget(target);
   atomicWriteFile(root, target, JSON.stringify(receipt, null, 2) + '\n', 'utf8', 0o600);
   return receipt;
 }
