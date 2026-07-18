@@ -34,6 +34,7 @@ const CURRENT_RELEASE_PATHS = [
   '../tooling/lsp/typescript/package.json',
   '../tooling/lsp/typescript/package-lock.json',
   '../src/index.js',
+  '../bin/lazytrae.js',
   '../src/commands/init.js',
   '../src/commands/doctor.js',
   '../src/commands/sync.js',

@@ -6,6 +6,7 @@ const test = require('node:test');
 const { runCli } = require('./test-helpers');
 
 const CLI_ROOT = path.resolve(__dirname, '..');
+const LOCAL_LAUNCHER = path.join(CLI_ROOT, 'bin', 'lazytrae.js');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 function run(command, args, options = {}) {
@@ -35,6 +36,7 @@ test('packed release carries the automatic-tooling contract, adapters, and CLI s
     'contracts/lazyseries-capability-readiness.v1.json.sha256',
     'templates/AGENTS.md',
     'templates/mcp.json',
+    'bin/lazytrae.js',
     'src/index.js',
     'src/mcp/index.js',
     'src/commands/setup.js',
@@ -70,7 +72,11 @@ test('init onboarding installs only the core MCP declaration and leaves remote c
     assert.equal(initialized.status, 0, initialized.stderr);
     assert.doesNotMatch(`${initialized.stdout}${initialized.stderr}`, /SENTINEL_NEVER_PRINT_84d1/);
     const mcp = JSON.parse(fs.readFileSync(path.join(project, '.trae', 'mcp.json'), 'utf8'));
-    assert.deepEqual({ command: mcp.mcpServers.lazytrae.command, args: mcp.mcpServers.lazytrae.args }, { command: 'lazytrae', args: ['mcp'] });
+    assert.deepEqual(
+      { command: mcp.mcpServers.lazytrae.command, args: mcp.mcpServers.lazytrae.args },
+      { command: 'node', args: [LOCAL_LAUNCHER, '--root', fs.realpathSync(project), 'mcp'] },
+    );
+    assert.match(mcp.mcpServers.lazytrae._lazytrae.fingerprint, /^sha256:[a-f0-9]{64}$/);
     for (const [name, server] of Object.entries(mcp.mcpServers)) {
       if (name !== 'lazytrae') assert.equal(server.disabled, true, `${name} must remain a disabled placeholder`);
     }

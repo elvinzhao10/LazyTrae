@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
+const { inspectCoreDeclaration, localCommand, managedCoreServer } = require('../lib/local-launcher');
 
 const ARTIFACT_CONTRACT = Object.freeze({
   skills: [
@@ -29,7 +30,7 @@ const ARTIFACT_CONTRACT = Object.freeze({
     PostToolUse: 'post-tool-use.sh',
     Stop: 'stop.sh',
   },
-  mcp: { command: 'lazytrae', args: ['mcp'] },
+  mcp: { command: 'node', launcher: 'absolute release-owned bin/lazytrae.js' },
 });
 
 function detectRepoRoot() {
@@ -93,30 +94,28 @@ function nonExecutableHooks(repoRoot) {
   });
 }
 
-function mcpDeclarationError(repoRoot, host) {
-  if (host === 'work') return '';
+function mcpDeclarationResult(repoRoot, host) {
+  if (host === 'work') return { error: '', detail: '' };
   const mcpPath = path.join(repoRoot, '.trae', 'mcp.json');
   try {
     const config = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
-    const server = config && config.mcpServers && config.mcpServers.lazytrae;
-    const { command, args } = ARTIFACT_CONTRACT.mcp;
-    if (!server || server.command !== command || !Array.isArray(server.args)
-      || server.args.length !== args.length || server.args.some((arg, index) => arg !== args[index])) {
-      return 'expected command "lazytrae" args ["mcp"]';
-    }
+    const inspection = inspectCoreDeclaration(repoRoot, config);
+    return { error: inspection.ready ? '' : inspection.detail, detail: inspection.detail };
   } catch (error) {
-    return `invalid .trae/mcp.json: ${error.message}`;
+    const detail = `invalid .trae/mcp.json: ${error.message}`;
+    return { error: detail, detail };
   }
-  return '';
 }
 
-function printHostRegistrationStatus(host) {
+function printHostRegistrationStatus(host, repoRoot) {
+  const localServer = managedCoreServer(repoRoot);
   if (host === 'ide') {
     console.log('IDE registration: NOT VERIFIED. Package files are ready; reopen Trae IDE to scan them.');
   } else if (host === 'cli') {
-    console.log('CLI registration: NOT VERIFIED. Package declaration is ready; register it with trae-cli mcp add-json.');
+    const registration = JSON.stringify({ type: 'stdio', command: localServer.command, args: localServer.args });
+    console.log(`CLI registration: NOT VERIFIED. Register with trae-cli mcp add-json lazytrae '${registration}'.`);
   } else {
-    console.log('Work registration: MANUAL REQUIRED. Add lazytrae mcp in Settings → MCP; package readiness cannot confirm it.');
+    console.log(`Work registration: MANUAL REQUIRED. In Settings → MCP use command \`${localServer.command}\` and arguments \`${JSON.stringify(localServer.args)}\`; package readiness cannot confirm it.`);
   }
 }
 
@@ -144,7 +143,8 @@ configuration only; it does not claim that a host has registered or loaded them.
   ];
   const hookMappings = hookMappingFailures(repoRoot);
   const hookPermissions = nonExecutableHooks(repoRoot);
-  const mcpError = mcpDeclarationError(repoRoot, host);
+  const mcpResult = mcpDeclarationResult(repoRoot, host);
+  const mcpError = mcpResult.error;
 
   console.log('=== LazyTrae Tool Load Check — v1.0.2 Package Readiness ===');
   console.log(`Host: ${host}`);
@@ -159,7 +159,7 @@ configuration only; it does not claim that a host has registered or loaded them.
   console.log(`${hookPermissions.length ? 'FAIL' : 'PASS'} hook executability: ${hookCount - hookPermissions.length}/${hookCount}${hookPermissions.length ? ` (not executable: ${hookPermissions.join(', ')})` : ''}`);
   console.log(host === 'work'
     ? 'SKIP LazyTrae MCP declaration: Trae Work requires manual Settings → MCP registration'
-    : `${mcpError ? 'FAIL' : 'PASS'} LazyTrae MCP declaration: ${mcpError || 'command "lazytrae" args ["mcp"]'}`);
+    : `${mcpError ? 'FAIL' : 'PASS'} LazyTrae MCP declaration: ${mcpResult.detail}`);
   const readiness = readinessReport(repoRoot);
   console.log(formatReadinessSummary(readiness));
 
@@ -173,11 +173,11 @@ configuration only; it does not claim that a host has registered or loaded them.
     console.log(`${workSkillsFailed ? 'FAIL' : 'PASS'} global Trae Work skills: ${current}/${states.length} current`);
   }
 
-  printHostRegistrationStatus(host);
+  printHostRegistrationStatus(host, repoRoot);
   const readinessStateInvalid = readiness.some(record => record.reason_code === 'STATE_INVALID');
   const failed = checks.some(result => result.missing.length) || hookMappings.failures.length > 0 || hookPermissions.length > 0 || Boolean(mcpError) || workSkillsFailed || readinessStateInvalid;
   console.log(failed
-    ? 'Package readiness failed. Run lazytrae sync, then re-run this check.'
+    ? `Package readiness failed. Run ${localCommand(repoRoot)} sync, then re-run this check.`
     : 'Package readiness passed. Load check passed for package readiness; complete the host registration step shown above.');
   return failed ? 1 : 0;
 }

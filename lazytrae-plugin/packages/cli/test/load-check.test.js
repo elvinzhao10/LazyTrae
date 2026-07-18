@@ -23,7 +23,7 @@ test('load-check reports v1.0.2 package readiness separately from unverified IDE
     assert.doesNotMatch(result.stdout, /v0\.16/);
     assert.match(result.stdout, /PASS hooks\.json event mappings: 5\/5/);
     assert.match(result.stdout, /PASS hook executability: 8\/8/);
-    assert.match(result.stdout, /PASS LazyTrae MCP declaration: command "lazytrae" args \["mcp"\]/);
+    assert.match(result.stdout, /PASS LazyTrae MCP declaration: node with absolute release-owned launcher/);
     assert.match(result.stdout, /IDE registration: NOT VERIFIED/);
     assert.match(result.stdout, /Package readiness passed/);
   });
@@ -83,7 +83,7 @@ test('load-check fails when lazytrae MCP command or args are malformed', () => {
     const result = runCli(['load-check', '--host', 'cli'], { cwd: fixture });
 
     assert.equal(result.status, 1, result.stdout);
-    assert.match(result.stdout, /FAIL LazyTrae MCP declaration: expected command "lazytrae" args \["mcp"\]/);
+    assert.match(result.stdout, /FAIL LazyTrae MCP declaration: .*modified.*preserved/i);
     assert.match(result.stdout, /CLI registration: NOT VERIFIED/);
   });
 });
@@ -97,7 +97,11 @@ test('load-check fails when canonical readiness reports malformed tooling state'
 
     assert.equal(result.status, 1, result.stdout);
     assert.match(result.stdout, /Capability readiness .*failed-optional=9/);
-    assert.match(result.stdout, /Package readiness failed\. Run lazytrae sync, then re-run this check\./);
+    assert.match(
+      result.stdout,
+      /Package readiness failed\. Run node .*bin\/lazytrae\.js.* --root .* sync, then re-run this check\./,
+    );
+    assert.doesNotMatch(result.stdout, /Run lazytrae sync/);
     assert.equal(fs.readFileSync(statePath, 'utf8'), '{bad-json\n');
   });
 });

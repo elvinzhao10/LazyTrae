@@ -1,11 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  chmodRepoFile, copyRepoDir, copyRepoFile, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
+  chmodRepoFile, copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
 } = require('../lib/templates');
-const { replaceBlock, hasManagedBlock, extractBlock } = require('../lib/managed-blocks');
 const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
-const { ensureToolingState, updateMcpDeclaration } = require('../lib/tooling-state');
+const { materializeGuidance } = require('../lib/local-launcher');
+const { updateMcpDeclaration } = require('../lib/mcp-declaration');
+const { ensureToolingState } = require('../lib/tooling-state');
 
 const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
 
@@ -110,8 +111,13 @@ Options:
       path.join(templatesDir, 'mcp.json'),
       path.join(repoRoot, '.trae', 'mcp.json')
     );
-    if (mcpUpdate.status === 'updated') {
+    if (mcpUpdate.status === 'updated' && mcpUpdate.refreshed) {
+      summary.updated.push(`.trae/mcp.json (refreshed stale launcher ${JSON.stringify(mcpUpdate.previousLauncher)})`);
+    } else if (mcpUpdate.status === 'updated') {
       summary.created.push('.trae/mcp.json');
+    } else if (mcpUpdate.status === 'preserved_modified') {
+      summary.skipped.push(`.trae/mcp.json (${mcpUpdate.detail})`);
+      process.exitCode = 1;
     } else if (mcpUpdate.status === 'unavailable_existing' || mcpUpdate.status === 'unavailable_absent') {
       const manualHostAction = host === 'work'
         ? 'Trae Work requires manual Settings → MCP registration'
@@ -199,7 +205,7 @@ Options:
   const agentsTemplatePath = path.join(templatesDir, 'AGENTS.md');
   const agentsDestPath = path.join(repoRoot, 'AGENTS.md');
   if (fs.existsSync(agentsTemplatePath)) {
-    const templateContent = fs.readFileSync(agentsTemplatePath, 'utf-8');
+    const templateContent = materializeGuidance(fs.readFileSync(agentsTemplatePath, 'utf-8'), repoRoot);
     const mb = require('../lib/managed-blocks');
 
     if (fs.existsSync(agentsDestPath)) {
@@ -230,7 +236,7 @@ Options:
         summary.skipped.push('AGENTS.md (no changes needed)');
       }
     } else {
-      copyRepoFile(repoRoot, agentsTemplatePath, agentsDestPath);
+      writeRepoFile(repoRoot, agentsDestPath, templateContent);
       summary.created.push('AGENTS.md');
     }
   }

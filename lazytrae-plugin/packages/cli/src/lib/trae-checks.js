@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { inspectCoreDeclaration } = require('./local-launcher');
 
 /**
  * Runs all .trae/ structural checks (rules, skills, commands, agents, hooks, mcp).
@@ -11,6 +12,7 @@ const { spawnSync } = require('child_process');
  */
 function checkTraeStructure(repoRoot) {
   const results = [];
+  const bash = process.platform === 'win32' ? 'bash' : '/bin/bash';
 
   // .trae/rules/lazytrae.md
   const rulesPath = path.join(repoRoot, '.trae', 'rules', 'lazytrae.md');
@@ -101,13 +103,13 @@ function checkTraeStructure(repoRoot) {
 
       for (const script of hookScripts) {
         const rel = `.trae/hooks/${script}`;
-        const syntax = spawnSync('bash', ['-n', path.join(hooksDir, script)], { encoding: 'utf-8' });
+        const syntax = spawnSync(bash, ['-n', path.join(hooksDir, script)], { encoding: 'utf-8' });
         results.push({
           label: `${rel} syntax`,
           status: syntax.status === 0 ? 'PASS' : 'FAIL',
           detail: syntax.status === 0
             ? 'bash -n passed'
-            : `${syntax.stderr.trim() || syntax.stdout.trim() || 'Invalid shell syntax'}. Run \`bash -n ${rel}\` to diagnose.`,
+            : `${(syntax.stderr || '').trim() || (syntax.stdout || '').trim() || 'Unable to run bash syntax check'}. Run \`bash -n ${rel}\` to diagnose.`,
         });
       }
     } else {
@@ -121,8 +123,13 @@ function checkTraeStructure(repoRoot) {
   const mcpPath = path.join(repoRoot, '.trae', 'mcp.json');
   if (fs.existsSync(mcpPath)) {
     try {
-      JSON.parse(fs.readFileSync(mcpPath, 'utf-8'));
-      results.push({ label: '.trae/mcp.json', status: 'PASS' });
+      const config = JSON.parse(fs.readFileSync(mcpPath, 'utf-8'));
+      const inspection = inspectCoreDeclaration(repoRoot, config);
+      results.push({
+        label: '.trae/mcp.json',
+        status: inspection.ready ? 'PASS' : 'FAIL',
+        detail: inspection.detail,
+      });
     } catch (e) {
       results.push({ label: '.trae/mcp.json', status: 'FAIL', detail: `Invalid JSON: ${e.message}` });
     }

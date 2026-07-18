@@ -11,6 +11,7 @@ const { validateActivePlans } = require('../lib/active-plan');
 const { providerMatrix } = require('../lib/provider-lifecycle');
 const { readLedger } = require('../lib/automatic-tooling-policy');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
+const { localCommand } = require('../lib/local-launcher');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -81,7 +82,7 @@ Options:
     addResult('MCP runtime', 'WARN', 'Uses the installed lazytrae CLI; source-package checks skipped');
   }
 
-  addResult('MCP server running', 'WARN', 'Started on demand by Trae IDE, Trae Work, or Trae CLI via lazytrae mcp');
+  addResult('MCP server running', 'WARN', `Started on demand by Trae IDE, Trae Work, or Trae CLI via ${localCommand(repoRoot)} mcp`);
 
   // .lazytrae/config.json
   const configPath = path.join(repoRoot, '.lazytrae', 'config.json');

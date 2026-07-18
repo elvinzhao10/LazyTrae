@@ -38,9 +38,9 @@ const {
 } = require('../lib/codegraph-lifecycle');
 const {
   OPTIONAL_CAPABILITIES,
-  mergeMcpTemplate,
   setOptionalCapability,
 } = require('../lib/tooling-state');
+const { mergeMcpTemplate } = require('../lib/mcp-declaration');
 const TOOLING_PACKAGE = path.resolve(__dirname, '..', '..', 'tooling');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 function printUsage() {

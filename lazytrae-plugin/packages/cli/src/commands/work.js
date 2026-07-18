@@ -8,6 +8,7 @@ const {
   rejectSymlink,
   skillState: readSkillState,
 } = require('../lib/work-skill-transaction');
+const { managedCoreServer } = require('../lib/local-launcher');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'templates');
 const WORK_SKILLS_DIR_ENV = 'LAZYTRAE_WORK_SKILLS_DIR';
@@ -63,7 +64,8 @@ function skillState(skillsDir, name) {
 }
 
 function printMcpReminder() {
-  console.log('\nMCP remains a one-time Trae Work setting: Settings → MCP, command `lazytrae`, argument `mcp`.');
+  const server = managedCoreServer(process.cwd());
+  console.log(`\nMCP remains a one-time Trae Work setting: Settings → MCP, command \`${server.command}\`, arguments \`${JSON.stringify(server.args)}\`.`);
   console.log('Global slash commands are not supported by Trae Work; use the installed skills or natural language.');
 }
 

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { writeRepoFile } = require('./templates');
-const { isAtomicRenamePermissionError, readExistingFile } = require('./safe-write');
+const { managedLocalServer } = require('./local-launcher');
 
 const TOOLING_STATE_PATH = path.join('.lazytrae', 'state', 'tooling.json');
 const MANAGED_CODEGRAPH_SERVER = 'lazytrae_codegraph';
@@ -30,31 +30,6 @@ const OPTIONAL_CAPABILITIES = {
     description: 'Optional Playwright browser MCP. Enabled explicitly; npx runs only when the configured MCP host starts it.',
   },
 };
-const LEGACY_REMOTE_SERVERS = {
-  context7: { url: 'https://mcp.context7.com/mcp', required: false, description: 'Documentation lookup for open-source libraries' },
-  context7_docs: { url: 'https://mcp.context7.com/mcp', required: false, description: 'Documentation search MCP server — optional template (alias for context7)' },
-  grep_app: { url: 'https://mcp.grep.app', required: false, description: 'Remote code search from grep.app' },
-};
-const LEGACY_LOCAL_SERVERS = {
-  filesystem: {
-    command: 'npx',
-    args: ['-y', '@modelcontextprotocol/server-filesystem@2026.7.10', '.'],
-    required: false,
-    description: 'Filesystem access MCP server — optional template pinned to a reviewed version',
-  },
-  playwright: {
-    command: 'npx',
-    args: ['-y', '@playwright/mcp@0.0.78'],
-    required: false,
-    description: 'Browser automation MCP server via Playwright — optional template pinned to a reviewed version',
-  },
-};
-const LEGACY_CODEGRAPH_PLACEHOLDER = {
-  required: false,
-  disabled: true,
-  description: 'Optional CodeGraph analysis. LazyTrae keeps its 15 built-in heuristic context tools available until an explicit receipt-owned CodeGraph installation and caller-created .codegraph index are enabled.',
-};
-
 function defaultToolingState() {
   return {
     schema_version: 1,
@@ -119,44 +94,17 @@ function managedOptionalServers(repoRoot) {
 function managedCodeGraphServer(repoRoot) {
   const capability = readToolingState(repoRoot).capabilities.codegraph;
   if (!capability || capability.enabled !== true || typeof capability.tooling_root !== 'string') return null;
-  return {
-    command: 'lazytrae',
-    args: ['codegraph', '--target', repoRoot, '--tooling-root', capability.tooling_root],
+  return managedLocalServer({
+    repoRoot,
+    args: ['codegraph', '--target', fs.realpathSync(repoRoot), '--tooling-root', capability.tooling_root],
     required: false,
     description: MANAGED_CODEGRAPH_DESCRIPTION,
-  };
+    kind: 'codegraph',
+  });
 }
 
 function sameJson(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
-}
-
-function isManagedCodeGraphServer(name, server) {
-  return name === MANAGED_CODEGRAPH_SERVER
-    && server
-    && server.command === 'lazytrae'
-    && Array.isArray(server.args)
-    && server.args[0] === 'codegraph'
-    && server.args[1] === '--target'
-    && typeof server.args[2] === 'string'
-    && server.args[3] === '--tooling-root'
-    && typeof server.args[4] === 'string'
-    && server.required === false
-    && server.description === MANAGED_CODEGRAPH_DESCRIPTION;
-}
-
-function isLegacyManagedCodeGraphServer(name, server) {
-  return name === 'codegraph'
-    && server
-    && server.command === 'lazytrae'
-    && Array.isArray(server.args)
-    && server.args[0] === 'codegraph'
-    && server.args[1] === '--target'
-    && typeof server.args[2] === 'string'
-    && server.args[3] === '--tooling-root'
-    && typeof server.args[4] === 'string'
-    && server.required === false
-    && server.description === MANAGED_CODEGRAPH_DESCRIPTION;
 }
 
 function isManagedOptionalServer(repoRoot, name, server) {
@@ -164,89 +112,16 @@ function isManagedOptionalServer(repoRoot, name, server) {
     name === capability.serverName && sameJson(server, optionalServer(repoRoot, capability)));
 }
 
-function isLegacyManagedRemoteServer(name, server) {
-  return Object.hasOwn(LEGACY_REMOTE_SERVERS, name) && sameJson(server, LEGACY_REMOTE_SERVERS[name]);
-}
-
-function isLegacyManagedLocalServer(name, server) {
-  return Object.hasOwn(LEGACY_LOCAL_SERVERS, name) && sameJson(server, LEGACY_LOCAL_SERVERS[name]);
-}
-
-function hasLegacyRemoteTemplate(servers) {
-  return sameJson(servers.context7_docs, LEGACY_REMOTE_SERVERS.context7_docs);
-}
-
-function mergeMcpTemplate(repoRoot, templatePath, destinationPath) {
-  const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
-  const templateServers = { ...(template.mcpServers || {}) };
-  const codeGraph = managedCodeGraphServer(repoRoot);
-  if (codeGraph) templateServers[MANAGED_CODEGRAPH_SERVER] = codeGraph;
-  Object.assign(templateServers, managedOptionalServers(repoRoot));
-  const existingFile = readExistingFile(repoRoot, destinationPath, 'utf8');
-  if (!existingFile.exists) {
-    const content = codeGraph || Object.keys(managedOptionalServers(repoRoot)).length > 0
-      ? JSON.stringify({ ...template, mcpServers: templateServers }, null, 2) + '\n'
-      : fs.readFileSync(templatePath, 'utf8');
-    writeRepoFile(repoRoot, destinationPath, content);
-    return true;
-  }
-
-  const existing = JSON.parse(existingFile.content);
-  const existingServers = existing.mcpServers || {};
-  const legacyRemoteTemplate = hasLegacyRemoteTemplate(existingServers);
-  const userServers = Object.fromEntries(
-    Object.entries(existingServers).filter(([name, server]) => {
-      if (Object.hasOwn(templateServers, name)) {
-        if (templateServers[name].disabled === true) {
-          return !sameJson(server, templateServers[name])
-            && !(legacyRemoteTemplate && isLegacyManagedRemoteServer(name, server))
-            && !isLegacyManagedLocalServer(name, server);
-        }
-        return !isManagedOptionalServer(repoRoot, name, server)
-          && !isManagedCodeGraphServer(name, server)
-          && !isLegacyManagedCodeGraphServer(name, server);
-      }
-      if (isManagedCodeGraphServer(name, server) || isLegacyManagedCodeGraphServer(name, server)) return false;
-      if (isManagedOptionalServer(repoRoot, name, server) || isLegacyManagedRemoteServer(name, server)) return false;
-      return !(name === 'codegraph' && sameJson(server, LEGACY_CODEGRAPH_PLACEHOLDER));
-    }),
-  );
-  const merged = {
-    ...existing,
-    ...template,
-    mcpServers: {
-      ...templateServers,
-      ...userServers,
-    },
-  };
-  const next = JSON.stringify(merged, null, 2) + '\n';
-  if (next === existingFile.content) return false;
-  writeRepoFile(repoRoot, destinationPath, next);
-  return true;
-}
-
-function updateMcpDeclaration(repoRoot, templatePath, destinationPath) {
-  const existingDeclaration = readExistingFile(repoRoot, destinationPath, 'utf8');
-  try {
-    return { status: mergeMcpTemplate(repoRoot, templatePath, destinationPath) ? 'updated' : 'unchanged' };
-  } catch (error) {
-    if (isAtomicRenamePermissionError(error)) {
-      return { status: existingDeclaration.exists ? 'unavailable_existing' : 'unavailable_absent' };
-    }
-    throw error;
-  }
-}
-
 module.exports = {
   TOOLING_STATE_PATH,
   defaultToolingState,
   ensureToolingState,
   MANAGED_CODEGRAPH_SERVER,
+  MANAGED_CODEGRAPH_DESCRIPTION,
   OPTIONAL_CAPABILITIES,
+  isManagedOptionalServer,
   managedCodeGraphServer,
   managedOptionalServers,
-  mergeMcpTemplate,
-  updateMcpDeclaration,
   readToolingState,
   setCodeGraphCapability,
   setOptionalCapability,
