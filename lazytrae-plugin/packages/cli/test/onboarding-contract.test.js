@@ -19,6 +19,27 @@ function readInitDeepSkills() {
 }
 
 const BARE_INITDEEP_COMMAND = /(?:^|[\s`"'])lazytrae (?:load-check|init|sync|work install)\b/m;
+const PORTABLE_LOCAL_COMMAND = 'node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root>';
+
+function assertNoUnsafeOnboardingClaims(content, source) {
+  assert.doesNotMatch(content, /\/Users\/(?:[^/< >]+)\//, `${source} must not contain a developer-specific absolute path`);
+  assert.doesNotMatch(
+    content,
+    /^\s*(?:\$\s+)?lazytrae\s+(?:init|sync|load-check|doctor|verify|work)\b/im,
+    `${source} must not prescribe a bare PATH launcher`,
+  );
+  assert.doesNotMatch(content, /\btrae-cli\s+mcp\s+add-json\b/i, `${source} must not prescribe the undocumented add-json route`);
+  assert.doesNotMatch(
+    content,
+    /\bLazyTrae supports (?:Trae IDE|Trae Work|Trae CLI)\b/i,
+    `${source} must not make an unqualified Trae support claim`,
+  );
+  assert.doesNotMatch(
+    content,
+    /(?:copied|cloned|linked|manifest|load-check|package files?)[^.]{0,180}(?:host[- ]ready|host readiness\s*(?::|is)?\s*(?:ready|pass|full))/i,
+    `${source} must not turn copied package evidence into host readiness`,
+  );
+}
 
 function assertLocalInitDeepGuidance(content, source) {
   assert.doesNotMatch(content, BARE_INITDEEP_COMMAND, source);
@@ -79,6 +100,56 @@ test('local-first onboarding protocol covers every stage and host readiness boun
   const readme = fs.readFileSync(path.join(REPOSITORY_ROOT, 'README.md'), 'utf8');
   assert.doesNotMatch(readme, /npm install --global/i);
   assert.match(readme, /absolute launcher/i);
+});
+
+test('root and installed AGENTS share one portable local-first protocol', () => {
+  const rootGuide = fs.readFileSync(path.join(REPOSITORY_ROOT, 'AGENTS.md'), 'utf8');
+  const installedTemplate = readTemplate('AGENTS.md');
+  const renderedTemplate = installedTemplate.replaceAll('__LAZYTRAE_LOCAL_COMMAND__', PORTABLE_LOCAL_COMMAND);
+
+  assert.equal(rootGuide, renderedTemplate);
+  assertNoUnsafeOnboardingClaims(rootGuide, 'root AGENTS.md');
+  assertNoUnsafeOnboardingClaims(installedTemplate, 'installed AGENTS.md template');
+});
+
+test('every shipped host route is portable, JSON-first, and evidence-qualified', () => {
+  const hostRouteDocs = [
+    path.join(REPOSITORY_ROOT, 'AGENTS.md'),
+    path.join(REPOSITORY_ROOT, 'README.md'),
+    path.join(REPOSITORY_ROOT, 'docs', '03-install-and-host-verification.md'),
+    path.join(REPOSITORY_ROOT, 'docs', '10-host-capability-matrix.md'),
+    path.join(REPOSITORY_ROOT, 'docs', 'reference', 'host-routes.md'),
+    path.join(REPOSITORY_ROOT, 'lazytrae-plugin', 'README.md'),
+    path.join(REPOSITORY_ROOT, 'lazytrae-plugin', 'packages', 'cli', 'README.md'),
+    path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'AGENTS.md'),
+  ];
+
+  for (const documentPath of hostRouteDocs) {
+    const content = fs.readFileSync(documentPath, 'utf8');
+    assertNoUnsafeOnboardingClaims(content, documentPath);
+    assert.match(content, /documented package\s+route/i, documentPath);
+    assert.match(content, /observed prerelease\s+route/i, documentPath);
+    assert.match(content, /HOST\s+READINESS:\s*PENDING/i, documentPath);
+    assert.match(content, /load-check\s+--host\s+work/i, documentPath);
+    assert.match(content, /LAZYTRAE_MCP_JSON_BEGIN/i, documentPath);
+    assert.match(content, /Settings → MCP/i, documentPath);
+    assert.match(content, /load-check\s+--host\s+cli/i, documentPath);
+    assert.match(content, /(?:no|does not assume a) public universal MCP registration\s+command/i, documentPath);
+  }
+});
+
+test('unsafe copied onboarding claims are rejected by the documentation contract', () => {
+  const invalidDocuments = [
+    ['bare launcher', 'lazytrae load-check --host ide', /bare PATH launcher/],
+    ['developer path', 'node /Users/alice/Desktop/LazyTrae/bin/lazytrae.js doctor', /developer-specific absolute path/],
+    ['unsupported CLI command', 'trae-cli mcp add-json lazytrae {}', /undocumented add-json route/],
+    ['unqualified support', 'LazyTrae supports Trae Work.', /unqualified Trae support claim/],
+    ['copied files imply host readiness', 'Copied package files mean host readiness: ready.', /copied package evidence/],
+  ];
+
+  for (const [source, content, expected] of invalidDocuments) {
+    assert.throws(() => assertNoUnsafeOnboardingClaims(content, source), expected);
+  }
 });
 
 test('InitDeep repairs core assets but never provisions optional integrations', () => {

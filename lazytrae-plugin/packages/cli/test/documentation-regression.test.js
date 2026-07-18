@@ -36,7 +36,8 @@ test('Given installed LazyTrae guidance, when its package boundary is checked, t
   assert.match(packageReadme, /init --host work` invokes the bounded Work skill installation/, 'package README must describe the Work init lifecycle accurately');
   assert.match(packageReadme, /self-contained CLI tarball/i, 'package README must describe the self-contained CLI artifact');
   assert.match(packageReadme, /cold offline/i, 'package README must describe the cold-offline artifact check');
-  assert.match(installedGuide, /does not require a source\s+checkout\s+after installation/i, 'installed onboarding guidance must distinguish an installed package from the repo-only fallback');
+  assert.match(installedGuide, /pinned release folder as the source of\s+truth/i, 'installed onboarding guidance must keep the permanent local release authoritative');
+  assert.match(installedGuide, /absolute launcher path must remain stable/i, 'installed onboarding guidance must make moved-release failure explicit');
   assert.match(installedGuide, /## `offboard` protocol/, 'installed setup guide must provide safe offboarding');
   assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI README must describe the self-contained CLI artifact');
 });

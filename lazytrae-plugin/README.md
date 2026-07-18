@@ -61,6 +61,18 @@ and the expected `lazytrae` core MCP connection; local checks alone leave it
 pending. Work's default Skills location is verified only on macOS
 (`~/.trae-cn/skills/`), and its connector remains manual.
 
+Availability labels are evidence boundaries: the release launcher and
+generated configuration are the **documented package route**; supplied macOS
+IDE/Work observations are an **observed prerelease route**; and the current
+surface remains **HOST READINESS: PENDING** until observed. For Work, run the
+absolute local launcher with `load-check --host work`; for CLI, use
+`load-check --host cli`. Copy only the JSON between
+`LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. Paste it into Work's
+**Settings → MCP** or the selected CLI build's documented/manual MCP settings
+flow after approval. No public universal MCP registration command is assumed.
+The supplied QA could not access Trae CLI, so its live-host route remains
+explicitly unverified.
+
 Automatic local tooling is temporary and receipt-owned: `rg`, `sg`, and the
 read-only LSP bridge may be selected for a task without changing host or
 project configuration. CodeGraph and remote providers remain explicit optional
@@ -80,9 +92,10 @@ node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
 ```
 
 These commands preserve modified, unknown, caller-owned, linked, and
-host-managed paths. Remove MCP registrations manually: Work through
-**Settings → MCP**, CLI with `trae-cli mcp remove lazytrae`, and IDE through its
-project MCP UI. Never guess a host-managed location.
+host-managed paths. Remove MCP registrations manually: Work through **Settings
+→ MCP**, CLI through the selected build's documented MCP settings flow, and IDE
+through its project MCP UI. Never assume a universal CLI command or guess a
+host-managed location.
 
 ## For package contributors
 

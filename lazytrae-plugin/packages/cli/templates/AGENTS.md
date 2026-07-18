@@ -4,10 +4,11 @@
 > **Agent:** use this guide to install, verify, and safely remove LazyTrae.
 > For everyday workflow use, see the [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme).
 
-LazyTrae supports **Trae IDE**, **Trae Work**, and **Trae CLI**. The
-release-owned local launcher supplies the portable installer, verification
-gate, and local MCP server. This setup is verified on macOS only. The current
-package version is `1.0.2`.
+LazyTrae packages local routes for **Trae IDE**, **Trae Work**, and **Trae
+CLI**. The release-owned local launcher supplies the portable installer,
+verification gate, and local MCP server. Package behavior is verified on
+macOS only; host behavior keeps the evidence labels below. The current package
+version is `1.0.2`.
 
 ## Local-first onboarding (start here)
 
@@ -66,6 +67,8 @@ Availability labels are evidence boundaries: the release-owned launcher and
 generated configuration are the **documented package route**; IDE/Work behavior
 seen in the supplied macOS reports is an **observed prerelease route**; and a
 current host stays **HOST READINESS: PENDING** until it is actually observed.
+The supplied QA could not access Trae CLI, so its live-host route is explicitly
+unverified even though the package can generate its local configuration.
 
 ## Select the host route
 
@@ -75,6 +78,11 @@ current host stays **HOST READINESS: PENDING** until it is actually observed.
 | **Trae Work** | `__LAZYTRAE_LOCAL_COMMAND__ init --host work` is approval-gated and copies 17 Skills to the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the paste-ready JSON printed by `load-check --host work` in **Settings → MCP**. It is not a documented universal host contract. |
 | **Trae CLI** | Documented package route: local project configuration plus verification gates. | No public universal MCP registration command is assumed. Use the paste-ready JSON from `load-check --host cli` with the selected build's documented/manual MCP settings flow, then start a new session and observe the core MCP. |
 
+For either manual MCP route, copy only the JSON between
+`LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. Do not translate it to
+an undocumented CLI command. Pasting the JSON, reloading, and testing are three
+separate approval-gated actions.
+
 Trae Work does not auto-load the project MCP file. Linux and Windows Work
 locations and behavior are unverified; ask the host for its directory before
 using `--skills-dir`. A declaration or load-check is package evidence until the
@@ -82,7 +90,8 @@ selected host visibly connects it.
 
 ## Install from a permanent release
 
-The primary route uses the checked-out release-owned launcher and does not require a source checkout after installation:
+The primary route keeps the checked-out pinned release folder as the source of
+truth. Its absolute launcher path must remain stable:
 
 ```bash
 __LAZYTRAE_LOCAL_COMMAND__ init --host ide

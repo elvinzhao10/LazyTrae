@@ -22,6 +22,14 @@ route**. The supplied macOS IDE/Work results are an **observed prerelease
 route**, not general host support. CLI setup is JSON/manual because LazyTrae
 does not assume a public universal MCP registration command.
 
+For Work, run the absolute local launcher with `load-check --host work`; for
+CLI, use `load-check --host cli`. Copy only the JSON between
+`LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. After approval, paste it
+into Work's **Settings → MCP** or the selected CLI build's documented/manual
+MCP settings flow. Pasting, reloading/new session, and testing are separate
+actions. The package result does not change **HOST READINESS: PENDING**.
+The supplied QA could not access Trae CLI; its live-host route is unverified.
+
 ## Template installation pipeline
 
 `packages/cli/src/commands/init.js` is the installer. It resolves the target project, copies or merges files from `packages/cli/templates/`, and then runs the selected host's load check. `sync.js` follows the same managed-content rules for later updates. The safe-write and managed-block helpers prevent an update from silently overwriting protected destinations.

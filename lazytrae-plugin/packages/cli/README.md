@@ -106,6 +106,17 @@ inspect the app with Computer Use. A reload/new session is a separate action.
 Verify one real Skill/command and the expected `lazytrae` core MCP connection;
 without that observation, host readiness remains pending.
 
+Availability labels are evidence boundaries: the launcher and generated
+configuration are the **documented package route**; supplied macOS IDE/Work
+observations are an **observed prerelease route**; and the current surface
+remains **HOST READINESS: PENDING** until observed. For Work, run `load-check
+--host work`; for CLI, run `load-check --host cli`. Copy only the JSON between
+`LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. After approval, paste
+it into Work's **Settings → MCP** or the selected CLI build's
+documented/manual MCP settings flow. No public universal MCP registration
+command is assumed. The supplied QA could not access Trae CLI, so its live-host
+route remains explicitly unverified.
+
 This will:
 - Detect repo root (finds `.git`)
 - Create directory structure: `.trae/`, `.lazytrae/`
@@ -143,8 +154,8 @@ yourself in **Settings → MCP**.
 
 For Trae IDE, invoke the release-owned launcher with `uninstall --yes`, then
 remove or disable the local core server in the IDE's MCP settings if you added
-one separately. For Trae CLI, remove the registered server with
-`trae-cli mcp remove lazytrae`; uninstalling project files never changes CLI
+one separately. For Trae CLI, remove the server through the selected build's
+documented MCP settings flow; uninstalling project files never changes CLI
 registration. No global command is required; if one was installed separately,
 remove it through the package manager that installed it.
 

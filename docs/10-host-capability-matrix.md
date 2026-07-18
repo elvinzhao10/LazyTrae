@@ -37,6 +37,19 @@ The host adapter differs, but the safety model does not:
 
 The complete dependency classification is in [Dependency and host boundary reference](reference/dependency-and-host-boundaries.md).
 
+## JSON-first manual routes
+
+Use the absolute release-owned launcher. `load-check --host work` and
+`load-check --host cli` print the local core connector between
+`LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. For Work, paste that
+JSON in **Settings → MCP** after approval. For CLI, use the selected build's
+documented/manual MCP settings flow; no public universal MCP registration
+command is assumed. Paste, reload/new session, and live verification are
+separate one-action handoffs. The launcher is the **documented package route**;
+supplied macOS IDE/Work behavior is an **observed prerelease route**; without a
+current observation, **HOST READINESS: PENDING**. The supplied QA could not
+access Trae CLI, so its live-host route is explicitly unverified.
+
 ## macOS-only scope
 
 The package evidence is verified on macOS only. It does not claim equivalent Trae Work paths, discovery, hook execution, or MCP connection on other operating systems. Those are observed per selected host session.

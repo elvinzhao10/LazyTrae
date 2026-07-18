@@ -13,6 +13,13 @@ All notable public changes to LazyTrae are documented here. Versions follow
 - Updated current package, runtime, template, and onboarding documentation
   identities for the v1.0.2 release.
 - Prepared all six package and lockfile pairs for reproducible publication.
+- Made the permanent release launcher the primary route, including paths with
+  spaces, with no dependency on a global `lazytrae` PATH entry.
+- Qualified IDE/Work behavior as prerelease observation and kept every current
+  host result pending until Computer Use or user-supplied evidence verifies a
+  real Skill/command and the core MCP connection.
+- Standardized Work and CLI on paste-ready MCP JSON; no undocumented universal
+  Trae CLI registration command is prescribed.
 
 ### Fixed
 

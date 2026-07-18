@@ -74,8 +74,15 @@ readiness **pending**.
 The release-owned launcher and generated files are the **documented package
 route**. The supplied macOS IDE/Work results are an **observed prerelease
 route**, not a universal host guarantee. Trae CLI receives paste-ready MCP JSON
-and a manual settings handoff because no public universal registration command
-is assumed.
+and a manual settings handoff because no public universal MCP registration
+command is assumed. For Work, run the absolute local launcher with `load-check
+--host work`; for CLI, use `load-check --host cli`. Copy only the JSON between
+`LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. Paste it in Work's
+**Settings → MCP** or the selected CLI build's documented/manual MCP settings
+flow only after approval. Paste, reload/new session, and live test remain
+separate one-action handoffs. Until then, **HOST READINESS: PENDING**.
+The supplied QA could not access Trae CLI, so its live-host route remains
+explicitly unverified.
 
 See [AGENTS.md](AGENTS.md) for the host-specific artifact boundary and manual
 steps. The source is available at the [LazyTrae repository](https://github.com/elvinzhao10/LazyTrae),
