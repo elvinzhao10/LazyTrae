@@ -18,7 +18,7 @@ function assertInitDeepSafety(content, initDeepPath) {
   assert.match(content, /separate(?:ly)? confirm/i, `${initDeepPath} must require a separately confirmed destructive request`);
   assert.match(content, /exact AGENTS\.md files/i, `${initDeepPath} must list the exact replacement targets`);
   assert.match(content, /backup.*confirmed original|confirmed original.*backup/is, `${initDeepPath} must back up every confirmed original`);
-  assert.match(content, /lazytrae init.*(?:updates?|replaces?).*complete.*delimited.*managed.*block.*appends?.*new.*delimited.*managed.*block/is, `${initDeepPath} must accurately describe managed-block update and append behavior`);
+  assert.match(content, /release-owned local command.*init.*(?:updates?|replaces?).*complete.*delimited.*managed.*block.*appends?.*new.*delimited.*managed.*block/is, `${initDeepPath} must accurately describe managed-block update and append behavior`);
   assert.match(content, /preserv(?:e|ing).*all\s+existing\s+surrounding\s+bytes|all\s+existing\s+surrounding\s+bytes.*preserv/is, `${initDeepPath} must preserve all bytes outside the managed block`);
   assert.doesNotMatch(content, /(?:if|when).*delimited block is absent.*leave the file unchanged/i, `${initDeepPath} must not claim an absent managed block leaves AGENTS.md unchanged`);
 }

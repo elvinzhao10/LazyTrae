@@ -18,6 +18,16 @@ function readInitDeepSkills() {
   ];
 }
 
+const BARE_INITDEEP_COMMAND = /(?:^|[\s`"'])lazytrae (?:load-check|init|sync|work install)\b/m;
+
+function assertLocalInitDeepGuidance(content, source) {
+  assert.doesNotMatch(content, BARE_INITDEEP_COMMAND, source);
+  assert.match(content, /\.trae\/mcp\.json/, source);
+  assert.match(content, /mcpServers\.lazytrae/, source);
+  assert.match(content, /command[^\n]*node/, source);
+  assert.match(content, /node <absolute-release-launcher[^\n]*--root <absolute-project-root/, source);
+}
+
 test('onboarding documents all host routes without claiming host discovery', () => {
   const agents = readTemplate('AGENTS.md');
 
@@ -76,7 +86,7 @@ test('InitDeep repairs core assets but never provisions optional integrations', 
 
   assert.match(command, /core LazyTrae assets only/);
   assert.match(skill, /core LazyTrae assets only/);
-  assert.match(skill, /Do NOT run `lazytrae tooling/);
+  assert.match(skill, /Do NOT invoke the release-owned local command with `tooling/);
   assert.match(skill, /Do NOT enable optional MCP\s+capabilities/);
   assert.doesNotMatch(skill, /npm install|npx /);
 });
@@ -88,7 +98,7 @@ test('InitDeep records package-readiness evidence without claiming a host or MCP
   // When: each skill is checked against the current InitDeep evidence contract.
   for (const skill of skills) {
     // Then: the contract requires a load check first, core inventory verification, and all evidence keys.
-    assert.ok(skill.indexOf('lazytrae load-check') < skill.indexOf('### Phase 1'));
+    assert.ok(skill.indexOf('load-check --host') < skill.indexOf('### Phase 1'));
     assert.match(skill, /verify skills, commands, agents, hooks, and the MCP declaration/i);
     assert.match(skill, /readiness_result/);
     assert.match(skill, /readiness_host/);
@@ -101,6 +111,49 @@ test('InitDeep records package-readiness evidence without claiming a host or MCP
     assert.doesNotMatch(skill, /(?:proves?|verifies?|confirms?) (?:a )?(?:live )?(?:host (?:discovery|connection)|MCP connection)/i);
   }
   assert.equal(skills[1], skills[0], 'plugin installed skill must match the package template');
+});
+
+test('InitDeep managed guidance uses the project release-owned launcher without PATH fallback', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-initdeep-local-guidance-'));
+  try {
+    fs.mkdirSync(path.join(fixture, '.git'));
+    const initialized = runCli(['init', '--host', 'ide'], { cwd: fixture });
+    assert.equal(initialized.status, 0, initialized.stderr);
+
+    const skillSources = [
+      ['skill template', readTemplate('skills/lazy-init-deep/SKILL.md')],
+      ['skill mirror', fs.readFileSync(path.join(REPO_ROOT, '.trae', 'skills', 'lazy-init-deep', 'SKILL.md'), 'utf8')],
+      ['installed skill', fs.readFileSync(path.join(fixture, '.trae', 'skills', 'lazy-init-deep', 'SKILL.md'), 'utf8')],
+    ];
+    for (const [source, content] of skillSources) assertLocalInitDeepGuidance(content, source);
+
+    const commandSources = [
+      ['command template', readTemplate('commands/lazy-init-deep.md')],
+      ['command mirror', fs.readFileSync(path.join(REPO_ROOT, '.trae', 'commands', 'lazy-init-deep.md'), 'utf8')],
+      ['installed command', fs.readFileSync(path.join(fixture, '.trae', 'commands', 'lazy-init-deep.md'), 'utf8')],
+    ];
+    for (const [source, content] of commandSources) {
+      assert.doesNotMatch(content, BARE_INITDEEP_COMMAND, source);
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('missing hook remediation names the release-owned local init command', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-hook-local-remediation-'));
+  try {
+    fs.mkdirSync(path.join(fixture, '.git'));
+    const result = runCli(['hook', 'stop'], { cwd: fixture });
+    const launcher = fs.realpathSync(path.join(REPO_ROOT, 'packages', 'cli', 'bin', 'lazytrae.js'));
+    const expected = `node '${launcher}' --root '${fs.realpathSync(fixture)}' init`;
+
+    assert.equal(result.status, 1);
+    assert.equal(result.stderr.includes(`Run "${expected}" to install hook scripts.`), true);
+    assert.doesNotMatch(result.stderr, /Run "lazytrae init"/);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
 });
 
 test('init appends removable onboarding guidance to an existing user AGENTS.md', () => {

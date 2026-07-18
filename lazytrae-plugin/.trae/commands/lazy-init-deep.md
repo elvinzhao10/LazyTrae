@@ -27,7 +27,8 @@ create and report a byte-for-byte backup of every confirmed original at
 `.lazytrae/backups/init-deep/<timestamp>/<relative-path>`. Leave every AGENTS.md
 not included in that confirmation unchanged.
 
-`lazytrae init` updates a complete delimited package-owned
+The release-owned local command described by the linked skill, with `init`,
+updates a complete delimited package-owned
 `lazytrae:managed:start` / `lazytrae:managed:end` block in AGENTS.md, or
 appends a new delimited managed block when none is present, preserving all
 existing surrounding bytes.
@@ -37,7 +38,9 @@ existing surrounding bytes.
 - One root AGENTS.md at the specified root.
 - Zero or more nested AGENTS.md in high-complexity directories.
 - Summary report with created files, file counts, and hierarchy.
-- Package load-check result from `lazytrae load-check --host ide|work|cli` before discovery begins; it does not establish host discovery or a live MCP connection.
+- Package `load-check --host ide|work|cli` result through that release-owned
+  local command before discovery begins; it does not establish host discovery
+  or a live MCP connection.
 
 ## Integration Boundary
 

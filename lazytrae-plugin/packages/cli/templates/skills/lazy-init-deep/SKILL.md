@@ -23,26 +23,45 @@ Give agents local, scoped, telegraphic context before they touch code. A root AG
 
 ## Mandatory package load check
 
-Before any repository discovery, identify the target host and run its package load check. This is required every time `lazy-init-deep` is invoked, including an existing project:
+Before any repository discovery, identify the target host and resolve the
+release-owned local command from the current project's `.trae/mcp.json`. The
+managed `mcpServers.lazytrae` entry must provide:
+
+- `command`: `node`
+- `args`: `[<absolute-release-launcher>, "--root", <absolute-project-root>, "mcp"]`
+
+For package commands, keep `node`, the absolute launcher, `--root`, and the
+absolute project root; replace the final `mcp` argument with the requested
+command. Never call a bare `lazytrae` executable or search `PATH`:
 
 ```bash
 # Trae IDE
-lazytrae load-check --host ide
+node <absolute-release-launcher-from-.trae/mcp.json> --root <absolute-project-root-from-.trae/mcp.json> load-check --host ide
 
 # Trae Work
-lazytrae load-check --host work
+node <absolute-release-launcher-from-.trae/mcp.json> --root <absolute-project-root-from-.trae/mcp.json> load-check --host work
 
 # Trae CLI
-lazytrae load-check --host cli
+node <absolute-release-launcher-from-.trae/mcp.json> --root <absolute-project-root-from-.trae/mcp.json> load-check --host cli
 ```
 
-This is package readiness only: it verifies skills, commands, agents, hooks, and the MCP declaration. It does not establish host discovery or a live MCP connection. Record the actual result in the final report. If project components are missing, run `lazytrae init --host <host>`; use `lazytrae sync` for an existing installation. For Trae Work, run `lazytrae work install` if global skills are missing. Re-run the check before continuing. Do not claim the project is initialized while the package load check fails. The Trae Work MCP setting remains manual.
+This is package readiness only: it verifies skills, commands, agents, hooks,
+and the MCP declaration. It does not establish host discovery or a live MCP
+connection. Record the actual result in the final report. If project components
+are missing, use the same release-owned command with `init --host <host>`; use
+`sync` for an existing installation. For Trae Work, use `work install` if
+global skills are missing. Re-run the check before continuing. If the managed
+declaration is missing or modified, stop and report it; recover the command from
+the known permanent release and current project root, never from `PATH`. Do not
+claim the project is initialized while the package load check fails. The Trae
+Work MCP setting remains manual.
 
 ## Optional Integration Boundary
 
 The load check and any repair above handle core LazyTrae assets only: installed
 skills, commands, rules, hooks, agents, schemas, and the base LazyTrae MCP
-declaration. Do NOT run `lazytrae tooling ...`. Do NOT enable optional MCP
+declaration. Do NOT invoke the release-owned local command with `tooling ...`.
+Do NOT enable optional MCP
 capabilities or install external dependencies during InitDeep. If an optional
 tool is genuinely needed, report its explicit lifecycle command and wait for a
 separate user-triggered request before provisioning it. Leave optional capabilities unchanged unless separately explicitly requested.
@@ -145,7 +164,7 @@ byte-for-byte backup of every confirmed original at
 `.lazytrae/backups/init-deep/<timestamp>/<relative-path>` and report each backup
 path. Leave every unlisted AGENTS.md unchanged.
 
-`lazytrae init` updates a complete delimited package-owned
+The release-owned local command with `init` updates a complete delimited package-owned
 `lazytrae:managed:start` / `lazytrae:managed:end` block in AGENTS.md, or
 appends a new delimited managed block when none is present, preserving all
 existing surrounding bytes.

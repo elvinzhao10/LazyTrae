@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { localCommand } = require('../lib/local-command');
 const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 
 function detectRepoRoot() {
@@ -62,7 +63,7 @@ Examples:
 
   if (!fs.existsSync(scriptPath)) {
     console.error(`lazytrae hook: Hook script not found: ${scriptPath}`);
-    console.error('Run "lazytrae init" to install hook scripts.');
+    console.error(`Run "${localCommand(repoRoot)} init" to install hook scripts.`);
     process.exit(1);
   }
 
