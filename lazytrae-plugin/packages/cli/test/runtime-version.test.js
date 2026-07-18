@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 
@@ -67,6 +68,8 @@ const REGEX_EXPECTATION_PATHS = [
 ];
 
 function initializeVersion(server) {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-version-mcp-'));
+  fs.mkdirSync(path.join(projectRoot, '.lazytrae', 'state'), { recursive: true });
   let output = '';
   const write = process.stdout.write;
   process.stdout.write = (chunk) => {
@@ -74,9 +77,10 @@ function initializeVersion(server) {
     return true;
   };
   try {
-    server.handleRequest({ id: 1, method: 'initialize' }, process.cwd());
+    server.handleRequest({ id: 1, method: 'initialize' }, projectRoot);
   } finally {
     process.stdout.write = write;
+    fs.rmSync(projectRoot, { recursive: true, force: true });
   }
   return JSON.parse(output).result.serverInfo.version;
 }

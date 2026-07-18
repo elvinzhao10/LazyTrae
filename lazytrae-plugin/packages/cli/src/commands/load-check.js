@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
+const { inspectInitializeReceipt } = require('../lib/initialize-receipt');
 const { inspectCoreDeclaration, localCommand, managedCoreServer } = require('../lib/local-launcher');
 
 const ARTIFACT_CONTRACT = Object.freeze({
@@ -119,6 +120,19 @@ function printHostRegistrationStatus(host, repoRoot) {
   }
 }
 
+function printInitializeReceiptStatus(repoRoot) {
+  const observation = inspectInitializeReceipt(repoRoot);
+  if (observation.state === 'valid') {
+    console.log(`MCP initialize evidence: previously observed at ${observation.receipt.last_initialized_at}; HOST PENDING — host readiness remains PENDING.`);
+  } else if (observation.state === 'stale') {
+    console.log(`MCP initialize evidence: WARN ${observation.detail}; HOST PENDING — host readiness remains PENDING.`);
+  } else if (observation.state === 'invalid') {
+    console.log(`MCP initialize evidence: WARN ${observation.detail}; HOST PENDING — host readiness remains PENDING.`);
+  } else {
+    console.log('MCP initialize evidence: not previously observed; HOST PENDING — host readiness remains PENDING.');
+  }
+}
+
 function run(args) {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae load-check [--host ide|work|cli]
@@ -174,6 +188,7 @@ configuration only; it does not claim that a host has registered or loaded them.
   }
 
   printHostRegistrationStatus(host, repoRoot);
+  printInitializeReceiptStatus(repoRoot);
   const readinessStateInvalid = readiness.some(record => record.reason_code === 'STATE_INVALID');
   const failed = checks.some(result => result.missing.length) || hookMappings.failures.length > 0 || hookPermissions.length > 0 || Boolean(mcpError) || workSkillsFailed || readinessStateInvalid;
   console.log(failed
