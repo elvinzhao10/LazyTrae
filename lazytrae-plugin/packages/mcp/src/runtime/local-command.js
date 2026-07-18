@@ -27,4 +27,5 @@ module.exports = {
   canonicalRepoRoot,
   localCommand,
   localLauncherPath,
+  shellQuote,
 };
