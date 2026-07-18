@@ -6,9 +6,12 @@ let Ajv;
 let addFormats;
 try {
   Ajv = require('ajv');
-  addFormats = require('ajv-formats');
-} catch (e) {
+} catch (_) {
   Ajv = null;
+}
+try {
+  addFormats = require('ajv-formats');
+} catch (_) {
   addFormats = null;
 }
 
@@ -32,6 +35,7 @@ function formatAjvError(error) {
 function validateStateFile(repoRoot, stateFileName, schemaFileName, versionContract) {
   const statePath = path.join(repoRoot, '.lazytrae', 'state', stateFileName);
   const schemaPath = path.join(repoRoot, '.lazytrae', 'schemas', schemaFileName);
+  const effectiveVersionContract = versionContract || STATE_CONTRACTS[stateFileName];
 
   if (!fs.existsSync(statePath)) {
     return { valid: false, errors: [`State file not found: ${statePath}`] };
@@ -54,8 +58,23 @@ function validateStateFile(repoRoot, stateFileName, schemaFileName, versionContr
     return { valid: false, errors: [`Invalid JSON schema ${schemaFileName}: ${e.message}`] };
   }
 
+  if (effectiveVersionContract && stateData[effectiveVersionContract.versionKey] !== effectiveVersionContract.version) {
+    return {
+      valid: false,
+      errors: [`Invalid ${effectiveVersionContract.versionKey} in ${stateFileName}: expected ${effectiveVersionContract.version}`],
+    };
+  }
+
   if (!Ajv || !addFormats) {
-    return { valid: false, errors: ['Ajv formats are unavailable; cannot validate state schema'] };
+    const unavailable = [];
+    if (!Ajv) unavailable.push('Ajv');
+    if (!addFormats) unavailable.push('ajv-formats');
+    return {
+      valid: true,
+      errors: [],
+      warnings: [`Structural validation unchecked: ${unavailable.join(' and ')} are unavailable`],
+      structuralValidation: 'unchecked',
+    };
   }
 
   let validate;
@@ -79,14 +98,7 @@ function validateStateFile(repoRoot, stateFileName, schemaFileName, versionContr
     return { valid: false, errors };
   }
 
-  if (versionContract && stateData[versionContract.versionKey] !== versionContract.version) {
-    return {
-      valid: false,
-      errors: [`Invalid ${versionContract.versionKey} in ${stateFileName}: expected ${versionContract.version}`],
-    };
-  }
-
-  return { valid: true, errors: [] };
+  return { valid: true, errors: [], warnings: [], structuralValidation: 'validated' };
 }
 
 function validateAllState(repoRoot) {

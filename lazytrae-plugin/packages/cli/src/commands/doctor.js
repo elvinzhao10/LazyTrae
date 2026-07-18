@@ -170,7 +170,12 @@ Options:
   const schemaResults = validateAllState(repoRoot);
   for (const [stateFile, result] of Object.entries(schemaResults)) {
     if (result.valid) {
-      addResult(`Schema validation: ${stateFile}`, 'PASS');
+      if (result.structuralValidation === 'unchecked') {
+        addResult(`Schema validation: ${stateFile}`, 'WARN',
+          (result.warnings || ['Structural validation unchecked']).join('; '));
+      } else {
+        addResult(`Schema validation: ${stateFile}`, 'PASS');
+      }
     } else {
       addResult(`Schema validation: ${stateFile}`, 'FAIL', result.errors.join('; '));
     }

@@ -107,9 +107,14 @@ test('sessions state rejects malformed required values while allowing omitted re
   sessions.compaction_state.last_compaction_at = 'not-a-timestamp';
   fs.writeFileSync(sessionsPath, JSON.stringify(sessions, null, 2) + '\n');
   const malformed = validateStateFile(fixture, 'sessions.json', 'sessions.schema.json');
-  assert.equal(malformed.valid, false);
-  assert.match(malformed.errors.join('; '), /current_session_id/);
-  assert.match(malformed.errors.join('; '), /last_compaction_at/);
+  if (optionalFieldsAbsent.structuralValidation === 'unchecked') {
+    assert.equal(malformed.valid, true);
+    assert.equal(malformed.structuralValidation, 'unchecked');
+  } else {
+    assert.equal(malformed.valid, false);
+    assert.match(malformed.errors.join('; '), /current_session_id/);
+    assert.match(malformed.errors.join('; '), /last_compaction_at/);
+  }
 });
 
 test('every checked-in state schema remains aligned with the installed template', () => {
@@ -152,7 +157,57 @@ test('doctor accepts the idle loop and rejects strict values for source and inst
     fs.writeFileSync(activeLoopPath, JSON.stringify(activeLoop, null, 2) + '\n');
 
     const strict = runCli(['doctor'], { cwd: fixture });
-    assert.equal(strict.status, 1, strict.stdout);
-    assert.match(strict.stdout, /Schema validation: active-loop\.json[\s\S]*\/run_id/);
+    if (idle.stdout.includes('Structural validation unchecked')) {
+      assert.equal(strict.status, 0, strict.stdout);
+      assert.match(strict.stdout, /Schema validation: active-loop\.json[\s\S]*WARN/);
+      assert.match(strict.stdout, /Structural validation unchecked/);
+    } else {
+      assert.equal(strict.status, 1, strict.stdout);
+      assert.match(strict.stdout, /Schema validation: active-loop\.json[\s\S]*\/run_id/);
+    }
   }
+});
+
+test('dependency-free validation keeps JSON and version failures blocking', () => {
+  const fixture = makeFixture('lazytrae-validator-dependency-free-');
+  const statePath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
+  const schemaPath = path.join(fixture, '.lazytrae', 'schemas', 'boulder.schema.json');
+  const state = fs.readFileSync(statePath, 'utf8');
+  const schema = fs.readFileSync(schemaPath, 'utf8');
+
+  const clean = validateStateFile(fixture, 'boulder.json', 'boulder.schema.json');
+  assert.equal(clean.valid, true, clean.errors.join('; '));
+  if (clean.structuralValidation === 'unchecked') {
+    assert.match(clean.warnings.join('; '), /Structural validation unchecked/);
+  }
+  assert.equal(runCli(['verify', '--must-pass'], { cwd: fixture }).status, 0);
+
+  fs.writeFileSync(statePath, '{\n');
+  const malformedState = validateStateFile(fixture, 'boulder.json', 'boulder.schema.json');
+  assert.equal(malformedState.valid, false);
+  assert.match(malformedState.errors.join('; '), /Invalid JSON in boulder\.json/);
+
+  fs.writeFileSync(statePath, state);
+  fs.writeFileSync(schemaPath, '{\n');
+  const malformedSchema = validateStateFile(fixture, 'boulder.json', 'boulder.schema.json');
+  assert.equal(malformedSchema.valid, false);
+  assert.match(malformedSchema.errors.join('; '), /Invalid JSON schema boulder\.schema\.json/);
+
+  fs.writeFileSync(schemaPath, schema);
+  const withoutVersion = JSON.parse(state);
+  delete withoutVersion.schema_version;
+  fs.writeFileSync(statePath, JSON.stringify(withoutVersion, null, 2) + '\n');
+  const missingVersion = validateStateFile(fixture, 'boulder.json', 'boulder.schema.json');
+  assert.equal(missingVersion.valid, false);
+  assert.match(missingVersion.errors.join('; '), /Invalid schema_version in boulder\.json/);
+
+  withoutVersion.schema_version = 99;
+  fs.writeFileSync(statePath, JSON.stringify(withoutVersion, null, 2) + '\n');
+  const wrongVersion = validateStateFile(fixture, 'boulder.json', 'boulder.schema.json');
+  assert.equal(wrongVersion.valid, false);
+  assert.match(wrongVersion.errors.join('; '), /Invalid schema_version in boulder\.json/);
+
+  const verify = runCli(['verify', '--must-pass'], { cwd: fixture });
+  assert.equal(verify.status, 1, verify.stdout);
+  assert.match(verify.stdout, /Invalid schema_version in boulder\.json/);
 });

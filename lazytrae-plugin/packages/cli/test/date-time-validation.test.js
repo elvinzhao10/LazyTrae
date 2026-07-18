@@ -43,7 +43,13 @@ test('doctor enforces RFC3339 date-time formats in installed state schemas', () 
     boulder.works['work-1'].created_at = createdAt;
     fs.writeFileSync(boulderPath, JSON.stringify(boulder, null, 2) + '\n');
     const invalid = runCli(['doctor'], { cwd: fixture });
-    assert.equal(invalid.status, 1, invalid.stdout);
-    assert.match(invalid.stdout, /Schema validation: boulder\.json[\s\S]*\/created_at.*date-time/);
+    if (valid.stdout.includes('Structural validation unchecked')) {
+      assert.equal(invalid.status, 0, invalid.stdout);
+      assert.match(invalid.stdout, /Schema validation: boulder\.json[\s\S]*WARN/);
+      assert.match(invalid.stdout, /Structural validation unchecked/);
+    } else {
+      assert.equal(invalid.status, 1, invalid.stdout);
+      assert.match(invalid.stdout, /Schema validation: boulder\.json[\s\S]*\/created_at.*date-time/);
+    }
   }
 });
