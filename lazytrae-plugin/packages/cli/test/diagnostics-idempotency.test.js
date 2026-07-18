@@ -48,6 +48,29 @@ test('doctor recognizes the canonical onboarding managed block', () => {
   }
 });
 
+test('doctor warns on a malformed managed marker without discarding user content', () => {
+  const project = makeProject('lazytrae-doctor-malformed-managed-');
+  try {
+    fs.writeFileSync(path.join(project, 'AGENTS.md'), '# User rules\n\nKeep this.\n');
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: project }).status, 0);
+    const agentsPath = path.join(project, 'AGENTS.md');
+    const malformed = fs.readFileSync(agentsPath, 'utf8').replace(
+      '<!-- lazytrae:managed:end:onboarding -->',
+      '<!-- lazytrae:managed:end:other -->',
+    );
+    fs.writeFileSync(agentsPath, malformed);
+
+    const doctor = runCli(['doctor'], { cwd: project });
+
+    assert.equal(doctor.status, 0, doctor.stderr);
+    assert.match(doctor.stdout, /AGENTS\.md managed blocks\s+WARN/);
+    assert.match(doctor.stdout, /Malformed managed block markers: onboarding, other/);
+    assert.match(fs.readFileSync(agentsPath, 'utf8'), /# User rules[\s\S]*Keep this\./);
+  } finally {
+    removeProject(project);
+  }
+});
+
 test('readiness summary names every member in each status group', () => {
   const summary = formatReadinessSummary([
     { status: 'host-ready', provider: 'ripgrep' },
