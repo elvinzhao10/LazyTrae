@@ -8,6 +8,15 @@ const test = require('node:test');
 const CLI_ROOT = path.resolve(__dirname, '..');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
+function assertNoPrivateOmoMembers(members) {
+  const offenders = members.filter(member => /(?:^|\/)\.omo(?:\/|$)/.test(member));
+  assert.deepEqual(
+    offenders,
+    [],
+    `packed artifacts must exclude private .omo evidence: ${offenders.join(', ')}`,
+  );
+}
+
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: options.cwd || CLI_ROOT,
@@ -61,6 +70,7 @@ test('packed CLI installs from a cold offline npm cache with only production dep
     const [packageInfo] = JSON.parse(run(npm, ['pack', '--json', '--pack-destination', root]));
     const tarball = path.join(root, packageInfo.filename);
     const members = run('tar', ['-tzf', tarball]).trim().split('\n');
+    assertNoPrivateOmoMembers(members);
     const bundledPackages = new Set(members
       .map(member => member.match(/^package\/node_modules\/([^/]+)\/package\.json$/)?.[1])
       .filter(Boolean));

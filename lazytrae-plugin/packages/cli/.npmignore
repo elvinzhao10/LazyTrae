@@ -1,0 +1,3 @@
+# Private agent planning and evidence are never part of a distributable CLI.
+.omo/
+**/.omo/
