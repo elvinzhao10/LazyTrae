@@ -1,18 +1,11 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const { canonicalRepoRoot, localCommand, localLauncherPath } = require('./local-command');
 
 const CORE_DESCRIPTION = 'LazyTrae state, evidence, handoff, and local context MCP server — exposes 15 tools including heuristic symbol/reference/docs/dependency helpers';
 const MANAGED_KEY = '_lazytrae';
 const RELEASE_VERSION = '1.0.2';
-
-function localLauncherPath() {
-  return fs.realpathSync(path.resolve(__dirname, '..', '..', 'bin', 'lazytrae.js'));
-}
-
-function canonicalRepoRoot(repoRoot) {
-  return fs.realpathSync(repoRoot);
-}
 
 function fingerprint(server) {
   const payload = Object.fromEntries(Object.entries(server).filter(([key]) => key !== MANAGED_KEY));
@@ -90,14 +83,6 @@ function classifyCoreServer(server, repoRoot) {
   if (launcher !== localLauncherPath()) return { state: 'stale', launcher, configuredRoot };
   if (configuredRoot !== canonicalRepoRoot(repoRoot)) return { state: 'stale_root', launcher, configuredRoot };
   return { state: 'current', launcher, configuredRoot };
-}
-
-function shellQuote(value) {
-  return `'${String(value).replaceAll("'", `'"'"'`)}'`;
-}
-
-function localCommand(repoRoot) {
-  return `node ${shellQuote(localLauncherPath())} --root ${shellQuote(canonicalRepoRoot(repoRoot))}`;
 }
 
 function remediation(repoRoot) {

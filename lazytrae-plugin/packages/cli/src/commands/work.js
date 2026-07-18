@@ -8,7 +8,7 @@ const {
   rejectSymlink,
   skillState: readSkillState,
 } = require('../lib/work-skill-transaction');
-const { managedCoreServer } = require('../lib/local-launcher');
+const { localCommand, managedCoreServer } = require('../lib/local-launcher');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'templates');
 const WORK_SKILLS_DIR_ENV = 'LAZYTRAE_WORK_SKILLS_DIR';
@@ -122,7 +122,7 @@ function status(skillsDir) {
   const outdated = states.filter(entry => entry.state === 'outdated').length;
   console.log(`Trae Work global skills: ${current}/${states.length} current, ${missing} missing, ${outdated} outdated.`);
   console.log(`Directory: ${skillsDir}`);
-  if (missing || outdated) console.log('Run `lazytrae work install` to repair the global skill installation.');
+  if (missing || outdated) console.log(`Run \`${localCommand(process.cwd())} work install\` to repair the global skill installation.`);
   printMcpReminder();
   return missing || outdated ? 1 : 0;
 }

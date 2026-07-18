@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const { writeJson } = require('./test-helpers');
 
 const CLI_ROOT = path.resolve(__dirname, '..');
 const LOCAL_LAUNCHER = path.join(CLI_ROOT, 'bin', 'lazytrae.js');
@@ -112,6 +113,101 @@ test('release-owned launcher serves MCP initialize from outside the release with
     // Then: initialize reports the current release.
     assert.equal(result.status, 0, result.stderr);
     assert.equal(JSON.parse(result.stdout.trim()).result.serverInfo.version, '1.0.2');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('work status prints a release-owned repair command when PATH contains only node', () => {
+  // Given: a project with no Work skills and a PATH that cannot resolve a global LazyTrae command.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-local-work-status-'));
+  const project = makeProject(root, 'project');
+  const skills = path.join(root, 'skills');
+  const home = path.join(root, 'home');
+  const nodeBin = path.join(root, 'node-bin');
+  fs.mkdirSync(skills);
+  fs.mkdirSync(home);
+  fs.mkdirSync(nodeBin);
+  fs.symlinkSync(process.execPath, path.join(nodeBin, 'node'));
+  try {
+    // When: Work status reports the missing installation through the local launcher.
+    const result = runLauncher(LOCAL_LAUNCHER, [
+      '--root', project, 'work', 'status', '--skills-dir', skills,
+    ], { cwd: root, home, binDirectory: nodeBin });
+
+    // Then: remediation remains executable without a PATH-installed LazyTrae binary.
+    const expected = `node '${fs.realpathSync(LOCAL_LAUNCHER)}' --root '${fs.realpathSync(project)}' work install`;
+    assert.equal(result.status, 1, result.stderr);
+    assert.equal(result.stdout.includes(`Run \`${expected}\` to repair the global skill installation.`), true);
+    assert.doesNotMatch(result.stdout, /`lazytrae work install`/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('completion status prints a release-owned verification command', () => {
+  // Given: a local project whose active task has not recorded completion evidence.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-local-completion-'));
+  const project = makeProject(root, 'project');
+  const home = path.join(root, 'home');
+  fs.mkdirSync(home);
+  writeJson(project, '.lazytrae/state/boulder.json', {
+    schema_version: 2,
+    active_work_id: 'work-1',
+    works: {
+      'work-1': {
+        work_id: 'work-1',
+        tasks: [{ id: 'task-1', status: 'in_progress', evidence_paths: [] }],
+        blockers: [],
+      },
+    },
+  });
+  try {
+    // When: the completion status is requested through the local launcher.
+    const result = runLauncher(LOCAL_LAUNCHER, ['--root', project, 'completion-status'], { cwd: root, home });
+
+    // Then: the next command is tied to this release and project, never a bare PATH command.
+    const expected = `node '${fs.realpathSync(LOCAL_LAUNCHER)}' --root '${fs.realpathSync(project)}' verify --must-pass`;
+    assert.equal(result.status, 1, result.stderr);
+    assert.equal(result.stdout.includes(`Next command: ${expected}`), true);
+    assert.doesNotMatch(result.stdout, /Next command: lazytrae\b/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('generated stop hook relays only release-owned completion remediation', () => {
+  // Given: an initialized local project with an incomplete active task.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-local-stop-remediation-'));
+  const project = makeProject(root, 'project');
+  const home = path.join(root, 'home');
+  fs.mkdirSync(home);
+  try {
+    const initialized = runLauncher(LOCAL_LAUNCHER, ['--root', project, 'init', '--host', 'ide'], { cwd: root, home });
+    assert.equal(initialized.status, 0, `${initialized.stdout}\n${initialized.stderr}`);
+    writeJson(project, '.lazytrae/state/boulder.json', {
+      schema_version: 2,
+      active_work_id: 'work-1',
+      works: {
+        'work-1': {
+          work_id: 'work-1',
+          tasks: [{ id: 'task-1', status: 'in_progress', evidence_paths: [] }],
+          blockers: [],
+        },
+      },
+    });
+
+    // When: Trae executes the generated stop hook.
+    const result = spawnSync('/bin/bash', [path.join(project, '.trae', 'hooks', 'stop.sh')], {
+      cwd: project,
+      encoding: 'utf8',
+    });
+
+    // Then: the reminder relays the explicit release-owned verification command.
+    const expected = `node '${fs.realpathSync(LOCAL_LAUNCHER)}' --root '${fs.realpathSync(project)}' verify --must-pass`;
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout.includes(`Next command: ${expected}`), true);
+    assert.doesNotMatch(result.stdout, /Next command: lazytrae\b/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
