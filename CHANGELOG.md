@@ -7,6 +7,9 @@ All notable public changes to LazyTrae are documented here. Versions follow
 
 ### Changed
 
+- Shipped the local-first onboarding hotfix: a v1.0.2 release can be run from
+  its permanent folder while package readiness stays separate from observed
+  Trae host readiness.
 - Updated current package, runtime, template, and onboarding documentation
   identities for the v1.0.2 release.
 - Prepared all six package and lockfile pairs for reproducible publication.
@@ -19,6 +22,11 @@ All notable public changes to LazyTrae are documented here. Versions follow
   both succeed.
 - Made Work skill installation rollback transaction-owned writes while
   preserving concurrent or replaced caller content and allowing clean retry.
+
+### Verification
+
+- Package checks validate local files and declarations only; host discovery and
+  MCP connection remain pending until a fresh Trae session is observed.
 
 ## [1.0.1] - 2026-07-17
 
