@@ -37,6 +37,23 @@ test('verify --must-pass fails incomplete fixtures and passes complete fixtures'
   assert.match(ready.stdout, /^ready/m);
 });
 
+test('verify --must-pass does not claim completion when doctor fails', () => {
+  const fixture = makeCompletionFixture('lazytrae-verify-doctor-failure-', true);
+  const boulderPath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
+  const boulder = JSON.parse(fs.readFileSync(boulderPath, 'utf8'));
+  boulder.schema_version = 99;
+  fs.writeFileSync(boulderPath, JSON.stringify(boulder, null, 2) + '\n');
+
+  const result = runCli(['verify', '--must-pass'], { cwd: fixture });
+
+  assert.equal(result.status, 1, result.stdout);
+  assert.match(result.stdout, /Schema validation: boulder\.json[\s\S]*FAIL/);
+  assert.match(result.stdout, /Invalid schema_version in boulder\.json/);
+  assert.match(result.stdout, /Verification failed: doctor reported blocking checks; completion status withheld\./);
+  assert.doesNotMatch(result.stdout, /^ready$/m);
+  assert.doesNotMatch(result.stdout, /Completion gates satisfied\./);
+});
+
 test('verify --help documents --must-pass', () => {
   const result = runCli(['verify', '--help']);
 

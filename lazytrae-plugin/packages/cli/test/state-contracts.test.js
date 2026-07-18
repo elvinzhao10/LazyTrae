@@ -6,6 +6,16 @@ const { HANDLERS } = require('../../mcp/src/tools');
 const { validateStateFile } = require('../src/lib/validator');
 const { REPO_ROOT, makeFixture, runCli } = require('./test-helpers');
 
+const HAS_AJV = (() => {
+  try {
+    require('ajv');
+    require('ajv-formats');
+    return true;
+  } catch (_) {
+    return false;
+  }
+})();
+
 function writeActiveWork(root, activePlan) {
   const now = '2026-07-09T00:00:00Z';
   const boulderPath = path.join(root, '.lazytrae', 'state', 'boulder.json');
@@ -107,13 +117,14 @@ test('sessions state rejects malformed required values while allowing omitted re
   sessions.compaction_state.last_compaction_at = 'not-a-timestamp';
   fs.writeFileSync(sessionsPath, JSON.stringify(sessions, null, 2) + '\n');
   const malformed = validateStateFile(fixture, 'sessions.json', 'sessions.schema.json');
-  if (optionalFieldsAbsent.structuralValidation === 'unchecked') {
-    assert.equal(malformed.valid, true);
-    assert.equal(malformed.structuralValidation, 'unchecked');
-  } else {
+  if (HAS_AJV) {
     assert.equal(malformed.valid, false);
+    assert.equal(malformed.structuralValidation, undefined);
     assert.match(malformed.errors.join('; '), /current_session_id/);
     assert.match(malformed.errors.join('; '), /last_compaction_at/);
+  } else {
+    assert.equal(malformed.valid, true);
+    assert.equal(malformed.structuralValidation, 'unchecked');
   }
 });
 
@@ -157,13 +168,14 @@ test('doctor accepts the idle loop and rejects strict values for source and inst
     fs.writeFileSync(activeLoopPath, JSON.stringify(activeLoop, null, 2) + '\n');
 
     const strict = runCli(['doctor'], { cwd: fixture });
-    if (idle.stdout.includes('Structural validation unchecked')) {
+    if (HAS_AJV) {
+      assert.equal(strict.status, 1, strict.stdout);
+      assert.match(strict.stdout, /Schema validation: active-loop\.json[\s\S]*\/run_id/);
+      assert.doesNotMatch(strict.stdout, /Structural validation unchecked/);
+    } else {
       assert.equal(strict.status, 0, strict.stdout);
       assert.match(strict.stdout, /Schema validation: active-loop\.json[\s\S]*WARN/);
       assert.match(strict.stdout, /Structural validation unchecked/);
-    } else {
-      assert.equal(strict.status, 1, strict.stdout);
-      assert.match(strict.stdout, /Schema validation: active-loop\.json[\s\S]*\/run_id/);
     }
   }
 });
@@ -177,7 +189,10 @@ test('dependency-free validation keeps JSON and version failures blocking', () =
 
   const clean = validateStateFile(fixture, 'boulder.json', 'boulder.schema.json');
   assert.equal(clean.valid, true, clean.errors.join('; '));
-  if (clean.structuralValidation === 'unchecked') {
+  if (HAS_AJV) {
+    assert.equal(clean.structuralValidation, 'validated');
+    assert.deepEqual(clean.warnings, []);
+  } else {
     assert.match(clean.warnings.join('; '), /Structural validation unchecked/);
   }
   assert.equal(runCli(['verify', '--must-pass'], { cwd: fixture }).status, 0);
