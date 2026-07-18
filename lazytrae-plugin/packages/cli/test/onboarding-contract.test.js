@@ -4,6 +4,7 @@ const path = require('node:path');
 const test = require('node:test');
 const os = require('node:os');
 const { REPO_ROOT, runCli } = require('./test-helpers');
+const REPOSITORY_ROOT = path.resolve(REPO_ROOT, '..');
 
 function readTemplate(relativePath) {
   return fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8');
@@ -23,11 +24,50 @@ test('onboarding documents all host routes without claiming host discovery', () 
   assert.match(agents, /Trae IDE/, 'IDE route must be documented');
   assert.match(agents, /Trae Work/, 'Work route must be documented');
   assert.match(agents, /Trae CLI/, 'CLI route must be documented');
-  assert.match(agents, /lazytrae init --host ide\|work\|cli/);
-  assert.match(agents, /lazytrae work install/);
-  assert.match(agents, /lazytrae work status/);
+  assert.match(agents, /__LAZYTRAE_LOCAL_COMMAND__/);
+  assert.match(agents, /init --host ide\|cli/);
+  assert.match(agents, /__LAZYTRAE_LOCAL_COMMAND__ init --host work/);
+  assert.match(agents, /Settings → MCP/);
   assert.match(agents, /package readiness/);
-  assert.match(agents, /not host discovery, MCP connection, or a running session/);
+  assert.match(agents, /never proves host discovery[\s\S]*MCP connection/);
+});
+
+test('local-first onboarding protocol covers every stage and host readiness boundary', () => {
+  const routeDocs = [
+    path.join(REPOSITORY_ROOT, 'AGENTS.md'),
+    path.join(REPOSITORY_ROOT, 'README.md'),
+    path.join(REPOSITORY_ROOT, 'docs', '03-install-and-host-verification.md'),
+    path.join(REPOSITORY_ROOT, 'docs', 'reference', 'host-routes.md'),
+    path.join(REPOSITORY_ROOT, 'lazytrae-plugin', 'README.md'),
+    path.join(REPOSITORY_ROOT, 'lazytrae-plugin', 'packages', 'cli', 'README.md'),
+    path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'AGENTS.md'),
+  ];
+
+  // Given: each shipped user-facing onboarding surface.
+  for (const documentPath of routeDocs) {
+    const content = fs.readFileSync(documentPath, 'utf8');
+
+    // When: the surface is checked against the local-first onboarding contract.
+    assert.match(content, /permanent[\s\S]{0,240}(?:open|link)[\s\S]{0,240}https:\/\/github\.com\/elvinzhao10\/LazyTrae[\s\S]{0,160}onboard/i, documentPath);
+    assert.match(content, /package[\s\n]+readiness/i, documentPath);
+    assert.match(content, /host[\s\n]+readiness/i, documentPath);
+    assert.match(content, /approval/i, documentPath);
+    assert.match(content, /(?:one[\s\S]{0,30}exact|exactly[\s\S]{0,30}one)[\s\S]{0,100}action[\s\S]{0,100}wait/i, documentPath);
+    assert.match(content, /Computer Use/i, documentPath);
+    assert.match(content, /reload|new session/i, documentPath);
+    assert.match(content, /real (?:LazyTrae )?(?:Skill|command)|one (?:real )?(?:Skill|command)/i, documentPath);
+    assert.match(content, /expected MCP|core MCP/i, documentPath);
+    assert.match(content, /pending/i, documentPath);
+  }
+
+  const hostRoutes = fs.readFileSync(path.join(REPOSITORY_ROOT, 'docs', 'reference', 'host-routes.md'), 'utf8');
+  assert.match(hostRoutes, /Trae IDE[\s\S]*\.trae\/mcp\.json[\s\S]*generated[\s\S]*command: node/i);
+  assert.match(hostRoutes, /Trae Work[\s\S]*Skills copy\/import[\s\S]*manual/i);
+  assert.match(hostRoutes, /Trae CLI[\s\S]*trae-cli mcp add-json/i);
+
+  const readme = fs.readFileSync(path.join(REPOSITORY_ROOT, 'README.md'), 'utf8');
+  assert.doesNotMatch(readme, /npm install --global/i);
+  assert.match(readme, /absolute launcher/i);
 });
 
 test('InitDeep repairs core assets but never provisions optional integrations', () => {

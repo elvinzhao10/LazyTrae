@@ -11,73 +11,45 @@ templates, package-local `LICENSE` and `NOTICE`, and its production dependency
 closure; a cold offline install checks that artifact without asserting host
 discovery or an MCP connection.
 
-A developer installs the package, then uses the local `lazytrae` command in any project.
+A developer keeps the release in a permanent folder and invokes its absolute
+launcher from any project. A global shorthand is optional and never required.
 
 ## Commands
 
 ```bash
-# Install LazyTrae into current repo
-lazytrae init
+# Keep both paths absolute; this array prevents PATH/global command lookup.
+LOCAL_LAZYTRAE=(node "/permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js" --root "/absolute/path/to/project")
 
-# CLI-compatible safe aliases used by onboarding and InitDeep workflows
-lazytrae onboard --host ide
-lazytrae initdeep --host ide
+# Install, verify, and inspect local readiness.
+"${LOCAL_LAZYTRAE[@]}" init --host ide
+"${LOCAL_LAZYTRAE[@]}" onboard --host ide
+"${LOCAL_LAZYTRAE[@]}" load-check --host ide
+"${LOCAL_LAZYTRAE[@]}" doctor
+"${LOCAL_LAZYTRAE[@]}" sync
+"${LOCAL_LAZYTRAE[@]}" verify --must-pass
 
-# Verify copied package files and declarations after a fresh init
-lazytrae load-check --host ide
+# Remove only receipt-owned project assets.
+"${LOCAL_LAZYTRAE[@]}" uninstall --yes
+"${LOCAL_LAZYTRAE[@]}" work status
+"${LOCAL_LAZYTRAE[@]}" work uninstall
 
-# Check installation health
-lazytrae doctor
-
-# Inspect redacted provider and approval status without consuming credentials
-lazytrae setup --non-interactive --json
-lazytrae providers --json
-lazytrae providers test --json
-
-# Update managed templates and managed blocks
-lazytrae sync
-
-# Install or check global Trae Work skills on macOS
-lazytrae work install
-lazytrae work status
-lazytrae work uninstall
-
-# Remove LazyTrae from current repo
-lazytrae uninstall
-
-# Same as doctor --strict (treats WARNs as FAILs)
-lazytrae verify
-
-# Print handoff summary from current state
-lazytrae handoff
-
-# Inspect, provision, validate, or remove an explicitly-owned LSP provider
-lazytrae tooling lsp-status --target /absolute/project --tooling-root /absolute/lazytrae-lsp
-lazytrae tooling lsp-install --target /absolute/project --tooling-root /absolute/lazytrae-lsp
-lazytrae tooling lsp-doctor --target /absolute/project --tooling-root /absolute/lazytrae-lsp
-lazytrae tooling lsp-uninstall --target /absolute/project --tooling-root /absolute/lazytrae-lsp
-
-# Start the separate read-only LSP MCP bridge after provider readiness is reported
-lazytrae lsp --target /absolute/project --tooling-root /absolute/lazytrae-lsp
-
-# Inspect and explicitly manage the optional package-owned CodeGraph bridge
-lazytrae tooling codegraph-doctor --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
-lazytrae tooling codegraph-install --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
-lazytrae tooling codegraph-init --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
-lazytrae tooling codegraph-enable --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
-lazytrae tooling codegraph-uninstall --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
-
-# Explicit persistent compatibility only; automatic capability use is temporary.
-lazytrae tooling remote-status
-lazytrae tooling enable context7
-lazytrae tooling enable grep_app
-lazytrae tooling disable context7
-lazytrae tooling disable grep_app
+# Optional explicit lifecycle commands remain task- and approval-gated.
+"${LOCAL_LAZYTRAE[@]}" tooling lsp-status --target /absolute/project --tooling-root /absolute/lazytrae-lsp
+"${LOCAL_LAZYTRAE[@]}" tooling codegraph-doctor --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
+"${LOCAL_LAZYTRAE[@]}" tooling remote-status
 ```
 
 ## Managed LSP bridge
 
-The optional LSP bridge is separate from `lazytrae mcp`; the latter retains its 15-tool contract. It detects an existing project or host provider before provisioning a package-owned fallback. Only JavaScript/TypeScript (`typescript-language-server@5.3.0` with `typescript@5.9.3`) and Python (`basedpyright@1.39.9`) are supported. TypeScript requires Node 20 or later. The bridge exposes only advertised read-only definitions, references, symbols, hover, and diagnostics operations. It rejects rename requests and uses an explicit receipt-owned tooling root, so it never changes the target project's source, manifest, lockfile, or global tools.
+The optional LSP bridge is separate from the local core MCP server; that server
+retains its 15-tool contract. It detects an existing project or host provider
+before provisioning a package-owned fallback. Only JavaScript/TypeScript
+(`typescript-language-server@5.3.0` with `typescript@5.9.3`) and Python
+(`basedpyright@1.39.9`) are supported. TypeScript requires Node 20 or later.
+The bridge exposes only advertised read-only definitions, references, symbols,
+hover, and diagnostics operations. It rejects rename requests and uses an
+explicit receipt-owned tooling root, so it never changes the target project's
+source, manifest, lockfile, or global tools.
 
 ## Tool-selection ladder
 
@@ -116,9 +88,23 @@ Context7 and `grep_app` are disabled by default. `lazytrae tooling enable contex
 
 ## Onboard
 
-Copy or clone [LazyTrae](https://github.com/elvinzhao10/LazyTrae), open that folder in the selected Trae host, and type `onboard`. The setup guide asks for Trae IDE, Trae Work, or Trae CLI, then uses the already-installed `lazytrae` command for the matching safe setup path. It reports package readiness separately from host registration and a live MCP connection.
+Keep the pinned `v1.0.2` release in a permanent folder, open or link it in the
+selected Trae host, give the agent
+`https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The setup guide
+asks for Trae IDE, Trae Work, or Trae CLI and uses the absolute release-owned
+launcher, never PATH/global lookup:
 
-For Trae CLI, run `lazytrae init --host cli`, then `trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'`, then launch `trae-cli`. For Trae Work, run `lazytrae init --host work`, restart/reload the host, and manually add `lazytrae mcp` in **Settings → MCP**.
+```text
+node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> <command>
+```
+
+It runs only safe package checks and project-local setup first. **Package
+readiness** is reported separately from **host readiness**. Before a Trae Work
+Skills copy, Settings → MCP connector, or Trae CLI registration, ask for
+approval. Then give one exact host action and wait; after the user responds,
+inspect the app with Computer Use. A reload/new session is a separate action.
+Verify one real Skill/command and the expected `lazytrae` core MCP connection;
+without that observation, host readiness remains pending.
 
 This will:
 - Detect repo root (finds `.git`)
@@ -127,15 +113,40 @@ This will:
 - Merge managed blocks into `AGENTS.md` without overwriting user content
 - Add `.gitignore` entries for runtime state
 
-For Trae Work, run `lazytrae work install` after installing the CLI. It copies the bundled `lazy-*` skills to `~/.trae-cn/skills/` on macOS. That built-in location is the only documented and tested host default; reload/discovery must still be confirmed manually. Trae Work has no global command registry, and MCP still must be registered manually in **Settings → MCP** using command `lazytrae` and argument `mcp`. Linux and Windows locations are unverified; pass `--skills-dir` only after the host reports the directory.
+For Trae Work, invoke the absolute release-owned launcher with `work install`
+after selecting the package. It copies the bundled `lazy-*` skills to
+`~/.trae-cn/skills/` on macOS. That built-in location is the only documented
+and tested host default; reload/discovery must still be confirmed manually.
+Trae Work has no global command registry, and MCP still must be registered
+manually in **Settings → MCP** using the package's `mcp` entry. Linux and
+Windows locations are unverified; pass `--skills-dir` only after the host
+reports the directory.
 
 ## Uninstall safely
 
-`lazytrae uninstall --yes` removes only project files that still exactly match the bundled templates. It preserves modified or unknown files in `.trae/` and `.lazytrae/`, all normal runtime data under `.lazytrae/state/`, `.lazytrae/evidence/`, `.lazytrae/plans/`, `.lazytrae/loop/`, and files in foreign or legacy namespaces. `--soft` removes verified `.trae/` assets only. `--purge-state` additionally removes only exact bundled runtime template files; it never recursively deletes a runtime directory. `--soft` and `--purge-state` cannot be combined.
+The absolute release-owned launcher with `uninstall --yes` removes only project
+files that still exactly match the bundled templates. It preserves modified or
+unknown files in `.trae/` and `.lazytrae/`, all normal runtime data under
+`.lazytrae/state/`, `.lazytrae/evidence/`, `.lazytrae/plans/`,
+`.lazytrae/loop/`, and files in foreign or legacy namespaces. `--soft` removes
+verified `.trae/` assets only. `--purge-state` additionally removes only exact
+bundled runtime template files; it never recursively deletes a runtime
+directory. `--soft` and `--purge-state` cannot be combined.
 
-For Trae Work on macOS, `lazytrae work uninstall` removes only manifest-listed `lazy-*` skills whose sole `SKILL.md` still exactly matches the bundled contents. It refuses symlinks and hard links, and preserves edited or nonempty skill directories. Linux and Windows locations and host behavior are unverified; pass a directory reported by Trae Work with `--skills-dir` only after manually confirming it. Remove the `lazytrae` MCP entry yourself in **Settings → MCP**.
+For Trae Work on macOS, invoke the same launcher with `work uninstall`; it
+removes only manifest-listed `lazy-*` skills whose sole `SKILL.md` still
+exactly matches the bundled contents. It refuses symlinks and hard links, and
+preserves edited or nonempty skill directories. Linux and Windows locations
+and host behavior are unverified; pass a directory reported by Trae Work with
+`--skills-dir` only after manually confirming it. Remove the package MCP entry
+yourself in **Settings → MCP**.
 
-For Trae IDE, remove the project configuration with `lazytrae uninstall --yes`, then remove or disable the `lazytrae` server in the IDE's MCP settings if you added one separately. For Trae CLI, remove the registered server with `trae-cli mcp remove lazytrae`; uninstalling project files never changes CLI registration. Remove the global command only when you no longer need it: `npm uninstall -g lazytrae-ai`.
+For Trae IDE, invoke the release-owned launcher with `uninstall --yes`, then
+remove or disable the local core server in the IDE's MCP settings if you added
+one separately. For Trae CLI, remove the registered server with
+`trae-cli mcp remove lazytrae`; uninstalling project files never changes CLI
+registration. No global command is required; if one was installed separately,
+remove it through the package manager that installed it.
 
 ## What Gets Installed
 

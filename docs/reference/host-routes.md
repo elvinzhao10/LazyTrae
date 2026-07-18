@@ -1,45 +1,50 @@
 # Host routes
 
-Use exactly one route. All package checks establish local package readiness,
-not host discovery, hook execution, a running session, or MCP connection.
-LazyTrae is verified on macOS only.
+Use exactly one route at a time. Start with the pinned `v1.0.2` release in a
+permanent folder, open or link it in the host, give the agent
+`https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
+or asks for the host, runs safe package checks, and reports package readiness
+before any host-managed mutation.
 
-| Host | Safe package steps | Observation still required |
+Every host handoff is one action: after explicit approval, give one exact GUI
+or host action and wait. After the user responds, inspect the app with
+Computer Use. If a reload or new session is needed, issue it as the next
+single action and wait again. Verify one real Skill/command and every expected
+MCP connection, then report **package readiness** and **host readiness** as
+separate fields. Without observation, host readiness is **pending**.
+
+| Host | Package artifact (safe local work) | One-action handoff and expected observation |
 | --- | --- | --- |
-| Trae IDE | `lazytrae init --host ide`, `lazytrae load-check --host ide`, `lazytrae doctor` | Reopen the project; observe discovery and MCP connection. |
-| Trae Work (macOS) | After explicit operator approval to install global Work skills, run `lazytrae init --host work`, then `lazytrae work status`. | Reload Work and confirm skill discovery. After separate explicit approval for the host change, add or confirm `lazytrae mcp` in **Settings → MCP** and observe the connection. |
-| Trae CLI | `lazytrae init --host cli`; register below | Start a new session and observe the connection. |
+| **Trae IDE** | `init --host ide` copies project assets. `.trae/mcp.json` contains a generated `lazytrae` declaration using `command: node`, an absolute release-owned `bin/lazytrae.js`, `--root <project>`, and `mcp`. | After approval, reopen the project. In the inspected session verify one Skill/command and the `lazytrae` core MCP connection. The seven optional base entries remain disabled and are not expected connections. |
+| **Trae Work** | Supported Skills copy/import: the verified macOS route copies 17 Skills to `~/.trae-cn/skills/` or a host-reported `--skills-dir`. | After approval, perform the Skills copy/import. In a later separate action, manually add the local `lazytrae` connector in **Settings → MCP** from the exact command and args in `.trae/mcp.json`; then reload and observe one imported Skill plus the core MCP. |
+| **Trae CLI** | `init --host cli` writes project configuration and local verification assets. | After approval, register the exact local `node` command with `trae-cli mcp add-json`. In a later separate action start one new session and observe one command plus the `lazytrae` core MCP. |
 
-For Trae CLI, register before the new session only after the operator explicitly
-approves this host-managed change. Then start a new session and observe the
-connection:
+## Local command and package checks
 
-```bash
-trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'
-trae-cli
+Use the release-owned launcher, never a PATH/global lookup:
+
+```text
+node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> <command>
 ```
 
-Trae Work’s verified macOS default skill location is `~/.trae-cn/skills/`.
-Linux and Windows locations and behaviour are not asserted: obtain a directory
-reported by the host, pass it with `--skills-dir`, and observe the result. Work
-has no global command registry; invoke skills or describe the workflow in
-ordinary language.
+Run only `init --host ide|cli`, `sync`, `load-check --host <host>`, and
+`doctor` before approval. These inspect or write the selected project and do
+not enable optional providers, alter credentials, or mutate host settings. For
+Trae Work, `init --host work` is itself host-managed because it copies Skills;
+ask first. The generated project declaration is the Trae IDE artifact; Trae
+Work still requires a manual connector.
 
-If the installed `lazytrae` companion is absent, this repo-only fallback can
-copy project configuration but cannot create the global executable or a live
-MCP server:
+The core server exposes 15 tools after a host connects it. The seven disabled
+placeholders (`grep_app`, `context7`, `filesystem`, `git`, `playwright`,
+`ast_grep`, and `lsp`) are declarations only and must not be counted as live
+MCP connections unless the user separately selects and observes them.
 
-```bash
-node /path/to/LazyTrae/lazytrae-plugin/packages/cli/src/index.js init --host ide
-```
+## Boundary and safe removal
 
-After any route, apply [Verification contract](verification-contract.md). For
-safe cleanup, use [Safe removal](../08-safe-removal.md).
-
-## What the route actually changes
-
-`init` copies the package-owned project recipe. `work install` copies only
-bounded Work skills. CLI registration and Work Settings → MCP are separate
-because they change host-owned state. LazyTrae validates templates and receipts
-but never scans settings to infer ownership or silently repair registration.
-A user observation after reload or session start marks active integration.
+Package checks validate copied files, declarations, and local contracts. They
+do not prove host discovery, hook execution, a running session, or an MCP
+connection. Project uninstall removes only exact receipt-owned assets and
+never guesses or removes host registrations. Remove the Work connector in
+**Settings → MCP**, the CLI registration with `trae-cli mcp remove lazytrae`,
+and the IDE declaration through the host UI after package removal; record the
+package result separately from the observed host result.

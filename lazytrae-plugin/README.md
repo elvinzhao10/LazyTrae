@@ -17,9 +17,9 @@ discovery or an MCP connection.
 This package is part of the LazyTrae learning project. It is
 primarily inspired by LazyCodex; [NOTICE](../NOTICE) records the LazyCodex and
 OmO upstream attribution. It is an independent implementation and does not
-require LazyCodex or OmO at runtime. For Trae Work,
-`lazytrae init --host work` invokes the bounded Work skill installation; use
-`lazytrae work status` to inspect the copied package assets.
+require LazyCodex or OmO at runtime. For Trae Work, the release-owned
+launcher's `init --host work` invokes the bounded Work skill installation; use
+the same launcher with `work status` to inspect the copied package assets.
 
 ## Layout
 
@@ -28,7 +28,7 @@ require LazyCodex or OmO at runtime. For Trae Work,
 | `.trae/` | Trae project configuration: skills, commands, agents, rules, hooks, and MCP declaration. |
 | `.lazytrae/` | Versioned schemas and default configuration assets. |
 | `packages/cli/` | Installable CLI: installer, doctor, verification gate, lifecycle, tooling, and MCP launcher. |
-| `packages/mcp/` | Node stdio MCP implementation used by `lazytrae mcp`. |
+| `packages/mcp/` | Node stdio implementation for the local core MCP server. |
 | `packages/cli/tooling/lsp/` | Locked LSP provider manifests used by the managed LSP lifecycle. |
 
 `packages/cli/templates/` is the source of truth for files copied into consumer
@@ -36,21 +36,30 @@ projects. Keep it self-contained and run the CLI test suite after changes.
 
 ## Install, verify, and remove
 
-With the companion command installed, initialize only the host in use:
+Keep the pinned `v1.0.2` release in a permanent folder, open or link it in the
+selected Trae host, give the agent
+`https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The release-owned
+launcher is the primary command; it does not depend on PATH or a global npm
+install:
 
 ```bash
-lazytrae init --host ide|work|cli
-lazytrae load-check --host ide
-lazytrae doctor
+node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  --root /absolute/path/to/project init --host ide
+node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  --root /absolute/path/to/project load-check --host ide
+node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  --root /absolute/path/to/project doctor
 ```
 
-`load-check` reports package readiness only. It does not prove that a host has
-discovered the files or connected to MCP. Trae IDE requires reopening the
-project; Trae Work requires reload plus a manual **Settings → MCP** entry with
-command `lazytrae` and argument `mcp`; Trae CLI requires
-`trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'`
-before starting a new session. Work's default skill location is verified only
-on macOS (`~/.trae-cn/skills/`).
+The onboarding protocol detects or asks for the host, runs safe package checks,
+and reports **package readiness** separately from **host readiness**. Before
+copying Trae Work Skills, adding a Settings → MCP connector, or registering
+Trae CLI, it asks for approval. It then gives one exact host action and waits;
+after the user responds it inspects the app with Computer Use. Reload/new
+session is a separate action. Host readiness requires one real Skill/command
+and the expected `lazytrae` core MCP connection; local checks alone leave it
+pending. Work's default Skills location is verified only on macOS
+(`~/.trae-cn/skills/`), and its connector remains manual.
 
 Automatic local tooling is temporary and receipt-owned: `rg`, `sg`, and the
 read-only LSP bridge may be selected for a task without changing host or
@@ -60,10 +69,14 @@ lifecycles; onboarding, doctor, and InitDeep do not enable them.
 Remove only receipt-owned package assets:
 
 ```bash
-lazytrae uninstall --yes
-lazytrae uninstall --yes --soft
-lazytrae uninstall --yes --purge-state
-lazytrae work uninstall
+node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  --root /absolute/path/to/project uninstall --yes
+node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  --root /absolute/path/to/project uninstall --yes --soft
+node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  --root /absolute/path/to/project uninstall --yes --purge-state
+node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  --root /absolute/path/to/project work uninstall
 ```
 
 These commands preserve modified, unknown, caller-owned, linked, and

@@ -25,9 +25,9 @@ prove it. Use the smallest workflow that fits the uncertainty and risk:
 | Material-risk completion | `lazy-review-work` | Add independent quality, QA, security, and scope checks. |
 | Long-running goal | `lazy-ulw-loop` | Keep durable state and checkpoints. |
 
-For a CLI project, use `lazytrae verify --must-pass` before reporting a task
-complete. Trae hooks are advisory; hard completion decisions live in the CLI
-and MCP gates.
+For a CLI project, invoke the release-owned launcher with `verify --must-pass`
+before reporting a task complete. Trae hooks are advisory; hard completion
+decisions live in the CLI and MCP gates.
 
 ## Design mindset
 
@@ -43,45 +43,41 @@ a package readiness result into a claim about a running Trae host.
 
 ## Install and onboard
 
-LazyTrae v1.0.2 is installed from this repository because the companion CLI is
-not yet published to npm. You need macOS, Node.js 18 or newer, npm, and one of
-the supported Trae surfaces.
+Keep the pinned **v1.0.2** release in a permanent folder. Open or link that
+folder in the Trae host you want to use, then give the agent the GitHub
+repository link, `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`.
+Do not use a temporary download directory or depend on a global command.
 
-1. Download the reviewed v1.0.2 source and install its CLI:
-
-```bash
-git clone --branch v1.0.2 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
-cd LazyTrae
-npm install --global ./lazytrae-plugin/packages/cli
-```
-
-You can review the source on the [LazyTrae repository](https://github.com/elvinzhao10/LazyTrae)
-or download the packaged archive and read the detailed notes on the
-[v1.0.2 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.2).
-
-2. Initialize the project where you want to use LazyTrae. Run this from that
-project's root, not from the LazyTrae source checkout:
+The agent first detects or asks for **Trae IDE**, **Trae Work**, or **Trae CLI**,
+then runs only safe package checks and project-local setup from the release's
+absolute launcher. Package readiness is reported separately from host
+readiness:
 
 ```bash
-lazytrae init --host ide
-# Use --host work or --host cli for the other supported surfaces.
-lazytrae load-check --host ide
+node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  --root /absolute/path/to/project init --host ide
+node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  --root /absolute/path/to/project load-check --host ide
 ```
 
-3. Open the initialized project in the matching Trae surface and type
-`onboard` into the Trae chat. `onboard` is a host prompt, not a shell command.
-Follow the generated checklist until both the package readiness checks and the
-live host/MCP observation pass.
+Before copying Trae Work Skills, adding a Settings → MCP connector, or
+registering Trae CLI, the agent asks for approval. After approval it gives one
+exact host action and waits. Once you respond, it inspects the app with
+Computer Use; any reload/new-session step is a separate one-action handoff.
+Host readiness is complete only after one real Skill/command and every expected
+`lazytrae` core MCP connection are observed. Local checks alone leave host
+readiness **pending**.
 
-To try LazyTrae in its own source repository, skip step 2, open the cloned
-folder in Trae, and type `onboard`. The host-specific checklist in
-[AGENTS.md](AGENTS.md) explains the final live verification.
+See [AGENTS.md](AGENTS.md) for the host-specific artifact boundary and manual
+steps. The source is available at the [LazyTrae repository](https://github.com/elvinzhao10/LazyTrae),
+with release notes on the [v1.0.2 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.2).
 
 ## Verify and remove
 
-`lazytrae load-check --host ide` reports **package readiness** only. Type
-`offboard` for the safe-removal protocol; it preserves host-managed paths and
-leaves host MCP registrations for the user to remove through the host.
+The release-owned launcher with `load-check --host ide` reports **package
+readiness** only. Type `offboard` for the safe-removal protocol; it preserves
+host-managed paths and leaves host MCP registrations for the user to remove
+through the host.
 
 The distributable is a **self-contained CLI tarball**: after installation it
 does not require a source checkout. See
