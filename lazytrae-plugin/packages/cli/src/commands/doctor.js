@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const { validateAllState, checkCompletedTaskEvidence } = require('../lib/validator');
-const { extractBlockNames } = require('../lib/managed-blocks');
+const { extractBlockNames, inspectManagedBlocks } = require('../lib/managed-blocks');
+const { readTemplate } = require('../lib/templates');
+const { inspectGitMetadata } = require('../lib/git-repository');
 const { checkParityLedger } = require('../lib/parity-check');
 const { checkModelRouting } = require('../lib/model-routing-check');
 const { checkTraeStructure } = require('../lib/trae-checks');
@@ -79,10 +81,12 @@ Options:
       addResult('packages/mcp/src/tools.js', 'FAIL', 'MCP tools file not found');
     }
   } else {
-    addResult('MCP runtime', 'WARN', 'Uses the installed lazytrae CLI; source-package checks skipped');
+    addResult('MCP runtime', 'PASS', 'MCP runtime is provided by the release-owned LazyTrae CLI and launched on demand; source-package checks are not part of this consumer project.');
   }
 
   addResult('MCP server running', 'WARN', `Started on demand by Trae IDE, Trae Work, or Trae CLI via ${localCommand(repoRoot)} mcp`);
+  const gitStatus = inspectGitMetadata(repoRoot);
+  addResult('Git metadata', gitStatus.status, gitStatus.detail);
 
   // .lazytrae/config.json
   const configPath = path.join(repoRoot, '.lazytrae', 'config.json');
@@ -155,12 +159,16 @@ Options:
   if (fs.existsSync(agentsPath)) {
     const content = fs.readFileSync(agentsPath, 'utf-8');
     const blocks = extractBlockNames(content);
-    const expectedBlocks = ['version-numbering', 'plan-files', 'command-index'];
+    const markerInspection = inspectManagedBlocks(content);
+    const templateContent = readTemplate('AGENTS.md') || '';
+    const expectedBlocks = extractBlockNames(templateContent);
     const missing = expectedBlocks.filter(b => !blocks.includes(b));
-    if (missing.length === 0) {
-      addResult('AGENTS.md managed blocks', 'PASS', `${blocks.length} blocks intact`);
+    if (markerInspection.malformed.length > 0) {
+      addResult('AGENTS.md managed blocks', 'WARN', `Malformed managed block markers: ${markerInspection.malformed.join(', ')}; preserve user content and repair the delimited block.`);
+    } else if (missing.length === 0) {
+      addResult('AGENTS.md managed blocks', 'PASS', `${blocks.length} blocks intact: ${blocks.join(', ')}`);
     } else {
-      addResult('AGENTS.md managed blocks', 'WARN', 'Managed blocks absent (AGENTS.md is now a setup guide)');
+      addResult('AGENTS.md managed blocks', 'WARN', `Missing canonical managed blocks: ${missing.join(', ') || 'none'}; user content outside delimited blocks is preserved.`);
     }
   } else {
     addResult('AGENTS.md', 'WARN', 'Not present (README is the onboarding guide)');

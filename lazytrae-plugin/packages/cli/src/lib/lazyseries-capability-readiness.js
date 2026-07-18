@@ -133,8 +133,16 @@ function formatLegacyCapabilityStatus(repoRoot) {
 }
 
 function formatReadinessSummary(records) {
-  const counts = records.reduce((total, value) => ({ ...total, [value.status]: (total[value.status] || 0) + 1 }), {});
-  return `Capability readiness (report-only; host and MCP connection remain unverified): ${Object.entries(counts).map(([status, count]) => `${status}=${count}`).join(', ')}`;
+  const groups = new Map();
+  for (const value of records) {
+    const members = groups.get(value.status) || [];
+    members.push(value.provider || value.capability || 'unknown');
+    groups.set(value.status, members);
+  }
+  const summary = [...groups.entries()]
+    .map(([status, members]) => `${status}=${members.length} [${members.join(', ')}]`)
+    .join(', ');
+  return `Capability readiness (report-only; host and MCP connection remain unverified): ${summary}`;
 }
 
 module.exports = { formatLegacyCapabilityStatus, formatReadinessSummary, readinessContractIntegrity, readinessReport };

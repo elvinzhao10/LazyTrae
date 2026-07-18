@@ -7,6 +7,7 @@ const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
 const { materializeGuidance } = require('../lib/local-launcher');
 const { updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { ensureToolingState } = require('../lib/tooling-state');
+const { inspectGitMetadata } = require('../lib/git-repository');
 
 const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
 
@@ -53,10 +54,13 @@ Options:
   const force = args.includes('--force');
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
-  const summary = { created: [], updated: [], skipped: [], merged: [] };
+  const summary = { created: [], updated: [], skipped: [], merged: [], warnings: [] };
 
   console.log(`LazyTrae init v1.0.2`);
   console.log(`Repo root: ${repoRoot}\n`);
+
+  const gitStatus = inspectGitMetadata(repoRoot);
+  if (gitStatus.status === 'WARN') summary.warnings.push(gitStatus.detail);
 
   // Create directory structure
   const dirs = [
@@ -219,7 +223,7 @@ Options:
 
         if (mb.hasManagedBlock(existingContent, blockName)) {
           const existingBlock = mb.extractBlock(existingContent, blockName);
-          if (existingBlock !== templateBlock) {
+          if (!mb.sameBlockContent(existingBlock, templateBlock)) {
             existingContent = mb.replaceBlock(existingContent, blockName, templateBlock.trim());
             merges++;
           }
@@ -271,6 +275,10 @@ Options:
   if (summary.skipped.length > 0) {
     console.log('\nSkipped:');
     summary.skipped.forEach(s => console.log(`  - ${s}`));
+  }
+  if (summary.warnings.length > 0) {
+    console.log('\nWarnings:');
+    summary.warnings.forEach(s => console.log(`  ! ${s}`));
   }
   if (process.exitCode) return process.exitCode;
   if (host === 'work') {

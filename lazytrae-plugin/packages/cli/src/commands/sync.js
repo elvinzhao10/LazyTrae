@@ -4,6 +4,7 @@ const { copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile } = req
 const { materializeGuidance } = require('../lib/local-launcher');
 const { updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { ensureToolingState } = require('../lib/tooling-state');
+const { inspectGitMetadata } = require('../lib/git-repository');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -29,10 +30,13 @@ Options:
   const repoRoot = detectRepoRoot();
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
-  const summary = { updated: [], skipped: [] };
+  const summary = { updated: [], skipped: [], warnings: [] };
 
   console.log(`LazyTrae sync v1.0.2`);
   console.log(`Repo root: ${repoRoot}\n`);
+
+  const gitStatus = inspectGitMetadata(repoRoot);
+  if (gitStatus.status === 'WARN') summary.warnings.push(gitStatus.detail);
 
   for (const relativePath of ['.lazytrae/plans', '.lazytrae/loop']) {
     ensureRepoDir(repoRoot, path.join(repoRoot, relativePath));
@@ -155,7 +159,7 @@ Options:
 
       if (mb.hasManagedBlock(existingContent, blockName)) {
         const existingBlock = mb.extractBlock(existingContent, blockName);
-        if (existingBlock !== templateBlock) {
+        if (!mb.sameBlockContent(existingBlock, templateBlock)) {
           existingContent = mb.replaceBlock(existingContent, blockName, templateBlock.trim());
           merges++;
         }
@@ -195,6 +199,10 @@ Options:
   if (summary.skipped.length > 0) {
     console.log('\nSkipped:');
     summary.skipped.forEach(s => console.log(`  - ${s}`));
+  }
+  if (summary.warnings.length > 0) {
+    console.log('\nWarnings:');
+    summary.warnings.forEach(s => console.log(`  ! ${s}`));
   }
   console.log('\nDone.');
   return process.exitCode || 0;
