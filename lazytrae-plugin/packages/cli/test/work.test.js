@@ -197,7 +197,7 @@ test('init validates host before mutation and uses a custom Trae Work skills dir
   }
 });
 
-test('init rejects a cwd without an ancestor Git root before project or Work mutation', () => {
+test('init continues without an ancestor Git root and reports a warning', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-no-git-'));
   const project = path.join(root, 'no-git');
   const skillsDir = path.join(root, 'skills');
@@ -208,14 +208,16 @@ test('init rejects a cwd without an ancestor Git root before project or Work mut
     // When: Work initialization is requested from that directory.
     const result = runCli(['init', '--host', 'work', '--skills-dir', skillsDir], { cwd: project });
 
-    // Then: the command fails before either project or global Work assets are created.
-    assert.notEqual(result.status, 0, result.stdout);
-    assert.match(result.stderr, /Git project/i);
-    assert.doesNotMatch(result.stdout, /(?:^|\n)Done\.(?:\n|$)/);
-    for (const relative of ['.trae', '.lazytrae', 'AGENTS.md']) {
-      assert.equal(fs.existsSync(path.join(project, relative)), false, `${relative} was unexpectedly created`);
-    }
-    assert.equal(fs.existsSync(skillsDir), false);
+    // Then: setup continues in the current directory, reports the missing Git metadata,
+    // and keeps the warning separate from package readiness.
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Warnings:[\s\S]*Git metadata is absent/);
+    assert.match(result.stdout, /Package readiness passed\./);
+    assert.match(result.stdout, /(?:^|\n)Done\.(?:\n|$)/);
+    assert.equal(fs.existsSync(path.join(project, '.trae')), true);
+    assert.equal(fs.existsSync(path.join(project, '.lazytrae')), true);
+    assert.equal(fs.existsSync(path.join(project, 'AGENTS.md')), true);
+    assert.equal(fs.existsSync(path.join(skillsDir, 'lazy-coding-agent-sessions', 'SKILL.md')), true);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

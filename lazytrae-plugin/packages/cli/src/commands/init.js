@@ -16,9 +16,7 @@ function detectRepoRoot() {
   while (true) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;
     const parent = path.dirname(dir);
-    if (parent === dir) {
-      throw new Error('LazyTrae init must run inside a Git project (no ancestor .git found).');
-    }
+    if (parent === dir) return process.cwd();
     dir = parent;
   }
 }

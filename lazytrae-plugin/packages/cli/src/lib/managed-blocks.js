@@ -80,10 +80,37 @@ function inspectManagedBlocks(content) {
     count[marker.kind] += 1;
     counts.set(marker.name, count);
   }
-  const malformed = [...counts.entries()]
-    .filter(([, count]) => count.start !== 1 || count.end !== 1)
-    .map(([name]) => name);
-  return { names: extractBlockNames(content), malformed, markers };
+  const malformed = new Set(
+    [...counts.entries()]
+      .filter(([, count]) => count.start !== 1 || count.end !== 1)
+      .map(([name]) => name),
+  );
+
+  const stack = [];
+  for (const marker of markers) {
+    if (marker.kind === 'start') {
+      if (stack.length > 0) {
+        malformed.add(stack[stack.length - 1]);
+        malformed.add(marker.name);
+      }
+      stack.push(marker.name);
+      continue;
+    }
+
+    if (stack.length === 0) {
+      malformed.add(marker.name);
+      continue;
+    }
+
+    const expected = stack.pop();
+    if (expected !== marker.name) {
+      malformed.add(expected);
+      malformed.add(marker.name);
+    }
+  }
+  for (const name of stack) malformed.add(name);
+
+  return { names: extractBlockNames(content), malformed: [...malformed], markers };
 }
 
 function escapeRegExp(string) {
