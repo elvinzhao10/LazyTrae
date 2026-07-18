@@ -71,6 +71,27 @@ test('doctor warns on a malformed managed marker without discarding user content
   }
 });
 
+test('doctor warns on duplicate balanced managed blocks instead of reporting a false pass', () => {
+  const project = makeProject('lazytrae-doctor-duplicate-managed-');
+  try {
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: project }).status, 0);
+    const agentsPath = path.join(project, 'AGENTS.md');
+    const content = fs.readFileSync(agentsPath, 'utf8');
+    const blockStart = content.indexOf('<!-- lazytrae:managed:start:onboarding -->');
+    const blockEnd = content.indexOf('<!-- lazytrae:managed:end:onboarding -->')
+      + '<!-- lazytrae:managed:end:onboarding -->'.length;
+    fs.writeFileSync(agentsPath, `${content}\n${content.slice(blockStart, blockEnd)}\n`);
+
+    const doctor = runCli(['doctor'], { cwd: project });
+
+    assert.equal(doctor.status, 0, doctor.stderr);
+    assert.match(doctor.stdout, /AGENTS\.md managed blocks\s+WARN/);
+    assert.match(doctor.stdout, /Malformed managed block markers: onboarding/);
+  } finally {
+    removeProject(project);
+  }
+});
+
 test('readiness summary names every member in each status group', () => {
   const summary = formatReadinessSummary([
     { status: 'host-ready', provider: 'ripgrep' },

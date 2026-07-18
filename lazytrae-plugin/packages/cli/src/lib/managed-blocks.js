@@ -81,7 +81,7 @@ function inspectManagedBlocks(content) {
     counts.set(marker.name, count);
   }
   const malformed = [...counts.entries()]
-    .filter(([, count]) => count.start !== count.end)
+    .filter(([, count]) => count.start !== 1 || count.end !== 1)
     .map(([name]) => name);
   return { names: extractBlockNames(content), malformed, markers };
 }
