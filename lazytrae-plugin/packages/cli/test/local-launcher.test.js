@@ -136,9 +136,9 @@ test('work status prints a release-owned repair command when PATH contains only 
     ], { cwd: root, home, binDirectory: nodeBin });
 
     // Then: remediation remains executable without a PATH-installed LazyTrae binary.
-    const expected = `node '${fs.realpathSync(LOCAL_LAUNCHER)}' --root '${fs.realpathSync(project)}' work install`;
+    const expected = `node '${fs.realpathSync(LOCAL_LAUNCHER)}' --root '${fs.realpathSync(project)}' work install --skills-dir '${skills}'`;
     assert.equal(result.status, 1, result.stderr);
-    assert.equal(result.stdout.includes(`Run \`${expected}\` to repair the global skill installation.`), true);
+    assert.equal(result.stdout.includes(`WORK SKILLS ACTION: APPROVAL REQUIRED. Ask before running ${expected}.`), true);
     assert.doesNotMatch(result.stdout, /`lazytrae work install`/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

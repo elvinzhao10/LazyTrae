@@ -73,7 +73,8 @@ test('local-first onboarding protocol covers every stage and host readiness boun
   const hostRoutes = fs.readFileSync(path.join(REPOSITORY_ROOT, 'docs', 'reference', 'host-routes.md'), 'utf8');
   assert.match(hostRoutes, /Trae IDE[\s\S]*\.trae\/mcp\.json[\s\S]*generated[\s\S]*command: node/i);
   assert.match(hostRoutes, /Trae Work[\s\S]*Skills copy\/import[\s\S]*manual/i);
-  assert.match(hostRoutes, /Trae CLI[\s\S]*trae-cli mcp add-json/i);
+  assert.match(hostRoutes, /Trae CLI[\s\S]*load-check --host cli[\s\S]*documented\/manual/i);
+  assert.doesNotMatch(hostRoutes, /trae-cli mcp add-json/i);
 
   const readme = fs.readFileSync(path.join(REPOSITORY_ROOT, 'README.md'), 'utf8');
   assert.doesNotMatch(readme, /npm install --global/i);

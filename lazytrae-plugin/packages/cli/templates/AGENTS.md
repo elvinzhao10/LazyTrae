@@ -50,23 +50,30 @@ When the user types `onboard`:
 7. After approval, give exactly **one** concrete GUI/host action and then wait.
    Do not bundle reload, connector setup, and a test into one handoff.
 8. After the user responds, inspect the corresponding app with Computer Use.
-   Record only what is visibly observed. If the host needs a reload or a new
-   session, give that as the next single action, wait again, and inspect again.
+   If Computer Use is unavailable, accept a user-pasted verbatim status or
+   screenshot as observed evidence. Otherwise keep host readiness **PENDING**.
+   If the host needs a reload or new session, give that as the next single
+   action, wait again, and inspect again.
 9. In the observed session, verify one real LazyTrae Skill or command and every
    expected MCP connection for the selected route. The base package expects one
    `lazytrae` core MCP connection (15 tools after connection); seven optional
    placeholders remain disabled unless separately selected.
 10. Report `package readiness` and `host readiness` as separate fields. Without
-    the Computer Use observation, host readiness remains **pending** even when
-    every local check passes.
+    a current Computer Use or user-supplied observation, **HOST READINESS:
+    PENDING** even when every local check passes.
+
+Availability labels are evidence boundaries: the release-owned launcher and
+generated configuration are the **documented package route**; IDE/Work behavior
+seen in the supplied macOS reports is an **observed prerelease route**; and a
+current host stays **HOST READINESS: PENDING** until it is actually observed.
 
 ## Select the host route
 
 | Host | Skills and project assets | MCP step and expected observation |
 | --- | --- | --- |
-| **Trae IDE** | Project `.trae/` skills, commands, rules, agents, hooks, and `.lazytrae/` state. | `.trae/mcp.json` is generated with `command: node`, an absolute release-owned launcher, and the project root. Reopen once after approval, then observe one Skill/command and the `lazytrae` core MCP connection. |
-| **Trae Work** | `__LAZYTRAE_LOCAL_COMMAND__ init --host work` copies 17 supported Skills to macOS `~/.trae-cn/skills/` (or a host-reported `--skills-dir`). | Add the local `lazytrae` connector manually in **Settings → MCP** using the exact command and args from `.trae/mcp.json`. Reload is a later one-action handoff; observe one imported Skill and the core MCP. |
-| **Trae CLI** | Local project configuration plus verification gates. | After approval, register the exact local `node` command with `trae-cli mcp add-json`, start one new session as a later action, and observe one command plus the core MCP. |
+| **Trae IDE** | Documented package route: project `.trae/` skills, commands, rules, agents, hooks, and `.lazytrae/` state. | Auto-discovery is an observed prerelease route. `.trae/mcp.json` uses the absolute release launcher. Reopen once after approval, then observe one Skill/command and the core MCP. |
+| **Trae Work** | `__LAZYTRAE_LOCAL_COMMAND__ init --host work` is approval-gated and copies 17 Skills to the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the paste-ready JSON printed by `load-check --host work` in **Settings → MCP**. It is not a documented universal host contract. |
+| **Trae CLI** | Documented package route: local project configuration plus verification gates. | No public universal MCP registration command is assumed. Use the paste-ready JSON from `load-check --host cli` with the selected build's documented/manual MCP settings flow, then start a new session and observe the core MCP. |
 
 Trae Work does not auto-load the project MCP file. Linux and Windows Work
 locations and behavior are unverified; ask the host for its directory before
@@ -114,8 +121,8 @@ When the user types `offboard`, ask which host and package scope is being
 removed, run only an approved local uninstall command, preserve modified or
 unknown assets, and report package removal separately from observed host
 removal. Remove host MCP registrations manually: Trae Work through **Settings
-→ MCP**, Trae CLI with `trae-cli mcp remove lazytrae`, and Trae IDE through its
-project MCP UI.
+→ MCP**, Trae CLI through the selected build's documented MCP settings flow,
+and Trae IDE through its project MCP UI. Do not assume a universal CLI command.
 
 ## Optional local tooling boundary
 

@@ -2,7 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 const { inspectInitializeReceipt } = require('../lib/initialize-receipt');
-const { inspectCoreDeclaration, localCommand, managedCoreServer } = require('../lib/local-launcher');
+const {
+  formatHostMcpConfiguration,
+  inspectCoreDeclaration,
+  localCommand,
+  MCP_JSON_BEGIN,
+  MCP_JSON_END,
+  shellQuote,
+} = require('../lib/local-launcher');
 
 const ARTIFACT_CONTRACT = Object.freeze({
   skills: [
@@ -109,15 +116,17 @@ function mcpDeclarationResult(repoRoot, host) {
 }
 
 function printHostRegistrationStatus(host, repoRoot) {
-  const localServer = managedCoreServer(repoRoot);
   if (host === 'ide') {
     console.log('IDE registration: NOT VERIFIED. Package files are ready; reopen Trae IDE to scan them.');
   } else if (host === 'cli') {
-    const registration = JSON.stringify({ type: 'stdio', command: localServer.command, args: localServer.args });
-    console.log(`CLI registration: NOT VERIFIED. Register with trae-cli mcp add-json lazytrae '${registration}'.`);
+    console.log('CLI MCP ROUTE: CONFIGURATION JSON ONLY. No public Trae CLI MCP registration command is assumed; use the selected build\'s MCP settings flow.');
   } else {
-    console.log(`Work registration: MANUAL REQUIRED. In Settings → MCP use command \`${localServer.command}\` and arguments \`${JSON.stringify(localServer.args)}\`; package readiness cannot confirm it.`);
+    console.log('WORK MCP ROUTE: OBSERVED PRERELEASE. After approval, paste the complete configuration into Settings → MCP; this is not a documented universal host contract.');
   }
+  if (host === 'ide') return;
+  console.log(MCP_JSON_BEGIN);
+  console.log(formatHostMcpConfiguration(repoRoot));
+  console.log(MCP_JSON_END);
 }
 
 function printInitializeReceiptStatus(repoRoot) {
@@ -177,11 +186,12 @@ configuration only; it does not claim that a host has registered or loaded them.
   const readiness = readinessReport(repoRoot);
   console.log(formatReadinessSummary(readiness));
 
+  let workSkillsDir = null;
   let workSkillsFailed = false;
   if (host === 'work') {
     const work = require('./work');
-    const skillsDir = work.readSkillsDir([]);
-    const states = work.listSkills().map(name => work.skillState(skillsDir, name));
+    workSkillsDir = work.readSkillsDir([]);
+    const states = work.listSkills().map(name => work.skillState(workSkillsDir, name));
     const current = states.filter(state => state === 'current').length;
     workSkillsFailed = current !== states.length;
     console.log(`${workSkillsFailed ? 'FAIL' : 'PASS'} global Trae Work skills: ${current}/${states.length} current`);
@@ -190,10 +200,17 @@ configuration only; it does not claim that a host has registered or loaded them.
   printHostRegistrationStatus(host, repoRoot);
   printInitializeReceiptStatus(repoRoot);
   const readinessStateInvalid = readiness.some(record => record.reason_code === 'STATE_INVALID');
-  const failed = checks.some(result => result.missing.length) || hookMappings.failures.length > 0 || hookPermissions.length > 0 || Boolean(mcpError) || workSkillsFailed || readinessStateInvalid;
-  console.log(failed
-    ? `Package readiness failed. Run ${localCommand(repoRoot)} sync, then re-run this check.`
-    : 'Package readiness passed. Load check passed for package readiness; complete the host registration step shown above.');
+  const projectFailed = checks.some(result => result.missing.length) || hookMappings.failures.length > 0
+    || hookPermissions.length > 0 || Boolean(mcpError) || readinessStateInvalid;
+  const failed = projectFailed || workSkillsFailed;
+  if (!failed) {
+    console.log('Package readiness passed. Load check passed for package readiness; complete the host registration step shown above.');
+  } else {
+    if (projectFailed) console.log(`Package readiness failed. Run ${localCommand(repoRoot)} sync, then re-run this check.`);
+    if (workSkillsFailed) {
+      console.log(`WORK SKILLS ACTION: APPROVAL REQUIRED. Ask before running ${localCommand(repoRoot)} work install --skills-dir ${shellQuote(workSkillsDir)}; sync does not install Work-global Skills.`);
+    }
+  }
   return failed ? 1 : 0;
 }
 

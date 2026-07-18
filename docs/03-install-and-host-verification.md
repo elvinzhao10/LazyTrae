@@ -12,8 +12,15 @@ reports package readiness separately from host readiness. Before copying Work
 Skills, adding a Settings → MCP connector, or registering Trae CLI it asks for
 approval, gives one exact host action, and waits. After the response it
 inspects the app with Computer Use; reload/new-session is a separate action.
+If Computer Use is unavailable, a user-pasted verbatim status or screenshot is
+observed evidence; without either, **HOST READINESS: PENDING**.
 Verify one real Skill/command and the expected `lazytrae` core MCP connection;
 local checks alone leave host readiness pending.
+
+The release launcher and generated configuration are the **documented package
+route**. The supplied macOS IDE/Work results are an **observed prerelease
+route**, not general host support. CLI setup is JSON/manual because LazyTrae
+does not assume a public universal MCP registration command.
 
 ## Template installation pipeline
 

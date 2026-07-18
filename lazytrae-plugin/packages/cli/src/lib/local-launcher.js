@@ -1,10 +1,14 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const { canonicalRepoRoot, localCommand, localLauncherPath } = require('./local-command');
+const {
+  canonicalRepoRoot, localCommand, localLauncherPath, shellQuote,
+} = require('./local-command');
 
 const CORE_DESCRIPTION = 'LazyTrae state, evidence, handoff, and local context MCP server — exposes 15 tools including heuristic symbol/reference/docs/dependency helpers';
 const MANAGED_KEY = '_lazytrae';
+const MCP_JSON_BEGIN = 'LAZYTRAE_MCP_JSON_BEGIN';
+const MCP_JSON_END = 'LAZYTRAE_MCP_JSON_END';
 const RELEASE_VERSION = '1.0.2';
 
 function fingerprint(server) {
@@ -30,6 +34,19 @@ function managedCoreServer(repoRoot) {
     description: CORE_DESCRIPTION,
     kind: 'core',
   });
+}
+
+function hostMcpConfiguration(repoRoot) {
+  const server = managedCoreServer(repoRoot);
+  return {
+    mcpServers: {
+      lazytrae: { command: server.command, args: server.args },
+    },
+  };
+}
+
+function formatHostMcpConfiguration(repoRoot) {
+  return JSON.stringify(hostMcpConfiguration(repoRoot), null, 2);
 }
 
 function exactKeys(value, expected) {
@@ -119,10 +136,14 @@ function materializeGuidance(content, repoRoot) {
 
 module.exports = {
   CORE_DESCRIPTION,
+  MCP_JSON_BEGIN,
+  MCP_JSON_END,
   RELEASE_VERSION,
   canonicalRepoRoot,
   classifyCoreServer,
+  formatHostMcpConfiguration,
   inspectCoreDeclaration,
+  hostMcpConfiguration,
   isExactLegacyCoreServer,
   isManagedLocalServer,
   localCommand,
@@ -130,4 +151,5 @@ module.exports = {
   managedCoreServer,
   managedLocalServer,
   materializeGuidance,
+  shellQuote,
 };

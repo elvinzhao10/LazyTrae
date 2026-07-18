@@ -64,9 +64,18 @@ Before copying Trae Work Skills, adding a Settings → MCP connector, or
 registering Trae CLI, the agent asks for approval. After approval it gives one
 exact host action and waits. Once you respond, it inspects the app with
 Computer Use; any reload/new-session step is a separate one-action handoff.
+If Computer Use is unavailable, a user-pasted verbatim status or screenshot is
+acceptable observed evidence; without either form of observation, **HOST
+READINESS: PENDING**.
 Host readiness is complete only after one real Skill/command and every expected
 `lazytrae` core MCP connection are observed. Local checks alone leave host
 readiness **pending**.
+
+The release-owned launcher and generated files are the **documented package
+route**. The supplied macOS IDE/Work results are an **observed prerelease
+route**, not a universal host guarantee. Trae CLI receives paste-ready MCP JSON
+and a manual settings handoff because no public universal registration command
+is assumed.
 
 See [AGENTS.md](AGENTS.md) for the host-specific artifact boundary and manual
 steps. The source is available at the [LazyTrae repository](https://github.com/elvinzhao10/LazyTrae),

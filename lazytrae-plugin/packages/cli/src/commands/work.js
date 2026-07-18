@@ -8,7 +8,13 @@ const {
   rejectSymlink,
   skillState: readSkillState,
 } = require('../lib/work-skill-transaction');
-const { localCommand, managedCoreServer } = require('../lib/local-launcher');
+const {
+  formatHostMcpConfiguration,
+  localCommand,
+  MCP_JSON_BEGIN,
+  MCP_JSON_END,
+  shellQuote,
+} = require('../lib/local-launcher');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'templates');
 const WORK_SKILLS_DIR_ENV = 'LAZYTRAE_WORK_SKILLS_DIR';
@@ -64,8 +70,10 @@ function skillState(skillsDir, name) {
 }
 
 function printMcpReminder() {
-  const server = managedCoreServer(process.cwd());
-  console.log(`\nMCP remains a one-time Trae Work setting: Settings → MCP, command \`${server.command}\`, arguments \`${JSON.stringify(server.args)}\`.`);
+  console.log('\nWORK MCP ROUTE: OBSERVED PRERELEASE. After approval, paste this configuration into Settings → MCP; this is not a documented universal host contract.');
+  console.log(MCP_JSON_BEGIN);
+  console.log(formatHostMcpConfiguration(process.cwd()));
+  console.log(MCP_JSON_END);
   console.log('Global slash commands are not supported by Trae Work; use the installed skills or natural language.');
 }
 
@@ -122,7 +130,9 @@ function status(skillsDir) {
   const outdated = states.filter(entry => entry.state === 'outdated').length;
   console.log(`Trae Work global skills: ${current}/${states.length} current, ${missing} missing, ${outdated} outdated.`);
   console.log(`Directory: ${skillsDir}`);
-  if (missing || outdated) console.log(`Run \`${localCommand(process.cwd())} work install\` to repair the global skill installation.`);
+  if (missing || outdated) {
+    console.log(`WORK SKILLS ACTION: APPROVAL REQUIRED. Ask before running ${localCommand(process.cwd())} work install --skills-dir ${shellQuote(skillsDir)}.`);
+  }
   printMcpReminder();
   return missing || outdated ? 1 : 0;
 }

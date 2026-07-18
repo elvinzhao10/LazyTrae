@@ -84,7 +84,7 @@ test('load-check fails when lazytrae MCP command or args are malformed', () => {
 
     assert.equal(result.status, 1, result.stdout);
     assert.match(result.stdout, /FAIL LazyTrae MCP declaration: .*modified.*preserved/i);
-    assert.match(result.stdout, /CLI registration: NOT VERIFIED/);
+    assert.match(result.stdout, /CLI MCP ROUTE: CONFIGURATION JSON ONLY/);
   });
 });
 
