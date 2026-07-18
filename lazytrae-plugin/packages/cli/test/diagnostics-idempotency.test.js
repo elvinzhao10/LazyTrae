@@ -119,13 +119,14 @@ test('doctor warns on crossed managed markers instead of reporting a false pass'
 
 test('readiness summary names every member in each status group', () => {
   const summary = formatReadinessSummary([
-    { status: 'host-ready', provider: 'ripgrep' },
+    { status: 'package-ready', provider: 'ripgrep' },
     { status: 'missing', provider: 'lsp' },
     { status: 'missing', provider: 'codegraph' },
     { status: 'disabled', provider: 'context7' },
   ]);
 
-  assert.match(summary, /host-ready=1 \[ripgrep\]/);
+  assert.match(summary, /package-ready=1 \[ripgrep\]/);
+  assert.doesNotMatch(summary, /host-ready|live-host-proof|connected/);
   assert.match(summary, /missing=2 \[lsp, codegraph\]/);
   assert.match(summary, /disabled=1 \[context7\]/);
 });
