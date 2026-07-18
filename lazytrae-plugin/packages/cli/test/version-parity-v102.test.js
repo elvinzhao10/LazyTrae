@@ -111,7 +111,7 @@ function assertTextReleaseVersions(root) {
 }
 
 function copyFixture(root) {
-  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-v102-version-fixture-'));
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae v102 version fixture '));
   const relativePaths = new Set([
     ...JSON_VERSION_PATHS.map(([relativePath]) => relativePath),
     ...RELEASE_TEXT_PATHS,
@@ -157,4 +157,34 @@ test('a copied product manifest mismatch is rejected with its exact path and sou
     fs.rmSync(fixtureRoot, { recursive: true, force: true });
   }
   assert.deepEqual(fs.readFileSync(sourcePath), sourceBefore, 'mutation probe changed the source manifest');
+});
+
+test('a copied template mismatch is rejected from a path with spaces and its source stays unchanged', () => {
+  const relativePath = 'lazytrae-plugin/packages/cli/templates/AGENTS.md';
+  const sourcePath = path.join(REPOSITORY_ROOT, relativePath);
+  const sourceBefore = fs.readFileSync(sourcePath);
+  const fixtureRoot = copyFixture(REPOSITORY_ROOT);
+  try {
+    assertJsonReleaseVersions(fixtureRoot);
+    assertTextReleaseVersions(fixtureRoot);
+    assert.match(fixtureRoot, / /, 'the portable fixture must exercise a path containing spaces');
+
+    const fixturePath = path.join(fixtureRoot, relativePath);
+    const fixtureBefore = fs.readFileSync(fixturePath, 'utf8');
+    const fixtureAfter = fixtureBefore.replace(/v?1\.0\.2/g, 'v1.0.1');
+    assert.notEqual(fixtureAfter, fixtureBefore, 'template mutation fixture did not change its release identity');
+    fs.writeFileSync(fixturePath, fixtureAfter);
+
+    assert.throws(
+      () => assertTextReleaseVersions(fixtureRoot),
+      (error) => {
+        assert.match(error.message, /LazyTrae release identity missing/);
+        assert.match(error.message, /lazytrae-plugin\/packages\/cli\/templates\/AGENTS\.md/);
+        return true;
+      },
+    );
+  } finally {
+    fs.rmSync(fixtureRoot, { recursive: true, force: true });
+  }
+  assert.deepEqual(fs.readFileSync(sourcePath), sourceBefore, 'template mutation probe changed the source file');
 });
