@@ -9,6 +9,14 @@ const { atomicAppendFile, atomicWriteFile } = require('../lib/safe-write');
  */
 
 function detectRepoRoot() {
+  const configuredRoot = process.env.LAZYTRAE_PROJECT_ROOT;
+  if (typeof configuredRoot === 'string' && path.isAbsolute(configuredRoot)) {
+    try {
+      return fs.realpathSync.native(configuredRoot);
+    } catch (_) {
+      return path.resolve(configuredRoot);
+    }
+  }
   let dir = process.cwd();
   while (dir !== path.dirname(dir)) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;

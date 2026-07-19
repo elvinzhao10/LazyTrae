@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { removeAllBlocks } = require('../lib/managed-blocks');
 const { removeManagedGitignoreBlock } = require('../lib/managed-gitignore');
+const { removeManagedMcpDeclaration } = require('../lib/mcp-declaration');
 const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 const { removeEmptyDir, removeVerifiedFile, removeVerifiedTree } = require('../lib/owned-assets');
 
@@ -47,11 +48,21 @@ Normal uninstall retains .lazytrae state/, evidence/, plans/, and loop/ data.
   const repoRoot = detectRepoRoot();
   const summary = { removed: [], preserved: [] };
 
-  console.log(`LazyTrae uninstall v1.0.1`);
+  console.log(`LazyTrae uninstall v1.0.2`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
   const traeDir = path.join(repoRoot, '.trae');
+  const mcpRemoval = removeManagedMcpDeclaration(
+    repoRoot,
+    path.join(templatesDir, 'mcp.json'),
+    path.join(traeDir, 'mcp.json'),
+  );
+  if (mcpRemoval.status === 'removed') summary.removed.push('.trae/mcp.json managed declaration');
+  else if (mcpRemoval.status === 'updated') summary.removed.push('.trae/mcp.json managed entries');
+  else if (mcpRemoval.status === 'preserved_modified') {
+    summary.preserved.push('.trae/mcp.json (modified same-name LazyTrae entry)');
+  }
   const traeFiles = removeVerifiedTree(repoRoot, templatesDir, traeDir);
   if (traeFiles > 0) {
     summary.removed.push(`${traeFiles} verified .trae/ asset(s)`);

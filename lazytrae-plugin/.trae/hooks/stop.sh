@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.0.1 — Stop hook
+# LazyTrae v1.0.2 — Stop hook
 # Emits continuation reminder if active work is incomplete.
 # Provide start-work continuation and executor evidence verification.
 # Always exits 0 — never blocks a session.
@@ -12,10 +12,21 @@ BOULDER="$STATE_DIR/boulder.json"
 LOOP="$STATE_DIR/active-loop.json"
 
 gate_output=""
-if [ -f "$REPO_ROOT/packages/cli/src/index.js" ]; then
-  gate_output="$(cd "$REPO_ROOT" && node packages/cli/src/index.js completion-status 2>/dev/null || true)"
-elif command -v lazytrae >/dev/null 2>&1; then
-  gate_output="$(cd "$REPO_ROOT" && lazytrae completion-status 2>/dev/null || true)"
+MCP_CONFIG="$REPO_ROOT/.trae/mcp.json"
+if [ -f "$MCP_CONFIG" ]; then
+  launcher="$(node -e '
+try {
+  const config = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+  const server = config.mcpServers && config.mcpServers.lazytrae;
+  if (server && server.command === "node" && Array.isArray(server.args)
+      && server.args.length === 4 && server.args[1] === "--root" && server.args[3] === "mcp") {
+    process.stdout.write(server.args[0]);
+  }
+} catch (_) {}
+' "$MCP_CONFIG" 2>/dev/null || true)"
+  if [ -n "$launcher" ] && [ -f "$launcher" ]; then
+    gate_output="$(node "$launcher" --root "$REPO_ROOT" completion-status 2>/dev/null || true)"
+  fi
 fi
 
 if printf '%s\n' "$gate_output" | head -n 1 | grep -qx "blocked"; then
@@ -53,7 +64,7 @@ try{
     plan_name=$(echo "$incomplete" | cut -d'|' -f3)
     reminders="${reminders}[LazyTrae] Boulder has ${task_count} incomplete task(s) remaining in plan '${plan_name}'.
 [LazyTrae] Next task: ${task_desc}
-[LazyTrae] To resume: paste the handoff summary or run 'lazytrae handoff'.
+[LazyTrae] To resume: paste the handoff summary or run the release-owned launcher from .trae/mcp.json with --root and handoff.
 "
   fi
 fi

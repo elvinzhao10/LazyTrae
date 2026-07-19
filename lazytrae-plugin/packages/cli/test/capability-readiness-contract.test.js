@@ -8,7 +8,7 @@ const contractPath = path.join(__dirname, '..', 'contracts', 'lazyseries-capabil
 const fixturePath = path.join(__dirname, '..', 'contracts', 'fixtures', 'v018', 'readiness-records.json');
 const policyDigest = '3a65e1d7108c1a607035cbb127117dc5c18d0116ddf88c3e9ca5aaa4db032c4a';
 const statuses = [
-  'host-ready',
+  'package-ready',
   'owned-ready',
   'missing',
   'incompatible',
@@ -32,6 +32,7 @@ function validateRecord(record, schema) {
   assert.ok(record.capability.length > 0, 'capability must not be empty');
   assert.ok(record.provider === null || typeof record.provider === 'string', 'provider must be nullable string');
   assert.ok(properties.status.enum.includes(record.status), 'status must be an exact declared value');
+  assert.ok(properties.readiness_scope.enum.includes(record.readiness_scope), 'readiness scope must be declared by the contract');
   assert.ok(record.reason_code === null || typeof record.reason_code === 'string', 'reason_code must be nullable string');
   assert.equal(typeof record.message, 'string');
   assert.ok(typeof record.details === 'object' && record.details !== null && !Array.isArray(record.details), 'details must be an object');

@@ -8,13 +8,18 @@ LazyTrae deliberately aligns policy and package safety across Trae surfaces whil
 | --- | --- | --- | --- | --- |
 | Project assets | `.trae/` and `.lazytrae/` | Global Work skills plus project state | Local project configuration | Templates and managed copies are present. |
 | Skills/commands/agents | Project discovery | Global skill discovery; no global command registry | CLI/session discovery | Files are present; host must load them. |
-| MCP | Project declaration and reopened project | Manual Settings → MCP entry | Explicit `mcp add-json` and new session | Core launcher and protocol tests are present. |
+| MCP | Project declaration; reopen is host-owned | Paste-ready JSON for manual Settings → MCP | Paste-ready JSON for the selected build's documented/manual settings flow | Core launcher and protocol tests are present. |
 | Hooks | Host event lifecycle | Host-specific behavior | CLI/project behavior | Hooks are advisory declarations. |
 | Removal | Project assets only | Bounded skills removal plus manual registration removal | Project assets plus manual registration removal | Package never guesses host locations. |
 
 ## Structural differences
 
 The host adapter differs, but the safety model does not:
+
+- **Availability:** release configuration is the **documented package route**;
+  supplied macOS IDE/Work results are an **observed prerelease route**; without
+  a current Computer Use or user-supplied observation, **HOST READINESS:
+  PENDING**. No universal Trae CLI MCP command is assumed.
 
 - **Host integration:** IDE, Work, and CLI each own discovery, registration, session lifetime, and event delivery.
 - **State/path:** project assets live in `.trae/` and `.lazytrae/`; the verified Work skills path is macOS `~/.trae-cn/skills/`; host settings and credentials remain user-owned.
@@ -31,6 +36,19 @@ The host adapter differs, but the safety model does not:
 | Optional providers | Implements policy, receipts, and managed namespaced entries. | Stores credentials and applies connector/network policy. | Selection/receipt status is not provider authorization or connection. |
 
 The complete dependency classification is in [Dependency and host boundary reference](reference/dependency-and-host-boundaries.md).
+
+## JSON-first manual routes
+
+Use the absolute release-owned launcher. `load-check --host work` and
+`load-check --host cli` print the local core connector between
+`LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. For Work, paste that
+JSON in **Settings → MCP** after approval. For CLI, use the selected build's
+documented/manual MCP settings flow; no public universal MCP registration
+command is assumed. Paste, reload/new session, and live verification are
+separate one-action handoffs. The launcher is the **documented package route**;
+supplied macOS IDE/Work behavior is an **observed prerelease route**; without a
+current observation, **HOST READINESS: PENDING**. The supplied QA could not
+access Trae CLI, so its live-host route is explicitly unverified.
 
 ## macOS-only scope
 

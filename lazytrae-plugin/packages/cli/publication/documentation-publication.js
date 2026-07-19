@@ -71,6 +71,15 @@ function assertLocalLinks(documentationPath, root = repositoryRoot) {
   }
 }
 
+function assertNoPrivateOmoMembers(members) {
+  const offenders = members.filter(member => /(?:^|\/)\.omo(?:\/|$)/.test(member));
+  assert.deepEqual(
+    offenders,
+    [],
+    `publication artifacts must exclude private .omo evidence: ${offenders.join(', ')}`,
+  );
+}
+
 function assertReleaseBoundarySemantics(content) {
   const oppositeBoundary = /(?:package|core)[^.]{0,80}(?:checks?|health|verification|readiness)[^.]{0,100}\b(?:require|requires|depend|depends|rely|relies)\b[^.]{0,100}\b(?:publication|learner|repository-root|root documentation|root docs)\b/i;
   const intendedBoundary = /(?:normal ci|(?:package|core)[^.]{0,80}(?:checks?|health|verification|readiness))[^.]{0,160}\b(?:self-contained|does not require|independent)\b[\s\S]{0,300}\b(?:documentation|learner docs|learner documentation)\b[^.]{0,160}\b(?:release-only|publication)\b/i;
@@ -89,6 +98,25 @@ test('public learner pages exist and their local link graph resolves', () => {
     assert.equal(fs.existsSync(documentationPath), true, `required publication page is missing: ${relativePath}`);
     assertLocalLinks(documentationPath);
   }
+});
+
+test('the publication source tree contains no private .omo namespace', () => {
+  assert.equal(
+    fs.existsSync(path.join(repositoryRoot, '.omo')),
+    false,
+    'private planning and evidence must remain outside the publication source tree',
+  );
+});
+
+test('a controlled private .omo artifact is rejected without mutating its source fixture', () => {
+  const controlledMembers = ['package/README.md', 'package/.omo/evidence/internal.md'];
+  const before = controlledMembers.slice();
+
+  assert.throws(
+    () => assertNoPrivateOmoMembers(controlledMembers),
+    /private \.omo evidence/,
+  );
+  assert.deepEqual(controlledMembers, before, 'artifact rejection must not delete or rewrite its source fixture');
 });
 
 test('public documentation expresses the release boundary semantically', () => {

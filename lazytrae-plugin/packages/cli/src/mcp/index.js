@@ -3,6 +3,12 @@
 const readline = require('readline');
 const { detectRepoRoot } = require('./state-access');
 const { TOOLS, HANDLERS } = require('./tools');
+const {
+  PROTOCOL_VERSION,
+  SERVER_VERSION,
+  receiptWriteDiagnostic,
+  tryWriteInitializeReceipt,
+} = require('../lib/initialize-receipt');
 
 // ── JSON-RPC helpers ──
 
@@ -32,10 +38,12 @@ function handleRequest(req, repoRoot) {
 
   try {
     if (method === 'initialize') {
+      const receipt = tryWriteInitializeReceipt(repoRoot, params);
+      if (!receipt.ok) process.stderr.write(`${receiptWriteDiagnostic(receipt.error)}\n`);
       return send(id, {
-        protocolVersion: '2024-11-05',
+        protocolVersion: PROTOCOL_VERSION,
         capabilities: { tools: {} },
-        serverInfo: { name: 'lazytrae-mcp', version: '1.0.1' },
+        serverInfo: { name: 'lazytrae-mcp', version: SERVER_VERSION },
       });
     }
 
@@ -101,7 +109,7 @@ function main() {
     process.exit(0);
   });
 
-  process.stderr.write('LazyTrae MCP server v1.0.1 started\n');
+  process.stderr.write('LazyTrae MCP server v1.0.2 started\n');
 }
 
 // Run directly if executed as a script

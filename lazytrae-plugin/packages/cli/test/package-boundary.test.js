@@ -19,6 +19,15 @@ const OPERATIONAL_FILES = [
   '.trae/skills/lazy-librarian/SKILL.md',
 ];
 
+function assertNoPrivateOmoMembers(members) {
+  const offenders = members.filter(member => /(?:^|\/)\.omo(?:\/|$)/.test(member));
+  assert.deepEqual(
+    offenders,
+    [],
+    `distributable artifacts must exclude private .omo evidence: ${offenders.join(', ')}`,
+  );
+}
+
 test('installed LazyTrae operations do not require repository docs or dev directories', () => {
   // Given: a consumer repository created exclusively from packaged templates.
   const fixture = makeFixture('lazytrae-no-parent-docs-');
@@ -52,6 +61,42 @@ test('default package health excludes the explicit publication entry point', () 
   assert.equal(packageManifest.scripts['test:publication'],
     'node ./tools/test-fixture-runner.js publication/documentation-publication.js');
   assert.equal(path.basename('publication/documentation-publication.js').endsWith('.test.js'), false);
+});
+
+test('the permanent release tree excludes the private .omo namespace', () => {
+  const privateNamespace = path.join(MONOREPO_ROOT, '.omo');
+  if (!fs.existsSync(path.join(MONOREPO_ROOT, '.git'))) {
+    assert.equal(
+      fs.existsSync(privateNamespace),
+      false,
+      'an isolated package fixture must not carry a private .omo directory',
+    );
+    return;
+  }
+
+  const tracked = childProcess.spawnSync('git', ['ls-files', '--', '.omo'], {
+    cwd: MONOREPO_ROOT,
+    encoding: 'utf8',
+  });
+  assert.equal(tracked.error, undefined, tracked.error?.message);
+  assert.equal(tracked.status, 0, tracked.stderr || tracked.stdout);
+  assert.equal(tracked.stdout.trim(), '', 'private .omo files must not be tracked in a release handoff');
+  assert.equal(
+    fs.existsSync(privateNamespace),
+    false,
+    'the permanent release worktree must not retain a private .omo directory',
+  );
+});
+
+test('a controlled private .omo artifact is rejected without mutating its source fixture', () => {
+  const controlledMembers = ['package/README.md', 'package/.omo/evidence/internal.md'];
+  const before = controlledMembers.slice();
+
+  assert.throws(
+    () => assertNoPrivateOmoMembers(controlledMembers),
+    /private \.omo evidence/,
+  );
+  assert.deepEqual(controlledMembers, before, 'artifact rejection must not delete or rewrite its source fixture');
 });
 
 test('package health passes but publication fails without repository learner docs', {

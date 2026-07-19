@@ -8,6 +8,15 @@ const test = require('node:test');
 const CLI_ROOT = path.resolve(__dirname, '..');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
+function assertNoPrivateOmoMembers(members) {
+  const offenders = members.filter(member => /(?:^|\/)\.omo(?:\/|$)/.test(member));
+  assert.deepEqual(
+    offenders,
+    [],
+    `packed artifacts must exclude private .omo evidence: ${offenders.join(', ')}`,
+  );
+}
+
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: options.cwd || CLI_ROOT,
@@ -18,9 +27,13 @@ function run(command, args, options = {}) {
   return result.stdout;
 }
 
-function initialize(binary) {
+function initialize(command, args = ['mcp'], options = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn(binary, ['mcp'], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = spawn(command, args, {
+      cwd: options.cwd,
+      env: options.env,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
     let stdout = '';
     let stderr = '';
     const timeout = setTimeout(() => {
@@ -57,6 +70,7 @@ test('packed CLI installs from a cold offline npm cache with only production dep
     const [packageInfo] = JSON.parse(run(npm, ['pack', '--json', '--pack-destination', root]));
     const tarball = path.join(root, packageInfo.filename);
     const members = run('tar', ['-tzf', tarball]).trim().split('\n');
+    assertNoPrivateOmoMembers(members);
     const bundledPackages = new Set(members
       .map(member => member.match(/^package\/node_modules\/([^/]+)\/package\.json$/)?.[1])
       .filter(Boolean));
@@ -85,6 +99,28 @@ test('packed CLI installs from a cold offline npm cache with only production dep
     const response = await initialize(binary);
     assert.equal(response.error, undefined);
     assert.equal(response.result.serverInfo.name, 'lazytrae-mcp');
+
+    const project = path.join(root, 'Consumer Project');
+    const home = path.join(root, 'home');
+    fs.mkdirSync(path.join(project, '.git'), { recursive: true });
+    fs.mkdirSync(home);
+    const nodeOnlyEnvironment = { HOME: home, PATH: path.dirname(process.execPath) };
+    run(binary, ['init', '--root', project, '--host', 'ide'], { cwd: root, env: nodeOnlyEnvironment });
+    const declaration = JSON.parse(fs.readFileSync(path.join(project, '.trae', 'mcp.json'), 'utf8'))
+      .mcpServers.lazytrae;
+    assert.equal(declaration.command, 'node');
+    assert.equal(path.isAbsolute(declaration.args[0]), true);
+    assert.equal(
+      declaration.args[0],
+      fs.realpathSync(path.join(installRoot, 'node_modules', 'lazytrae-ai', 'bin', 'lazytrae.js')),
+    );
+    assert.deepEqual(declaration.args.slice(1), ['--root', fs.realpathSync(project), 'mcp']);
+    const localResponse = await initialize(declaration.command, declaration.args, {
+      cwd: root,
+      env: nodeOnlyEnvironment,
+    });
+    assert.equal(localResponse.error, undefined);
+    assert.equal(localResponse.result.serverInfo.version, '1.0.2');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

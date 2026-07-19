@@ -4,6 +4,16 @@ const path = require('node:path');
 const test = require('node:test');
 const { makeFixture, runCli } = require('./test-helpers');
 
+const HAS_AJV = (() => {
+  try {
+    require('ajv');
+    require('ajv-formats');
+    return true;
+  } catch (_) {
+    return false;
+  }
+})();
+
 test('doctor enforces RFC3339 date-time formats in installed state schemas', () => {
   const fixture = makeFixture('lazytrae-date-time-state-');
   const boulderPath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
@@ -43,7 +53,14 @@ test('doctor enforces RFC3339 date-time formats in installed state schemas', () 
     boulder.works['work-1'].created_at = createdAt;
     fs.writeFileSync(boulderPath, JSON.stringify(boulder, null, 2) + '\n');
     const invalid = runCli(['doctor'], { cwd: fixture });
-    assert.equal(invalid.status, 1, invalid.stdout);
-    assert.match(invalid.stdout, /Schema validation: boulder\.json[\s\S]*\/created_at.*date-time/);
+    if (HAS_AJV) {
+      assert.equal(invalid.status, 1, invalid.stdout);
+      assert.match(invalid.stdout, /Schema validation: boulder\.json[\s\S]*\/created_at.*date-time/);
+      assert.doesNotMatch(invalid.stdout, /Structural validation unchecked/);
+    } else {
+      assert.equal(invalid.status, 0, invalid.stdout);
+      assert.match(invalid.stdout, /Schema validation: boulder\.json[\s\S]*WARN/);
+      assert.match(invalid.stdout, /Structural validation unchecked/);
+    }
   }
 });

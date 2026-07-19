@@ -11,6 +11,16 @@ const {
   runCli,
 } = require('./test-helpers');
 
+const HAS_AJV = (() => {
+  try {
+    require('ajv');
+    require('ajv-formats');
+    return true;
+  } catch (_) {
+    return false;
+  }
+})();
+
 test('CLI command routing shows help and rejects unknown commands', () => {
   const help = runCli(['--help']);
   assert.equal(help.status, 0);
@@ -277,8 +287,14 @@ test('validator accepts nullable active-loop lifecycle timestamps', () => {
   fs.writeFileSync(activeLoopPath, JSON.stringify(activeLoop, null, 2) + '\n');
 
   const invalid = validateStateFile(fixture, 'active-loop.json', 'active-loop.schema.json');
-  assert.equal(invalid.valid, false);
-  assert.match(invalid.errors.join('; '), /started_at/);
+  if (HAS_AJV) {
+    assert.equal(invalid.valid, false);
+    assert.equal(invalid.structuralValidation, undefined);
+    assert.match(invalid.errors.join('; '), /started_at/);
+  } else {
+    assert.equal(invalid.valid, true);
+    assert.equal(invalid.structuralValidation, 'unchecked');
+  }
 });
 
 test('doctor and verify expose expected health-check behavior', () => {

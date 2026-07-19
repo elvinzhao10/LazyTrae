@@ -25,9 +25,15 @@ Options:
     });
     if (doctor.stdout) process.stdout.write(doctor.stdout);
     if (doctor.stderr) process.stderr.write(doctor.stderr);
+    if (doctor.status !== 0) {
+      console.log('Verification failed: doctor reported blocking checks; completion status withheld.');
+      process.exit(1);
+      return;
+    }
+
     const status = getCompletionStatus(detectRepoRoot());
     console.log(formatCompletionStatus(status));
-    if ((doctor.status || 0) !== 0 || status.status !== 'ready') process.exit(1);
+    if (status.status !== 'ready') process.exit(1);
     return;
   }
 

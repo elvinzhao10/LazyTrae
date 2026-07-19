@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const { copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile } = require('../lib/templates');
-const { replaceBlock, extractBlock, hasManagedBlock, extractBlockNames } = require('../lib/managed-blocks');
-const { ensureToolingState, updateMcpDeclaration } = require('../lib/tooling-state');
+const { materializeGuidance } = require('../lib/local-launcher');
+const { updateMcpDeclaration } = require('../lib/mcp-declaration');
+const { ensureToolingState } = require('../lib/tooling-state');
+const { inspectGitMetadata } = require('../lib/git-repository');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -28,10 +30,13 @@ Options:
   const repoRoot = detectRepoRoot();
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
-  const summary = { updated: [], skipped: [] };
+  const summary = { updated: [], skipped: [], warnings: [] };
 
-  console.log(`LazyTrae sync v1.0.1`);
+  console.log(`LazyTrae sync v1.0.2`);
   console.log(`Repo root: ${repoRoot}\n`);
+
+  const gitStatus = inspectGitMetadata(repoRoot);
+  if (gitStatus.status === 'WARN') summary.warnings.push(gitStatus.detail);
 
   for (const relativePath of ['.lazytrae/plans', '.lazytrae/loop']) {
     ensureRepoDir(repoRoot, path.join(repoRoot, relativePath));
@@ -81,8 +86,20 @@ Options:
 
   const mcpTemplatePath = path.join(templatesDir, 'mcp.json');
   const mcpDestinationPath = path.join(repoRoot, '.trae', 'mcp.json');
-  const mcpUpdate = updateMcpDeclaration(repoRoot, mcpTemplatePath, mcpDestinationPath);
-  if (mcpUpdate.status === 'updated') summary.updated.push('.trae/mcp.json');
+  let mcpUpdate;
+  try {
+    mcpUpdate = updateMcpDeclaration(repoRoot, mcpTemplatePath, mcpDestinationPath);
+  } catch (error) {
+    console.error(`LazyTrae sync: ${error.message}`);
+    return 1;
+  }
+  if (mcpUpdate.status === 'updated' && mcpUpdate.refreshed) {
+    summary.updated.push(`.trae/mcp.json (refreshed stale launcher ${JSON.stringify(mcpUpdate.previousLauncher)})`);
+  } else if (mcpUpdate.status === 'updated') summary.updated.push('.trae/mcp.json');
+  else if (mcpUpdate.status === 'preserved_modified') {
+    summary.skipped.push(`.trae/mcp.json (${mcpUpdate.detail})`);
+    process.exitCode = 1;
+  }
   else if (mcpUpdate.status === 'unavailable_existing') summary.skipped.push('.trae/mcp.json (protected destination; existing declaration preserved; complete MCP registration manually with your host)');
   else if (mcpUpdate.status === 'unavailable_absent') summary.skipped.push('.trae/mcp.json (protected destination; declaration was not written; complete MCP registration manually with your host)');
   else summary.skipped.push('.trae/mcp.json (no changes)');
@@ -130,7 +147,7 @@ Options:
   const agentsTemplatePath = path.join(templatesDir, 'AGENTS.md');
   const agentsDestPath = path.join(repoRoot, 'AGENTS.md');
   if (fs.existsSync(agentsTemplatePath) && fs.existsSync(agentsDestPath)) {
-    const templateContent = fs.readFileSync(agentsTemplatePath, 'utf-8');
+    const templateContent = materializeGuidance(fs.readFileSync(agentsTemplatePath, 'utf-8'), repoRoot);
     let existingContent = fs.readFileSync(agentsDestPath, 'utf-8');
     const mb = require('../lib/managed-blocks');
     let merges = 0;
@@ -142,7 +159,7 @@ Options:
 
       if (mb.hasManagedBlock(existingContent, blockName)) {
         const existingBlock = mb.extractBlock(existingContent, blockName);
-        if (existingBlock !== templateBlock) {
+        if (!mb.sameBlockContent(existingBlock, templateBlock)) {
           existingContent = mb.replaceBlock(existingContent, blockName, templateBlock.trim());
           merges++;
         }
@@ -183,7 +200,12 @@ Options:
     console.log('\nSkipped:');
     summary.skipped.forEach(s => console.log(`  - ${s}`));
   }
+  if (summary.warnings.length > 0) {
+    console.log('\nWarnings:');
+    summary.warnings.forEach(s => console.log(`  ! ${s}`));
+  }
   console.log('\nDone.');
+  return process.exitCode || 0;
 }
 
 module.exports = { run };

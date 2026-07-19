@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { localCommand } = require('./local-command');
 const { resolveRepoPath } = require('./path-boundary');
 
 function detectRepoRoot() {
@@ -111,7 +112,7 @@ function getCompletionStatus(repoRoot = detectRepoRoot()) {
   return {
     status: reasons.length === 0 ? 'ready' : 'blocked',
     reasons,
-    next_command: reasons.length === 0 ? null : 'lazytrae verify --must-pass',
+    next_command: reasons.length === 0 ? null : `${localCommand(repoRoot)} verify --must-pass`,
   };
 }
 
@@ -122,7 +123,7 @@ function formatCompletionStatus(result) {
     return lines.join('\n');
   }
   for (const reason of result.reasons) lines.push(`- [${reason.gate}] ${reason.message}`);
-  lines.push(`Next command: ${result.next_command || 'lazytrae completion-status'}`);
+  lines.push(`Next command: ${result.next_command || `${localCommand(detectRepoRoot())} completion-status`}`);
   return lines.join('\n');
 }
 

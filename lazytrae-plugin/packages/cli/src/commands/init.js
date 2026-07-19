@@ -1,21 +1,24 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  chmodRepoFile, copyRepoDir, copyRepoFile, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
+  chmodRepoFile, copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
 } = require('../lib/templates');
-const { replaceBlock, hasManagedBlock, extractBlock } = require('../lib/managed-blocks');
 const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
-const { ensureToolingState, updateMcpDeclaration } = require('../lib/tooling-state');
+const { materializeGuidance } = require('../lib/local-launcher');
+const { updateMcpDeclaration } = require('../lib/mcp-declaration');
+const { ensureToolingState } = require('../lib/tooling-state');
+const { inspectGitMetadata } = require('../lib/git-repository');
 
 const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
 
 function detectRepoRoot() {
   let dir = process.cwd();
-  while (dir !== path.dirname(dir)) {
+  while (true) {
     if (fs.existsSync(path.join(dir, '.git'))) return dir;
-    dir = path.dirname(dir);
+    const parent = path.dirname(dir);
+    if (parent === dir) return process.cwd();
+    dir = parent;
   }
-  return process.cwd();
 }
 
 function readHost(args) {
@@ -49,10 +52,13 @@ Options:
   const force = args.includes('--force');
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
-  const summary = { created: [], updated: [], skipped: [], merged: [] };
+  const summary = { created: [], updated: [], skipped: [], merged: [], warnings: [] };
 
-  console.log(`LazyTrae init v1.0.1`);
+  console.log(`LazyTrae init v1.0.2`);
   console.log(`Repo root: ${repoRoot}\n`);
+
+  const gitStatus = inspectGitMetadata(repoRoot);
+  if (gitStatus.status === 'WARN') summary.warnings.push(gitStatus.detail);
 
   // Create directory structure
   const dirs = [
@@ -107,8 +113,13 @@ Options:
       path.join(templatesDir, 'mcp.json'),
       path.join(repoRoot, '.trae', 'mcp.json')
     );
-    if (mcpUpdate.status === 'updated') {
+    if (mcpUpdate.status === 'updated' && mcpUpdate.refreshed) {
+      summary.updated.push(`.trae/mcp.json (refreshed stale launcher ${JSON.stringify(mcpUpdate.previousLauncher)})`);
+    } else if (mcpUpdate.status === 'updated') {
       summary.created.push('.trae/mcp.json');
+    } else if (mcpUpdate.status === 'preserved_modified') {
+      summary.skipped.push(`.trae/mcp.json (${mcpUpdate.detail})`);
+      process.exitCode = 1;
     } else if (mcpUpdate.status === 'unavailable_existing' || mcpUpdate.status === 'unavailable_absent') {
       const manualHostAction = host === 'work'
         ? 'Trae Work requires manual Settings → MCP registration'
@@ -196,7 +207,7 @@ Options:
   const agentsTemplatePath = path.join(templatesDir, 'AGENTS.md');
   const agentsDestPath = path.join(repoRoot, 'AGENTS.md');
   if (fs.existsSync(agentsTemplatePath)) {
-    const templateContent = fs.readFileSync(agentsTemplatePath, 'utf-8');
+    const templateContent = materializeGuidance(fs.readFileSync(agentsTemplatePath, 'utf-8'), repoRoot);
     const mb = require('../lib/managed-blocks');
 
     if (fs.existsSync(agentsDestPath)) {
@@ -210,7 +221,7 @@ Options:
 
         if (mb.hasManagedBlock(existingContent, blockName)) {
           const existingBlock = mb.extractBlock(existingContent, blockName);
-          if (existingBlock !== templateBlock) {
+          if (!mb.sameBlockContent(existingBlock, templateBlock)) {
             existingContent = mb.replaceBlock(existingContent, blockName, templateBlock.trim());
             merges++;
           }
@@ -227,7 +238,7 @@ Options:
         summary.skipped.push('AGENTS.md (no changes needed)');
       }
     } else {
-      copyRepoFile(repoRoot, agentsTemplatePath, agentsDestPath);
+      writeRepoFile(repoRoot, agentsDestPath, templateContent);
       summary.created.push('AGENTS.md');
     }
   }
@@ -263,14 +274,23 @@ Options:
     console.log('\nSkipped:');
     summary.skipped.forEach(s => console.log(`  - ${s}`));
   }
-  console.log('\nDone.');
+  if (summary.warnings.length > 0) {
+    console.log('\nWarnings:');
+    summary.warnings.forEach(s => console.log(`  ! ${s}`));
+  }
+  if (process.exitCode) return process.exitCode;
   if (host === 'work') {
     work.install(workSkillsDir);
   }
   const loadCheckArgs = ['--host', host];
   const loadCheck = () => require('./load-check').run(loadCheckArgs);
   const loadStatus = work ? work.withSkillsDirOverride(workSkillsDir, loadCheck) : loadCheck();
-  if (loadStatus !== 0) process.exitCode = loadStatus;
+  if (loadStatus !== 0) {
+    process.exitCode = loadStatus;
+    return loadStatus;
+  }
+  console.log('\nDone.');
+  return 0;
 }
 
 module.exports = { readHost, run };

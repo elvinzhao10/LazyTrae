@@ -6,6 +6,7 @@ const path = require('node:path');
 const test = require('node:test');
 const { runCli } = require('./test-helpers');
 const { listOwnedEntries, prepareOwnedRuntime, writeReceipt } = require('../src/lib/tooling-root');
+const LOCAL_LAUNCHER = path.resolve(__dirname, '..', 'bin', 'lazytrae.js');
 
 function makeRepo(prefix) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -434,12 +435,19 @@ test('explicit CodeGraph enable preserves user MCP configuration and launches on
     assert.deepEqual(syncedMcp.mcpServers.user_owned, { command: 'caller-mcp', args: ['serve'] });
     assert.deepEqual(syncedMcp.mcpServers.codegraph, { command: 'caller-codegraph', args: ['serve'] });
     const canonicalRoot = fs.realpathSync(root);
-    assert.deepEqual(next.mcpServers.lazytrae_codegraph, {
-      command: 'lazytrae',
-      args: ['codegraph', '--target', canonicalRoot, '--tooling-root', toolingRoot],
+    const codeGraphServer = next.mcpServers.lazytrae_codegraph;
+    assert.deepEqual({
+      command: codeGraphServer.command,
+      args: codeGraphServer.args,
+      required: codeGraphServer.required,
+      description: codeGraphServer.description,
+    }, {
+      command: 'node',
+      args: [LOCAL_LAUNCHER, '--root', canonicalRoot, 'codegraph', '--target', canonicalRoot, '--tooling-root', toolingRoot],
       required: false,
       description: 'Optional receipt-owned CodeGraph MCP bridge. Enable only after you create the project-local .codegraph index.',
     });
+    assert.match(codeGraphServer._lazytrae.fingerprint, /^sha256:[a-f0-9]{64}$/);
     const state = JSON.parse(fs.readFileSync(path.join(root, '.lazytrae', 'state', 'tooling.json'), 'utf8'));
     assert.deepEqual(state.capabilities.codegraph, {
       enabled: true,

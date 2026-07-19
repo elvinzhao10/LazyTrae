@@ -5,10 +5,11 @@ const path = require('node:path');
 const test = require('node:test');
 const { run: init } = require('../src/commands/init');
 const { run: sync } = require('../src/commands/sync');
-const { updateMcpDeclaration } = require('../src/lib/tooling-state');
+const { updateMcpDeclaration } = require('../src/lib/mcp-declaration');
 const { makeFixture, runCli } = require('./test-helpers');
 
 const TEMPLATE_PATH = path.resolve(__dirname, '..', 'templates', 'mcp.json');
+const LOCAL_LAUNCHER = path.resolve(__dirname, '..', 'bin', 'lazytrae.js');
 
 function makeProject(prefix) {
   const project = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -71,8 +72,10 @@ test('MCP declaration writer updates a normal project declaration', () => {
 
     assert.deepEqual(result, { status: 'updated' });
     const config = JSON.parse(fs.readFileSync(destinationPath, 'utf8'));
-    assert.equal(config.mcpServers.lazytrae.command, 'lazytrae');
-    assert.deepEqual(config.mcpServers.lazytrae.args, ['mcp']);
+    assert.equal(config.mcpServers.lazytrae.command, 'node');
+    assert.deepEqual(config.mcpServers.lazytrae.args, [
+      LOCAL_LAUNCHER, '--root', fs.realpathSync(project), 'mcp',
+    ]);
   } finally {
     fs.rmSync(project, { recursive: true, force: true });
   }

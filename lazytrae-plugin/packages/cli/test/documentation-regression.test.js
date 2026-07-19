@@ -18,7 +18,7 @@ function assertInitDeepSafety(content, initDeepPath) {
   assert.match(content, /separate(?:ly)? confirm/i, `${initDeepPath} must require a separately confirmed destructive request`);
   assert.match(content, /exact AGENTS\.md files/i, `${initDeepPath} must list the exact replacement targets`);
   assert.match(content, /backup.*confirmed original|confirmed original.*backup/is, `${initDeepPath} must back up every confirmed original`);
-  assert.match(content, /lazytrae init.*(?:updates?|replaces?).*complete.*delimited.*managed.*block.*appends?.*new.*delimited.*managed.*block/is, `${initDeepPath} must accurately describe managed-block update and append behavior`);
+  assert.match(content, /release-owned local command.*init.*(?:updates?|replaces?).*complete.*delimited.*managed.*block.*appends?.*new.*delimited.*managed.*block/is, `${initDeepPath} must accurately describe managed-block update and append behavior`);
   assert.match(content, /preserv(?:e|ing).*all\s+existing\s+surrounding\s+bytes|all\s+existing\s+surrounding\s+bytes.*preserv/is, `${initDeepPath} must preserve all bytes outside the managed block`);
   assert.doesNotMatch(content, /(?:if|when).*delimited block is absent.*leave the file unchanged/i, `${initDeepPath} must not claim an absent managed block leaves AGENTS.md unchanged`);
 }
@@ -36,7 +36,8 @@ test('Given installed LazyTrae guidance, when its package boundary is checked, t
   assert.match(packageReadme, /init --host work` invokes the bounded Work skill installation/, 'package README must describe the Work init lifecycle accurately');
   assert.match(packageReadme, /self-contained CLI tarball/i, 'package README must describe the self-contained CLI artifact');
   assert.match(packageReadme, /cold offline/i, 'package README must describe the cold-offline artifact check');
-  assert.match(installedGuide, /does not require a source\s+checkout\s+after installation/i, 'installed onboarding guidance must distinguish an installed package from the repo-only fallback');
+  assert.match(installedGuide, /pinned release folder as the source of\s+truth/i, 'installed onboarding guidance must keep the permanent local release authoritative');
+  assert.match(installedGuide, /absolute launcher path must remain stable/i, 'installed onboarding guidance must make moved-release failure explicit');
   assert.match(installedGuide, /## `offboard` protocol/, 'installed setup guide must provide safe offboarding');
   assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI README must describe the self-contained CLI artifact');
 });
@@ -44,7 +45,7 @@ test('Given installed LazyTrae guidance, when its package boundary is checked, t
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {
   const packageAgents = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'AGENTS.md'), 'utf8');
 
-  assert.match(packageAgents, /1\.0\.1/, 'CLI maintainer guidance must name the packaged baseline');
+  assert.match(packageAgents, /1\.0\.2/, 'CLI maintainer guidance must name the packaged baseline');
   assert.match(packageAgents, /broad Node test suite/i, 'CLI maintainer guidance must describe the current suite');
   assert.doesNotMatch(packageAgents, /v0\.13|250 LOC|Currently thin/i, 'CLI maintainer guidance must not retain stale constraints');
   assert.match(packageAgents, /node --test test\/documentation-regression\.test\.js/, 'CLI maintainer guidance must name a focused documentation check');

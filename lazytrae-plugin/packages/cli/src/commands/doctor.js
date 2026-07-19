@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const { validateAllState, checkCompletedTaskEvidence } = require('../lib/validator');
-const { extractBlockNames } = require('../lib/managed-blocks');
+const { extractBlockNames, inspectManagedBlocks } = require('../lib/managed-blocks');
+const { readTemplate } = require('../lib/templates');
+const { inspectGitMetadata } = require('../lib/git-repository');
 const { checkParityLedger } = require('../lib/parity-check');
 const { checkModelRouting } = require('../lib/model-routing-check');
 const { checkTraeStructure } = require('../lib/trae-checks');
@@ -11,6 +13,7 @@ const { validateActivePlans } = require('../lib/active-plan');
 const { providerMatrix } = require('../lib/provider-lifecycle');
 const { readLedger } = require('../lib/automatic-tooling-policy');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
+const { localCommand } = require('../lib/local-launcher');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -78,10 +81,12 @@ Options:
       addResult('packages/mcp/src/tools.js', 'FAIL', 'MCP tools file not found');
     }
   } else {
-    addResult('MCP runtime', 'WARN', 'Uses the installed lazytrae CLI; source-package checks skipped');
+    addResult('MCP runtime', 'PASS', 'MCP runtime is provided by the release-owned LazyTrae CLI and launched on demand; source-package checks are not part of this consumer project.');
   }
 
-  addResult('MCP server running', 'WARN', 'Started on demand by Trae IDE, Trae Work, or Trae CLI via lazytrae mcp');
+  addResult('MCP server running', 'WARN', `Started on demand by Trae IDE, Trae Work, or Trae CLI via ${localCommand(repoRoot)} mcp`);
+  const gitStatus = inspectGitMetadata(repoRoot);
+  addResult('Git metadata', gitStatus.status, gitStatus.detail);
 
   // .lazytrae/config.json
   const configPath = path.join(repoRoot, '.lazytrae', 'config.json');
@@ -154,12 +159,16 @@ Options:
   if (fs.existsSync(agentsPath)) {
     const content = fs.readFileSync(agentsPath, 'utf-8');
     const blocks = extractBlockNames(content);
-    const expectedBlocks = ['version-numbering', 'plan-files', 'command-index'];
+    const markerInspection = inspectManagedBlocks(content);
+    const templateContent = readTemplate('AGENTS.md') || '';
+    const expectedBlocks = extractBlockNames(templateContent);
     const missing = expectedBlocks.filter(b => !blocks.includes(b));
-    if (missing.length === 0) {
-      addResult('AGENTS.md managed blocks', 'PASS', `${blocks.length} blocks intact`);
+    if (markerInspection.malformed.length > 0) {
+      addResult('AGENTS.md managed blocks', 'WARN', `Malformed managed block markers: ${markerInspection.malformed.join(', ')}; preserve user content and repair the delimited block.`);
+    } else if (missing.length === 0) {
+      addResult('AGENTS.md managed blocks', 'PASS', `${blocks.length} blocks intact: ${blocks.join(', ')}`);
     } else {
-      addResult('AGENTS.md managed blocks', 'WARN', 'Managed blocks absent (AGENTS.md is now a setup guide)');
+      addResult('AGENTS.md managed blocks', 'WARN', `Missing canonical managed blocks: ${missing.join(', ') || 'none'}; user content outside delimited blocks is preserved.`);
     }
   } else {
     addResult('AGENTS.md', 'WARN', 'Not present (README is the onboarding guide)');
@@ -169,7 +178,12 @@ Options:
   const schemaResults = validateAllState(repoRoot);
   for (const [stateFile, result] of Object.entries(schemaResults)) {
     if (result.valid) {
-      addResult(`Schema validation: ${stateFile}`, 'PASS');
+      if (result.structuralValidation === 'unchecked') {
+        addResult(`Schema validation: ${stateFile}`, 'WARN',
+          (result.warnings || ['Structural validation unchecked']).join('; '));
+      } else {
+        addResult(`Schema validation: ${stateFile}`, 'PASS');
+      }
     } else {
       addResult(`Schema validation: ${stateFile}`, 'FAIL', result.errors.join('; '));
     }
@@ -231,7 +245,7 @@ Options:
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v1.0.1`);
+  console.log(`LazyTrae Doctor v1.0.2`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);

@@ -9,7 +9,7 @@ const { OPTIONAL_CAPABILITIES, readToolingState, toolingStatePath } = require('.
 
 const CONTRACT_VERSION = '0.18.0';
 const CONTRACT_DIGEST = '3a65e1d7108c1a607035cbb127117dc5c18d0116ddf88c3e9ca5aaa4db032c4a';
-const READINESS_CONTRACT_SHA256 = '517890bd5bfb22de7cf1a6dec02bd1001fdbe7d7ffed8e0e74bdc1f8a427b78f';
+const READINESS_CONTRACT_SHA256 = 'ef78955b26f77769b3717f8ec8699781972a47f9514ce4955ee7dcbd6738c219';
 const READINESS_CONTRACT_PATH = path.resolve(__dirname, '..', '..', 'contracts', 'lazyseries-capability-readiness.v1.json');
 const CAPABILITIES = [
   ['local_search', 'ripgrep'], ['structural_search', 'ast-grep'], ['code_navigation', 'lsp'],
@@ -18,7 +18,7 @@ const CAPABILITIES = [
 ];
 
 function record(capability, provider, status, message, reasonCode = null, receipt = null, details = {}) {
-  return { schema_version: 1, contract_version: CONTRACT_VERSION, contract_digest: CONTRACT_DIGEST, host: 'lazytrae', capability, provider, status, reason_code: reasonCode, message, receipt, details };
+  return { schema_version: 1, contract_version: CONTRACT_VERSION, contract_digest: CONTRACT_DIGEST, host: 'lazytrae', capability, provider, status, readiness_scope: 'package-ready', reason_code: reasonCode, message, receipt, details };
 }
 
 function readinessContractIntegrity(paths = {}) {
@@ -67,7 +67,7 @@ function notInitializedRecords() {
 }
 
 function coreRecord(capability, provider, inspection) {
-  if (inspection.path) return record(capability, provider, 'host-ready', `A host ${provider} executable is discoverable; compatibility is not executed by this report.`, null, null, { source: 'host', command: inspection.command, path: inspection.path, compatibility: 'not-executed' });
+  if (inspection.path) return record(capability, provider, 'package-ready', `A ${provider} executable is discoverable; compatibility is not executed by this report.`, null, null, { source: 'host', command: inspection.command, path: inspection.path, compatibility: 'not-executed' });
   return record(capability, provider, 'missing', `No compatible ${provider} provider is available.`, 'PROVIDER_NOT_FOUND', null, { source: 'detection' });
 }
 
@@ -76,7 +76,7 @@ function lspRecord(repoRoot) {
   const result = lspReadinessStatus(repoRoot, toolingRoot);
   if (result.state === 'ready') {
     const owned = result.source === 'owned';
-    return record('code_navigation', 'lsp', owned ? 'owned-ready' : 'host-ready', owned ? 'A receipt-owned LSP provider is ready.' : 'An existing local LSP provider is ready.', null, owned ? receiptSummary(toolingRoot) : null, { source: result.source, language: result.language });
+    return record('code_navigation', 'lsp', owned ? 'owned-ready' : 'package-ready', owned ? 'A receipt-owned LSP provider is ready.' : 'An existing local LSP provider is ready.', null, owned ? receiptSummary(toolingRoot) : null, { source: result.source, language: result.language });
   }
   if (result.state === 'incompatible') return record('code_navigation', 'lsp', 'incompatible', result.reason, 'HOST_VERSION_UNSUPPORTED', null, { source: 'compatibility', language: result.language });
   return record('code_navigation', 'lsp', 'missing', result.reason, 'PROVIDER_NOT_FOUND', null, { source: 'detection', language: result.language });
@@ -133,8 +133,16 @@ function formatLegacyCapabilityStatus(repoRoot) {
 }
 
 function formatReadinessSummary(records) {
-  const counts = records.reduce((total, value) => ({ ...total, [value.status]: (total[value.status] || 0) + 1 }), {});
-  return `Capability readiness (report-only; host and MCP connection remain unverified): ${Object.entries(counts).map(([status, count]) => `${status}=${count}`).join(', ')}`;
+  const groups = new Map();
+  for (const value of records) {
+    const members = groups.get(value.status) || [];
+    members.push(value.provider || value.capability || 'unknown');
+    groups.set(value.status, members);
+  }
+  const summary = [...groups.entries()]
+    .map(([status, members]) => `${status}=${members.length} [${members.join(', ')}]`)
+    .join(', ');
+  return `Capability readiness (report-only; host and MCP connection remain unverified): ${summary}`;
 }
 
 module.exports = { formatLegacyCapabilityStatus, formatReadinessSummary, readinessContractIntegrity, readinessReport };

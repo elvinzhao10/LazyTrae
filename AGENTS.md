@@ -1,145 +1,144 @@
 <!-- lazytrae:managed:start:onboarding -->
-# AGENTS.md — LazyTrae
+# AGENTS.md — LazyTrae setup guide
 
-## OVERVIEW
+> **Agent:** use this guide to install, verify, and safely remove LazyTrae.
+> For everyday workflow use, see the [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme).
 
-LazyTrae is a learning project and workflow harness for Trae IDE, Trae Work,
-and Trae CLI. It is primarily inspired by LazyCodex, with OmO and upstream
-attribution recorded in [NOTICE](NOTICE). It is an independent implementation
-and does not require LazyCodex or OmO at runtime.
+LazyTrae packages local routes for **Trae IDE**, **Trae Work**, and **Trae
+CLI**. The release-owned local launcher supplies the portable installer,
+verification gate, and local MCP server. Package behavior is verified on
+macOS only; host behavior keeps the evidence labels below. The current package
+version is `1.0.2`.
 
-It is verified on macOS only. Automatic local capability selection is
-temporary and receipt-owned: it may use `rg`, `sg`, or a read-only LSP bridge,
-but never edits project MCP configuration, dependencies, lockfiles, or host
-settings. CodeGraph, Context7, `grep_app`, filesystem, and Playwright remain
-explicit optional capability choices; onboarding and offboarding never enable
-them.
+## Local-first onboarding (start here)
 
-## STRUCTURE
+Keep the pinned `v1.0.2` release in a permanent folder before opening or
+linking it in a host. In the selected Trae host, give the agent the GitHub
+repository link, `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`.
+Do not use a temporary folder or a PATH/global `lazytrae` command.
 
-- `lazytrae-plugin/`: Distributable package (CLI, MCP, templates).
-- `.trae/`: Trae config (skills, commands, agents, rules, hooks).
-- `.lazytrae/`: Schemas, state, plans, evidence, loops.
+The release-owned local command is:
 
-## WHERE TO LOOK
-
-| Task | Location |
-| --- | --- |
-| Package source | `lazytrae-plugin/packages/cli/` |
-| MCP server | `lazytrae-plugin/packages/mcp/` |
-| Skills/commands | `.trae/skills/`, `.trae/commands/` |
-| Tests | `lazytrae-plugin/packages/cli/test/` |
-
-## CONVENTIONS
-
-- Versioning: semantic versioning; stable releases use `v1.x` and later tags.
-- CLI files ≤250 lines; hook scripts ≤100 lines.
-- Conventional commits, atomic changes.
-- State files use JSON Schema validation.
-
-## ANTI-PATTERNS
-
-- No `git add -A` or `git add .` — stage only changed files.
-- No force pushes.
-- Do not run `load-check` against source checkout.
-
-## COMMANDS
-
-```bash
-lazytrae init --host ide|work|cli   # Install
-lazytrae load-check --host ide      # Verify package readiness
-lazytrae doctor                     # Health check
-lazytrae verify --must-pass         # Completion gate
-lazytrae uninstall --yes            # Remove
+```text
+node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> <command>
 ```
-
----
 
 ## `onboard` protocol
 
 When the user types `onboard`:
 
-1. Ask which host: **Trae IDE**, **Trae Work**, or **Trae CLI**.
-2. Follow only that route. If the companion command is available, run `lazytrae init --host <host>`; `init --host work` invokes the bounded Work skill installation and is followed by `lazytrae work status`.
-3. If the companion command is unavailable, do not claim this copied repository installs it. The repo-only fallback below copies project assets but leaves the MCP declaration pending.
-4. Report each completed action and final **package readiness** result. It verifies copied files and declarations, not host discovery, MCP connection, or a running session.
-5. Stop before marketplace, account, model, or app-setting changes. Do not enable optional tooling or providers. Give the exact remaining manual host step.
+1. Scan the complete current message and detect the host from the open app. If
+   it is not unambiguous, ask one focused question: **Trae IDE**, **Trae Work**,
+   or **Trae CLI**. Do not run setup while the host is ambiguous.
+2. Confirm that this project is linked to a pinned `v1.0.2` release in a
+   permanent location and that `node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root>` still exists. Never
+   fall back to `PATH`, `npx`, or a global `lazytrae`.
+3. Run only safe package checks and project-local setup through the local
+   command: `init --host ide|cli`, `sync`, `load-check --host <host>`, and
+   `doctor`. These inspect or write the selected project only. Do not enable
+   optional providers or change credentials, dependencies, lockfiles, or host
+   settings.
+4. For Trae Work, copying Skills to the host directory is a host-managed
+   mutation. Run `node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> init --host work` only after the
+   approval gate below; the package check before approval must remain read-only.
+5. Report **package readiness** separately. It covers local files, the
+   generated declaration, and local contracts; it never proves host discovery,
+   hook execution, a running session, or an MCP connection.
+6. Before any host-managed mutation (Work Skills copy, a Settings → MCP entry,
+   or Trae CLI registration), ask for explicit approval naming the exact host
+   action. Never automate marketplace, account, model, credential, or app
+   setting changes.
+7. After approval, give exactly **one** concrete GUI/host action and then wait.
+   Do not bundle reload, connector setup, and a test into one handoff.
+8. After the user responds, inspect the corresponding app with Computer Use.
+   If Computer Use is unavailable, accept a user-pasted verbatim status or
+   screenshot as observed evidence. Otherwise keep host readiness **PENDING**.
+   If the host needs a reload or new session, give that as the next single
+   action, wait again, and inspect again.
+9. In the observed session, verify one real LazyTrae Skill or command and every
+   expected MCP connection for the selected route. The base package expects one
+   `lazytrae` core MCP connection (15 tools after connection); seven optional
+   placeholders remain disabled unless separately selected.
+10. Report `package readiness` and `host readiness` as separate fields. Without
+    a current Computer Use or user-supplied observation, **HOST READINESS:
+    PENDING** even when every local check passes.
 
-## `offboard` protocol
+Availability labels are evidence boundaries: the release-owned launcher and
+generated configuration are the **documented package route**; IDE/Work behavior
+seen in the supplied macOS reports is an **observed prerelease route**; and a
+current host stays **HOST READINESS: PENDING** until it is actually observed.
+The supplied QA could not access Trae CLI, so its live-host route is explicitly
+unverified even though the package can generate its local configuration.
 
-When the user types `offboard`:
+## Select the host route
 
-1. Ask which host and package scope to remove.
-2. Run only `lazytrae uninstall --yes`, `--soft`, or `--purge-state`; do not combine the latter two modes or guess any host path.
-3. Preserve modified, unknown, linked, user-owned, caller-owned, and host-managed assets; report retained files instead of deleting around them.
-4. On macOS, use `lazytrae work uninstall` only for Trae Work's verified skill location. For another platform, require a host-reported `--skills-dir`.
-5. Keep host removal manual: remove `lazytrae mcp` in **Trae Work Settings → MCP**; run `trae-cli mcp remove lazytrae` for Trae CLI; for Trae IDE, remove or confirm the project declaration in the IDE.
-6. Report package removal separately from the user's observed host/MCP result.
-
-## Host routes
-
-| Host | Assets | MCP step |
+| Host | Skills and project assets | MCP step and expected observation |
 | --- | --- | --- |
-| **Trae IDE** | `.trae/`, `.lazytrae/` | `.trae/mcp.json` declares server; reopen and observe it |
-| **Trae Work** | 17 skills to `~/.trae-cn/skills/` on macOS | Add `lazytrae mcp` manually in Settings → MCP |
-| **Trae CLI** | Project config + verification gates | Register with `trae-cli mcp add-json`, then start a new session |
+| **Trae IDE** | Documented package route: project `.trae/` skills, commands, rules, agents, hooks, and `.lazytrae/` state. | Auto-discovery is an observed prerelease route. `.trae/mcp.json` uses the absolute release launcher. Reopen once after approval, then observe one Skill/command and the core MCP. |
+| **Trae Work** | `node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> init --host work` is approval-gated and copies 17 Skills to the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the paste-ready JSON printed by `load-check --host work` in **Settings → MCP**. It is not a documented universal host contract. |
+| **Trae CLI** | Documented package route: local project configuration plus verification gates. | No public universal MCP registration command is assumed. Use the paste-ready JSON from `load-check --host cli` with the selected build's documented/manual MCP settings flow, then start a new session and observe the core MCP. |
 
-## Install
+For either manual MCP route, copy only the JSON between
+`LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. Do not translate it to
+an undocumented CLI command. Pasting the JSON, reloading, and testing are three
+separate approval-gated actions.
+
+Trae Work does not auto-load the project MCP file. Linux and Windows Work
+locations and behavior are unverified; ask the host for its directory before
+using `--skills-dir`. A declaration or load-check is package evidence until the
+selected host visibly connects it.
+
+## Install from a permanent release
+
+The primary route keeps the checked-out pinned release folder as the source of
+truth. Its absolute launcher path must remain stable:
 
 ```bash
-git clone --branch v1.0.1 --depth 1 https://github.com/elvinzhao10/LazyTrae.git
-cd LazyTrae
-npm install --global ./lazytrae-plugin/packages/cli
-cd /path/to/your/project
-lazytrae init --host ide
-lazytrae load-check --host ide
+node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> init --host ide
+node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> load-check --host ide
 ```
 
-The local package installation above supplies the `lazytrae` companion,
-verification gate, and local MCP server from the checked-out v1.0.1 source. Its
-self-contained installed package does not require the source checkout during
-normal use. If the command is absent, use this repo-only project configuration
-fallback from the LazyTrae checkout:
+An optional global install may provide secondary `lazytrae` shorthand, but
+generated declarations, hooks, and guidance never depend on that PATH entry.
+
+If the companion command is unavailable, this repo-only fallback is still
+local and explicit:
 
 ```bash
 node /path/to/LazyTrae/lazytrae-plugin/packages/cli/src/index.js init --host ide
 ```
 
-It copies `.trae/` and `.lazytrae/` but does not create a global executable, so
-the declared MCP server remains pending until the companion is installed.
+It copies `.trae/` and `.lazytrae/` but does not create a global executable;
+the generated MCP declaration remains tied to the permanent source checkout.
 
-For Trae Work, reload the host after `lazytrae init --host work` and add command
-`lazytrae` with argument `mcp` in **Settings → MCP**. For Trae CLI, run:
-
-```bash
-lazytrae init --host cli
-trae-cli mcp add-json lazytrae '{"type":"stdio","command":"lazytrae","args":["mcp"]}'
-```
-
-## Verification
+## Verify and remove
 
 ```bash
-lazytrae doctor
-lazytrae load-check --host ide
-lazytrae tooling capability-status --json
+node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> doctor
+node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> load-check --host ide
+node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> verify --must-pass
 ```
 
-## Removal
+These read-only reports cover copied assets and declarations. The installed
+package carries the CLI, local MCP implementation, templates, package-local
+`LICENSE` and `NOTICE`, and its production dependency closure. They do not
+prove discovery, hooks, a running session, or an MCP connection.
 
-```bash
-lazytrae uninstall --yes
-lazytrae uninstall --yes --soft
-lazytrae uninstall --yes --purge-state
-lazytrae work uninstall
-```
+## `offboard` protocol
 
-Project uninstall never removes a Trae Work or Trae CLI registration. Follow
-the manual steps in `offboard` above after package removal.
+When the user types `offboard`, ask which host and package scope is being
+removed, run only an approved local uninstall command, preserve modified or
+unknown assets, and report package removal separately from observed host
+removal. Remove host MCP registrations manually: Trae Work through **Settings
+→ MCP**, Trae CLI through the selected build's documented MCP settings flow,
+and Trae IDE through its project MCP UI. Do not assume a universal CLI command.
 
-## Reference
+## Optional local tooling boundary
 
-- [README.md](README.md)
-- [Learner guide](docs/README.md), including [MCP lifecycle](docs/07b-mcp-lifecycle.md)
-  and [test and release verification](docs/09-test-and-release-verification.md)
-- [lazytrae-evaluation.md](lazytrae-evaluation.md)
+Automatic local capability selection is temporary and receipt-owned. It may
+use `rg`, `sg`, or a read-only LSP bridge for a selected task, but onboarding,
+offboarding, InitDeep, and doctor never enable optional providers. CodeGraph,
+Context7, `grep_app`, filesystem, and Playwright require an explicit lifecycle
+and approval; they never become proof of host readiness.
+
 <!-- lazytrae:managed:end:onboarding -->

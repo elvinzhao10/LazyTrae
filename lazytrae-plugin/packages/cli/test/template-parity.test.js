@@ -4,6 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { REPO_ROOT, makeFixture, runCli } = require('./test-helpers');
+const LOCAL_LAUNCHER = path.join(REPO_ROOT, 'packages', 'cli', 'bin', 'lazytrae.js');
 
 function readFiles(directory, prefix = '') {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
@@ -57,12 +58,26 @@ function assertSafeMcpDefaults(mcpServers) {
   }
 }
 
+function assertMaterializedMcp(project) {
+  const server = JSON.parse(fs.readFileSync(path.join(project, '.trae', 'mcp.json'), 'utf8'))
+    .mcpServers.lazytrae;
+  assert.deepEqual(
+    { command: server.command, args: server.args },
+    { command: 'node', args: [LOCAL_LAUNCHER, '--root', fs.realpathSync(project), 'mcp'] },
+  );
+  assert.match(server._lazytrae.fingerprint, /^sha256:[a-f0-9]{64}$/);
+}
+
 test('test fixtures bootstrap managed files from package templates', () => {
   const fixture = makeFixture('lazytrae-template-fixture-');
 
   try {
     assert.deepEqual(readFiles(path.join(fixture, '.trae')), readTraeTemplateFiles());
     for (const relativePath of readTraeTemplateFiles()) {
+      if (relativePath === 'mcp.json') {
+        assertMaterializedMcp(fixture);
+        continue;
+      }
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
         fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
@@ -84,6 +99,10 @@ test('fresh install matches every managed package template', () => {
     const templates = readTraeTemplateFiles();
     assert.deepEqual(readFiles(path.join(fixture, '.trae')), templates);
     for (const relativePath of templates) {
+      if (relativePath === 'mcp.json') {
+        assertMaterializedMcp(fixture);
+        continue;
+      }
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
         fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
@@ -111,17 +130,27 @@ test('generated onboarding guide uses stable Markdown references', () => {
 });
 
 test('MCP templates have no unbounded active npx defaults', () => {
-  const config = JSON.parse(
-    fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'mcp.json'), 'utf8'),
+  const templateContents = fs.readFileSync(
+    path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'mcp.json'),
+    'utf8',
   );
+  assert.equal(
+    fs.readFileSync(path.join(REPO_ROOT, '.trae', 'mcp.json'), 'utf8'),
+    templateContents,
+    'the checked-in project mirror must match the path-neutral MCP template',
+  );
+  const config = JSON.parse(templateContents);
 
   assertSafeMcpDefaults(config.mcpServers);
 
   const lazytrae = config.mcpServers.lazytrae;
   assert.deepEqual(
     { command: lazytrae.command, args: lazytrae.args },
-    { command: 'lazytrae', args: ['mcp'] },
-    'the generated configuration must retain the LazyTrae MCP entrypoint',
+    {
+      command: 'node',
+      args: ['__LAZYTRAE_RELEASE_LAUNCHER__', '--root', '__LAZYTRAE_PROJECT_ROOT__', 'mcp'],
+    },
+    'the static template must defer consumer paths to init or sync materialization',
   );
 });
 
@@ -168,18 +197,9 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
     assert.equal(init.status, 0, init.stderr);
     assert.match(init.stdout, /LazyTrae Tool Load Check/);
     assert.match(init.stdout, /Load check passed/);
-    const installedMcp = JSON.parse(
-      fs.readFileSync(path.join(fixture, '.trae', 'mcp.json'), 'utf8'),
-    );
-    assert.deepEqual(
-      {
-        command: installedMcp.mcpServers.lazytrae.command,
-        args: installedMcp.mcpServers.lazytrae.args,
-      },
-      { command: 'lazytrae', args: ['mcp'] },
-      'init must retain the LazyTrae MCP entrypoint',
-    );
+    assertMaterializedMcp(fixture);
     for (const relativePath of readTraeTemplateFiles()) {
+      if (relativePath === 'mcp.json') continue;
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
         fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),

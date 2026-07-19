@@ -36,6 +36,7 @@ function validate(record) {
   assert.ok(record.capability.length > 0);
   assert.ok(record.provider === null || typeof record.provider === 'string');
   assert.ok(schema.properties.status.enum.includes(record.status));
+  assert.equal(record.readiness_scope, 'package-ready');
   assert.ok(record.reason_code === null || typeof record.reason_code === 'string');
   assert.equal(typeof record.message, 'string');
   assert.ok(record.receipt === null || (record.receipt.owner && record.receipt.schema_version === 1 && record.receipt.state));
@@ -44,7 +45,10 @@ function validate(record) {
 
 function records(result) {
   assert.equal(result.status, 0, result.stderr);
-  return JSON.parse(result.stdout);
+  const value = JSON.parse(result.stdout);
+  assert.ok(value.every(record => record.readiness_scope === 'package-ready'));
+  assert.doesNotMatch(result.stdout, /host-ready|live-host-proof|connected/);
+  return value;
 }
 
 function recordFor(result, capability) {
@@ -74,6 +78,7 @@ test('capability-status --json returns schema-valid records without writing repo
     const records = JSON.parse(result.stdout);
     assert.equal(records.length, 9);
     for (const record of records) validate(record);
+    assert.doesNotMatch(result.stdout, /host-ready|live-host-proof|connected/);
     assert.deepEqual(records.map(record => record.capability), [
       'local_search',
       'structural_search',
@@ -124,15 +129,15 @@ test('capability-status --json discovers host and project providers without invo
 
     const result = runCli(['tooling', 'capability-status', '--json'], { cwd: fixture, env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` } });
 
-    assert.equal(recordFor(result, 'local_search').status, 'host-ready');
-    assert.equal(recordFor(result, 'code_navigation').status, 'host-ready');
+    assert.equal(recordFor(result, 'local_search').status, 'package-ready');
+    assert.equal(recordFor(result, 'code_navigation').status, 'package-ready');
     assert.equal(recordFor(result, 'documentation_search').status, 'failed-optional');
     assert.equal(fs.existsSync(marker), false);
     assert.equal(fs.readFileSync(statePath, 'utf8').includes('"failed"'), true);
   });
 });
 
-test('capability-status --json maps a compatible host executable to host-ready', () => {
+test('capability-status --json maps a compatible host executable to package-ready', () => {
   withFixture('lazytrae-readiness-host-', fixture => {
     const bin = path.join(fixture, 'bin');
     fs.mkdirSync(bin);
@@ -141,7 +146,7 @@ test('capability-status --json maps a compatible host executable to host-ready',
 
     const result = runCli(['tooling', 'capability-status', '--json'], { cwd: fixture, env: { ...process.env, PATH: bin } });
 
-    assert.equal(recordFor(result, 'local_search').status, 'host-ready');
+    assert.equal(recordFor(result, 'local_search').status, 'package-ready');
   });
 });
 
