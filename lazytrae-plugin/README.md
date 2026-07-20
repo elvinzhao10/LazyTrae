@@ -36,7 +36,7 @@ projects. Keep it self-contained and run the CLI test suite after changes.
 
 ## Install, verify, and remove
 
-Keep the pinned `v1.0.2` release in a permanent folder, open or link it in the
+Keep the pinned `v1.0.3` release in a permanent folder, open or link it in the
 selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The release-owned
 launcher is the primary command; it does not depend on PATH or a global npm

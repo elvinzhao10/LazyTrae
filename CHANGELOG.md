@@ -3,6 +3,34 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] - 2026-07-20
+
+### Changed
+
+- Shipped the adaptive harness: outcome-first selection of the smallest
+  sufficient workflow mode (direct, assisted, planned, orchestrated,
+  long-horizon) with bounded escalation, authority-safe capability fallback,
+  and an additive single-writer adaptive snapshot that preserves local-first
+  onboarding and the existing v1.0.2 state contract.
+- Updated current package, runtime, template, and onboarding documentation
+  identities for the v1.0.3 release; local-first onboarding remains the
+  primary route and host readiness stays PENDING until a fresh Trae session
+  is observed.
+- Added the shared `adaptive-harness-contract.v1.json` and behavioral
+  fixtures, byte-identical across LazyTrae and LazyBuddy, with paired digest
+  parity and no runtime coupling between repositories.
+- Extended the existing detector, broker, loop state, and completion-gate
+  seams with a thin adaptive adapter; no new MCP server, no new provider, no
+  state-store replacement, and no dynamic command or hook registration.
+- Kept explicit named workflows authoritative; the harness selects
+  capabilities automatically only when the user states an outcome without
+  naming a workflow.
+
+### Verification
+
+- Package checks validate local files and declarations only; host discovery
+  and MCP connection remain pending until a fresh Trae session is observed.
+
 ## [1.0.2] - 2026-07-18
 
 ### Changed
@@ -61,6 +89,7 @@ All notable public changes to LazyTrae are documented here. Versions follow
   templates, local MCP server, completion gates, and explicit optional-tooling
   lifecycle.
 
+[1.0.3]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.0

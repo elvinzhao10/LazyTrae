@@ -245,7 +245,7 @@ Options:
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v1.0.2`);
+  console.log(`LazyTrae Doctor v1.0.3`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);

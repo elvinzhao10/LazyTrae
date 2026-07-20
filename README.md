@@ -43,7 +43,7 @@ a package readiness result into a claim about a running Trae host.
 
 ## Install and onboard
 
-Keep the pinned **v1.0.2** release in a permanent folder. Open or link that
+Keep the pinned **v1.0.3** release in a permanent folder. Open or link that
 folder in the Trae host you want to use, then give the agent the GitHub
 repository link, `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`.
 Do not use a temporary download directory or depend on a global command.
@@ -86,7 +86,7 @@ explicitly unverified.
 
 See [AGENTS.md](AGENTS.md) for the host-specific artifact boundary and manual
 steps. The source is available at the [LazyTrae repository](https://github.com/elvinzhao10/LazyTrae),
-with release notes on the [v1.0.2 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.2).
+with release notes on the [v1.0.3 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.3).
 
 ## Verify and remove
 

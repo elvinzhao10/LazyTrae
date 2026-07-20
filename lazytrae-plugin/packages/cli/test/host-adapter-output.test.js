@@ -43,7 +43,7 @@ function assertLocalCoreConfiguration(config, launcher, project) {
 test('Work and CLI host adapters emit paste-ready local JSON for paths with spaces', () => {
   // Given: a permanent release and project whose paths contain spaces, with no Trae CLI binary.
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae host adapter spaces '));
-  const release = path.join(root, 'LazyTrae Release 1.0.2');
+  const release = path.join(root, 'LazyTrae Release 1.0.3');
   const project = path.join(root, 'Consumer Project');
   const caller = path.join(root, 'Unrelated Caller');
   const home = path.join(root, 'Home');

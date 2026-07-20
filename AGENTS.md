@@ -8,11 +8,11 @@ LazyTrae packages local routes for **Trae IDE**, **Trae Work**, and **Trae
 CLI**. The release-owned local launcher supplies the portable installer,
 verification gate, and local MCP server. Package behavior is verified on
 macOS only; host behavior keeps the evidence labels below. The current package
-version is `1.0.2`.
+version is `1.0.3`.
 
 ## Local-first onboarding (start here)
 
-Keep the pinned `v1.0.2` release in a permanent folder before opening or
+Keep the pinned `v1.0.3` release in a permanent folder before opening or
 linking it in a host. In the selected Trae host, give the agent the GitHub
 repository link, `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`.
 Do not use a temporary folder or a PATH/global `lazytrae` command.
@@ -30,7 +30,7 @@ When the user types `onboard`:
 1. Scan the complete current message and detect the host from the open app. If
    it is not unambiguous, ask one focused question: **Trae IDE**, **Trae Work**,
    or **Trae CLI**. Do not run setup while the host is ambiguous.
-2. Confirm that this project is linked to a pinned `v1.0.2` release in a
+2. Confirm that this project is linked to a pinned `v1.0.3` release in a
    permanent location and that `node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root>` still exists. Never
    fall back to `PATH`, `npx`, or a global `lazytrae`.
 3. Run only safe package checks and project-local setup through the local

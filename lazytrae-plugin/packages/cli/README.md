@@ -88,7 +88,7 @@ Context7 and `grep_app` are disabled by default. `lazytrae tooling enable contex
 
 ## Onboard
 
-Keep the pinned `v1.0.2` release in a permanent folder, open or link it in the
+Keep the pinned `v1.0.3` release in a permanent folder, open or link it in the
 selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The setup guide
 asks for Trae IDE, Trae Work, or Trae CLI and uses the absolute release-owned

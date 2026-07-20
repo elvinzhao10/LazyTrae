@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 
-const RELEASE_VERSION = '1.0.2';
+const RELEASE_VERSION = '1.0.3';
 const REPOSITORY_ROOT = path.resolve(__dirname, '../../../..');
 
 const JSON_VERSION_PATHS = [
@@ -105,13 +105,14 @@ function assertTextReleaseVersions(root) {
   assert.match(mcp.lazytrae?.description || '', new RegExp(`v${RELEASE_VERSION.replaceAll('.', '\\.')}`));
 
   const changelog = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
-  const currentSection = changelog.match(/## \[1\.0\.2\][\s\S]*?(?=\n## \[|$)/)?.[0] || '';
-  assert.match(currentSection, /local-first onboarding/i, 'v1.0.2 release notes omit local-first onboarding');
-  assert.match(currentSection, /host readiness/i, 'v1.0.2 release notes omit honest host readiness');
+  const sectionPattern = new RegExp(`## \\[${RELEASE_VERSION.replaceAll('.', '\\.')}\\][\\s\\S]*?(?=\n## \\[|$)`);
+  const currentSection = changelog.match(sectionPattern)?.[0] || '';
+  assert.match(currentSection, /local-first onboarding/i, `${RELEASE_VERSION} release notes omit local-first onboarding`);
+  assert.match(currentSection, /host readiness/i, `${RELEASE_VERSION} release notes omit honest host readiness`);
 }
 
 function copyFixture(root) {
-  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae v102 version fixture '));
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), `lazytrae v${RELEASE_VERSION} version fixture `));
   const relativePaths = new Set([
     ...JSON_VERSION_PATHS.map(([relativePath]) => relativePath),
     ...RELEASE_TEXT_PATHS,
@@ -130,7 +131,7 @@ function copyFixture(root) {
   return fixtureRoot;
 }
 
-test('v1.0.2 product-owned LazyTrae metadata and active identities agree', () => {
+test(`v${RELEASE_VERSION} product-owned LazyTrae metadata and active identities agree`, () => {
   assertJsonReleaseVersions(REPOSITORY_ROOT);
   assertTextReleaseVersions(REPOSITORY_ROOT);
 });
@@ -149,7 +150,7 @@ test('a copied product manifest mismatch is rejected with its exact path and sou
       () => assertJsonReleaseVersions(fixtureRoot),
       (error) => {
         assert.match(error.message, /lazytrae-plugin\/packages\/mcp\/package\.json#version/);
-        assert.match(error.message, /expected 1\.0\.2, got "1\.0\.1"/);
+        assert.match(error.message, new RegExp(`expected ${RELEASE_VERSION.replaceAll('.', '\\.')}, got "1\\.0\\.1"`));
         return true;
       },
     );
@@ -171,7 +172,8 @@ test('a copied template mismatch is rejected from a path with spaces and its sou
 
     const fixturePath = path.join(fixtureRoot, relativePath);
     const fixtureBefore = fs.readFileSync(fixturePath, 'utf8');
-    const fixtureAfter = fixtureBefore.replace(/v?1\.0\.2/g, 'v1.0.1');
+    const downgradePattern = new RegExp(`v?${RELEASE_VERSION.replaceAll('.', '\\.')}`, 'g');
+    const fixtureAfter = fixtureBefore.replace(downgradePattern, 'v1.0.1');
     assert.notEqual(fixtureAfter, fixtureBefore, 'template mutation fixture did not change its release identity');
     fs.writeFileSync(fixturePath, fixtureAfter);
 
