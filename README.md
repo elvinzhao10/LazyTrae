@@ -29,6 +29,77 @@ For a CLI project, invoke the release-owned launcher with `verify --must-pass`
 before reporting a task complete. Trae hooks are advisory; hard completion
 decisions live in the CLI and MCP gates.
 
+## Adaptive harness (v1.0.3)
+
+LazyTrae v1.0.3 introduces an **adaptive harness** that selects the smallest
+sufficient workflow for an outcome-based request, composes existing Skills,
+agents, commands, MCPs, tools, hooks, and verifiers, persists an additive
+single-writer snapshot, and explains material choices. Named workflows
+(`lazy-ulw-plan`, `lazy-start-work`, `lazy-review-work`, `lazy-ulw-loop`,
+`lazy-init-deep`, `lazy-verifier`) remain authoritative; explicit user requests
+are never silently downgraded.
+
+### Five modes
+
+The harness selects the lowest mode that satisfies all identified risk,
+uncertainty, continuation, and verification requirements.
+
+| Mode | When selected |
+| --- | --- |
+| `direct` | Localized change, clear acceptance criteria, targeted verification sufficient. |
+| `assisted` | Unfamiliar subsystem, cross-file tracing, primarily debugging, bounded implementation. |
+| `planned` | Acceptance criteria incomplete, multi-system change, decisions must precede edits. |
+| `orchestrated` | Security-sensitive, release/publication, destructive migration, or independent review required. Approval-gated. |
+| `long-horizon` | Multi-session work, durable checkpoints, bounded continuation loop. |
+
+### Automatic selection and explicit override
+
+For an ordinary outcome request the classifier evaluates an ordered
+seven-step policy (explicit user workflow → compatible continuation →
+long-horizon → high-risk or multi-system → broad or ambiguous → unfamiliar or
+diagnostic → small and clear) and selects the first match. An explicit named
+workflow always wins; the classifier may only add required verification or
+approval boundaries.
+
+### Bounded escalation and capability fallback
+
+Verification failure adds a debugging stage. A broader-scope failure may
+escalate the mode by one level. No more than two automatic depth escalations
+are permitted per decision; further failure produces a blocked-state record
+with reproduced failure, attempted approaches, current evidence, and the exact
+next user decision required. When a preferred capability is unavailable, the
+harness selects a safe fallback in the same capability class, reports the
+substitution, and weakens verification claims when the fallback is weaker — it
+never claims equivalent evidence.
+
+### Adaptive snapshot
+
+The harness writes an additive, optional `adaptive` block inside existing
+loop/run state. The block carries `decisionId`, `requestDigest`, `mode`,
+`stages`, `currentStage`, `responsibilities`, `capabilityClasses`,
+`runtimeResolution`, `reasons`, `escalationCount`, `revisionMarker`,
+`blocker`, and `nextAction`. Only the adaptive orchestrator writes the block;
+existing v1.0.2 state without it continues to load.
+
+### Authority
+
+Read-only and package-owned capabilities activate automatically. Installing a
+dependency, persisting a provider beyond the task, modifying host or marketplace
+settings, changing MCP registrations, using credentials, using a paid service,
+sending repository data to a remote provider, or controlling a browser surface
+all require approval. The two approval-required responsibilities
+(`release-review` and `security-review`) gate the `orchestrated` mode.
+
+### Contract reference
+
+The behavior-only contract is shared byte-identically with LazyBuddy at
+[`lazytrae-plugin/packages/cli/contracts/adaptive-harness-contract.v1.json`](lazytrae-plugin/packages/cli/contracts/adaptive-harness-contract.v1.json),
+paired with its JSON Schema and sha256 digest. Fixtures live under
+`lazytrae-plugin/packages/cli/contracts/fixtures/v103/`. The full contract
+semantics, authority levels, fallback rules, evidence labels, and known v1.0.3
+gaps are documented in
+[`docs/v1.0.3-adaptive-harness-contract.md`](docs/v1.0.3-adaptive-harness-contract.md).
+
 ## Design mindset
 
 LazyTrae treats a task as an evidence problem: define the observable outcome,

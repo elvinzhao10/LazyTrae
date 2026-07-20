@@ -1,6 +1,6 @@
 # Host routes
 
-Use exactly one route at a time. Start with the pinned `v1.0.2` release in a
+Use exactly one route at a time. Start with the pinned `v1.0.3` release in a
 permanent folder, open or link it in the host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for the host, runs safe package checks, and reports package readiness
