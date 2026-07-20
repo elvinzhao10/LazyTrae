@@ -4,7 +4,7 @@ This page explains the deployment boundary in code terms. The CLI contains canon
 
 ## Local-first onboarding
 
-Keep the pinned `v1.0.2` release in a permanent folder, open or link it in the
+Keep the pinned `v1.0.3` release in a permanent folder, open or link it in the
 selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for Trae IDE, Trae Work, or Trae CLI, runs safe package checks, and
