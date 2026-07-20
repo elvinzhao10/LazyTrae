@@ -162,6 +162,65 @@
         "manual_qa_artifact_kinds": { "type": "array", "items": { "type": "string" } },
         "reviewer_verdicts": { "type": "array", "items": { "type": "string" } }
       }
+    },
+    "adaptive": {
+      "type": ["object", "null"],
+      "description": "Optional additive adaptive snapshot block. Single-writer rule: only the adaptive orchestrator writes this block. Existing v1.0.2 state files without this field continue to load. Additive extension; does not bump schema version.",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "description": "Selected workflow mode.",
+          "enum": ["direct", "assisted", "planned", "orchestrated", "long-horizon"]
+        },
+        "stages": { "type": "array", "description": "Selected workflow stages.", "items": { "type": "string" } },
+        "responsibilities": { "type": "array", "description": "Selected specialist responsibilities.", "items": { "type": "string" } },
+        "capabilities": { "type": "array", "description": "Selected capability classes.", "items": { "type": "string" } },
+        "not_selected": {
+          "type": "object",
+          "description": "Explicitly not-selected stages and capabilities.",
+          "properties": {
+            "stages": { "type": "array", "items": { "type": "string" } },
+            "capabilities": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "approval_required": { "type": "boolean", "description": "Whether approval is required before proceeding." },
+        "reasons": { "type": "array", "description": "Material selection reasons.", "items": { "type": "string" } },
+        "started_at": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date-time" }
+          ],
+          "description": "Timestamp when the adaptive decision started."
+        },
+        "updated_at": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date-time" }
+          ],
+          "description": "Timestamp when the adaptive block was last updated."
+        },
+        "completed_at": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date-time" }
+          ],
+          "description": "Timestamp when the adaptive decision completed."
+        },
+        "escalation_count": { "type": "integer", "description": "Number of automatic depth escalations (max 2 per Section 12).", "minimum": 0 },
+        "escalation_history": {
+          "type": "array",
+          "description": "Ordered escalation records.",
+          "items": { "type": "object" }
+        },
+        "last_resolution": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "object", "description": "Last capability resolution mapping." }
+          ],
+          "description": "Last runtime resolution of capabilities to providers."
+        },
+        "single_writer": { "type": "string", "description": "Single-writer identity for the adaptive block.", "const": "orchestrator" }
+      }
     }
   },
   "definitions": {
