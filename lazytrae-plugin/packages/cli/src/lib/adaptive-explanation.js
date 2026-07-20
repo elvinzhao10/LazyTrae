@@ -25,6 +25,19 @@ function collectNotSelected(snapshot) {
   return [...stages, ...caps];
 }
 
+// Returns "cap=value" strings for every last_resolution entry whose value
+// matches the Section 9 unavailable:fallback-… substitution marker.
+function collectSubstitutions(lastResolution) {
+  if (!lastResolution || typeof lastResolution !== 'object') return [];
+  const out = [];
+  for (const [cap, value] of Object.entries(lastResolution)) {
+    if (typeof value === 'string' && /^unavailable:fallback-/i.test(value)) {
+      out.push(`${cap}=${value}`);
+    }
+  }
+  return out;
+}
+
 function formatAdaptiveExplanation(loopState) {
   const snapshot = readAdaptiveSnapshot(loopState);
   if (!snapshot || typeof snapshot !== 'object') return null;
@@ -45,6 +58,8 @@ function formatAdaptiveExplanation(loopState) {
   const singleWriter = typeof snapshot.single_writer === 'string'
     ? snapshot.single_writer
     : 'unknown';
+  const reasons = Array.isArray(snapshot.reasons) ? snapshot.reasons : [];
+  const substitutions = collectSubstitutions(snapshot.last_resolution);
 
   const lines = [];
   lines.push('Adaptive decision:');
@@ -56,6 +71,13 @@ function formatAdaptiveExplanation(loopState) {
   lines.push(`Approval required: ${approvalRequired}`);
   lines.push(`Escalations: ${escalationCount}/${MAX_ESCALATIONS}`);
   lines.push(`Single writer: ${singleWriter}`);
+  if (substitutions.length > 0) {
+    lines.push(`Substituted: ${substitutions.join(', ')}`);
+  }
+  if (reasons.length > 0) {
+    lines.push('Reasons:');
+    for (const r of reasons) lines.push(`- ${r}`);
+  }
 
   return lines.join('\n');
 }
