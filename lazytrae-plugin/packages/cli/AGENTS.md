@@ -6,7 +6,7 @@
 verification gate, hook dispatcher, loop controls, team mode, model routing,
 tooling lifecycle, and the launcher for the local MCP server.
 
-The packaged baseline is `v1.0.2`. Keep maintainer guidance grounded
+The packaged baseline is `v1.0.3`. Keep maintainer guidance grounded
 in the current source and test suite rather than historical release notes.
 
 ## WHERE TO LOOK

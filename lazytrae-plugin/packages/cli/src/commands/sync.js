@@ -32,7 +32,7 @@ Options:
 
   const summary = { updated: [], skipped: [], warnings: [] };
 
-  console.log(`LazyTrae sync v1.0.2`);
+  console.log(`LazyTrae sync v1.0.3`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const gitStatus = inspectGitMetadata(repoRoot);

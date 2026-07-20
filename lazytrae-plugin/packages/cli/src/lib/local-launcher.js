@@ -9,7 +9,7 @@ const CORE_DESCRIPTION = 'LazyTrae state, evidence, handoff, and local context M
 const MANAGED_KEY = '_lazytrae';
 const MCP_JSON_BEGIN = 'LAZYTRAE_MCP_JSON_BEGIN';
 const MCP_JSON_END = 'LAZYTRAE_MCP_JSON_END';
-const RELEASE_VERSION = '1.0.2';
+const RELEASE_VERSION = '1.0.3';
 
 function fingerprint(server) {
   const payload = Object.fromEntries(Object.entries(server).filter(([key]) => key !== MANAGED_KEY));

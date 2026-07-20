@@ -7,7 +7,7 @@ const test = require('node:test');
 const expectedVersion = require('../package.json').version;
 const packagedMcp = require('../src/mcp');
 const sourceMcp = require('../../mcp/src');
-const RELEASE_VERSION = '1.0.2';
+const RELEASE_VERSION = '1.0.3';
 const previousReleaseVersion = RELEASE_VERSION.replace(/\d+$/, patch => String(Number(patch) - 1));
 
 const CURRENT_RELEASE_PATHS = [
@@ -62,8 +62,8 @@ const CURRENT_RELEASE_PATHS = [
 const REGEX_EXPECTATION_PATHS = [
   {
     relativePath: '../test/documentation-regression.test.js',
-    previous: /1\\\.0\\\.1/,
-    current: /1\\\.0\\\.2/,
+    previous: /1\\\.0\\\.2/,
+    current: /1\\\.0\\\.3/,
   },
 ];
 

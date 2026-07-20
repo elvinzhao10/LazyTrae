@@ -54,7 +54,7 @@ Options:
 
   const summary = { created: [], updated: [], skipped: [], merged: [], warnings: [] };
 
-  console.log(`LazyTrae init v1.0.2`);
+  console.log(`LazyTrae init v1.0.3`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const gitStatus = inspectGitMetadata(repoRoot);
