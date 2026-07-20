@@ -167,17 +167,19 @@ test('W4.3: snapshot round-trip preserves fallback resolution', () => {
     'unavailable:fallback-to-structural-search+text-search');
 });
 
-// Known gap: formatAdaptiveExplanation surfaces Mode/Stages/Responsibilities/
-// Capabilities/Not-selected/Approval/Escalations/Single-writer but does NOT
-// surface `reasons` or `last_resolution`. The substitution is therefore not
-// visible in the explanation output today. Marked expected-fail per W4.3 task
-// instructions; documented in the evidence file.
-test.expectFailure('W4.3 GAP: explanation mentions substitution (xfail — reasons not surfaced)', () => {
+// W2.4 follow-up: formatAdaptiveExplanation now surfaces `reasons` and any
+// unavailable:fallback-… substitution from `last_resolution`. The gap pinned
+// by W4.3 is closed; this assertion now passes.
+test('W4.3: explanation surfaces substitution (reasons + last_resolution)', () => {
   const decision = classify();
   const loopState = defaultLoop();
   writeAdaptiveSnapshot(loopState, buildLoopAdaptiveBlock(decision));
   const explanation = formatAdaptiveExplanation(loopState);
   assert.ok(typeof explanation === 'string' && explanation.length > 0);
+  assert.match(explanation, /Reasons:/,
+    'explanation must surface the Reasons section');
   assert.match(explanation, /semantic.navigation.*unavailable|substitut/i,
-    'explanation must mention the substitution (gap: reasons not surfaced yet)');
+    'explanation must mention the substitution (reasons now surfaced)');
+  assert.match(explanation, /Substituted: semantic-navigation=unavailable:fallback-/,
+    'explanation must surface the unavailable:fallback-… substitution line');
 });
