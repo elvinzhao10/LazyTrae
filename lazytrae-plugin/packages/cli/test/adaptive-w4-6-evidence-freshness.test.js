@@ -10,8 +10,8 @@
 //   3. No new lineage/evidence-db/transaction files introduced in W2/W3/W4 waves
 //   4. Existing verification mechanism reused (completion-gates.js) — no parallel verifier
 //   5. validateEvidencePaths still rejects stale (non-existent) paths
-//   6. Stale snapshot triggers reclassification (xfail — classifier gap)
-//   7. Re-verification trigger when revisionMarker changes (xfail — classifier gap)
+//   6. Stale prior snapshot triggers reclassification (Section 18)
+//   7. Re-verification trigger when revisionMarker changes (Section 18)
 
 'use strict';
 
@@ -120,11 +120,9 @@ test('W4.6: validateEvidencePaths rejects blank and empty path lists', () => {
   }
 });
 
-// Known gap: the classifier does not currently accept a prior snapshot via
-// context and therefore cannot detect that the recorded revisionMarker is
-// stale. Plan Section 18 calls for stale detection (reclassify instead of
-// resume). Marked xfail per W4.6 instructions; documented in evidence file.
-test('W4.6 GAP: stale prior snapshot triggers reclassification (xfail — classifier has no prior_snapshot input)', () => {
+// Section 18: when the prior snapshot's revisionMarker differs from the
+// current one, the classifier must reclassify starting from `understand`.
+test('W4.6: stale prior snapshot triggers reclassification', () => {
   const priorSnapshot = {
     mode: 'direct',
     stages: ['implement', 'verify'],
@@ -147,10 +145,9 @@ test('W4.6 GAP: stale prior snapshot triggers reclassification (xfail — classi
     'classifier reasons must mention stale/re-verify/reclassify');
 });
 
-// Known gap: when the revisionMarker changes, the classifier's output does
-// not currently indicate that re-verification is needed. Plan Section 18
-// requires re-verification after relevant changes. Marked xfail.
-test('W4.6 GAP: re-verification trigger when revisionMarker changes (xfail — no re-verify signal in reasons)', () => {
+// Section 18: when the revisionMarker changes, the classifier must signal
+// that re-verification is required after a revision change.
+test('W4.6: re-verification trigger when revisionMarker changes', () => {
   const oldMarker = mockRevisionMarker('old implementation');
   const newMarker = mockRevisionMarker('new implementation');
   assert.notEqual(oldMarker, newMarker, 'precondition: markers differ');
