@@ -72,6 +72,10 @@ function buildRuntimeResolution(caps) {
   return m;
 }
 function buildSnapshot(o) {
+  // NOTE: requestDigest is a slug (lowercased, hyphen-separated, 80-char truncated)
+  // of the raw request, NOT a SHA-256 hash. The `sha256:` prefix is historical.
+  // See docs/reference/adaptive-harness.md. Redaction is the orchestrator's
+  // responsibility before this helper is called.
   const slug = String(o.request || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
   return {
     version: 1, decisionId: o.decisionId || `adaptive-${Date.now().toString(36)}`,
