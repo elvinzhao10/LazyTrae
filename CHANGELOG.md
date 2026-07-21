@@ -59,7 +59,7 @@ All notable public changes to LazyTrae are documented here. Versions follow
 - Authority boundaries: read-only and package-owned capabilities activate
   automatically; installations, persistence, host settings, credentials, and
   remote access require approval.
-- Host-readiness boundaries: package evidence is not live-host evidence.
+- Host readiness boundaries: package evidence is not live-host evidence.
 - No new MCP servers, remote providers, host settings, or production
   dependencies.
 - No cross-repository runtime dependencies.

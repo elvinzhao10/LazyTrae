@@ -29,6 +29,10 @@ const REQUIRED_FIELDS = [
   'single_writer',
 ];
 
+// Single-writer rule (plan Section 11): only the adaptive orchestrator may write
+// the `adaptive` block. Mirrors lazybuddy_adaptive_snapshot.SINGLE_WRITER.
+const SINGLE_WRITER = 'orchestrator';
+
 const VALID_MODES = [
   'direct',
   'assisted',
@@ -93,7 +97,7 @@ function validateAdaptiveSnapshot(snapshot) {
   if (snapshot.last_resolution !== null && !isPlainObject(snapshot.last_resolution)) {
     return false;
   }
-  if (snapshot.single_writer !== 'orchestrator') return false;
+  if (snapshot.single_writer !== SINGLE_WRITER) return false;
   return true;
 }
 

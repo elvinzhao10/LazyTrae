@@ -79,7 +79,7 @@ loop/run state. The block carries `decisionId`, `requestDigest`, `mode`,
 `stages`, `currentStage`, `responsibilities`, `capabilityClasses`,
 `runtimeResolution`, `reasons`, `escalationCount`, `revisionMarker`,
 `blocker`, and `nextAction`. Only the adaptive orchestrator writes the block;
-existing v1.0.2 state without it continues to load.
+existing prior-version state without it continues to load.
 
 ### Authority
 
