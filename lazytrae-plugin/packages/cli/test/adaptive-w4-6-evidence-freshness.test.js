@@ -124,7 +124,7 @@ test('W4.6: validateEvidencePaths rejects blank and empty path lists', () => {
 // context and therefore cannot detect that the recorded revisionMarker is
 // stale. Plan Section 18 calls for stale detection (reclassify instead of
 // resume). Marked xfail per W4.6 instructions; documented in evidence file.
-test.expectFailure('W4.6 GAP: stale prior snapshot triggers reclassification (xfail — classifier has no prior_snapshot input)', () => {
+test('W4.6 GAP: stale prior snapshot triggers reclassification (xfail — classifier has no prior_snapshot input)', () => {
   const priorSnapshot = {
     mode: 'direct',
     stages: ['implement', 'verify'],
@@ -150,7 +150,7 @@ test.expectFailure('W4.6 GAP: stale prior snapshot triggers reclassification (xf
 // Known gap: when the revisionMarker changes, the classifier's output does
 // not currently indicate that re-verification is needed. Plan Section 18
 // requires re-verification after relevant changes. Marked xfail.
-test.expectFailure('W4.6 GAP: re-verification trigger when revisionMarker changes (xfail — no re-verify signal in reasons)', () => {
+test('W4.6 GAP: re-verification trigger when revisionMarker changes (xfail — no re-verify signal in reasons)', () => {
   const oldMarker = mockRevisionMarker('old implementation');
   const newMarker = mockRevisionMarker('new implementation');
   assert.notEqual(oldMarker, newMarker, 'precondition: markers differ');
