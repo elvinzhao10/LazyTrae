@@ -208,7 +208,7 @@ Options:
   const routingResult = checkModelRouting(repoRoot);
   addResult(routingResult.label, routingResult.status, routingResult.detail);
 
-  // Team mode check (v0.11)
+  // Team mode check
   const teamResult = sourceTree || fs.existsSync(path.join(repoRoot, '.lazytrae', 'team'))
     ? checkTeamMode(repoRoot)
     : { label: 'Team mode', status: 'WARN', detail: 'No team state initialized' };

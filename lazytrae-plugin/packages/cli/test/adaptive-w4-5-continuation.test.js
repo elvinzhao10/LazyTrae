@@ -11,11 +11,6 @@
 // Fixture: contracts/fixtures/v103/06-long-horizon-migration.json (long-horizon).
 // No dedicated stale-snapshot fixture exists in v103/; this test synthesizes
 // stale snapshots by altering revisionMarker and requestDigest on a valid shape.
-//
-// Implementation gap: classifyAdaptiveDecision does not yet read context.snapshot
-// to implement Section 6 step 2 (compatible continuation). The three
-// compatible-resume scenarios are marked test.expectFailure per W4.5 task
-// instructions; the gap is documented in the evidence file.
 
 'use strict';
 
@@ -80,10 +75,10 @@ function contextSnapshot(currentStage, escalationCount, mode) {
   };
 }
 
-// --- Compatible resume scenarios (implementation gap: classifier does not
-//     read context.snapshot — marked expectFailure per W4.5 task). ---
+// --- Compatible resume scenarios (Section 6 step 2: classifier reads
+//     context.snapshot and resumes when requestDigest + revisionMarker match). ---
 
-test('W4.5 GAP: compatible resume — currentStage resumed from snapshot (long-horizon fixture)', () => {
+test('W4.5: compatible resume — currentStage resumed from snapshot (long-horizon fixture)', () => {
   const fresh = classifyAdaptiveDecision(FIXTURE.request, FIXTURE.context);
   const snapshot = contextSnapshot('implement', 1, 'long-horizon');
   snapshot.requestDigest = fresh.snapshot.requestDigest;
@@ -96,7 +91,7 @@ test('W4.5 GAP: compatible resume — currentStage resumed from snapshot (long-h
     'compatible snapshot must resume from saved currentStage (not reset to understand)');
 });
 
-test('W4.5 GAP: compatible resume — mode preserved from snapshot', () => {
+test('W4.5: compatible resume — mode preserved from snapshot', () => {
   const request = 'Fix typo in README.md';
   const fresh = classifyAdaptiveDecision(request, {});
   const snapshot = contextSnapshot('implement', 1, 'long-horizon');
@@ -107,7 +102,7 @@ test('W4.5 GAP: compatible resume — mode preserved from snapshot', () => {
     'compatible snapshot must preserve mode (not reclassify to direct)');
 });
 
-test('W4.5 GAP: compatible resume — escalationCount carried over from snapshot', () => {
+test('W4.5: compatible resume — escalationCount carried over from snapshot', () => {
   const request = 'Fix typo in README.md';
   const fresh = classifyAdaptiveDecision(request, {});
   const snapshot = contextSnapshot('implement', 1, 'long-horizon');
