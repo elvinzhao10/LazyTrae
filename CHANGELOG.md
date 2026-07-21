@@ -42,14 +42,25 @@ All notable public changes to LazyTrae are documented here. Versions follow
 - Updated package, runtime, template, and onboarding identities to v1.0.3.
   Local-first onboarding remains the primary route.
 
+### Continuation and Evidence Freshness (W4.5 + W4.6)
+
+- Compatible continuation resume: when a Section 11 snapshot is supplied via
+  `context.snapshot` and both `requestDigest` and `revisionMarker` match the
+  fresh values, the classifier resumes the saved `currentStage`, preserves
+  the snapshot's `mode`, and carries over `escalationCount` per plan Section
+  6 step 2. Incompatible revision markers or request digests force a fresh
+  decision; the original snapshot is preserved in-place for diagnosis.
+- Evidence freshness: when `context.prior_snapshot.revisionMarker` differs
+  from `context.current_revision_marker`, the classifier restarts from the
+  `understand` stage in assisted mode and emits stale / re-verification
+  reasons (plan Section 18). No new lineage database is introduced; the
+  existing `completion-gates.js` verifier surface is reused.
+- `revisionMarker` is now accepted via `composeDecision`/`buildSnapshot`
+  options so the orchestrator can supply a content-derived marker; the
+  default remains `git:HEAD` for backward compatibility.
+
 ### Known Gaps (deferred to v1.0.4)
 
-- Continuation resume: the classifier does not yet resume from compatible
-  snapshots (plan Section 6 step 2). Every request produces a fresh
-  decision. Pinned by xfail tests.
-- Evidence freshness: `revisionMarker` is constant (`git:HEAD`); stale
-  snapshot detection and the re-verification trigger signal are not
-  implemented. Pinned by xfail tests.
 - Live-host QA: Trae IDE, Trae Work, and Trae CLI live-host verification
   PENDING (no live host available in the release session). Package evidence
   and fixture-based parity verified; live-host evidence not captured.

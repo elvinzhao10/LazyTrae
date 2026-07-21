@@ -83,7 +83,7 @@ function contextSnapshot(currentStage, escalationCount, mode) {
 // --- Compatible resume scenarios (implementation gap: classifier does not
 //     read context.snapshot — marked expectFailure per W4.5 task). ---
 
-test.expectFailure('W4.5 GAP: compatible resume — currentStage resumed from snapshot (long-horizon fixture)', () => {
+test('W4.5 GAP: compatible resume — currentStage resumed from snapshot (long-horizon fixture)', () => {
   const fresh = classifyAdaptiveDecision(FIXTURE.request, FIXTURE.context);
   const snapshot = contextSnapshot('implement', 1, 'long-horizon');
   snapshot.requestDigest = fresh.snapshot.requestDigest;
@@ -96,7 +96,7 @@ test.expectFailure('W4.5 GAP: compatible resume — currentStage resumed from sn
     'compatible snapshot must resume from saved currentStage (not reset to understand)');
 });
 
-test.expectFailure('W4.5 GAP: compatible resume — mode preserved from snapshot', () => {
+test('W4.5 GAP: compatible resume — mode preserved from snapshot', () => {
   const request = 'Fix typo in README.md';
   const fresh = classifyAdaptiveDecision(request, {});
   const snapshot = contextSnapshot('implement', 1, 'long-horizon');
@@ -107,7 +107,7 @@ test.expectFailure('W4.5 GAP: compatible resume — mode preserved from snapshot
     'compatible snapshot must preserve mode (not reclassify to direct)');
 });
 
-test.expectFailure('W4.5 GAP: compatible resume — escalationCount carried over from snapshot', () => {
+test('W4.5 GAP: compatible resume — escalationCount carried over from snapshot', () => {
   const request = 'Fix typo in README.md';
   const fresh = classifyAdaptiveDecision(request, {});
   const snapshot = contextSnapshot('implement', 1, 'long-horizon');

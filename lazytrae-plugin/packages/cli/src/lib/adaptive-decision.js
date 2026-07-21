@@ -80,9 +80,9 @@ function buildSnapshot(o) {
   return {
     version: 1, decisionId: o.decisionId || `adaptive-${Date.now().toString(36)}`,
     requestDigest: `sha256:${slug}`, mode: o.mode,
-    stages: o.stages, currentStage: o.stages[0] || '', responsibilities: o.responsibilities,
+    stages: o.stages, currentStage: o.currentStage || o.stages[0] || '', responsibilities: o.responsibilities,
     capabilityClasses: o.capabilities, runtimeResolution: o.runtimeResolution, reasons: o.reasons,
-    escalationCount: o.escalationCount || 0, revisionMarker: 'git:HEAD',
+    escalationCount: o.escalationCount || 0, revisionMarker: o.revisionMarker || 'git:HEAD',
     blocker: o.blocker || null, nextAction: o.nextAction || '',
   };
 }
@@ -97,7 +97,7 @@ function composeDecision(o) {
   const snapshot = buildSnapshot({
     mode: o.mode, stages, responsibilities, capabilities, runtimeResolution, reasons: o.reasons,
     escalationCount: o.escalationCount, blocker: o.blocker, nextAction: o.nextAction,
-    request: o.request, decisionId: o.decisionId,
+    request: o.request, decisionId: o.decisionId, currentStage: o.currentStage, revisionMarker: o.revisionMarker,
   });
   return {
     mode: o.mode, stages, responsibilities, capabilities,
@@ -172,6 +172,19 @@ function classifyAdaptiveDecision(request, context = {}) {
         reasons, request, nextAction: p.nextAction,
       });
     }
+  }
+  // Step 2: compatible continuation — resume when requestDigest and revisionMarker match.
+  const ps = ctx.snapshot && typeof ctx.snapshot === 'object' ? ctx.snapshot : null;
+  const curMarker = ctx.current_revision_marker || 'git:HEAD';
+  if (ps && ps.requestDigest && ps.revisionMarker === curMarker
+    && ps.requestDigest === buildSnapshot({ request: text, mode: 'direct', stages: [], responsibilities: [], capabilities: [], runtimeResolution: {}, reasons: [] }).requestDigest) {
+    const cfg = MODE_CONFIG[ps.mode] || MODE_CONFIG.direct;
+    return composeDecision({ mode: ps.mode, stages: ps.stages || cfg.stages, responsibilities: ps.responsibilities || cfg.responsibilities, capabilities: ps.capabilityClasses || cfg.capabilities, reasons: ['compatible adaptive snapshot resume per decision policy step 2', 'request digest and revision marker unchanged; resuming current stage', 'mode preserved from snapshot per Section 11 state rules'], request, decisionId: ps.decisionId, escalationCount: ps.escalationCount || 0, nextAction: `resume from ${ps.currentStage} stage`, currentStage: ps.currentStage, revisionMarker: ps.revisionMarker });
+  }
+  // W4.6: stale prior snapshot — restart from understand when revision differs.
+  const pp = ctx.prior_snapshot && typeof ctx.prior_snapshot === 'object' ? ctx.prior_snapshot : null;
+  if (pp && pp.revisionMarker && ctx.current_revision_marker && pp.revisionMarker !== ctx.current_revision_marker) {
+    return composeDecision({ mode: 'assisted', stages: ['understand', 'debug', 'implement', 'verify'], responsibilities: ['exploration', 'debugging', 'implementation', 'verification'], reasons: ['prior adaptive snapshot is stale per Section 11 — revision marker changed', 're-verification required after implementation changes (Section 18)', 'reclassify from understand to ensure fresh completion evidence'], request, revisionMarker: ctx.current_revision_marker, nextAction: 'restart verification after implementation change' });
   }
   // Step 6 (early): prior escalation context with verification_failure.
   if (ctx.signals && ctx.signals.verification_failure === true && ctx.initial_mode) {
