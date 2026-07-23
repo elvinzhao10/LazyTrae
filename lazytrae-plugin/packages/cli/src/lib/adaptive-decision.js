@@ -63,7 +63,7 @@ function selectMode(text, context, staleContinuation) {
   if (/\b(do this directly|direct workflow)\b/i.test(text)) return 'direct';
   if (staleContinuation || context.material_change || context.prior_completion_recorded) return 'assisted';
   if (context.session_scope === 'multi-session' || context.checkpoint_requirement === 'durable'
-    || /\b(multi-session|multiple sessions|durable checkpoint|long-horizon)\b/i.test(text)) return 'long-horizon';
+    || /\b(multi-session|multiple sessions|durable checkpoint|long-horizon|across (?:the )?next (?:week|month)|over (?:the )?next (?:week|month))\b/i.test(text)) return 'long-horizon';
   const risks = [...boundedStrings(context.risk_signals), ...boundedStrings(context.scope_signals)].join(' ');
   if (/\b(security|authorization|release|publication|destructive|material-user-impact)\b/i.test(`${text} ${risks}`)
     || approvalClasses(text, context).length > 0
@@ -71,9 +71,10 @@ function selectMode(text, context, staleContinuation) {
       && context.independent_workstreams.length >= 2)) return 'orchestrated';
   const fileCount = context.file_count || context.file_count_estimate || context.repository?.fileCount || 0;
   if (context.scope === 'broad' || context.acceptance_criteria === 'incomplete'
+    || /\brefactor\b.*\b(?:all|public|validation)\b/i.test(text)
     || (fileCount > 5 && boundedStrings(context.decisions_to_resolve).length > 0)) return 'planned';
   if (context.scope === 'bounded' || context.scope === 'cross-file'
-    || context.repository_familiarity === 'unfamiliar' || (fileCount >= 2 && fileCount <= 5)
+    || context.repository_familiarity === 'unfamiliar' || /\binvestigate why\b/i.test(text) || (fileCount >= 2 && fileCount <= 5)
     || context.signals?.primarily_debugging || context.signals?.capability_unavailable) return 'assisted';
   return 'direct';
 }

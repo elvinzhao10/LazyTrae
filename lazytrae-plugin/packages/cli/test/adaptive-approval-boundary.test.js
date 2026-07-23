@@ -13,6 +13,8 @@ const CASES = [
   ['Use Playwright to automate the browser.', 'browser-or-desktop-control'],
   ['Add an MCP connector to the host settings.', 'host-mcp-settings-mutation'],
   ['Configure the MCP settings.', 'host-mcp-settings-mutation'],
+  ['Rotate the CI deploy token before the release.', 'credentials-auth-or-paid-service'],
+  ['Push the repository changes to origin main.', 'remote-data-egress'],
 ];
 
 function directiveLines(output) {
