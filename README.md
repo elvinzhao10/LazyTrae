@@ -93,6 +93,16 @@ all require approval. Quality, release, and security review responsibilities
 run automatically. Approval follows the requested action class, not the
 selected workflow mode or review responsibility.
 
+### Observed v1.0.3 live behavior
+
+The package-level live trial exercises the installed hook against a real Git
+project. `investigate why` selects `assisted`; broad validation refactors select
+`planned`; and work explicitly spanning the next week selects `long-horizon`.
+Credential/token rotation and a push to a named remote branch are approval
+gated, alongside installation and explicit repository-data egress. These are
+package observations; an unobserved Trae host remains **HOST READINESS:
+PENDING**.
+
 ### Contract reference
 
 The behavior-only contract is shared byte-identically with LazyBuddy at
@@ -121,6 +131,14 @@ Keep the pinned **v1.0.3** release in a permanent folder. Open or link that
 folder in the Trae host you want to use, then give the agent the GitHub
 repository link, `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`.
 Do not use a temporary download directory or depend on a global command.
+
+### Upgrade from v1.0.2
+
+Keep v1.0.3 in a new permanent folder, run `doctor` and `load-check` first,
+then use the release-owned `init`/`sync` path to replace only managed project
+assets. Preserve modified or unknown files. Copying Trae Work Skills and adding
+the generated MCP declaration remain separate approval-gated host mutations;
+a fresh session is required before reporting host readiness.
 
 The agent first detects or asks for **Trae IDE**, **Trae Work**, or **Trae CLI**,
 then runs only safe package checks and project-local setup from the release's
