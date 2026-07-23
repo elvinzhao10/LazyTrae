@@ -30,36 +30,39 @@ When the user types `onboard`:
 1. Scan the complete current message and detect the host from the open app. If
    it is not unambiguous, ask one focused question: **Trae IDE**, **Trae Work**,
    or **Trae CLI**. Do not run setup while the host is ambiguous.
-2. Confirm that this project is linked to a pinned `v1.0.3` release in a
+2. When upgrading from v1.0.2, inventory managed versus modified/unknown
+   assets first. Keep v1.0.3 in a separate permanent folder, replace only
+   managed assets, preserve user changes, and record any conflict.
+3. Confirm that this project is linked to a pinned `v1.0.3` release in a
    permanent location and that `node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root>` still exists. Never
    fall back to `PATH`, `npx`, or a global `lazytrae`.
-3. Run only safe package checks and project-local setup through the local
+4. Run only safe package checks and project-local setup through the local
    command: `init --host ide|cli`, `sync`, `load-check --host <host>`, and
    `doctor`. These inspect or write the selected project only. Do not enable
    optional providers or change credentials, dependencies, lockfiles, or host
    settings.
-4. For Trae Work, copying Skills to the host directory is a host-managed
+5. For Trae Work, copying Skills to the host directory is a host-managed
    mutation. Run `node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> init --host work` only after the
    approval gate below; the package check before approval must remain read-only.
-5. Report **package readiness** separately. It covers local files, the
+6. Report **package readiness** separately. It covers local files, the
    generated declaration, and local contracts; it never proves host discovery,
    hook execution, a running session, or an MCP connection.
-6. Before any host-managed mutation (Work Skills copy, a Settings → MCP entry,
+7. Before any host-managed mutation (Work Skills copy, a Settings → MCP entry,
    or Trae CLI registration), ask for explicit approval naming the exact host
    action. Never automate marketplace, account, model, credential, or app
    setting changes.
-7. After approval, give exactly **one** concrete GUI/host action and then wait.
+8. After approval, give exactly **one** concrete GUI/host action and then wait.
    Do not bundle reload, connector setup, and a test into one handoff.
-8. After the user responds, inspect the corresponding app with Computer Use.
+9. After the user responds, inspect the corresponding app with Computer Use.
    If Computer Use is unavailable, accept a user-pasted verbatim status or
    screenshot as observed evidence. Otherwise keep host readiness **PENDING**.
    If the host needs a reload or new session, give that as the next single
    action, wait again, and inspect again.
-9. In the observed session, verify one real LazyTrae Skill or command and every
+10. In the observed session, verify one real LazyTrae Skill or command and every
    expected MCP connection for the selected route. The base package expects one
    `lazytrae` core MCP connection (15 tools after connection); seven optional
    placeholders remain disabled unless separately selected.
-10. Report `package readiness` and `host readiness` as separate fields. Without
+11. Report `package readiness` and `host readiness` as separate fields. Without
     a current Computer Use or user-supplied observation, **HOST READINESS:
     PENDING** even when every local check passes.
 
@@ -132,6 +135,8 @@ unknown assets, and report package removal separately from observed host
 removal. Remove host MCP registrations manually: Trae Work through **Settings
 → MCP**, Trae CLI through the selected build's documented MCP settings flow,
 and Trae IDE through its project MCP UI. Do not assume a universal CLI command.
+For an upgrade rollback, remove only v1.0.3 managed assets after approval; do
+not restore v1.0.2 over user-modified files.
 
 ## Optional local tooling boundary
 
