@@ -104,12 +104,8 @@ test('responsibility_owners: populated from contract authority_matrix', () => {
   const m = mapAdaptiveDecisionToSurfaces(decisionFor('planned'));
   // All 9 responsibilities from the authority_matrix are present.
   assert.deepEqual(m.responsibility_owners, expectedMatrix);
-  // Spot-check: release-review and security-review are approval-required.
-  assert.equal(m.responsibility_owners['release-review'], 'approval-required');
-  assert.equal(m.responsibility_owners['security-review'], 'approval-required');
-  // The other seven are automatic.
   for (const r of ['continuity', 'debugging', 'exploration', 'implementation',
-    'planning', 'quality-review', 'verification']) {
+    'planning', 'quality-review', 'release-review', 'security-review', 'verification']) {
     assert.equal(m.responsibility_owners[r], 'automatic', `${r} should be automatic`);
   }
 });

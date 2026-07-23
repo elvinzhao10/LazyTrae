@@ -1,9 +1,11 @@
 const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const { REPO_ROOT, makeFixture, runCli } = require('./test-helpers');
+const { materializeHook } = require('../src/lib/local-launcher');
+const { REPO_ROOT, makeFixture, makeGitFixture, runCli } = require('./test-helpers');
 const LOCAL_LAUNCHER = path.join(REPO_ROOT, 'packages', 'cli', 'bin', 'lazytrae.js');
 
 function readFiles(directory, prefix = '') {
@@ -20,6 +22,16 @@ function readTraeTemplateFiles() {
   return readFiles(path.join(REPO_ROOT, 'packages', 'cli', 'templates'))
     .filter(relativePath => !['AGENTS.md', 'config.json'].includes(relativePath))
     .filter(relativePath => !['evidence', 'schemas', 'state'].includes(relativePath.split(path.sep)[0]));
+}
+
+function expectedTemplate(relativePath) {
+  const content = fs.readFileSync(
+    path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath),
+    'utf8',
+  );
+  return relativePath === path.join('hooks', 'user-prompt-submit.sh')
+    ? materializeHook(content)
+    : content;
 }
 
 const EXACT_NPM_VERSION =
@@ -80,7 +92,7 @@ test('test fixtures bootstrap managed files from package templates', () => {
       }
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
-        fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
+        expectedTemplate(relativePath),
         `${relativePath} was not bootstrapped from its package template`,
       );
     }
@@ -105,7 +117,7 @@ test('fresh install matches every managed package template', () => {
       }
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
-        fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
+        expectedTemplate(relativePath),
         `${relativePath} was not installed from its package template`,
       );
     }
@@ -189,8 +201,7 @@ test('public CLI version banners match the package version', () => {
 });
 
 test('fresh init is self-contained for doctor, sync, and context recovery', () => {
-  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-fresh-install-'));
-  fs.mkdirSync(path.join(fixture, '.git'));
+  const fixture = makeGitFixture('lazytrae-fresh-install-');
 
   try {
     const init = runCli(['init'], { cwd: fixture });
@@ -198,11 +209,13 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
     assert.match(init.stdout, /LazyTrae Tool Load Check/);
     assert.match(init.stdout, /Load check passed/);
     assertMaterializedMcp(fixture);
+    assert.equal(spawnSync('git', ['add', '.'], { cwd: fixture }).status, 0);
+    assert.equal(spawnSync('git', ['commit', '-qm', 'post-init fixture revision'], { cwd: fixture }).status, 0);
     for (const relativePath of readTraeTemplateFiles()) {
       if (relativePath === 'mcp.json') continue;
       assert.equal(
         fs.readFileSync(path.join(fixture, '.trae', relativePath), 'utf8'),
-        fs.readFileSync(path.join(REPO_ROOT, 'packages', 'cli', 'templates', relativePath), 'utf8'),
+        expectedTemplate(relativePath),
         `${relativePath} was not installed from the template`,
       );
     }
@@ -224,7 +237,10 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
       input: JSON.stringify({ prompt: 'The context_length_exceeded marker appeared.' }),
     });
     assert.equal(marked.status, 0, marked.stderr);
-    assert.match(marked.stdout, /Context pressure detected/);
+    const markedLines = marked.stdout.trim().split('\n');
+    assert.equal(markedLines.length, 1);
+    assert.equal(JSON.parse(markedLines[0]).lazytraeAdaptive.kind, 'workflow-decision');
+    assert.doesNotMatch(marked.stdout, /Context pressure detected|Post-compact recovery/);
     const recovered = runCli(['hook', 'recover-context'], { cwd: fixture });
     assert.equal(recovered.status, 0, recovered.stderr);
     assert.match(recovered.stdout, /Post-compact recovery needed/);

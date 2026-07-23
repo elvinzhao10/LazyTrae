@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const { copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile } = require('../lib/templates');
-const { materializeGuidance } = require('../lib/local-launcher');
+const {
+  chmodRepoFile, copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
+} = require('../lib/templates');
+const { materializeGuidance, materializeHook } = require('../lib/local-launcher');
 const { updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
@@ -113,6 +115,16 @@ Options:
   } else {
     summary.skipped.push('hooks (no changes)');
   }
+  const userPromptHook = path.join(repoRoot, '.trae', 'hooks', 'user-prompt-submit.sh');
+  writeRepoFile(
+    repoRoot,
+    userPromptHook,
+    materializeHook(fs.readFileSync(
+      path.join(templatesDir, 'hooks', 'user-prompt-submit.sh'),
+      'utf8',
+    )),
+  );
+  chmodRepoFile(repoRoot, userPromptHook, 0o755);
 
   // Update .lazytrae/schemas/
   const schemasResult = copyRepoDir(repoRoot,

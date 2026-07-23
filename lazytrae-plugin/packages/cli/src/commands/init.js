@@ -4,7 +4,7 @@ const {
   chmodRepoFile, copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
 } = require('../lib/templates');
 const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
-const { materializeGuidance } = require('../lib/local-launcher');
+const { materializeGuidance, materializeHook } = require('../lib/local-launcher');
 const { updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
@@ -153,6 +153,15 @@ Options:
   );
   if (hooksResult.created > 0) summary.created.push(`${hooksResult.created} hook scripts`);
   if (hooksResult.updated > 0) summary.updated.push(`${hooksResult.updated} hook scripts`);
+  const userPromptHook = path.join(repoRoot, '.trae', 'hooks', 'user-prompt-submit.sh');
+  writeRepoFile(
+    repoRoot,
+    userPromptHook,
+    materializeHook(fs.readFileSync(
+      path.join(templatesDir, 'hooks', 'user-prompt-submit.sh'),
+      'utf8',
+    )),
+  );
 
   // Make hook scripts executable
   const hooksDestDir = path.join(repoRoot, '.trae', 'hooks');
@@ -245,15 +254,14 @@ Options:
 
   // Handle .gitignore entries
   const gitignorePath = path.join(repoRoot, '.gitignore');
-  if (fs.existsSync(gitignorePath)) {
-    const gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8');
-    const nextGitignoreContent = appendManagedGitignoreBlock(gitignoreContent);
-    if (nextGitignoreContent !== gitignoreContent) {
-      writeRepoFile(repoRoot, gitignorePath, nextGitignoreContent);
-      summary.updated.push('.gitignore');
-    } else {
-      summary.skipped.push('.gitignore (already has LazyTrae entries)');
-    }
+  const gitignoreExists = fs.existsSync(gitignorePath);
+  const gitignoreContent = gitignoreExists ? fs.readFileSync(gitignorePath, 'utf-8') : '';
+  const nextGitignoreContent = appendManagedGitignoreBlock(gitignoreContent);
+  if (nextGitignoreContent !== gitignoreContent) {
+    writeRepoFile(repoRoot, gitignorePath, nextGitignoreContent);
+    summary[gitignoreExists ? 'updated' : 'created'].push('.gitignore');
+  } else {
+    summary.skipped.push('.gitignore (already has LazyTrae entries)');
   }
 
   // Print summary

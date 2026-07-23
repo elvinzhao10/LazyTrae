@@ -8,6 +8,7 @@ const {
   CLI,
   REPO_ROOT,
   makeFixture,
+  makeGitFixture,
   runCli,
 } = require('./test-helpers');
 
@@ -34,7 +35,7 @@ test('CLI command routing shows help and rejects unknown commands', () => {
 });
 
 test('hook fixtures execute through the CLI dispatcher', () => {
-  const fixture = makeFixture('lazytrae-hook-dispatch-');
+  const fixture = makeGitFixture('lazytrae-hook-dispatch-');
   const preToolFixture = fs.readFileSync(path.join(__dirname, 'fixtures', 'pre-tool-use-git.json'), 'utf-8');
   const preTool = runCli(['hook', 'pre-tool-use'], { cwd: fixture, input: preToolFixture });
   assert.equal(preTool.status, 0);
@@ -43,18 +44,22 @@ test('hook fixtures execute through the CLI dispatcher', () => {
   const promptFixture = fs.readFileSync(path.join(__dirname, 'fixtures', 'user-prompt-submit.json'), 'utf-8');
   const prompt = runCli(['hook', 'user-prompt-submit'], { cwd: fixture, input: promptFixture });
   assert.equal(prompt.status, 0);
-  assert.match(prompt.stdout, /ULTRAWORK MODE ENABLED/);
+  assert.match(prompt.stdout, /lazytraeAdaptive/);
+  assert.doesNotMatch(prompt.stdout, /ULTRAWORK MODE ENABLED|LazyTrae workflow keyword detected/);
 });
 
 test('hook user-prompt-submit records context recovery state when compaction markers appear', () => {
-  const fixture = makeFixture('lazytrae-context-marker-');
+  const fixture = makeGitFixture('lazytrae-context-marker-');
   const prompt = runCli(['hook', 'user-prompt-submit'], {
     cwd: fixture,
     input: JSON.stringify({ prompt: 'The context_length_exceeded marker appeared.' }),
   });
 
   assert.equal(prompt.status, 0);
-  assert.match(prompt.stdout, /Context pressure detected/);
+  const outputLines = prompt.stdout.trim().split('\n');
+  assert.equal(outputLines.length, 1);
+  assert.equal(JSON.parse(outputLines[0]).lazytraeAdaptive.kind, 'workflow-decision');
+  assert.doesNotMatch(prompt.stdout, /Context pressure detected|Post-compact recovery/);
   const sessions = JSON.parse(fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'sessions.json'), 'utf-8'));
   const state = sessions.compaction_state;
   assert.equal(state.post_compact_recovery_needed, true);
@@ -65,7 +70,7 @@ test('hook user-prompt-submit records context recovery state when compaction mar
 });
 
 test('hook recover-context emits recovery text and clears pending context state', () => {
-  const fixture = makeFixture('lazytrae-context-recover-');
+  const fixture = makeGitFixture('lazytrae-context-recover-');
   assert.equal(runCli(['hook', 'user-prompt-submit'], {
     cwd: fixture,
     input: JSON.stringify({ prompt: 'Context compacted while working.' }),
@@ -84,7 +89,7 @@ test('hook recover-context emits recovery text and clears pending context state'
 });
 
 test('hook session-start clears pending context recovery after emitting recovery text', () => {
-  const fixture = makeFixture('lazytrae-session-recover-');
+  const fixture = makeGitFixture('lazytrae-session-recover-');
   assert.equal(runCli(['hook', 'user-prompt-submit'], {
     cwd: fixture,
     input: JSON.stringify({ prompt: 'skill descriptions were shortened after compaction' }),

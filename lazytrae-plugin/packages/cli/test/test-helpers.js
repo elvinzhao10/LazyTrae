@@ -40,6 +40,23 @@ function makeFixture(prefix = 'lazytrae-cli-test-') {
   return root;
 }
 
+function makeGitFixture(prefix = 'lazytrae-cli-git-test-') {
+  const root = makeFixture(prefix);
+  fs.rmSync(path.join(root, '.git'), { recursive: true, force: true });
+  const commands = [
+    ['init', '-q'],
+    ['config', 'user.email', 'adaptive@example.invalid'],
+    ['config', 'user.name', 'Adaptive Test'],
+    ['add', '.'],
+    ['commit', '-qm', 'fixture'],
+  ];
+  for (const args of commands) {
+    const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+    if (result.status !== 0) throw new Error(`Git fixture failed: ${result.stderr}`);
+  }
+  return root;
+}
+
 function writeActiveWork(root, task) {
   const boulderPath = path.join(root, '.lazytrae', 'state', 'boulder.json');
   const now = '2026-07-09T00:00:00Z';
@@ -187,6 +204,7 @@ module.exports = {
   makeCanonicalQualityGate,
   makeCompletionFixture,
   makeFixture,
+  makeGitFixture,
   makeLoopFixture,
   readLoopState,
   runCli,

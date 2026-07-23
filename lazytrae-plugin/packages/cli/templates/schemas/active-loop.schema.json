@@ -164,66 +164,331 @@
       }
     },
     "adaptive": {
-      "type": ["object", "null"],
       "description": "Optional additive adaptive snapshot block. Single-writer rule: only the adaptive orchestrator writes this block. Existing v1.0.2 state files without this field continue to load. Additive extension; does not bump schema version.",
-      "properties": {
-        "mode": {
-          "type": "string",
-          "description": "Selected workflow mode.",
-          "enum": ["direct", "assisted", "planned", "orchestrated", "long-horizon"]
-        },
-        "stages": { "type": "array", "description": "Selected workflow stages.", "items": { "type": "string" } },
-        "responsibilities": { "type": "array", "description": "Selected specialist responsibilities.", "items": { "type": "string" } },
-        "capabilities": { "type": "array", "description": "Selected capability classes.", "items": { "type": "string" } },
-        "not_selected": {
+      "oneOf": [
+        { "type": "null" },
+        {
           "type": "object",
-          "description": "Explicitly not-selected stages and capabilities.",
+          "additionalProperties": false,
+          "required": [
+            "approval",
+            "blocker",
+            "capabilityClasses",
+            "capabilitySubstitutions",
+            "currentStage",
+            "decisionId",
+            "escalationCount",
+            "escalationHistory",
+            "hostFingerprint",
+            "mode",
+            "nextAction",
+            "reasons",
+            "requestDigest",
+            "responsibilities",
+            "revisionFingerprint",
+            "risk",
+            "scopeFingerprint",
+            "stages",
+            "verificationLevel",
+            "version"
+          ],
           "properties": {
-            "stages": { "type": "array", "items": { "type": "string" } },
-            "capabilities": { "type": "array", "items": { "type": "string" } }
-          }
-        },
-        "approval_required": { "type": "boolean", "description": "Whether approval is required before proceeding." },
-        "reasons": { "type": "array", "description": "Material selection reasons.", "items": { "type": "string" } },
-        "started_at": {
-          "oneOf": [
-            { "type": "null" },
-            { "type": "string", "format": "date-time" }
-          ],
-          "description": "Timestamp when the adaptive decision started."
-        },
-        "updated_at": {
-          "oneOf": [
-            { "type": "null" },
-            { "type": "string", "format": "date-time" }
-          ],
-          "description": "Timestamp when the adaptive block was last updated."
-        },
-        "completed_at": {
-          "oneOf": [
-            { "type": "null" },
-            { "type": "string", "format": "date-time" }
-          ],
-          "description": "Timestamp when the adaptive decision completed."
-        },
-        "escalation_count": { "type": "integer", "description": "Number of automatic depth escalations (max 2 per Section 12).", "minimum": 0 },
-        "escalation_history": {
-          "type": "array",
-          "description": "Ordered escalation records.",
-          "items": { "type": "object" }
-        },
-        "last_resolution": {
-          "oneOf": [
-            { "type": "null" },
-            { "type": "object", "description": "Last capability resolution mapping." }
-          ],
-          "description": "Last runtime resolution of capabilities to providers."
-        },
-        "single_writer": { "type": "string", "description": "Single-writer identity for the adaptive block.", "const": "orchestrator" }
-      }
+            "version": { "type": "integer", "const": 1 },
+            "decisionId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+            "requestDigest": { "$ref": "#/definitions/AdaptiveSha256Digest" },
+            "mode": { "$ref": "#/definitions/AdaptiveMode" },
+            "stages": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "$ref": "#/definitions/AdaptiveStage" }
+            },
+            "currentStage": { "$ref": "#/definitions/AdaptiveStage" },
+            "responsibilities": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "$ref": "#/definitions/AdaptiveResponsibility" }
+            },
+            "capabilityClasses": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "$ref": "#/definitions/AdaptiveCapabilityClass" }
+            },
+            "capabilitySubstitutions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["allowedSubstitutionClasses", "evidenceDowngrade", "explanation", "requiredClass"],
+                "properties": {
+                  "allowedSubstitutionClasses": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/definitions/AdaptiveCapabilityClass" }
+                  },
+                  "evidenceDowngrade": {
+                    "type": "string",
+                    "enum": ["additional-verification-required", "none", "reduced-confidence"]
+                  },
+                  "explanation": { "$ref": "#/definitions/AdaptivePortableText" },
+                  "requiredClass": { "$ref": "#/definitions/AdaptiveCapabilityClass" }
+                }
+              }
+            },
+            "approval": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["requiredClasses", "status"],
+              "properties": {
+                "requiredClasses": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": { "$ref": "#/definitions/AdaptiveApprovalClass" }
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["denied", "granted", "not-required", "pending"]
+                }
+              },
+              "allOf": [
+                {
+                  "if": { "properties": { "status": { "const": "not-required" } } },
+                  "then": { "properties": { "requiredClasses": { "maxItems": 0 } } }
+                },
+                {
+                  "if": { "properties": { "status": { "enum": ["denied", "granted", "pending"] } } },
+                  "then": { "properties": { "requiredClasses": { "minItems": 1 } } }
+                }
+              ]
+            },
+            "escalationCount": { "type": "integer", "minimum": 0, "maximum": 2 },
+            "escalationHistory": {
+              "type": "array",
+              "maxItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["fromMode", "sequence", "stageAdded", "toMode", "trigger"],
+                "properties": {
+                  "fromMode": { "$ref": "#/definitions/AdaptiveMode" },
+                  "sequence": { "type": "integer", "minimum": 1, "maximum": 2 },
+                  "stageAdded": {
+                    "oneOf": [
+                      { "$ref": "#/definitions/AdaptiveStage" },
+                      { "type": "null" }
+                    ]
+                  },
+                  "toMode": { "$ref": "#/definitions/AdaptiveMode" },
+                  "trigger": {
+                    "type": "string",
+                    "enum": [
+                      "broader-scope-revealed",
+                      "capability-unavailable",
+                      "new-risk-finding",
+                      "user-goal-changed",
+                      "verification-failure"
+                    ]
+                  }
+                }
+              }
+            },
+            "revisionFingerprint": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["digest", "status"],
+              "properties": {
+                "digest": {
+                  "oneOf": [
+                    { "$ref": "#/definitions/AdaptiveSha256Digest" },
+                    { "type": "null" }
+                  ]
+                },
+                "status": { "type": "string", "enum": ["available", "unavailable"] }
+              },
+              "allOf": [
+                {
+                  "if": { "properties": { "status": { "const": "available" } } },
+                  "then": { "properties": { "digest": { "$ref": "#/definitions/AdaptiveSha256Digest" } } }
+                },
+                {
+                  "if": { "properties": { "status": { "const": "unavailable" } } },
+                  "then": { "properties": { "digest": { "type": "null" } } }
+                }
+              ]
+            },
+            "scopeFingerprint": { "$ref": "#/definitions/AdaptiveSha256Digest" },
+            "hostFingerprint": { "$ref": "#/definitions/AdaptiveSha256Digest" },
+            "risk": { "type": "string", "enum": ["high", "low", "material", "standard"] },
+            "reasons": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/definitions/AdaptivePortableText" }
+            },
+            "blocker": {
+              "oneOf": [
+                { "type": "null" },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "attemptedApproaches",
+                    "currentEvidence",
+                    "nextRequiredDecision",
+                    "reproducedFailure",
+                    "unresolvedDecision"
+                  ],
+                  "properties": {
+                    "attemptedApproaches": {
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "items": { "$ref": "#/definitions/AdaptivePortableText" }
+                    },
+                    "currentEvidence": { "$ref": "#/definitions/AdaptivePortableText" },
+                    "nextRequiredDecision": { "$ref": "#/definitions/AdaptivePortableText" },
+                    "reproducedFailure": { "$ref": "#/definitions/AdaptivePortableText" },
+                    "unresolvedDecision": { "$ref": "#/definitions/AdaptivePortableText" }
+                  }
+                }
+              ]
+            },
+            "nextAction": { "$ref": "#/definitions/AdaptivePortableText" },
+            "verificationLevel": {
+              "type": "string",
+              "enum": ["independent", "live-surface", "standard", "targeted"]
+            }
+          },
+          "allOf": [
+            {
+              "if": { "properties": { "currentStage": { "const": "continue" } } },
+              "then": { "properties": { "stages": { "contains": { "const": "continue" } } } }
+            },
+            {
+              "if": { "properties": { "currentStage": { "const": "debug" } } },
+              "then": { "properties": { "stages": { "contains": { "const": "debug" } } } }
+            },
+            {
+              "if": { "properties": { "currentStage": { "const": "implement" } } },
+              "then": { "properties": { "stages": { "contains": { "const": "implement" } } } }
+            },
+            {
+              "if": { "properties": { "currentStage": { "const": "plan" } } },
+              "then": { "properties": { "stages": { "contains": { "const": "plan" } } } }
+            },
+            {
+              "if": { "properties": { "currentStage": { "const": "review" } } },
+              "then": { "properties": { "stages": { "contains": { "const": "review" } } } }
+            },
+            {
+              "if": { "properties": { "currentStage": { "const": "understand" } } },
+              "then": { "properties": { "stages": { "contains": { "const": "understand" } } } }
+            },
+            {
+              "if": { "properties": { "currentStage": { "const": "verify" } } },
+              "then": { "properties": { "stages": { "contains": { "const": "verify" } } } }
+            },
+            {
+              "if": { "properties": { "escalationCount": { "const": 0 } } },
+              "then": { "properties": { "escalationHistory": { "maxItems": 0 } } }
+            },
+            {
+              "if": { "properties": { "escalationCount": { "const": 1 } } },
+              "then": {
+                "properties": {
+                  "escalationHistory": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": [
+                      { "properties": { "sequence": { "const": 1 } } }
+                    ],
+                    "additionalItems": false
+                  }
+                }
+              }
+            },
+            {
+              "if": { "properties": { "escalationCount": { "const": 2 } } },
+              "then": {
+                "properties": {
+                  "escalationHistory": {
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": [
+                      { "properties": { "sequence": { "const": 1 } } },
+                      { "properties": { "sequence": { "const": 2 } } }
+                    ],
+                    "additionalItems": false
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   },
   "definitions": {
+    "AdaptiveApprovalClass": {
+      "type": "string",
+      "enum": [
+        "account-marketplace-or-publish-mutation",
+        "browser-or-desktop-control",
+        "credentials-auth-or-paid-service",
+        "host-mcp-settings-mutation",
+        "install-or-download",
+        "persistent-capability",
+        "remote-data-egress"
+      ]
+    },
+    "AdaptiveCapabilityClass": {
+      "type": "string",
+      "enum": [
+        "architecture-context",
+        "documentation",
+        "execution",
+        "outcome-verification",
+        "semantic-navigation",
+        "structural-search",
+        "task-state",
+        "text-search"
+      ]
+    },
+    "AdaptiveMode": {
+      "type": "string",
+      "enum": ["direct", "assisted", "planned", "orchestrated", "long-horizon"]
+    },
+    "AdaptivePortableText": {
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "pattern": "runtimeResolution|host-native|package-lsp|package-cli|package-loop-store|lsp-bridge|/Users/|\\\\Users\\\\|\\.worktrees/|\\.trae/|\\.lazytrae/|(^|\\s)(src|lib|packages|tests?)/|provider[=:]|host[=:]"
+      }
+    },
+    "AdaptiveResponsibility": {
+      "type": "string",
+      "enum": [
+        "continuity",
+        "debugging",
+        "exploration",
+        "implementation",
+        "planning",
+        "quality-review",
+        "release-review",
+        "security-review",
+        "verification"
+      ]
+    },
+    "AdaptiveSha256Digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "AdaptiveStage": {
+      "type": "string",
+      "enum": ["continue", "debug", "implement", "plan", "review", "understand", "verify"]
+    },
     "UlwLoopStatus": {
       "type": "string",
       "description": "Goal status enum from constants.ts: pending, in_progress, complete, failed, blocked, review_blocked, needs_user_decision.",

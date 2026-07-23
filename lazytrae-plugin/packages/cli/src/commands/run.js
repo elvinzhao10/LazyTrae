@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { sha256Digest } = require('../lib/adaptive-decision');
+const { formatAdaptiveDirective, processAdaptivePrompt } = require('../lib/adaptive-runtime');
 const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 
 const CATEGORIES = ['quick', 'deep', 'ultrabrain', 'visual-engineering', 'writing', 'review'];
@@ -46,7 +48,8 @@ function recordTrajectory(repoRoot, entry) {
     fs.mkdirSync(logsDir, { recursive: true });
   }
   const logPath = path.join(logsDir, 'trajectory.ndjson');
-  const line = JSON.stringify(entry) + '\n';
+  const { prompt, ...metadata } = entry;
+  const line = JSON.stringify({ ...metadata, prompt_digest: sha256Digest(prompt) }) + '\n';
   fs.appendFileSync(logPath, line, 'utf-8');
 }
 
@@ -152,6 +155,12 @@ function run(args) {
   }
 
   const repoRoot = detectRepoRoot();
+  if (!useLoop) {
+    const adaptive = processAdaptivePrompt({ repoRoot, prompt });
+    process.stdout.write(formatAdaptiveDirective(adaptive.directive));
+    if (adaptive.warning) process.stderr.write(`[LazyTrae run warning] ${adaptive.warning}\n`);
+    if (adaptive.directive.dispatch !== 'presented-to-host') return;
+  }
   const hasTraeAgent = checkTraeAgent();
 
   if (useLoop) {
