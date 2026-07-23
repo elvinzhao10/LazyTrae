@@ -159,6 +159,21 @@ test('review responsibilities are automatic while requested action classes requi
   assert.deepEqual(action.approval_classes, ['install-or-download', 'remote-data-egress']);
 });
 
+test('real-world scope language selects the lowest sufficient non-direct mode', () => {
+  assert.equal(
+    classifyAdaptiveDecision('Investigate why test_format_result is failing in the calculator module.').mode,
+    'assisted',
+  );
+  assert.equal(
+    classifyAdaptiveDecision('Refactor the calculator module to add input validation for all public functions.').mode,
+    'planned',
+  );
+  assert.equal(
+    classifyAdaptiveDecision('Migrate the test suite to pytest-bdd across the next week.').mode,
+    'long-horizon',
+  );
+});
+
 test('automatic escalation is adjacent, bounded at two, then produces a blocker', () => {
   const first = classifyAdaptiveDecision('Fix the failing test.', {
     initial_mode: 'direct',
