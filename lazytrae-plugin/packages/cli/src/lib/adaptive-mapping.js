@@ -10,9 +10,11 @@
 
 const fs = require('fs');
 const path = require('path');
+const { inspectCoreDeclaration, materializeHook } = require('./local-launcher');
 
 const CONTRACT_PATH = path.resolve(__dirname, '..', '..', 'contracts',
   'adaptive-harness-contract.v1.json');
+const TEMPLATES_ROOT = path.resolve(__dirname, '..', '..', 'templates');
 
 // LazyTrae always uses completion-gates.js for verification and the
 // completion-status command for status reporting, regardless of mode.
@@ -87,7 +89,69 @@ function isValidDecision(decision) {
 //
 // Throws Error('ADAPTIVE_MAPPING_INVALID_DECISION: <mode>') when the input
 // is null, missing a mode, or carries an unknown mode.
-function mapAdaptiveDecisionToSurfaces(decision) {
+function readJson(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (_) {
+    return null;
+  }
+}
+
+function isSafeRegularFile(repoRoot, filePath) {
+  try {
+    const root = fs.realpathSync.native(repoRoot);
+    const stat = fs.lstatSync(filePath);
+    const real = fs.realpathSync.native(filePath);
+    const relative = path.relative(root, real);
+    return stat.isFile() && !stat.isSymbolicLink()
+      && !relative.startsWith('..') && !path.isAbsolute(relative);
+  } catch (_) {
+    return false;
+  }
+}
+
+function isVerifiedTemplateAsset(repoRoot, relativePath) {
+  const installedPath = path.join(repoRoot, '.trae', relativePath);
+  const templatePath = path.join(TEMPLATES_ROOT, relativePath);
+  if (!isSafeRegularFile(repoRoot, installedPath)) return false;
+  try {
+    const templateStat = fs.lstatSync(templatePath);
+    const template = fs.readFileSync(templatePath);
+    const expected = relativePath === path.join('hooks', 'user-prompt-submit.sh')
+      ? Buffer.from(materializeHook(template.toString('utf8')), 'utf8')
+      : template;
+    return templateStat.isFile() && !templateStat.isSymbolicLink()
+      && fs.readFileSync(installedPath).equals(expected);
+  } catch (_) {
+    return false;
+  }
+}
+
+function qualifyInstalledHost(repoRoot) {
+  if (typeof repoRoot !== 'string' || repoRoot.length === 0) {
+    return { qualification: 'unverified', workflowSurfaces: [] };
+  }
+  const workflows = [...new Set(Object.values(MODE_SURFACES).flatMap((entry) => entry.workflows))];
+  const verifiedWorkflows = workflows.filter((name) => isVerifiedTemplateAsset(
+    repoRoot, path.join('skills', name, 'SKILL.md'),
+  ));
+  const baselineAssets = [
+    path.join('hooks', 'user-prompt-submit.sh'),
+    path.join('rules', 'lazytrae.md'),
+  ];
+  const declarationPath = path.join(repoRoot, '.trae', 'mcp.json');
+  const declaration = isSafeRegularFile(repoRoot, declarationPath) ? readJson(declarationPath) : null;
+  const core = inspectCoreDeclaration(repoRoot, declaration);
+  const ready = core.ready
+    && baselineAssets.every((relativePath) => isVerifiedTemplateAsset(repoRoot, relativePath))
+    && verifiedWorkflows.length === workflows.length;
+  return {
+    qualification: ready ? 'package-assets-verified' : 'degraded',
+    workflowSurfaces: ready ? verifiedWorkflows.sort() : [],
+  };
+}
+
+function mapAdaptiveDecisionToSurfaces(decision, options = {}) {
   if (!isValidDecision(decision)) {
     const mode = decision && typeof decision === 'object' && decision.mode
       ? decision.mode : 'missing';
@@ -96,12 +160,17 @@ function mapAdaptiveDecisionToSurfaces(decision) {
   const contract = loadAdaptiveContract();
   const authorityMatrix = contract.authority_matrix || {};
   const modeConfig = MODE_SURFACES[decision.mode];
+  const host = qualifyInstalledHost(options.repoRoot);
+  const selectedWorkflows = host.qualification === 'unverified'
+    ? [...modeConfig.workflows]
+    : modeConfig.workflows.filter((name) => host.workflowSurfaces.includes(name));
   return {
-    workflow_surfaces: [...modeConfig.workflows],
+    workflow_surfaces: selectedWorkflows,
     responsibility_owners: { ...authorityMatrix },
     verification_surface: VERIFICATION_SURFACE,
     status_surface: STATUS_SURFACE,
     orchestration_surface: modeConfig.orchestration,
+    host_qualification: host.qualification,
   };
 }
 
@@ -112,4 +181,5 @@ module.exports = {
   VERIFICATION_SURFACE,
   loadAdaptiveContract,
   mapAdaptiveDecisionToSurfaces,
+  qualifyInstalledHost,
 };

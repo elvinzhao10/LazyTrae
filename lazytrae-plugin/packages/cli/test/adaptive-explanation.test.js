@@ -1,182 +1,77 @@
+'use strict';
+
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const { classifyAdaptiveDecision } = require('../src/lib/adaptive-decision');
 const {
   MAX_ESCALATIONS,
+  adaptiveExplanationFields,
   formatAdaptiveExplanation,
 } = require('../src/lib/adaptive-explanation');
 
-function makeSnapshot(overrides = {}) {
-  return {
-    mode: 'orchestrated',
-    stages: ['planning', 'implementation', 'verification'],
-    responsibilities: ['planning', 'implementation', 'security-review'],
-    capabilities: ['text-search', 'semantic-navigation'],
-    not_selected: {
-      stages: ['debugging'],
-      capabilities: ['architecture-context'],
-    },
-    approval_required: true,
-    reasons: ['security-sensitive change'],
-    started_at: '2026-07-20T00:00:00Z',
-    updated_at: '2026-07-20T00:00:00Z',
-    completed_at: null,
-    escalation_count: 1,
-    escalation_history: [],
-    last_resolution: null,
-    single_writer: 'orchestrator',
-    ...overrides,
-  };
-}
-
-function makeLoopState(snapshot) {
+function loopFor(prompt, context = {}) {
   return {
     version: 1,
     run_id: 'run-test',
     loop_state: 'active',
     goals: [],
-    adaptive: snapshot,
+    adaptive: classifyAdaptiveDecision(prompt, context).snapshot,
   };
 }
 
-test('formatAdaptiveExplanation returns a multi-line string with all required fields', () => {
-  const out = formatAdaptiveExplanation(makeLoopState(makeSnapshot()));
-  assert.equal(typeof out, 'string');
-  assert.ok(out.length > 0);
-  assert.match(out, /^Adaptive decision:/);
-  assert.match(out, /Mode: orchestrated/);
-  assert.match(out, /Stages: planning, implementation, verification/);
-  assert.match(out, /Responsibilities: planning, implementation, security-review/);
-  assert.match(out, /Capabilities: text-search, semantic-navigation/);
-  assert.match(out, /Not selected: debugging, architecture-context/);
-  assert.match(out, /Approval required: yes/);
-  assert.match(out, /Escalations: 1\/2/);
-  assert.match(out, /Single writer: orchestrator/);
+test('structured explanation exposes every portable transparency field', () => {
+  const fields = adaptiveExplanationFields(loopFor('Fix one typo in one file.'));
+  assert.equal(fields.mode, 'direct');
+  assert.deepEqual(fields.stages, ['implement', 'verify']);
+  assert.deepEqual(fields.responsibilities, ['implementation', 'verification']);
+  assert.deepEqual(fields.capabilityClasses, ['outcome-verification', 'text-search']);
+  assert.equal(fields.notSelected.stages.includes('plan'), true);
+  assert.equal(fields.notSelected.responsibilities.includes('planning'), true);
+  assert.equal(fields.notSelected.capabilityClasses.includes('task-state'), true);
+  assert.deepEqual(fields.approval, { requiredClasses: [], status: 'not-required' });
+  assert.equal(fields.evidenceImpact.verificationLevel, 'targeted');
+  assert.equal(fields.hostExecution, 'not-observed');
 });
 
-test('formatAdaptiveExplanation returns null when adaptive is null (v1.0.3 idle state)', () => {
-  const out = formatAdaptiveExplanation({ version: 1, adaptive: null });
-  assert.equal(out, null);
+test('status formatter includes required explanation labels and truthful host boundary', () => {
+  const output = formatAdaptiveExplanation(loopFor(
+    'Install a provider before fixing this security authorization flow.',
+  ));
+  for (const label of [
+    'Mode:', 'Stages:', 'Responsibilities:', 'Capability classes:', 'Not selected:',
+    'Approval:', 'Evidence impact:', 'Escalations:', 'Host execution: not-observed',
+  ]) assert.equal(output.includes(label), true, `missing ${label}`);
+  assert.match(output, /pending: install-or-download/);
 });
 
-test('formatAdaptiveExplanation returns null when adaptive field is absent (v1.0.2 state)', () => {
-  const out = formatAdaptiveExplanation({ version: 1, run_id: 'r', goals: [] });
-  assert.equal(out, null);
+test('explanation rejects absent or malformed adaptive state', () => {
+  assert.equal(adaptiveExplanationFields(null), null);
+  assert.equal(formatAdaptiveExplanation({ version: 1 }), null);
+  assert.equal(formatAdaptiveExplanation({ adaptive: 'invalid' }), null);
+  assert.equal(formatAdaptiveExplanation({ adaptive: { mode: 'direct' } }), null);
 });
 
-test('formatAdaptiveExplanation returns null when loopState is null', () => {
-  assert.equal(formatAdaptiveExplanation(null), null);
-});
-
-test('formatAdaptiveExplanation returns null when loopState is undefined', () => {
-  assert.equal(formatAdaptiveExplanation(undefined), null);
-});
-
-test('formatAdaptiveExplanation surfaces mode in output', () => {
-  const out = formatAdaptiveExplanation(makeLoopState(makeSnapshot({ mode: 'planned' })));
-  assert.match(out, /Mode: planned/);
-});
-
-test('formatAdaptiveExplanation surfaces stages in output', () => {
-  const out = formatAdaptiveExplanation(
-    makeLoopState(makeSnapshot({ stages: ['understand', 'implement'] })),
+test('capability substitution carries its evidence downgrade into structured status', () => {
+  const fields = adaptiveExplanationFields(loopFor('Diagnose this cross-file defect.', {
+    scope: 'cross-file',
+    signals: { capability_unavailable: true },
+  }));
+  assert.equal(fields.evidenceImpact.substitutions.length, 1);
+  assert.equal(
+    fields.evidenceImpact.substitutions[0].evidenceDowngrade,
+    'additional-verification-required',
   );
-  assert.match(out, /Stages: understand, implement/);
+  assert.match(formatAdaptiveExplanation({ adaptive: loopFor(
+    'Diagnose this cross-file defect.',
+    { scope: 'cross-file', signals: { capability_unavailable: true } },
+  ).adaptive }), /substituted capability classes/);
 });
 
-test('formatAdaptiveExplanation surfaces responsibilities in output', () => {
-  const out = formatAdaptiveExplanation(
-    makeLoopState(makeSnapshot({ responsibilities: ['exploration', 'verification'] })),
-  );
-  assert.match(out, /Responsibilities: exploration, verification/);
-});
-
-test('formatAdaptiveExplanation surfaces capabilities in output', () => {
-  const out = formatAdaptiveExplanation(
-    makeLoopState(makeSnapshot({ capabilities: ['local_search', 'lsp'] })),
-  );
-  assert.match(out, /Capabilities: local_search, lsp/);
-});
-
-test('formatAdaptiveExplanation surfaces not_selected stages and capabilities in output', () => {
-  const out = formatAdaptiveExplanation(
-    makeLoopState(
-      makeSnapshot({
-        not_selected: {
-          stages: ['release-review'],
-          capabilities: ['external-search', 'browser-automation'],
-        },
-      }),
-    ),
-  );
-  assert.match(out, /Not selected: release-review, external-search, browser-automation/);
-});
-
-test('formatAdaptiveExplanation surfaces approval_required=false as no', () => {
-  const out = formatAdaptiveExplanation(makeLoopState(makeSnapshot({ approval_required: false })));
-  assert.match(out, /Approval required: no/);
-});
-
-test('formatAdaptiveExplanation surfaces escalation count over the bound', () => {
-  const out = formatAdaptiveExplanation(makeLoopState(makeSnapshot({ escalation_count: 2 })));
-  assert.match(out, /Escalations: 2\/2/);
-});
-
-test('formatAdaptiveExplanation reports MAX_ESCALATIONS=2 (Section 12 bound)', () => {
+test('bounded escalation is reported from the canonical camelCase fields', () => {
+  const fields = adaptiveExplanationFields(loopFor('Fix one typo.', {
+    scope_revealed_broader: true,
+    signals: { verification_failure: true },
+  }));
   assert.equal(MAX_ESCALATIONS, 2);
-});
-
-test('adversarial: malformed adaptive block (string) returns null', () => {
-  const out = formatAdaptiveExplanation({ adaptive: 'not-an-object' });
-  assert.equal(out, null);
-});
-
-test('adversarial: missing mode field surfaces "unknown" rather than throwing', () => {
-  const snapshot = makeSnapshot();
-  delete snapshot.mode;
-  const out = formatAdaptiveExplanation(makeLoopState(snapshot));
-  assert.match(out, /Mode: unknown/);
-});
-
-test('adversarial: missing stages field surfaces "none" rather than throwing', () => {
-  const snapshot = makeSnapshot();
-  delete snapshot.stages;
-  const out = formatAdaptiveExplanation(makeLoopState(snapshot));
-  assert.match(out, /Stages: none/);
-});
-
-test('adversarial: missing not_selected field surfaces "none" rather than throwing', () => {
-  const snapshot = makeSnapshot();
-  delete snapshot.not_selected;
-  const out = formatAdaptiveExplanation(makeLoopState(snapshot));
-  assert.match(out, /Not selected: none/);
-});
-
-test('adversarial: missing approval_required field surfaces "no" rather than throwing', () => {
-  const snapshot = makeSnapshot();
-  delete snapshot.approval_required;
-  const out = formatAdaptiveExplanation(makeLoopState(snapshot));
-  assert.match(out, /Approval required: no/);
-});
-
-test('adversarial: empty stages array surfaces "none"', () => {
-  const out = formatAdaptiveExplanation(
-    makeLoopState(makeSnapshot({ stages: [], responsibilities: [], capabilities: [] })),
-  );
-  assert.match(out, /Stages: none/);
-  assert.match(out, /Responsibilities: none/);
-  assert.match(out, /Capabilities: none/);
-});
-
-test('adversarial: non-integer escalation_count falls back to 0', () => {
-  const out = formatAdaptiveExplanation(
-    makeLoopState(makeSnapshot({ escalation_count: 'oops' })),
-  );
-  assert.match(out, /Escalations: 0\/2/);
-});
-
-test('adversarial: missing single_writer surfaces "unknown"', () => {
-  const snapshot = makeSnapshot();
-  delete snapshot.single_writer;
-  const out = formatAdaptiveExplanation(makeLoopState(snapshot));
-  assert.match(out, /Single writer: unknown/);
+  assert.deepEqual(fields.escalation, { count: 2, maximum: 2 });
 });

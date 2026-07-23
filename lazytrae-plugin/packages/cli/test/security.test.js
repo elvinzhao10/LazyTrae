@@ -7,7 +7,9 @@ const test = require('node:test');
 const { HANDLERS } = require('../../mcp/src/tools');
 const { defaultLoop, saveLoop } = require('../src/lib/loop-store');
 const { copyRepoFile, copyRepoFileIfChanged, writeRepoFile } = require('../src/lib/templates');
-const { CLI, makeCompletionFixture, makeFixture, makeLoopFixture, runCli } = require('./test-helpers');
+const {
+  CLI, makeCompletionFixture, makeFixture, makeGitFixture, makeLoopFixture, runCli,
+} = require('./test-helpers');
 
 function swapTargetWithSymlinkDuringFinalWrite(targetPath, outsidePath, call) {
   const methodNames = ['appendFileSync', 'copyFileSync', 'renameSync', 'writeFileSync'];
@@ -31,8 +33,9 @@ function swapTargetWithSymlinkDuringFinalWrite(targetPath, outsidePath, call) {
   return swapped;
 }
 
-test('hook dispatcher does not shell-expand hook script paths', () => {
+test('hook dispatcher does not shell-expand hook script paths', (t) => {
   const fixture = makeFixture('lazytrae-hook-$(touch pwned-hook)-');
+  t.after(() => fs.rmSync(fixture, { recursive: true, force: true }));
 
   const result = runCli(['hook', 'session-start'], { cwd: fixture });
 
@@ -40,8 +43,9 @@ test('hook dispatcher does not shell-expand hook script paths', () => {
   assert.equal(fs.existsSync(path.join(fixture, 'pwned-hook')), false);
 });
 
-test('post-tool-use hook does not eval JSON-derived file paths', () => {
+test('post-tool-use hook does not eval JSON-derived file paths', (t) => {
   const fixture = makeFixture('lazytrae-post-tool-injection-');
+  t.after(() => fs.rmSync(fixture, { recursive: true, force: true }));
   const input = JSON.stringify({
     tool_name: 'Write',
     tool_input: { filePath: '$(touch pwned-post)' },
@@ -54,8 +58,9 @@ test('post-tool-use hook does not eval JSON-derived file paths', () => {
   assert.equal(fs.existsSync(path.join(fixture, 'pwned-post')), false);
 });
 
-test('session-start hook treats Boulder active_work_id as data', () => {
+test('session-start hook treats Boulder active_work_id as data', (t) => {
   const fixture = makeFixture('lazytrae-session-id-injection-');
+  t.after(() => fs.rmSync(fixture, { recursive: true, force: true }));
   const boulderPath = path.join(fixture, '.lazytrae', 'state', 'boulder.json');
   const boulder = JSON.parse(fs.readFileSync(boulderPath, 'utf-8'));
   boulder.active_work_id = "x'];require('fs').writeFileSync('pwned-session','x');//";
@@ -68,9 +73,13 @@ test('session-start hook treats Boulder active_work_id as data', () => {
   assert.equal(fs.existsSync(path.join(fixture, 'pwned-session')), false);
 });
 
-test('run command passes prompt to trae-agent as argv', () => {
-  const fixture = makeFixture('lazytrae-run-prompt-injection-');
+test('run command passes prompt to trae-agent as argv', (t) => {
+  const fixture = makeGitFixture('lazytrae-run-prompt-injection-');
   const binDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-fake-bin-'));
+  t.after(() => {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(binDir, { recursive: true, force: true });
+  });
   const marker = path.join(fixture, 'pwned-run');
   const argsFile = path.join(fixture, 'trae-agent-args.json');
   const fakeAgent = path.join(binDir, 'trae-agent');
@@ -87,9 +96,13 @@ test('run command passes prompt to trae-agent as argv', () => {
   assert.equal(JSON.parse(fs.readFileSync(argsFile, 'utf-8')).includes('$(touch pwned-run)'), true);
 });
 
-test('MCP dependency graph rejects symlinks that resolve outside the repo', () => {
+test('MCP dependency graph rejects symlinks that resolve outside the repo', (t) => {
   const fixture = makeFixture('lazytrae-mcp-symlink-');
   const outside = path.join(os.tmpdir(), `lazytrae-outside-${process.pid}.js`);
+  t.after(() => {
+    fs.rmSync(fixture, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  });
   fs.writeFileSync(outside, "const secret = require('fs');\n");
   fs.symlinkSync(outside, path.join(fixture, 'outside-link.js'));
 
@@ -101,11 +114,17 @@ test('MCP dependency graph rejects symlinks that resolve outside the repo', () =
   fs.rmSync(outside, { force: true });
 });
 
-test('completion and loop evidence reject absolute paths outside the repo', () => {
+test('completion and loop evidence reject absolute paths outside the repo', (t) => {
   const outside = path.join(os.tmpdir(), `lazytrae-outside-proof-${process.pid}.txt`);
   fs.writeFileSync(outside, 'outside proof\n');
 
   const completion = makeCompletionFixture('lazytrae-absolute-evidence-', false);
+  const loop = makeLoopFixture('lazytrae-loop-absolute-evidence-');
+  t.after(() => {
+    fs.rmSync(completion, { recursive: true, force: true });
+    fs.rmSync(loop, { recursive: true, force: true });
+    fs.rmSync(outside, { force: true });
+  });
   const done = HANDLERS['lazytrae.mark_task_done'](completion, {
     task_id: 'task-1',
     evidence_summary: 'proof',
@@ -114,7 +133,6 @@ test('completion and loop evidence reject absolute paths outside the repo', () =
   assert.equal(done.error, 'EVIDENCE_REQUIRED');
   assert.match(done.evidence_errors.join('\n'), /repo-relative/);
 
-  const loop = makeLoopFixture('lazytrae-loop-absolute-evidence-');
   assert.equal(runCli(['loop', 'create-goals', '--brief', outside, '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: loop }).status, 1);
   assert.equal(runCli(['loop', 'create-goals', '--brief', '.lazytrae/evidence/brief.md', '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: loop }).status, 0);
   assert.equal(runCli(['loop', 'complete-goals'], { cwd: loop }).status, 0);

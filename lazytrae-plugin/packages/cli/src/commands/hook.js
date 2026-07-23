@@ -1,8 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { TextDecoder } = require('node:util');
+const {
+  formatAdaptiveDirective,
+  malformedAdaptiveDirective,
+  processAdaptivePrompt,
+} = require('../lib/adaptive-runtime');
 const { localCommand } = require('../lib/local-command');
 const { assertSafeRepoWritePath } = require('../lib/path-boundary');
+
+const MAX_HOOK_INPUT_BYTES = 1024 * 1024;
+const CONTEXT_MARKERS = /context compacted|context_length_exceeded|skill descriptions were shortened|context_too_large|codex ran out of room|your input exceeds the context window|long threads and multiple compactions/i;
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -15,7 +24,55 @@ function detectRepoRoot() {
 
 const VALID_EVENTS = ['session-start', 'user-prompt-submit', 'pre-tool-use', 'post-tool-use', 'stop', 'recover-context'];
 
-function run(args) {
+async function readBoundedStdin() {
+  const chunks = [];
+  let totalBytes = 0;
+  for await (const chunk of process.stdin) {
+    const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    if (totalBytes > MAX_HOOK_INPUT_BYTES - bytes.length) {
+      return { ok: false, data: '', reason: 'too-large' };
+    }
+    chunks.push(bytes);
+    totalBytes += bytes.length;
+  }
+  try {
+    const data = new TextDecoder('utf-8', { fatal: true })
+      .decode(Buffer.concat(chunks, totalBytes));
+    return { ok: true, data, reason: null };
+  } catch (_) {
+    return { ok: false, data: '', reason: 'invalid-utf8' };
+  }
+}
+
+function parsePrompt(stdinData, args) {
+  if (stdinData.trim()) {
+    try {
+      const event = JSON.parse(stdinData);
+      const prompt = event && typeof event === 'object' && !Array.isArray(event)
+        ? event.prompt ?? event.user_prompt
+        : null;
+      return typeof prompt === 'string' && prompt.trim()
+        ? { ok: true, prompt }
+        : { ok: false, prompt: null };
+    } catch (_) {
+      return { ok: false, prompt: null };
+    }
+  }
+  const prompt = args.slice(1).join(' ');
+  return prompt.trim() ? { ok: true, prompt } : { ok: false, prompt: null };
+}
+
+function markContextRecovery(repoRoot) {
+  const recoveryPath = path.join(repoRoot, '.trae', 'hooks', 'context-recovery.sh');
+  if (!fs.existsSync(recoveryPath)) return;
+  const result = spawnSync('bash', [recoveryPath, 'mark', 'context-pressure marker in UserPromptSubmit'], {
+    cwd: repoRoot,
+    encoding: 'utf-8',
+  });
+  if (result.stderr && result.stderr.trim()) process.stderr.write(result.stderr);
+}
+
+async function run(args) {
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae hook <event-name>
 
@@ -51,7 +108,7 @@ Examples:
   }
 
   const repoRoot = detectRepoRoot();
-  if (['post-tool-use', 'recover-context', 'user-prompt-submit'].includes(eventName)) {
+  if (['post-tool-use', 'recover-context'].includes(eventName)) {
     try {
       assertSafeRepoWritePath(repoRoot, path.join(repoRoot, '.lazytrae', 'state', 'sessions.json'));
     } catch (error) {
@@ -79,7 +136,42 @@ Examples:
   // Read stdin (Trae passes hook event JSON on stdin)
   let stdinData = '';
   if (!process.stdin.isTTY) {
-    stdinData = fs.readFileSync(0, 'utf-8');
+    let input;
+    try {
+      input = await readBoundedStdin();
+    } catch (_) {
+      if (eventName === 'user-prompt-submit') {
+        process.stdout.write(formatAdaptiveDirective(malformedAdaptiveDirective()));
+      }
+      process.stderr.write('[LazyTrae hook warning] Hook input could not be read safely.\n');
+      return;
+    }
+    if (!input.ok) {
+      if (eventName === 'user-prompt-submit') {
+        process.stdout.write(formatAdaptiveDirective(malformedAdaptiveDirective()));
+      }
+      const warning = input.reason === 'invalid-utf8'
+        ? 'Hook input is not valid UTF-8.'
+        : 'Hook input exceeds the safe size limit.';
+      process.stderr.write(`[LazyTrae hook warning] ${warning}\n`);
+      return;
+    }
+    stdinData = input.data;
+  }
+
+  if (eventName === 'user-prompt-submit') {
+    const parsed = parsePrompt(stdinData, args);
+    const adaptive = parsed.ok
+      ? processAdaptivePrompt({ repoRoot, prompt: parsed.prompt })
+      : { directive: malformedAdaptiveDirective(), warning: null };
+    process.stdout.write(formatAdaptiveDirective(adaptive.directive));
+    if (adaptive.warning) process.stderr.write(`[LazyTrae hook warning] ${adaptive.warning}\n`);
+    if (parsed.ok
+      && CONTEXT_MARKERS.test(parsed.prompt)
+      && process.env.LAZYTRAE_ADAPTIVE_ONLY !== '1') {
+      markContextRecovery(repoRoot);
+    }
+    return;
   }
 
   try {
@@ -89,6 +181,13 @@ Examples:
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: 30000,
       encoding: 'utf-8',
+      env: eventName === 'user-prompt-submit'
+        ? {
+          ...process.env,
+          LAZYTRAE_ADAPTIVE_EMITTED: '1',
+          LAZYTRAE_ADAPTIVE_SUPPRESS_LEGACY: '1',
+        }
+        : process.env,
     });
 
     const stdout = result.stdout || '';
@@ -121,4 +220,4 @@ Examples:
   }
 }
 
-module.exports = { run };
+module.exports = { MAX_HOOK_INPUT_BYTES, run };

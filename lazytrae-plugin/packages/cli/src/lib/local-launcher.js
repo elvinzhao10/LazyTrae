@@ -134,6 +134,13 @@ function materializeGuidance(content, repoRoot) {
   return content.replaceAll('__LAZYTRAE_LOCAL_COMMAND__', localCommand(repoRoot));
 }
 
+function materializeHook(content) {
+  return content.replaceAll(
+    '__LAZYTRAE_RELEASE_LAUNCHER__',
+    shellQuote(localLauncherPath()),
+  );
+}
+
 module.exports = {
   CORE_DESCRIPTION,
   MCP_JSON_BEGIN,
@@ -151,5 +158,6 @@ module.exports = {
   managedCoreServer,
   managedLocalServer,
   materializeGuidance,
+  materializeHook,
   shellQuote,
 };

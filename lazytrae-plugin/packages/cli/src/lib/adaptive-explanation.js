@@ -1,88 +1,83 @@
 'use strict';
 
-// Adaptive explanation formatter (v1.0.3 Section 13 Transparency).
-//
-// Surfaces the selected/not-selected reasoning persisted in the adaptive
-// snapshot through existing status output. Pure function — no side effects,
-// no I/O. The caller is responsible for loading loopState and writing the
-// result. Reads v1.0.2 state (no `adaptive` block) as null so the existing
-// status surface stays backward-compatible.
-
-const { readAdaptiveSnapshot } = require('./adaptive-snapshot');
+const { readAdaptiveSnapshot, validateAdaptiveSnapshot } = require('./adaptive-snapshot');
 
 const MAX_ESCALATIONS = 2;
+const ALL_STAGES = ['understand', 'plan', 'implement', 'debug', 'verify', 'review', 'continue'];
+const ALL_RESPONSIBILITIES = [
+  'exploration', 'planning', 'implementation', 'debugging', 'verification',
+  'quality-review', 'security-review', 'release-review', 'continuity',
+];
+const ALL_CAPABILITIES = [
+  'text-search', 'structural-search', 'semantic-navigation', 'architecture-context',
+  'documentation', 'execution', 'task-state', 'outcome-verification',
+];
+
+function difference(universe, selected) {
+  return universe.filter((item) => !selected.includes(item)).sort();
+}
+
+function adaptiveExplanationFields(loopState) {
+  const snapshot = readAdaptiveSnapshot(loopState);
+  if (!validateAdaptiveSnapshot(snapshot)) return null;
+  return {
+    mode: snapshot.mode,
+    stages: [...snapshot.stages],
+    responsibilities: [...snapshot.responsibilities],
+    capabilityClasses: [...snapshot.capabilityClasses],
+    notSelected: {
+      stages: difference(ALL_STAGES, snapshot.stages),
+      responsibilities: difference(ALL_RESPONSIBILITIES, snapshot.responsibilities),
+      capabilityClasses: difference(ALL_CAPABILITIES, snapshot.capabilityClasses),
+    },
+    approval: JSON.parse(JSON.stringify(snapshot.approval)),
+    evidenceImpact: {
+      substitutions: JSON.parse(JSON.stringify(snapshot.capabilitySubstitutions)),
+      verificationLevel: snapshot.verificationLevel,
+    },
+    escalation: { count: snapshot.escalationCount, maximum: MAX_ESCALATIONS },
+    hostExecution: 'not-observed',
+    reasons: [...snapshot.reasons],
+  };
+}
 
 function formatList(items) {
-  if (!Array.isArray(items) || items.length === 0) return 'none';
-  return items.join(', ');
-}
-
-function collectNotSelected(snapshot) {
-  const ns = snapshot.not_selected;
-  if (!ns || typeof ns !== 'object') return [];
-  const stages = Array.isArray(ns.stages) ? ns.stages : [];
-  const caps = Array.isArray(ns.capabilities) ? ns.capabilities : [];
-  return [...stages, ...caps];
-}
-
-// Returns "cap=value" strings for every last_resolution entry whose value
-// matches the Section 9 unavailable:fallback-… substitution marker.
-function collectSubstitutions(lastResolution) {
-  if (!lastResolution || typeof lastResolution !== 'object') return [];
-  const out = [];
-  for (const [cap, value] of Object.entries(lastResolution)) {
-    if (typeof value === 'string' && /^unavailable:fallback-/i.test(value)) {
-      out.push(`${cap}=${value}`);
-    }
-  }
-  return out;
+  return items.length ? items.join(', ') : 'none';
 }
 
 function formatAdaptiveExplanation(loopState) {
-  const snapshot = readAdaptiveSnapshot(loopState);
-  if (!snapshot || typeof snapshot !== 'object') return null;
-
-  const mode = typeof snapshot.mode === 'string' ? snapshot.mode : 'unknown';
-  const stages = Array.isArray(snapshot.stages) ? snapshot.stages : [];
-  const responsibilities = Array.isArray(snapshot.responsibilities)
-    ? snapshot.responsibilities
-    : [];
-  const capabilities = Array.isArray(snapshot.capabilities)
-    ? snapshot.capabilities
-    : [];
-  const notSelected = collectNotSelected(snapshot);
-  const approvalRequired = snapshot.approval_required === true ? 'yes' : 'no';
-  const escalationCount = Number.isFinite(snapshot.escalation_count)
-    ? snapshot.escalation_count
-    : 0;
-  const singleWriter = typeof snapshot.single_writer === 'string'
-    ? snapshot.single_writer
-    : 'unknown';
-  const reasons = Array.isArray(snapshot.reasons) ? snapshot.reasons : [];
-  const substitutions = collectSubstitutions(snapshot.last_resolution);
-
-  const lines = [];
-  lines.push('Adaptive decision:');
-  lines.push(`Mode: ${mode}`);
-  lines.push(`Stages: ${formatList(stages)}`);
-  lines.push(`Responsibilities: ${formatList(responsibilities)}`);
-  lines.push(`Capabilities: ${formatList(capabilities)}`);
-  lines.push(`Not selected: ${formatList(notSelected)}`);
-  lines.push(`Approval required: ${approvalRequired}`);
-  lines.push(`Escalations: ${escalationCount}/${MAX_ESCALATIONS}`);
-  lines.push(`Single writer: ${singleWriter}`);
-  if (substitutions.length > 0) {
-    lines.push(`Substituted: ${substitutions.join(', ')}`);
-  }
-  if (reasons.length > 0) {
-    lines.push('Reasons:');
-    for (const r of reasons) lines.push(`- ${r}`);
-  }
-
+  const fields = adaptiveExplanationFields(loopState);
+  if (!fields) return null;
+  const notSelected = [
+    ...fields.notSelected.stages,
+    ...fields.notSelected.responsibilities,
+    ...fields.notSelected.capabilityClasses,
+  ];
+  const approval = fields.approval.status === 'not-required'
+    ? 'not-required'
+    : `${fields.approval.status}: ${formatList(fields.approval.requiredClasses)}`;
+  const evidenceImpact = fields.evidenceImpact.substitutions.length
+    ? `substituted capability classes; ${fields.evidenceImpact.verificationLevel} verification`
+    : `${fields.evidenceImpact.verificationLevel} verification; no substitutions`;
+  const lines = [
+    'Adaptive decision:',
+    `Mode: ${fields.mode}`,
+    `Stages: ${formatList(fields.stages)}`,
+    `Responsibilities: ${formatList(fields.responsibilities)}`,
+    `Capability classes: ${formatList(fields.capabilityClasses)}`,
+    `Not selected: ${formatList(notSelected)}`,
+    `Approval: ${approval}`,
+    `Evidence impact: ${evidenceImpact}`,
+    `Escalations: ${fields.escalation.count}/${fields.escalation.maximum}`,
+    `Host execution: ${fields.hostExecution}`,
+    'Reasons:',
+    ...fields.reasons.map((reason) => `- ${reason}`),
+  ];
   return lines.join('\n');
 }
 
 module.exports = {
   MAX_ESCALATIONS,
+  adaptiveExplanationFields,
   formatAdaptiveExplanation,
 };
