@@ -15,11 +15,21 @@ const CASES = [
   ['Configure the MCP settings.', 'host-mcp-settings-mutation'],
   ['Rotate the CI deploy token before the release.', 'credentials-auth-or-paid-service'],
   ['Push the repository changes to origin main.', 'remote-data-egress'],
+  ['Push changes to feature/release-1.0.3.', 'remote-data-egress'],
+  ['Push the branch release/v1 to GitHub.', 'remote-data-egress'],
+  ['Delete the deploy token.', 'credentials-auth-or-paid-service'],
+  ['Update the CI secret.', 'credentials-auth-or-paid-service'],
 ];
 
 function directiveLines(output) {
   return output.split('\n').filter((line) => line.startsWith('{"lazytraeAdaptive"'));
 }
+
+test('discussion of credentials without a concrete action does not require approval', () => {
+  const decision = classifyAdaptiveDecision('Document the secret rotation policy.');
+  assert.deepEqual(decision.approval_classes, []);
+  assert.equal(decision.approval_required, false);
+});
 
 for (const [prompt, expectedClass] of CASES) {
   test(`${expectedClass} classifies concrete action: ${prompt}`, () => {
