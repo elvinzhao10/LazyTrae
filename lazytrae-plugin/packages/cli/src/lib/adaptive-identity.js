@@ -28,16 +28,23 @@ function boundedStrings(value) {
 function approvalClasses(text, context) {
   const classes = boundedStrings(context.approvalRequiredClasses || context.approval_classes);
   const rules = [
-    ['install-or-download', /\b(install|download)\b/i, /\b(do not|don't|without)\s+(install|download)/i],
-    ['remote-data-egress', /\b(upload|send|egress)\b.*\b(repo|repository|source|data)\b|\bremote data\b|\b(?:git\s+)?push\b.*\b(?:to|branch|origin|remote|github|main|master|production)\b/i, /\bdo not\s+(upload|send|push)/i],
-    ['browser-or-desktop-control', /\b(use|run)\s+playwright\b|\b(control|click|open|automate)\b.*\b(browser|desktop)\b/i, /\b(do not|don't|never|without)\s+(use|run|control|click|open|automate)/i],
-    ['credentials-auth-or-paid-service', /\b(use|enter|change|rotate|renew|revoke|delete|update|set)\b.*\b(credentials?|password|paid service|api key|access token|deploy token|secret)\b|\blog in\b/i, /\bdo not\s+(use|enter|change|rotate|renew|revoke|delete|update|set|log in)/i],
-    ['host-mcp-settings-mutation', /\b(add|change|edit|configure)\b.*\b((mcp|host)\s+settings?|mcp\s+connector|connector\b.*\bhost\s+settings?)\b/i, /\b(do not|don't|never|without)\s+(add|change|edit|configure)/i],
-    ['persistent-capability', /\b(persist|enable permanently)\b.*\b(provider|capability|tooling)\b/i, /\bdo not\s+(persist|enable)/i],
-    ['account-marketplace-or-publish-mutation', /\b(publish|marketplace|account mutation)\b/i, /\b(do not|don't|without)\s+(publish|mutate)/i],
+    ['install-or-download', /\b(install|download)\b/i],
+    ['remote-data-egress', /\b(upload|send|egress)\b.*\b(repo|repository|source|data)\b|\bremote data\b|\b(?:git\s+)?push\b.*\b(?:to|branch|origin|remote|github|main|master|production)\b/i],
+    ['browser-or-desktop-control', /\b(use|run)\s+playwright\b|\b(control|click|open|automate)\b.*\b(browser|desktop)\b/i],
+    ['credentials-auth-or-paid-service', /\b(use|enter|change|rotate|renew|revoke|delete|update|set)\b.*\b(credentials?|password|paid service|api key|access token|deploy token|secret)\b|\blog in\b/i],
+    ['host-mcp-settings-mutation', /\b(add|change|edit|configure)\b.*\b((mcp|host)\s+settings?|mcp\s+connector|connector\b.*\bhost\s+settings?)\b/i],
+    ['persistent-capability', /\b(persist|enable permanently)\b.*\b(provider|capability|tooling)\b/i],
+    ['account-marketplace-or-publish-mutation', /\b(publish|marketplace|account mutation)\b/i],
   ];
-  for (const [name, positive, negative] of rules) {
-    if (positive.test(text) && !negative.test(text)) classes.push(name);
+  for (const [name, positive] of rules) {
+    const matches = text.matchAll(new RegExp(positive.source, `${positive.flags}g`));
+    for (const match of matches) {
+      const prefix = text.slice(Math.max(0, match.index - 64), match.index);
+      if (!/\b(do not|don't|never|without)\s+(?:\w+\s+){0,4}$/i.test(prefix)) {
+        classes.push(name);
+        break;
+      }
+    }
   }
   return [...new Set(classes)].sort();
 }
