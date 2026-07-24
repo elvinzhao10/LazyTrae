@@ -31,6 +31,16 @@ test('discussion of credentials without a concrete action does not require appro
   assert.equal(decision.approval_required, false);
 });
 
+test('approval negation is local to the requested action', () => {
+  for (const [prompt, expected] of [
+    ['Never push changes to origin main.', []],
+    ['Do not push changes to origin main.', []],
+    ['Push changes to origin main. Do not send logs.', ['remote-data-egress']],
+  ]) {
+    assert.deepEqual(classifyAdaptiveDecision(prompt).approval_classes, expected);
+  }
+});
+
 for (const [prompt, expectedClass] of CASES) {
   test(`${expectedClass} classifies concrete action: ${prompt}`, () => {
     // Given/When
