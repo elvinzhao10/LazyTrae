@@ -52,6 +52,12 @@ test('credential discussions and arbitrary Git push targets preserve the approva
   assert.deepEqual(classifyAdaptiveDecision('Git push upstream feature/foo.').approval_classes, ['remote-data-egress']);
   assert.deepEqual(classifyAdaptiveDecision('Push feature/foo.').approval_classes, ['remote-data-egress']);
   assert.deepEqual(classifyAdaptiveDecision('Please explain how to push a repository to origin main.').approval_classes, []);
+  assert.deepEqual(classifyAdaptiveDecision('Review the changes and push the branch to GitHub.').approval_classes, ['remote-data-egress']);
+  assert.deepEqual(classifyAdaptiveDecision('Discuss the rollout and rotate the deploy token.').approval_classes, ['credentials-auth-or-paid-service']);
+  assert.deepEqual(classifyAdaptiveDecision('Please review the plan and rotate the deploy token.').approval_classes, ['credentials-auth-or-paid-service']);
+  assert.deepEqual(classifyAdaptiveDecision('Discuss how to push feature/foo and then push release/bar.').approval_classes, ['remote-data-egress']);
+  assert.deepEqual(classifyAdaptiveDecision('Push origin main.').approval_classes, ['remote-data-egress']);
+  assert.deepEqual(classifyAdaptiveDecision('Push main.').approval_classes, ['remote-data-egress']);
   assert.deepEqual(classifyAdaptiveDecision('Push a button to production.').approval_classes, []);
   assert.deepEqual(classifyAdaptiveDecision('Push a notification to production.').approval_classes, []);
 });
