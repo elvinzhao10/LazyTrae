@@ -25,13 +25,21 @@ function boundedStrings(value) {
     : [];
 }
 
+function isNegatedApprovalAction(prefix) {
+  return /\b(do not|don't|never|without)\s+(?:git\s+)?$/i.test(prefix);
+}
+
+function isDiscussion(prefix) {
+  return /\b(discuss|document|describe|explain|mention|reference|review)\b[^.?!;\n]*$/i.test(prefix);
+}
+
 function approvalClasses(text, context) {
   const classes = boundedStrings(context.approvalRequiredClasses || context.approval_classes);
   const rules = [
     ['install-or-download', /\b(install|download)\b/i],
-    ['remote-data-egress', /\b(upload|send|egress)\b.*\b(repo|repository|source|data)\b|\bremote data\b|\b(?:git\s+)?push\b.*\b(?:to|branch|origin|remote|github|main|master|production)\b/i],
+    ['remote-data-egress', /\b(upload|send|egress)\b[^.?!;\n]*\b(repo|repository|source|data)\b|\bremote data\b|\bgit\s+push\b|\bpush\b(?:\s+(?:the\s+)?(?:changes?|branch|repository|repo|code|source|release)\b|\s+[\w.-]+\/[\w./-]+)/i],
     ['browser-or-desktop-control', /\b(use|run)\s+playwright\b|\b(control|click|open|automate)\b.*\b(browser|desktop)\b/i],
-    ['credentials-auth-or-paid-service', /\b(use|enter|change|rotate|renew|revoke|delete|update|set)\b.*\b(credentials?|password|paid service|api key|access token|deploy token|secret)\b|\blog in\b/i],
+    ['credentials-auth-or-paid-service', /\b(?:use|enter|change|rotate|renew|revoke|delete|update|set)\b(?:(?!\b(?:use|enter|change|rotate|renew|revoke|delete|update|set)\b)[^.?!;\n])*\b(?:credentials?|password|paid service|api key|access token|deploy token|secret)\b|\blog in\b/i],
     ['host-mcp-settings-mutation', /\b(add|change|edit|configure)\b.*\b((mcp|host)\s+settings?|mcp\s+connector|connector\b.*\bhost\s+settings?)\b/i],
     ['persistent-capability', /\b(persist|enable permanently)\b.*\b(provider|capability|tooling)\b/i],
     ['account-marketplace-or-publish-mutation', /\b(publish|marketplace|account mutation)\b/i],
@@ -40,7 +48,8 @@ function approvalClasses(text, context) {
     const matches = text.matchAll(new RegExp(positive.source, `${positive.flags}g`));
     for (const match of matches) {
       const prefix = text.slice(Math.max(0, match.index - 64), match.index);
-      if (!/\b(do not|don't|never|without)\s+(?:\w+\s+){0,4}$/i.test(prefix)) {
+      if (!isNegatedApprovalAction(prefix)
+        && !isDiscussion(prefix)) {
         classes.push(name);
         break;
       }

@@ -36,9 +36,24 @@ test('approval negation is local to the requested action', () => {
     ['Never push changes to origin main.', []],
     ['Do not push changes to origin main.', []],
     ['Push changes to origin main. Do not send logs.', ['remote-data-egress']],
+    ['Do not send logs then push changes upstream.', ['remote-data-egress']],
+    ['Never rotate the token. Update the CI secret.', ['credentials-auth-or-paid-service']],
+    ['Do not update documentation then rotate the deploy token.', ['credentials-auth-or-paid-service']],
+    ['Do not push changes to origin main, but push the release branch to GitHub.', ['remote-data-egress']],
+    ['Never delete the old deploy token; update the CI secret.', ['credentials-auth-or-paid-service']],
   ]) {
     assert.deepEqual(classifyAdaptiveDecision(prompt).approval_classes, expected);
   }
+});
+
+test('credential discussions and arbitrary Git push targets preserve the approval boundary', () => {
+  assert.deepEqual(classifyAdaptiveDecision('Discuss how to rotate credentials.').approval_classes, []);
+  assert.deepEqual(classifyAdaptiveDecision('Explain how to rotate the deploy token.').approval_classes, []);
+  assert.deepEqual(classifyAdaptiveDecision('Git push upstream feature/foo.').approval_classes, ['remote-data-egress']);
+  assert.deepEqual(classifyAdaptiveDecision('Push feature/foo.').approval_classes, ['remote-data-egress']);
+  assert.deepEqual(classifyAdaptiveDecision('Please explain how to push a repository to origin main.').approval_classes, []);
+  assert.deepEqual(classifyAdaptiveDecision('Push a button to production.').approval_classes, []);
+  assert.deepEqual(classifyAdaptiveDecision('Push a notification to production.').approval_classes, []);
 });
 
 for (const [prompt, expectedClass] of CASES) {
