@@ -30,14 +30,14 @@ function isNegatedApprovalAction(prefix) {
 }
 
 function isDiscussion(prefix) {
-  return /\b(discuss|document|describe|explain|mention|reference|review)\b[^.?!;\n]*$/i.test(prefix);
+  return /\b(discuss|document|describe|explain|mention|reference|review)\b[^.?!;\n]*\bhow\s+to\s*$/i.test(prefix);
 }
 
 function approvalClasses(text, context) {
   const classes = boundedStrings(context.approvalRequiredClasses || context.approval_classes);
   const rules = [
     ['install-or-download', /\b(install|download)\b/i],
-    ['remote-data-egress', /\b(upload|send|egress)\b[^.?!;\n]*\b(repo|repository|source|data)\b|\bremote data\b|\bgit\s+push\b|\bpush\b(?:\s+(?:the\s+)?(?:changes?|branch|repository|repo|code|source|release)\b|\s+[\w.-]+\/[\w./-]+)/i],
+    ['remote-data-egress', /\b(upload|send|egress)\b[^.?!;\n]*\b(repo|repository|source|data)\b|\bremote data\b|\bgit\s+push\b|\bpush\b(?:\s+(?:the\s+)?(?:changes?|branch|repository|repo|code|source|release|origin|upstream|remote|main|master)\b|\s+[\w.-]+\/[\w./-]+)/i],
     ['browser-or-desktop-control', /\b(use|run)\s+playwright\b|\b(control|click|open|automate)\b.*\b(browser|desktop)\b/i],
     ['credentials-auth-or-paid-service', /\b(?:use|enter|change|rotate|renew|revoke|delete|update|set)\b(?:(?!\b(?:use|enter|change|rotate|renew|revoke|delete|update|set)\b)[^.?!;\n])*\b(?:credentials?|password|paid service|api key|access token|deploy token|secret)\b|\blog in\b/i],
     ['host-mcp-settings-mutation', /\b(add|change|edit|configure)\b.*\b((mcp|host)\s+settings?|mcp\s+connector|connector\b.*\bhost\s+settings?)\b/i],
