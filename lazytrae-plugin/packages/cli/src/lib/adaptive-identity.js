@@ -29,9 +29,9 @@ function approvalClasses(text, context) {
   const classes = boundedStrings(context.approvalRequiredClasses || context.approval_classes);
   const rules = [
     ['install-or-download', /\b(install|download)\b/i, /\b(do not|don't|without)\s+(install|download)/i],
-    ['remote-data-egress', /\b(upload|send|egress)\b.*\b(repo|repository|source|data)\b|\bremote data\b|\b(?:git\s+)?push\b.*\b(?:origin|remote|main|master|production)\b/i, /\bdo not\s+(upload|send|push)/i],
+    ['remote-data-egress', /\b(upload|send|egress)\b.*\b(repo|repository|source|data)\b|\bremote data\b|\b(?:git\s+)?push\b.*\b(?:to|branch|origin|remote|github|main|master|production)\b/i, /\bdo not\s+(upload|send|push)/i],
     ['browser-or-desktop-control', /\b(use|run)\s+playwright\b|\b(control|click|open|automate)\b.*\b(browser|desktop)\b/i, /\b(do not|don't|never|without)\s+(use|run|control|click|open|automate)/i],
-    ['credentials-auth-or-paid-service', /\b(use|enter|change|rotate|renew|revoke)\b.*\b(credentials?|password|paid service|api key|access token|deploy token|secret)\b/i, /\bdo not\s+(use|enter|change|rotate|renew|revoke)/i],
+    ['credentials-auth-or-paid-service', /\b(use|enter|change|rotate|renew|revoke|delete|update|set)\b.*\b(credentials?|password|paid service|api key|access token|deploy token|secret)\b|\blog in\b/i, /\bdo not\s+(use|enter|change|rotate|renew|revoke|delete|update|set|log in)/i],
     ['host-mcp-settings-mutation', /\b(add|change|edit|configure)\b.*\b((mcp|host)\s+settings?|mcp\s+connector|connector\b.*\bhost\s+settings?)\b/i, /\b(do not|don't|never|without)\s+(add|change|edit|configure)/i],
     ['persistent-capability', /\b(persist|enable permanently)\b.*\b(provider|capability|tooling)\b/i, /\bdo not\s+(persist|enable)/i],
     ['account-marketplace-or-publish-mutation', /\b(publish|marketplace|account mutation)\b/i, /\b(do not|don't|without)\s+(publish|mutate)/i],

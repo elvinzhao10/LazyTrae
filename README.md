@@ -96,11 +96,11 @@ selected workflow mode or review responsibility.
 ### Observed v1.0.3 live behavior
 
 The package-level live trial exercises the installed hook against a real Git
-project. `investigate why` selects `assisted`; broad validation refactors select
-`planned`; and work explicitly spanning the next week selects `long-horizon`.
-Credential/token rotation and a push to a named remote branch are approval
-gated, alongside installation and explicit repository-data egress. These are
-package observations; an unobserved Trae host remains **HOST READINESS:
+project. The current package tests enforce that `investigate why` selects
+`assisted`; broad validation refactors select `planned`; work explicitly
+spanning the next week selects `long-horizon`; and concrete credential changes
+or Git pushes require approval. These current package checks do not replace a
+fresh host observation; an unobserved Trae host remains **HOST READINESS:
 PENDING**.
 
 ### Contract reference
