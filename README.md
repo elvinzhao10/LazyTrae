@@ -93,10 +93,9 @@ all require approval. Quality, release, and security review responsibilities
 run automatically. Approval follows the requested action class, not the
 selected workflow mode or review responsibility.
 
-### Observed v1.0.3 live behavior
+### v1.0.3 policy behavior
 
-The package-level live trial exercises the installed hook against a real Git
-project. The current package tests enforce that `investigate why` selects
+Current package tests enforce that `investigate why` selects
 `assisted`; broad validation refactors select `planned`; work explicitly
 spanning the next week selects `long-horizon`; and concrete credential changes
 or Git pushes require approval. These current package checks do not replace a
