@@ -29,6 +29,18 @@ function assertManagedAstGrepGuidance(content, skillPath) {
   assert.match(content, /lazytrae tooling install --tooling-root \/absolute\/lazytrae-tools/, `${skillPath} must direct ast-grep setup through the managed tooling lifecycle`);
 }
 
+function assertDurableLifecycleGuidance(content, documentationPath) {
+  assert.doesNotMatch(content, /\/private\/tmp/, `${documentationPath} must not publish a temporary installation path`);
+  assert.doesNotMatch(content, /\bv1\.0\.4\b/, `${documentationPath} must keep deferred work described as v1.0.3 gaps`);
+  assert.doesNotMatch(content, /release folder as the source of truth/i, `${documentationPath} must not make a removable source checkout authoritative`);
+  assert.match(content, /Node\.js LTS 20/i, `${documentationPath} must state the Node.js prerequisite`);
+  assert.match(content, /\bGit\b/, `${documentationPath} must state the Git prerequisite`);
+  assert.match(content, /https:\/\/github\.com\/elvinzhao10\/LazyTrae(?:\.git)?/, `${documentationPath} must name the verified official origin`);
+  assert.match(content, /launcher\.js/, `${documentationPath} must use the stable durable launcher`);
+  assert.match(content, /lifecycle (?:onboard|update|status|offboard)/, `${documentationPath} must document lifecycle commands`);
+  assert.match(content, /HOST READINESS:\s*PENDING/i, `${documentationPath} must keep unobserved host readiness pending`);
+}
+
 test('Given installed LazyTrae guidance, when its package boundary is checked, then readiness and offboarding remain explicit', () => {
   const packageReadme = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'README.md'), 'utf8');
   const installedGuide = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'templates', 'AGENTS.md'), 'utf8');
@@ -36,10 +48,31 @@ test('Given installed LazyTrae guidance, when its package boundary is checked, t
   assert.match(packageReadme, /init --host work` invokes the bounded Work skill installation/, 'package README must describe the Work init lifecycle accurately');
   assert.match(packageReadme, /self-contained CLI tarball/i, 'package README must describe the self-contained CLI artifact');
   assert.match(packageReadme, /cold offline/i, 'package README must describe the cold-offline artifact check');
-  assert.match(installedGuide, /pinned release folder as the source of\s+truth/i, 'installed onboarding guidance must keep the permanent local release authoritative');
-  assert.match(installedGuide, /absolute launcher path must remain stable/i, 'installed onboarding guidance must make moved-release failure explicit');
+  assertDurableLifecycleGuidance(installedGuide, 'installed AGENTS.md');
   assert.match(installedGuide, /## `offboard` protocol/, 'installed setup guide must provide safe offboarding');
   assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI README must describe the self-contained CLI artifact');
+});
+
+test('Given public lifecycle documentation, when its installation contract is checked, then it uses the durable launcher and v1.0.3 evidence boundaries', () => {
+  const paths = [
+    'README.md',
+    'AGENTS.md',
+    'docs/03-install-and-host-verification.md',
+    'docs/10-host-capability-matrix.md',
+    'docs/reference/host-routes.md',
+    'docs/v1.0.3-migration-guide.md',
+    'RELEASE_NOTES-v1.0.3.md',
+    'CHANGELOG.md',
+    'lazytrae-plugin/README.md',
+    'lazytrae-plugin/packages/cli/templates/AGENTS.md',
+  ];
+
+  for (const relativePath of paths) {
+    assertDurableLifecycleGuidance(
+      fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8'),
+      relativePath,
+    );
+  }
 });
 
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {

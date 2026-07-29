@@ -19,7 +19,7 @@ function readInitDeepSkills() {
 }
 
 const BARE_INITDEEP_COMMAND = /(?:^|[\s`"'])lazytrae (?:load-check|init|sync|work install)\b/m;
-const PORTABLE_LOCAL_COMMAND = 'node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root>';
+const PORTABLE_LOCAL_COMMAND = 'node "<install-root>/LazyTrae/launcher.js" --root "<project-root>"';
 
 function assertNoUnsafeOnboardingClaims(content, source) {
   assert.doesNotMatch(content, /\/Users\/(?:[^/< >]+)\//, `${source} must not contain a developer-specific absolute path`);
@@ -79,7 +79,10 @@ test('local-first onboarding protocol covers every stage and host readiness boun
     const content = fs.readFileSync(documentPath, 'utf8');
 
     // When: the surface is checked against the local-first onboarding contract.
-    assert.match(content, /permanent[\s\S]{0,240}(?:open|link)[\s\S]{0,240}https:\/\/github\.com\/elvinzhao10\/LazyTrae[\s\S]{0,160}onboard/i, documentPath);
+    assert.match(content, /Node\.js LTS 20/i, documentPath);
+    assert.match(content, /\bGit\b/, documentPath);
+    assert.match(content, /https:\/\/github\.com\/elvinzhao10\/LazyTrae/, documentPath);
+    assert.match(content, /\bonboard\b/i, documentPath);
     assert.match(content, /package[\s\n]+readiness/i, documentPath);
     assert.match(content, /host[\s\n]+readiness/i, documentPath);
     assert.match(content, /approval/i, documentPath);
@@ -99,7 +102,7 @@ test('local-first onboarding protocol covers every stage and host readiness boun
 
   const readme = fs.readFileSync(path.join(REPOSITORY_ROOT, 'README.md'), 'utf8');
   assert.doesNotMatch(readme, /npm install --global/i);
-  assert.match(readme, /absolute launcher/i);
+  assert.match(readme, /stable launcher/i);
 });
 
 test('root and installed AGENTS share one portable local-first protocol', () => {

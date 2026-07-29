@@ -11,14 +11,21 @@ templates, package-local `LICENSE` and `NOTICE`, and its production dependency
 closure; a cold offline install checks that artifact without asserting host
 discovery or an MCP connection.
 
-A developer keeps the release in a permanent folder and invokes its absolute
-launcher from any project. A global shorthand is optional and never required.
+**Node.js LTS 20 or newer** and **Git** are required. Bootstrap `lifecycle
+onboard` only from `https://github.com/elvinzhao10/LazyTrae.git`. After
+promotion, invoke `node "<install-root>/LazyTrae/launcher.js"` from any
+project. The source checkout may be deleted. `lifecycle update`, `lifecycle
+status`, and plan-first `lifecycle offboard` manage
+`LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`.
+A moved same-version ref requires `--confirm-revision <full-sha>`; stale runtime
+recovery is scoped offboard/re-onboard. Package checks leave **HOST READINESS:
+PENDING** without current observation.
 
 ## Commands
 
 ```bash
 # Keep both paths absolute; this array prevents PATH/global command lookup.
-LOCAL_LAZYTRAE=(node "/permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js" --root "/absolute/path/to/project")
+LOCAL_LAZYTRAE=(node "<install-root>/LazyTrae/launcher.js" --root "<project-root>")
 
 # Install, verify, and inspect local readiness.
 "${LOCAL_LAZYTRAE[@]}" init --host ide
@@ -88,14 +95,13 @@ Context7 and `grep_app` are disabled by default. `lazytrae tooling enable contex
 
 ## Onboard
 
-Keep the pinned `v1.0.3` release in a permanent folder, open or link it in the
-selected Trae host, give the agent
+Open or link the durable `v1.0.3` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The setup guide
-asks for Trae IDE, Trae Work, or Trae CLI and uses the absolute release-owned
+asks for Trae IDE, Trae Work, or Trae CLI and uses the stable durable
 launcher, never PATH/global lookup:
 
 ```text
-node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> <command>
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" <command>
 ```
 
 It runs only safe package checks and project-local setup first. **Package

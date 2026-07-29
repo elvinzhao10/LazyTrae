@@ -126,29 +126,79 @@ a package readiness result into a claim about a running Trae host.
 
 ## Install and onboard
 
-Keep the pinned **v1.0.3** release in a permanent folder. Open or link that
-folder in the Trae host you want to use, then give the agent the GitHub
-repository link, `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`.
-Do not use a temporary download directory or depend on a global command.
+Prerequisites are **Node.js LTS 20 or newer** and **Git**. Bootstrap only from
+the verified official origin, `https://github.com/elvinzhao10/LazyTrae.git`
+(the `.git` suffix is optional). A checkout is transport for the first command,
+not the installed runtime and not host evidence.
+
+Run the source checkout's v1.0.3 entrypoint once to create the durable
+installation. Replace the two absolute placeholders; do not use a temporary
+install root:
+
+```bash
+node <verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  lifecycle onboard \
+  --source https://github.com/elvinzhao10/LazyTrae \
+  --install-root <absolute-install-root> \
+  --project <absolute-project-root> \
+  --json
+```
+
+The default `<install-root>` is `~/Library/Application Support/LazySeries` on
+macOS, `${XDG_DATA_HOME:-~/.local/share}/lazyseries` on Linux, and
+`%LOCALAPPDATA%\LazySeries` on Windows. An explicit root must be absolute,
+non-root, durable, and outside a disposable download or cache directory.
+After onboarding, use only the stable launcher:
+
+```bash
+node "<install-root>/LazyTrae/launcher.js" lifecycle status \
+  --install-root "<install-root>" --project "<project-root>" --json
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" \
+  init --host ide
+```
+
+The original checkout may then be deleted. The durable release continues to
+work because `launcher.js` dispatches through `active.json` to a verified,
+commit-addressed bundle under `releases/`.
+
+```text
+<install-root>/
+└── LazyTrae/
+    ├── active.json
+    ├── launcher.js
+    ├── releases/<version>-<12-char-commit>/
+    ├── receipts/<receipt-id>.json
+    ├── rollback/                 # at most one verified prior release
+    ├── staging/                  # empty outside a transaction
+    └── locks/                    # empty outside a transaction
+```
+
+The lifecycle accepts only the official HTTPS GitHub repository, its optional
+`.git` form, or an official `/tree/<ref>` URL. It disables credential helpers
+and redirects, resolves the selected ref to a full 40-character commit SHA,
+checks the v1.0.3 manifests and lifecycle contract digests, runs the staged
+self-test, and only then promotes the release. A moved same-version ref is not
+silently trusted: `lifecycle update` exits with the resolved SHA and must be
+re-run with `--confirm-revision <full-sha>`.
 
 ### Upgrade from v1.0.2
 
-Keep v1.0.3 in a new permanent folder, run `doctor` and `load-check` first,
-then use the release-owned `init`/`sync` path to replace only managed project
-assets. Preserve modified or unknown files. Copying Trae Work Skills and adding
-the generated MCP declaration remain separate approval-gated host mutations;
-a fresh session is required before reporting host readiness.
+Use `lifecycle onboard` to create the v1.0.3 durable root, then run the stable
+launcher with `doctor`, `load-check`, and `init`/`sync`. Only managed project
+assets are replaced; modified or unknown files are preserved. See the
+[v1.0.3 migration guide](docs/v1.0.3-migration-guide.md) for recovery,
+rollback-retention, runtime-refresh, and scoped-offboard rules.
 
 The agent first detects or asks for **Trae IDE**, **Trae Work**, or **Trae CLI**,
-then runs only safe package checks and project-local setup from the release's
-absolute launcher. Package readiness is reported separately from host
+then runs only safe package checks and project-local setup from the durable
+launcher. Package readiness is reported separately from host
 readiness:
 
 ```bash
-node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
-  --root /absolute/path/to/project init --host ide
-node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
-  --root /absolute/path/to/project load-check --host ide
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" \
+  init --host ide
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" \
+  load-check --host ide
 ```
 
 Before copying Trae Work Skills, adding a Settings → MCP connector, or
@@ -162,7 +212,7 @@ Host readiness is complete only after one real Skill/command and every expected
 `lazytrae` core MCP connection are observed. Local checks alone leave host
 readiness **pending**.
 
-The release-owned launcher and generated files are the **documented package
+The durable launcher and generated files are the **documented package
 route**. The supplied macOS IDE/Work results are an **observed prerelease
 route**, not a universal host guarantee. Trae CLI receives paste-ready MCP JSON
 and a manual settings handoff because no public universal MCP registration
@@ -181,10 +231,17 @@ with release notes on the [v1.0.3 release page](https://github.com/elvinzhao10/L
 
 ## Verify and remove
 
-The release-owned launcher with `load-check --host ide` reports **package
-readiness** only. Type `offboard` for the safe-removal protocol; it preserves
-host-managed paths and leaves host MCP registrations for the user to remove
-through the host.
+The stable launcher with `load-check --host ide` reports **package readiness**
+only. `lifecycle status` never upgrades host readiness from files or local
+checks; without a current user-supplied or Computer Use observation, **HOST
+READINESS: PENDING**.
+
+`lifecycle offboard` first prints a non-mutating plan and exits for
+confirmation. Re-run with `--yes` only after reviewing the exact product root.
+It removes only receipt-owned LazyTrae state, refuses modified or unknown
+content, and preserves the project, other LazySeries products, and host
+settings. Remove the host registration separately through the selected host,
+one approved GUI action at a time.
 
 The distributable is a **self-contained CLI tarball**: after installation it
 does not require a source checkout. See
