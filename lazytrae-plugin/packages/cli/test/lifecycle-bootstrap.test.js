@@ -1,11 +1,12 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const childProcess = require('node:child_process');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
+const { spawnSync } = childProcess;
 const test = require('node:test');
 const {
   LifecycleError,
@@ -65,12 +66,20 @@ function fixture() {
 }
 
 function bootstrap(f, overrides = {}) {
-  return bootstrapRelease(f.paths, {
-    allowLocalFixture: true,
-    sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
-    transportRemote: f.remote,
-    ...overrides,
-  });
+  const realSpawnSync = childProcess.spawnSync;
+  childProcess.spawnSync = (command, args, options) => realSpawnSync(
+    command,
+    args.map((arg) => arg === OFFICIAL ? f.remote : arg),
+    options,
+  );
+  try {
+    return bootstrapRelease(f.paths, {
+      sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
+      ...overrides,
+    });
+  } finally {
+    childProcess.spawnSync = realSpawnSync;
+  }
 }
 
 function expectCode(action, code) {
@@ -273,6 +282,27 @@ test('dirty source bytes, local transport bypass, and mismatched confirmations f
   const wrong = 'f'.repeat(40);
   expectCode(() => bootstrap(bypass, { confirmRevision: wrong }), 'REVISION_CONFIRMATION_MISMATCH');
   assert.equal(fs.existsSync(bypass.paths.active), false);
+});
+
+test('exported bootstrap rejects caller-enabled local transport before Git access', () => {
+  // Given: a caller-controlled local remote and a Git executable that would leave an access marker.
+  const f = fixture();
+  const marker = path.join(f.sandbox, 'git-accessed');
+  const gitPath = path.join(f.sandbox, 'hostile-git');
+  fs.writeFileSync(gitPath, `#!${process.execPath}\nrequire('node:fs').writeFileSync(${JSON.stringify(marker)}, 'accessed\\n');\n`, {
+    mode: 0o755,
+  });
+
+  // When: the exported production API is called with the former fixture-bypass pair.
+  expectCode(() => bootstrapRelease(f.paths, {
+    allowLocalFixture: true,
+    gitPath,
+    sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
+    transportRemote: f.remote,
+  }), 'INVALID_ORIGIN');
+
+  // Then: the request is denied before any Git process can run.
+  assert.equal(fs.existsSync(marker), false);
 });
 
 test('a mutable ref changing after resolution is rejected before package verification', () => {
