@@ -119,8 +119,8 @@ function copyRepoDir(repoRoot, src, dest, { overwrite = true } = {}) {
   return { created, updated, skipped };
 }
 
-function writeRepoFile(repoRoot, filePath, content, encoding = 'utf-8') {
-  atomicWriteFile(repoRoot, filePath, content, encoding);
+function writeRepoFile(repoRoot, filePath, content, encoding = 'utf-8', mode) {
+  atomicWriteFile(repoRoot, filePath, content, encoding, mode);
 }
 
 function copyRepoFile(repoRoot, src, dest) {
