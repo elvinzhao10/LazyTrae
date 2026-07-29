@@ -5,6 +5,16 @@ All notable public changes to LazyTrae are documented here. Versions follow
 
 ## [1.0.3] - 2026-07-20
 
+The durable route requires **Node.js LTS 20 or newer** and **Git**. It accepts
+only `https://github.com/elvinzhao10/LazyTrae.git`; `lifecycle onboard`,
+`lifecycle update`, `lifecycle status`, and plan-first `lifecycle offboard`
+manage
+`LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`.
+`node "<install-root>/LazyTrae/launcher.js"` remains stable after source
+deletion. Same-version ref movement requires `--confirm-revision <full-sha>`;
+runtime replacement uses scoped offboard/re-onboard. Package success leaves
+**HOST READINESS: PENDING** until current observation.
+
 ### Added
 
 - Adaptive harness contract (`adaptive-harness-contract.v1.json`) shared
@@ -59,7 +69,7 @@ All notable public changes to LazyTrae are documented here. Versions follow
   options so the orchestrator can supply a content-derived marker; the
   default remains `git:HEAD` for backward compatibility.
 
-### Known Gaps (deferred to v1.0.4)
+### Known v1.0.3 gaps
 
 - Live-host QA: Trae IDE, Trae Work, and Trae CLI live-host verification
   PENDING (no live host available in the release session). Package evidence

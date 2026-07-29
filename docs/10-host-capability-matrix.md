@@ -2,6 +2,17 @@
 
 LazyTrae deliberately aligns policy and package safety across Trae surfaces while keeping host adapters distinct. The same project assets may be present on two surfaces without both hosts exposing the same discovery or registration behavior.
 
+This matrix assumes **Node.js LTS 20 or newer** and **Git** bootstrap
+`lifecycle onboard` only from
+`https://github.com/elvinzhao10/LazyTrae.git`. Later `lifecycle update`,
+`lifecycle status`, and plan-first `lifecycle offboard` run through
+`node "<install-root>/LazyTrae/launcher.js"` against
+`LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`.
+The source checkout may be deleted. Moving a tag requires full-SHA
+confirmation; a stale runtime requires scoped offboard/re-onboard rather than
+receipt edits. These facts never imply a loaded host: **HOST READINESS:
+PENDING** until current observation.
+
 ## What each host needs
 
 | Capability | Trae IDE | Trae Work | Trae CLI | Package assertion |

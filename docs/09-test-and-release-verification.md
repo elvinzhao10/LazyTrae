@@ -60,8 +60,8 @@ they do not prove a live host loaded the package or connected the core MCP.
 | adaptive W4.2 bounded escalation | max-two-escalation bound; blocked-state record with reproduced failure and next decision | Indefinite escalation or growing repair lineage. |
 | adaptive W4.3 capability fallback | preferred provider unavailable → safe fallback in same class; substitution reported; no approval-free remote activation | Hidden provider authority or false equivalent-evidence claims. |
 | adaptive W4.4 responsibility ownership | one owner per stage; no duplicate work in orchestrated mode | Parallel agents duplicating investigation or edits. |
-| adaptive W4.5 continuation (gap) | incompatible-revision forces fresh decision; original snapshot preserved; **compatible-resume is `xfail` — deferred to v1.0.4** | Accepting a stale snapshot as completion evidence; mutating old goals invisibly. |
-| adaptive W4.6 evidence freshness (gap) | revisionMarker present; `validateEvidencePaths` rejects missing paths; **stale detection and re-verification signalling are `xfail` — deferred to v1.0.4** | A snapshot resuming silently after implementation changes. |
+| adaptive W4.5 continuation (gap) | incompatible-revision forces fresh decision; original snapshot preserved; **compatible-resume is a known v1.0.3 `xfail`** | Accepting a stale snapshot as completion evidence; mutating old goals invisibly. |
+| adaptive W4.6 evidence freshness (gap) | revisionMarker present; `validateEvidencePaths` rejects missing paths; **stale detection and re-verification signalling are known v1.0.3 `xfail` cases** | A snapshot resuming silently after implementation changes. |
 
 ### Adaptive evidence boundary
 

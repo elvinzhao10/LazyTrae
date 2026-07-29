@@ -4,6 +4,19 @@
 **Status:** Release-ready commits and artifacts only. Not pushed, tagged, or
 published.
 
+## Durable package lifecycle
+
+v1.0.3 requires **Node.js LTS 20 or newer** and **Git** and verifies the
+official origin `https://github.com/elvinzhao10/LazyTrae.git`. The one-time
+`lifecycle onboard` bootstrap promotes an immutable commit-addressed bundle to
+`LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`.
+The source checkout may be deleted; subsequent `lifecycle update`, `lifecycle
+status`, plan-first `lifecycle offboard`, and project commands use
+`node "<install-root>/LazyTrae/launcher.js"`. Same-version ref movement
+requires `--confirm-revision <full-sha>`. Runtime replacement is recovered by
+scoped offboard/re-onboard, never receipt edits. These are package guarantees;
+without current host observation, **HOST READINESS: PENDING**.
+
 ## What's new
 
 v1.0.3 turns LazyTrae's menu of named workflows into one adaptive experience.
@@ -100,7 +113,7 @@ provides without fabricating parity for unavailable or unverified functions.
   dependencies.** No cross-repository runtime dependencies. No state-store
   replacement or memory migration.
 
-## Known gaps (deferred to v1.0.4)
+## Known v1.0.3 gaps
 
 - **Continuation resume:** the classifier does not yet resume from compatible
   snapshots. Every request produces a fresh decision. Pinned by xfail tests.

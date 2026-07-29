@@ -1,5 +1,18 @@
 # LazyTrae plugin
 
+## Durable v1.0.3 installation
+
+**Node.js LTS 20 or newer** and **Git** are required. Run `lifecycle onboard`
+only from `https://github.com/elvinzhao10/LazyTrae.git`, then use
+`node "<install-root>/LazyTrae/launcher.js"` for `lifecycle update`,
+`lifecycle status`, plan-first `lifecycle offboard`, and project commands.
+The exact durable tree is
+`LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`;
+the bootstrap checkout may be deleted. A moved same-version tag requires
+`--confirm-revision <full-sha>`, and a stale Node runtime requires scoped
+offboard/re-onboard rather than receipt edits. Package readiness never implies
+a live host: **HOST READINESS: PENDING** without current observation.
+
 This is the self-contained distributable package for LazyTrae on Trae IDE,
 Trae Work, and Trae CLI. It includes the project configuration, companion CLI,
 and local MCP server needed for its package lifecycle.
