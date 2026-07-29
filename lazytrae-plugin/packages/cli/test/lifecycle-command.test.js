@@ -36,8 +36,9 @@ function writeRelease(root, selfTest = "process.stdout.write('self-test-ok\\n');
   }
 }
 
-function lifecycleFixture() {
+function lifecycleFixture(t) {
   const sandbox = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'lazytrae lifecycle command '));
+  t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
   const source = path.join(sandbox, 'source checkout');
   const remote = path.join(sandbox, 'official fixture.git');
   const project = path.join(sandbox, 'project with spaces');
@@ -88,9 +89,9 @@ test('lifecycle help documents the durable subcommands and exact flags', () => {
   }
 });
 
-test('status keeps package readiness separate from unobserved host readiness', () => {
+test('status keeps package readiness separate from unobserved host readiness', (t) => {
   // Given: an absent durable root and an existing project.
-  const fixture = lifecycleFixture();
+  const fixture = lifecycleFixture(t);
 
   // When: machine-readable status is requested.
   const result = runLifecycle(fixture, 'status');
@@ -103,9 +104,9 @@ test('status keeps package readiness separate from unobserved host readiness', (
   assert.equal(fs.existsSync(fixture.installRoot), false);
 });
 
-test('onboard is repeatable, survives source deletion, and never writes the project or host', () => {
+test('onboard is repeatable, survives source deletion, and never writes the project or host', (t) => {
   // Given: an official-identity remote, spaced durable/project roots, and a host sentinel.
-  const fixture = lifecycleFixture();
+  const fixture = lifecycleFixture(t);
   const hostSentinel = path.join(fixture.sandbox, 'host-settings.json');
   fs.writeFileSync(hostSentinel, 'caller-owned\n');
 
@@ -134,9 +135,9 @@ test('onboard is repeatable, survives source deletion, and never writes the proj
   assert.equal(firstReport.host_readiness.status, 'pending');
 });
 
-test('update requires exact same-version revision confirmation and is repeatable', () => {
+test('update requires exact same-version revision confirmation and is repeatable', (t) => {
   // Given: an onboarded release and a new commit at the official branch.
-  const fixture = lifecycleFixture();
+  const fixture = lifecycleFixture(t);
   assert.equal(runLifecycle(fixture, 'onboard', ['--source', OFFICIAL]).status, 0);
   fs.appendFileSync(path.join(fixture.source, 'lazytrae-plugin/packages/cli/bin/lazytrae.js'), '// v2\n');
   git(fixture.source, ['add', '.']);
@@ -161,9 +162,9 @@ test('update requires exact same-version revision confirmation and is repeatable
   assert.equal(JSON.parse(repeated.stdout).status, 'unchanged');
 });
 
-test('offboard prints a confirmation plan before exact owned removal', () => {
+test('offboard prints a confirmation plan before exact owned removal', (t) => {
   // Given: an onboarded durable package and a caller-owned project sentinel.
-  const fixture = lifecycleFixture();
+  const fixture = lifecycleFixture(t);
   const projectSentinel = path.join(fixture.project, 'keep.txt');
   fs.writeFileSync(projectSentinel, 'keep\n');
   assert.equal(runLifecycle(fixture, 'onboard', ['--source', OFFICIAL]).status, 0);
@@ -188,9 +189,9 @@ test('offboard prints a confirmation plan before exact owned removal', () => {
   assert.equal(fs.readFileSync(projectSentinel, 'utf8'), 'keep\n');
 });
 
-test('malformed options and misleading self-test success fail closed', () => {
+test('malformed options and misleading self-test success fail closed', (t) => {
   // Given: a clean fixture whose staged self-test prints success but exits nonzero.
-  const fixture = lifecycleFixture();
+  const fixture = lifecycleFixture(t);
   fs.writeFileSync(
     path.join(fixture.source, 'lazytrae-plugin/packages/cli/scripts/lifecycle-self-test.js'),
     "console.log('PASS'); process.exit(7);\n",
@@ -211,9 +212,9 @@ test('malformed options and misleading self-test success fail closed', () => {
   assert.equal(fs.existsSync(path.join(fixture.installRoot, 'LazyTrae', 'active.json')), false);
 });
 
-test('dirty or stale durable state is reported as blocked without cleanup', () => {
+test('dirty or stale durable state is reported as blocked without cleanup', (t) => {
   // Given: an onboarded release with an abandoned stage and modified active bundle.
-  const fixture = lifecycleFixture();
+  const fixture = lifecycleFixture(t);
   const onboarded = runLifecycle(fixture, 'onboard', ['--source', OFFICIAL]);
   const releaseId = JSON.parse(onboarded.stdout).release_id;
   const entry = path.join(fixture.installRoot, 'LazyTrae', 'releases', releaseId, 'lazytrae-plugin/packages/cli/bin/lazytrae.js');

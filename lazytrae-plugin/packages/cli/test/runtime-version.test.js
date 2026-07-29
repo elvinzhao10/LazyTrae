@@ -66,6 +66,11 @@ const REGEX_EXPECTATION_PATHS = [
     current: /1\\\.0\\\.3/,
   },
 ];
+const HISTORICAL_CONTEXT_PATHS = new Set([
+  '../../../../README.md',
+  '../../../../AGENTS.md',
+  '../templates/AGENTS.md',
+]);
 
 function initializeVersion(server) {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-version-mcp-'));
@@ -97,7 +102,9 @@ test(`v${RELEASE_VERSION} package release identities are consistent`, () => {
   for (const relativePath of CURRENT_RELEASE_PATHS) {
     const contents = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
     assert.doesNotMatch(contents, /0\.16\.0-alpha\.1/, `${relativePath} retained the prior release identity`);
-    assert.doesNotMatch(contents, new RegExp(previousReleaseVersion.replaceAll('.', '\\.')), `${relativePath} retained the previous current release`);
+    if (!HISTORICAL_CONTEXT_PATHS.has(relativePath)) {
+      assert.doesNotMatch(contents, new RegExp(previousReleaseVersion.replaceAll('.', '\\.')), `${relativePath} retained the previous current release`);
+    }
     assert.match(contents, new RegExp(RELEASE_VERSION.replaceAll('.', '\\.')), `${relativePath} omitted v${RELEASE_VERSION}`);
   }
 

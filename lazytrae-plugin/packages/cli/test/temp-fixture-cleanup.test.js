@@ -9,12 +9,12 @@ const cleanupPreload = path.join(__dirname, 'temp-fixture-cleanup.js');
 const inventoryRunner = path.join(__dirname, '..', 'tools', 'test-fixture-runner.js');
 const packageManifest = require('../package.json');
 
-function createFixture(environment = {}) {
+function createFixture(environment = {}, prefix = 'lazytrae-fixture-cleanup-') {
   const result = spawnSync(process.execPath, ['--require', cleanupPreload, '-e', [
     "const fs = require('node:fs');",
     "const os = require('node:os');",
     "const path = require('node:path');",
-    "process.stdout.write(fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-fixture-cleanup-')));",
+    `process.stdout.write(fs.mkdtempSync(path.join(os.tmpdir(), ${JSON.stringify(prefix)})));`,
   ].join('')], {
     encoding: 'utf8',
     env: { ...process.env, ...environment },
@@ -34,6 +34,12 @@ test('test fixture runner isolates and inventories only this invocation temporar
 
 test('test fixture preload removes only its owned temporary directory at process exit', () => {
   const fixture = createFixture();
+
+  assert.equal(fs.existsSync(fixture), false);
+});
+
+test('test fixture preload removes spaced lifecycle command roots at process exit', () => {
+  const fixture = createFixture({}, 'lazytrae lifecycle command ');
 
   assert.equal(fs.existsSync(fixture), false);
 });
