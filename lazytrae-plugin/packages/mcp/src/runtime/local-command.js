@@ -1,6 +1,11 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const { safeFile } = require('./lifecycle/files');
+const { validateReceipt } = require('./lifecycle/ownership');
+const { productPaths } = require('./lifecycle/paths');
+const { receiptFor } = require('./lifecycle/receipt');
+const { LAUNCHER } = require('./lifecycle/state');
 
 function releaseLauncherPath() {
   const candidates = [
@@ -39,12 +44,21 @@ function durableContext(releaseLauncher) {
       const active = JSON.parse(fs.readFileSync(activePath, 'utf8'));
       const entry = path.resolve(current, active.entrypoint || '');
       if (active.active_release !== releaseId || entry !== releaseLauncher) return null;
-      const receipts = fs.readdirSync(path.join(productRoot, 'receipts'))
-        .filter(name => name.endsWith(`-${releaseId.slice(-12)}.json`));
-      if (receipts.length !== 1) throw new Error('Durable LazyTrae receipt is unavailable.');
-      const receipt = JSON.parse(fs.readFileSync(path.join(productRoot, 'receipts', receipts[0]), 'utf8'));
+      const paths = productPaths({ installRoot: path.dirname(productRoot), product: 'LazyTrae' });
+      const { receipt } = receiptFor(paths, releaseId);
+      validateReceipt(paths, receipt);
+      const launcher = safeFile(stableLauncher);
+      const launcherRecords = receipt.created_files.filter(item => item.path === receipt.layout.launcher);
+      const launcherSha = crypto.createHash('sha256').update(launcher.bytes).digest('hex');
+      if (launcherRecords.length !== 1 || launcherRecords[0].type !== 'file'
+        || launcherRecords[0].mode !== '0755' || launcherRecords[0].sha256 !== launcherSha
+        || !launcher.bytes.equals(Buffer.from(LAUNCHER))) {
+        throw new Error('Durable LazyTrae launcher or receipt is stale.');
+      }
       const runtime = runtimeFingerprint(process.execPath);
-      if (receipt.commit_sha === undefined || receipt.runtime.path !== runtime.path
+      if (!/^[0-9a-f]{40}$/.test(receipt.commit_sha)
+        || receipt.release.id !== `${receipt.manifest.version}-${receipt.commit_sha.slice(0, 12)}`
+        || receipt.runtime.path !== runtime.path
         || JSON.stringify(receipt.runtime.fingerprint) !== JSON.stringify(runtime.fingerprint)) {
         throw new Error('Durable LazyTrae runtime or receipt is stale.');
       }
