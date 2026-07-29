@@ -209,6 +209,7 @@ module.exports = {
   isExactLegacyCoreServer,
   isManagedLocalServer,
   localCommand,
+  localLauncherContext,
   localLauncherPath,
   managedCoreServer,
   managedLocalServer,

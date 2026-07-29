@@ -87,6 +87,36 @@ test('durable init records the absolute runtime and stable launcher after source
   assert.equal(JSON.parse(started.stdout.trim()).result.serverInfo.version, '1.0.3');
 });
 
+test('durable init rejects tampered provenance before writing project assets', async (t) => {
+  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae durable provenance '));
+  t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
+
+  for (const [name, expectedError, tamper] of [
+    ['receipt commit SHA', /lifecycle receipt/, (fixture) => {
+      const receiptPath = path.join(fixture.paths.receipts, fs.readdirSync(fixture.paths.receipts)[0]);
+      const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+      receipt.commit_sha = 'MISLEADING';
+      fs.writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+    }],
+    ['stable launcher bytes', /Durable LazyTrae/, (fixture) => fs.appendFileSync(fixture.paths.launcher, '// modified\n')],
+  ]) {
+    await t.test(name, () => {
+      // Given: a promoted durable release whose provenance was modified in place.
+      const fixture = durableFixture(sandbox, name, name === 'receipt commit SHA' ? '2' : '3');
+      const project = projectFixture(path.join(sandbox, name));
+      tamper(fixture);
+
+      // When: the durable launcher attempts to initialize the project.
+      const initialized = runStable(fixture, project, ['init', '--host', 'ide']);
+
+      // Then: provenance is rejected before any project asset or declaration is written.
+      assert.notEqual(initialized.status, 0);
+      assert.match(`${initialized.stdout}${initialized.stderr}`, expectedError);
+      assert.deepEqual(fs.readdirSync(project), ['.git']);
+    });
+  }
+});
+
 test('durable sync changes only the exact managed entry and preserves caller bytes and mode', (t) => {
   // Given: two durable roots and a project declaration managed by the first.
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae durable reconcile '));
