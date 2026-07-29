@@ -7,6 +7,7 @@ const path = require('node:path');
 const { LifecycleError } = require('./errors');
 const { inventory, readJson, safeFile, sha256File, verifyInventory } = require('./files');
 const { ORIGINS, ownedRelativePath, validateReceipt } = require('./ownership');
+const { LAUNCHER } = require('./state');
 
 function preparePromotion(paths, options, previousRelease) {
   if (!/^[0-9a-f]{40}$/.test(options.commitSha)
@@ -42,6 +43,12 @@ function buildReceipt(paths, options, previousRelease, stagedInventory, manifest
   const runtime = safeFile(options.runtimePath, 'INVALID_RUNTIME');
   const releaseMode = `0${(fs.lstatSync(options.stagingPath).mode & 0o777).toString(8).padStart(3, '0')}`;
   const createdFiles = [
+    {
+      path: 'launcher.js',
+      type: 'file',
+      mode: '0755',
+      sha256: crypto.createHash('sha256').update(LAUNCHER).digest('hex'),
+    },
     { path: releasePath, type: 'directory', mode: releaseMode, sha256: null },
     ...stagedInventory.map((item) => ({ ...item, path: `${releasePath}/${item.path}` })),
   ];
@@ -57,7 +64,7 @@ function buildReceipt(paths, options, previousRelease, stagedInventory, manifest
       path: manifestPath,
       version: options.version,
       sha256: sha256File(manifestFile),
-      digests: createdFiles.filter((item) => item.type === 'file').map((item) => ({
+      digests: createdFiles.filter((item) => item.type === 'file' && item.path.startsWith(`${releasePath}/`)).map((item) => ({
         path: item.path,
         sha256: item.sha256,
       })),

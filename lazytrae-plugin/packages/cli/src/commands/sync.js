@@ -3,7 +3,7 @@ const path = require('path');
 const {
   chmodRepoFile, copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
 } = require('../lib/templates');
-const { materializeGuidance, materializeHook } = require('../lib/local-launcher');
+const { localLauncherContext, materializeGuidance, materializeHook } = require('../lib/local-launcher');
 const { updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
@@ -30,6 +30,7 @@ Options:
   }
 
   const repoRoot = detectRepoRoot();
+  localLauncherContext();
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
   const summary = { updated: [], skipped: [], warnings: [] };

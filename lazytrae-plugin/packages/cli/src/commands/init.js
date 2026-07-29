@@ -4,7 +4,7 @@ const {
   chmodRepoFile, copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
 } = require('../lib/templates');
 const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
-const { materializeGuidance, materializeHook } = require('../lib/local-launcher');
+const { localLauncherContext, materializeGuidance, materializeHook } = require('../lib/local-launcher');
 const { updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
@@ -49,6 +49,7 @@ Options:
   const work = host === 'work' ? require('./work') : null;
   const workSkillsDir = work ? work.readSkillsDir(args) : null;
   const repoRoot = detectRepoRoot();
+  localLauncherContext();
   const force = args.includes('--force');
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
