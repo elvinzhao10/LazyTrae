@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { LifecycleError } = require('./errors');
@@ -115,4 +116,41 @@ function receiptFor(paths, id) {
   return { receipt, receiptPath, expected };
 }
 
-module.exports = { preparePromotion, receiptFor };
+function verifyRuntime(receipt) {
+  const runtime = safeFile(receipt.runtime.path, 'STALE_RUNTIME');
+  const fingerprint = {
+    realpath: fs.realpathSync(receipt.runtime.path),
+    version: null,
+    sha256: crypto.createHash('sha256').update(runtime.bytes).digest('hex'),
+  };
+  const version = childProcess.spawnSync(receipt.runtime.path, ['--version'], {
+    encoding: 'utf8',
+    env: process.env,
+    timeout: 10_000,
+  });
+  if (version.error || version.status !== 0) {
+    throw new LifecycleError('STALE_RUNTIME', 'recorded Node runtime is unavailable', version.error);
+  }
+  fingerprint.version = version.stdout.trim();
+  if (JSON.stringify(fingerprint) !== JSON.stringify(receipt.runtime.fingerprint)) {
+    throw new LifecycleError('STALE_RUNTIME', 'recorded Node runtime fingerprint changed');
+  }
+  return fingerprint;
+}
+
+function verifyActiveRuntime(active, receipt) {
+  if (active.runtime_path !== receipt.runtime.path) {
+    throw new LifecycleError('STALE_RUNTIME', 'active runtime differs from the release receipt');
+  }
+  return verifyRuntime(receipt);
+}
+
+function verifiedActiveReceipt(paths, active) {
+  const verified = receiptFor(paths, active.active_release);
+  verifyActiveRuntime(active, verified.receipt);
+  return verified;
+}
+
+module.exports = {
+  preparePromotion, receiptFor, verifiedActiveReceipt, verifyActiveRuntime, verifyRuntime,
+};

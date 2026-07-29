@@ -13,7 +13,7 @@ const {
   readActive,
   recoveryReport,
 } = require('../lib/lifecycle');
-const { receiptFor } = require('../lib/lifecycle/receipt');
+const { verifiedActiveReceipt } = require('../lib/lifecycle/receipt');
 const PRODUCT = 'LazyTrae';
 const SUBCOMMANDS = new Set(['onboard', 'update', 'status', 'offboard']);
 const VALUE_FLAGS = new Set(['--install-root', '--project', '--source', '--confirm-revision']);
@@ -108,9 +108,9 @@ function inspect(parsed, paths) {
     let verified = null;
     if (active) {
       try {
-        verified = receiptFor(paths, active.active_release);
+        verified = verifiedActiveReceipt(paths, active);
       } catch (error) {
-        issues.push({ code: error.code || 'INVALID_BUNDLE', path: paths.releases });
+        issues.push({ code: error.code || 'INVALID_BUNDLE', path: error.code === 'STALE_RUNTIME' ? active.runtime_path : paths.releases });
       }
     }
     try {
