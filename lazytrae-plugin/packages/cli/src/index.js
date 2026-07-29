@@ -25,6 +25,7 @@ const commands = {
   lsp: () => require('./commands/lsp').run,
   codegraph: () => require('./commands/codegraph').run,
   'load-check': () => require('./commands/load-check').run,
+  lifecycle: () => require('./commands/lifecycle').run,
 };
 
 const aliases = {
@@ -67,6 +68,7 @@ Commands:
   lsp         Start the separate managed read-only LSP MCP bridge
   codegraph   Start the separate optional receipt-owned CodeGraph MCP bridge
   load-check  Verify every host component is ready after init
+  lifecycle   Manage the durable verified package bundle
 
 Aliases: i, d, s, rm, v, h, l, r, t
 
