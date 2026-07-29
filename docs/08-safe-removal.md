@@ -39,8 +39,10 @@ approves that host-managed change, then observe that the registration is gone:
 - **Trae IDE:** remove or disable a separately added `lazytrae` server through
   the IDE’s MCP settings.
 - **Trae Work:** remove `lazytrae mcp` through **Settings → MCP**.
-- **Trae CLI:** run `trae-cli mcp remove lazytrae`, then start a new session
-  and confirm the registration is absent.
+- **Trae CLI:** remove the registration through the selected build's
+  documented/manual MCP settings flow, then start a new session and confirm
+  the registration is absent. No public universal Trae CLI MCP removal command
+  is assumed.
 
 If you no longer need the companion command globally, remove it separately
 with `npm uninstall -g lazytrae-ai` only after explicit operator approval; then
