@@ -41,6 +41,11 @@ function assertDurableLifecycleGuidance(content, documentationPath) {
   assert.match(content, /HOST READINESS:\s*PENDING/i, `${documentationPath} must keep unobserved host readiness pending`);
 }
 
+function assertTraeCliRemovalGuidance(content, documentationPath) {
+  assert.doesNotMatch(content, /trae-cli\s+mcp\s+remove\s+lazytrae/i, `${documentationPath} must not advertise a universal Trae CLI MCP removal command`);
+  assert.match(content, /Trae CLI[\s\S]*selected build's\s+documented\/manual MCP settings flow/i, `${documentationPath} must direct Trae CLI removal through the selected build's documented/manual MCP settings flow`);
+}
+
 test('Given installed LazyTrae guidance, when its package boundary is checked, then readiness and offboarding remain explicit', () => {
   const packageReadme = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'README.md'), 'utf8');
   const installedGuide = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'templates', 'AGENTS.md'), 'utf8');
@@ -73,6 +78,11 @@ test('Given public lifecycle documentation, when its installation contract is ch
       relativePath,
     );
   }
+});
+
+test('Given safe-removal guidance, when Trae CLI host removal is documented, then it uses the selected build settings flow', () => {
+  const safeRemovalPath = path.join(repositoryRoot, 'docs', '08-safe-removal.md');
+  assertTraeCliRemovalGuidance(fs.readFileSync(safeRemovalPath, 'utf8'), safeRemovalPath);
 });
 
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {
