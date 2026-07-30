@@ -65,9 +65,12 @@ function contained(root, target) {
 function productPaths({ installRoot, product }) {
   if (!PRODUCTS.has(product)) throw new LifecycleError('INVALID_PRODUCT', `unsupported product: ${product}`);
   const resolvedRoot = resolveInstallRoot({ installRoot });
-  const productRoot = path.join(resolvedRoot, product);
+  return pathsAtRoot(resolvedRoot, product, path.join(resolvedRoot, product));
+}
+
+function pathsAtRoot(installRoot, product, productRoot) {
   return {
-    installRoot: resolvedRoot,
+    installRoot,
     product,
     productRoot,
     releases: path.join(productRoot, 'releases'),
@@ -80,6 +83,13 @@ function productPaths({ installRoot, product }) {
     rollback: path.join(productRoot, 'rollback'),
     rollbackMarker: path.join(productRoot, 'rollback', 'retained.json'),
   };
+}
+
+function removeEmptyScaffold(paths) {
+  for (const directory of [paths.releases, paths.receipts, paths.staging, paths.locks, paths.rollback]) {
+    fs.rmdirSync(directory);
+  }
+  fs.rmdirSync(paths.productRoot);
 }
 
 function prepareProductRoot(options) {
@@ -144,14 +154,26 @@ function prepareBootstrapProductRoot(options) {
       if (prepareExistingProductRoot(paths, existing)) return { ownership: null, paths };
       continue;
     }
+    const privateRoot = fs.mkdtempSync(path.join(
+      paths.installRoot,
+      `.${paths.product}-bootstrap-${process.pid}-`,
+    ));
+    const privatePaths = pathsAtRoot(paths.installRoot, paths.product, privateRoot);
+    const ownership = productRootIdentity(privatePaths);
     try {
-      fs.mkdirSync(paths.productRoot, { mode: 0o700 });
+      if (!ownership || !prepareExistingProductRoot(privatePaths, ownership)) {
+        throw new LifecycleError('UNSAFE_PATH', `unsafe private product root: ${privateRoot}`);
+      }
+      fs.renameSync(privateRoot, paths.productRoot);
     } catch (error) {
-      if (!error || error.code !== 'EEXIST') throw error;
-      continue;
+      try {
+        removeEmptyScaffold(privatePaths);
+      } catch (cleanupError) {
+        if (!cleanupError || cleanupError.code !== 'ENOENT') throw cleanupError;
+      }
+      if (error && ['EEXIST', 'ENOTEMPTY'].includes(error.code)) continue;
+      throw error;
     }
-    const ownership = productRootIdentity(paths);
-    if (!ownership) continue;
     if (prepareExistingProductRoot(paths, ownership)) return { ownership, paths };
   }
 }
@@ -181,6 +203,12 @@ function quarantineEmptyProductRoot(paths, ownership) {
       `.${paths.product}-cleanup-${process.pid}-${crypto.randomUUID()}`,
     );
     fs.renameSync(paths.productRoot, quarantine);
+    const relocated = fs.lstatSync(quarantine);
+    if (!relocated.isDirectory() || relocated.isSymbolicLink()
+      || relocated.dev !== ownership.dev || relocated.ino !== ownership.ino) {
+      fs.renameSync(quarantine, paths.productRoot);
+      return false;
+    }
     return quarantine;
   } catch (error) {
     if (error && (error.code === 'ENOENT' || error.code === 'ENOTEMPTY')) return null;

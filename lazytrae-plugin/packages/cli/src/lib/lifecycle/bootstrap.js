@@ -174,11 +174,13 @@ function bootstrapProduct(paths, operation, options) {
     return result;
   } finally {
     if (!completed) quarantine = quarantineEmptyProductRoot(paths, prepared.ownership);
-    const lockPath = quarantine === null
-      ? paths.lock
-      : path.join(quarantine, 'locks', path.basename(paths.lock));
-    lock.release(lockPath);
-    if (quarantine !== null) removeQuarantinedProductRoot(paths, quarantine);
+    if (quarantine !== false) {
+      const lockPath = quarantine === null
+        ? paths.lock
+        : path.join(quarantine, 'locks', path.basename(paths.lock));
+      lock.release(lockPath);
+      if (quarantine !== null) removeQuarantinedProductRoot(paths, quarantine);
+    }
   }
 }
 
