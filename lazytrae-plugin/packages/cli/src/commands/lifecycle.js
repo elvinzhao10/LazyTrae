@@ -4,33 +4,21 @@ const path = require('node:path');
 const {
   LifecycleError,
   LAUNCHER,
-  acquireLock,
-  bootstrapRelease,
+  bootstrapProduct,
   offboardProduct,
   parseOfficialSource,
-  prepareProductRoot,
   productPaths,
   readActive,
   recoveryReport,
 } = require('../lib/lifecycle');
 const { verifiedActiveReceipt } = require('../lib/lifecycle/receipt');
+const LIFECYCLE_HELP = require('./lifecycle-help');
 const PRODUCT = 'LazyTrae';
 const SUBCOMMANDS = new Set(['onboard', 'update', 'status', 'offboard']);
 const VALUE_FLAGS = new Set(['--install-root', '--project', '--source', '--confirm-revision']);
 const BOOLEAN_FLAGS = new Set(['--json', '--yes']);
 function usage() {
-  console.log(`Usage: lazytrae lifecycle <subcommand> [options]
-Durable package lifecycle, separate from project init/sync/uninstall.
-Subcommands:
-  onboard   Install a verified official release into the durable root
-  update    Verify and promote an official release; retain one rollback
-  status    Report package readiness separately from host readiness
-  offboard  Print a removal plan; --yes removes exact receipt-owned state
-Common: --install-root <absolute-path> --project <absolute-path> --json
-Onboard/update: --source <canonical-official-url>
-Update: --confirm-revision <full-sha>
-Offboard: --yes
-`);
+  console.log(LIFECYCLE_HELP);
 }
 function invalid(message) {
   return new LifecycleError('INVALID_ARGUMENT', message);
@@ -157,22 +145,14 @@ function inspect(parsed, paths) {
 }
 function install(parsed) {
   parseOfficialSource(parsed.sourceUrl, PRODUCT);
-  let paths;
+  const paths = productPaths({ installRoot: parsed.installRoot, product: PRODUCT });
   if (parsed.command === 'update') {
-    paths = productPaths({ installRoot: parsed.installRoot, product: PRODUCT });
     if (!fs.existsSync(paths.active)) throw new LifecycleError('NOT_INSTALLED', 'run lifecycle onboard before update');
   }
-  paths = prepareProductRoot({ installRoot: parsed.installRoot, product: PRODUCT });
-  const lock = acquireLock(paths, parsed.command);
-  let result;
-  try {
-    result = bootstrapRelease(paths, {
-      sourceUrl: parsed.sourceUrl,
-      confirmRevision: parsed.confirmRevision,
-    });
-  } finally {
-    lock.release();
-  }
+  const result = bootstrapProduct(paths, parsed.command, {
+    sourceUrl: parsed.sourceUrl,
+    confirmRevision: parsed.confirmRevision,
+  });
   const report = {
     ...envelope(parsed, paths, result.status),
     release_id: result.release_id,
