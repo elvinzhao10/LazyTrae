@@ -104,6 +104,28 @@ test('status keeps package readiness separate from unobserved host readiness', (
   assert.equal(fs.existsSync(fixture.installRoot), false);
 });
 
+test('fresh onboard prerequisite failure leaves no lifecycle scaffold', (t) => {
+  // Given: fresh spaced project/install roots and a PATH without Git.
+  const sandbox = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'lazytrae prerequisite failure '));
+  t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
+  const project = path.join(sandbox, 'project with spaces');
+  const installRoot = path.join(sandbox, 'install root');
+  const emptyPath = path.join(sandbox, 'empty path');
+  fs.mkdirSync(project);
+  fs.mkdirSync(emptyPath);
+
+  // When: the real lifecycle CLI attempts a fresh onboard.
+  const result = runCli([
+    'lifecycle', 'onboard', '--source', OFFICIAL,
+    '--install-root', installRoot, '--project', project, '--json',
+  ], { cwd: project, env: { ...process.env, PATH: emptyPath } });
+
+  // Then: the prerequisite error is reported without creating product state.
+  assert.equal(result.status, 1);
+  assert.equal(JSON.parse(result.stdout).error.code, 'PREREQUISITE_MISSING');
+  assert.equal(fs.existsSync(path.join(installRoot, 'LazyTrae')), false);
+});
+
 test('malformed status arguments retain the common readiness envelope', (t) => {
   // Given: a valid durable root argument and an invalid relative project argument.
   const fixture = lifecycleFixture(t);
