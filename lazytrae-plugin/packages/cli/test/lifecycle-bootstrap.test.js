@@ -87,6 +87,17 @@ function expectCode(action, code) {
   assert.throws(action, (error) => error instanceof LifecycleError && error.code === code);
 }
 
+function exactScaffold(root) {
+  for (const directory of ['releases', 'receipts', 'staging', 'locks', 'rollback']) {
+    fs.mkdirSync(path.join(root, directory), { recursive: true });
+  }
+}
+
+function identity(target) {
+  const stat = fs.lstatSync(target);
+  return { dev: stat.dev, ino: stat.ino, mode: stat.mode, nlink: stat.nlink };
+}
+
 test('parses only canonical official HTTPS source forms for the selected product', () => {
   // Given: the three documented source forms and hostile or ambiguous alternatives.
   const accepted = [
@@ -303,6 +314,84 @@ test('failed fresh bootstrap quarantines its root before a concurrent successful
   assert.equal(concurrentResult.status, 'ready');
   assert.equal(fs.existsSync(f.paths.active), true);
   assert.equal(fs.existsSync(f.paths.launcher), true);
+});
+
+test('failed fresh bootstrap never adopts a caller replacement installed before creator ownership capture', (t) => {
+  // Given: a fresh creator and a caller scaffold prepared for the exact mkdir-to-identity race window.
+  const f = fixture();
+  fs.rmSync(f.paths.productRoot, { recursive: true });
+  const callerRoot = path.join(f.sandbox, 'caller replacement');
+  exactScaffold(callerRoot);
+  const callerIdentity = identity(callerRoot);
+  const realMkdirSync = fs.mkdirSync;
+  const realRenameSync = fs.renameSync;
+  let swapped = false;
+  const installReplacement = () => {
+    if (fs.existsSync(f.paths.productRoot)) {
+      fs.rmSync(f.paths.productRoot, { recursive: true });
+    }
+    realRenameSync(callerRoot, f.paths.productRoot);
+    swapped = true;
+  };
+  t.mock.method(fs, 'mkdirSync', (target, ...args) => {
+    const result = realMkdirSync(target, ...args);
+    if (!swapped && target === f.paths.productRoot) installReplacement();
+    return result;
+  });
+  t.mock.method(fs, 'renameSync', (source, target) => {
+    if (!swapped && target === f.paths.productRoot
+      && path.basename(source).startsWith('.LazyTrae-bootstrap-')) {
+      installReplacement();
+    }
+    return realRenameSync(source, target);
+  });
+
+  // When: the creator captures ownership and then reaches a real prerequisite failure.
+  expectCode(() => bootstrapProduct(f.paths, 'onboard', {
+    gitPath: path.join(f.sandbox, 'missing-git'),
+    sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
+  }), 'PREREQUISITE_MISSING');
+
+  // Then: cleanup preserves the caller root at its installed path with the exact identity.
+  assert.equal(swapped, true, 'test seam did not replace the root before ownership capture');
+  assert.deepEqual(identity(f.paths.productRoot), callerIdentity);
+  assert.deepEqual(
+    fs.readdirSync(f.paths.installRoot).filter((entry) => entry.startsWith('.LazyTrae-')),
+    [],
+  );
+});
+
+test('failed fresh bootstrap restores a caller replacement installed after quarantine identity check', (t) => {
+  // Given: a fresh creator and a caller scaffold prepared for the identity-check-to-rename race window.
+  const f = fixture();
+  fs.rmSync(f.paths.productRoot, { recursive: true });
+  const callerRoot = path.join(f.sandbox, 'caller replacement');
+  exactScaffold(callerRoot);
+  const callerIdentity = identity(callerRoot);
+  const realRenameSync = fs.renameSync;
+  let swapped = false;
+  t.mock.method(fs, 'renameSync', (source, target) => {
+    if (!swapped && source === f.paths.productRoot && path.basename(target).startsWith('.LazyTrae-cleanup-')) {
+      swapped = true;
+      fs.rmSync(source, { recursive: true });
+      realRenameSync(callerRoot, source);
+    }
+    return realRenameSync(source, target);
+  });
+
+  // When: cleanup has approved the creator inode but the caller swaps immediately before quarantine relocation.
+  expectCode(() => bootstrapProduct(f.paths, 'onboard', {
+    gitPath: path.join(f.sandbox, 'missing-git'),
+    sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
+  }), 'PREREQUISITE_MISSING');
+
+  // Then: cleanup restores the caller root to its original path and exact identity.
+  assert.equal(swapped, true, 'test seam did not replace the root after the quarantine identity check');
+  assert.deepEqual(identity(f.paths.productRoot), callerIdentity);
+  assert.deepEqual(
+    fs.readdirSync(f.paths.installRoot).filter((entry) => entry.startsWith('.LazyTrae-')),
+    [],
+  );
 });
 
 test('dirty source bytes, local transport bypass, and mismatched confirmations fail closed', () => {
