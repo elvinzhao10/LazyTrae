@@ -104,6 +104,26 @@ test('status keeps package readiness separate from unobserved host readiness', (
   assert.equal(fs.existsSync(fixture.installRoot), false);
 });
 
+test('malformed status arguments retain the common readiness envelope', (t) => {
+  // Given: a valid durable root argument and an invalid relative project argument.
+  const fixture = lifecycleFixture(t);
+
+  // When: machine-readable lifecycle status parsing fails.
+  const result = runCli([
+    'lifecycle', 'status', '--install-root', fixture.installRoot,
+    '--project', 'relative-project', '--json',
+  ], { cwd: fixture.project, env: fixture.env });
+  const report = JSON.parse(result.stdout);
+
+  // Then: the failure remains machine-readable in the common readiness envelope.
+  assert.equal(result.status, 1);
+  assert.equal(report.error.code, 'INVALID_ARGUMENT');
+  assert.equal(report.package_readiness.status, 'blocked');
+  assert.deepEqual(report.host_readiness, { status: 'pending' });
+  assert.equal(report.install_root, path.resolve(fixture.installRoot));
+  assert.equal(report.project_root, 'relative-project');
+});
+
 test('onboard is repeatable, survives source deletion, and never writes the project or host', (t) => {
   // Given: an official-identity remote, spaced durable/project roots, and a host sentinel.
   const fixture = lifecycleFixture(t);
