@@ -214,6 +214,29 @@ function print(report, json) {
   console.log(`HOST READINESS: ${report.host_readiness.status.toUpperCase()}`);
   if (report.action) console.log(`Action: ${report.action}`);
 }
+function failureEnvelope(args, error) {
+  const installIndex = args.indexOf('--install-root');
+  const projectIndex = args.indexOf('--project');
+  const rawInstallRoot = installIndex >= 0 ? args[installIndex + 1] : undefined;
+  const rawProjectRoot = projectIndex >= 0 ? args[projectIndex + 1] : undefined;
+  const installRoot = rawInstallRoot && path.isAbsolute(rawInstallRoot)
+    && path.parse(path.resolve(rawInstallRoot)).root !== path.resolve(rawInstallRoot)
+    ? path.resolve(rawInstallRoot) : null;
+  return {
+    schema_version: 1,
+    product: PRODUCT,
+    command: args[0] || null,
+    status: 'error',
+    package_readiness: {
+      status: 'blocked',
+      issues: [{ code: error.code || 'LIFECYCLE_FAILED', path: installRoot ? path.join(installRoot, PRODUCT) : null }],
+    },
+    host_readiness: { status: 'pending' },
+    install_root: installRoot,
+    project_root: rawProjectRoot || null,
+    error: { code: error.code || 'LIFECYCLE_FAILED', message: error.message },
+  };
+}
 function run(args) {
   const json = args.includes('--json');
   try {
@@ -235,13 +258,7 @@ function run(args) {
     print(outcome.report, parsed.json);
     return outcome.code;
   } catch (error) {
-    const report = {
-      schema_version: 1,
-      product: PRODUCT,
-      command: args[0] || null,
-      status: 'error',
-      error: { code: error.code || 'LIFECYCLE_FAILED', message: error.message },
-    };
+    const report = failureEnvelope(args, error);
     if (json) console.log(JSON.stringify(report));
     else console.error(`lazytrae lifecycle: ${report.error.code}: ${report.error.message}`);
     return 1;
