@@ -81,9 +81,8 @@ function printRoutingGuidance(agent, category, prompt) {
     3. Select the "${agent}" agent (or run the task in the main session).
     4. Paste: ${prompt}
 
-  To install trae-agent for direct CLI routing:
-    npm install -g trae-agent
-    # or: npx trae-agent
+  Direct CLI routing is unavailable without a host-provided trae-agent executable.
+  Continue with the project-local Trae IDE route above.
 
   Routing guidance is included in this command and .lazytrae/config.json
   `);
