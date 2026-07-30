@@ -81,7 +81,7 @@ test('the permanent release tree excludes the private .omo namespace', () => {
   assert.equal(tracked.error, undefined, tracked.error?.message);
   assert.equal(tracked.status, 0, tracked.stderr || tracked.stdout);
   assert.equal(tracked.stdout.trim(), '', 'private .omo files must not be tracked in a release handoff');
-  const ignored = childProcess.spawnSync('git', ['check-ignore', '--quiet', '.omo'], {
+  const ignored = childProcess.spawnSync('git', ['check-ignore', '--quiet', '.omo/'], {
     cwd: MONOREPO_ROOT,
   });
   assert.equal(ignored.status, 0, 'private local .omo evidence must remain ignored by release packaging');
