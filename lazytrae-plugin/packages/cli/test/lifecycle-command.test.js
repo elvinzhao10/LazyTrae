@@ -226,7 +226,7 @@ fs.openSync = (target, flags, mode) => {
     cwd: project,
     env: {
       ...process.env,
-      BLOCKED_LOCK: path.join(productRoot, 'locks', 'lifecycle.lock'),
+      BLOCKED_LOCK: path.join(installRoot, '.LazyTrae.bootstrap.lock'),
       NODE_OPTIONS: `--require=${JSON.stringify(hook)}`,
       PATH: emptyPath,
       PRODUCT_ROOT: productRoot,
@@ -236,12 +236,22 @@ fs.openSync = (target, flags, mode) => {
 
   // Then: structured failure preserves the exact caller-owned root and directory identities.
   assert.equal(result.status, 1, result.stderr);
-  assert.equal(JSON.parse(result.stdout).error.code, 'WORKSPACE_PRESERVED');
+  const report = JSON.parse(result.stdout);
+  assert.equal(report.error.code, 'WORKSPACE_PRESERVED');
+  assert.deepEqual(report.preservation, {
+    status: 'recovery_required',
+    public_workspace: productRoot,
+    retained_artifacts: [
+      { kind: 'bootstrap_workspace', last_known_path: productRoot },
+      { kind: 'lifecycle_lock', last_known_path: path.join(installRoot, '.LazyTrae.bootstrap.lock') },
+    ],
+  });
   const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
   for (const [entry, identity] of Object.entries(snapshot)) {
     const stat = fs.lstatSync(path.join(productRoot, entry));
     assert.deepEqual({ dev: stat.dev, ino: stat.ino, mode: stat.mode, nlink: stat.nlink }, identity);
   }
+  assert.deepEqual(fs.readdirSync(path.join(productRoot, 'locks')), []);
 });
 
 test('failed onboard preserves a caller-owned scaffold with a forged valid bootstrap marker', (t) => {
@@ -359,7 +369,7 @@ if (process.env.BOOTSTRAP_ROLE === 'contender') {
   const owner = startOnboard({
     environment: {
       ...common,
-      BLOCKED_LOCK: path.join(productRoot, 'locks', 'lifecycle.lock'),
+      BLOCKED_LOCK: path.join(installRoot, '.LazyTrae.bootstrap.lock'),
       BOOTSTRAP_ROLE: 'owner',
       OWNER_CONTENDED: ownerContended,
       OWNER_WAITING: ownerWaiting,
