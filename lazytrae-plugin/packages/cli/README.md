@@ -35,7 +35,7 @@ LOCAL_LAZYTRAE=(node "<install-root>/LazyTrae/launcher.js" --root "<project-root
 "${LOCAL_LAZYTRAE[@]}" verify --must-pass
 
 # Durable lifecycle commands use their own subcommand and arguments.
-node <verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+node "<verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js" \
   lifecycle onboard --source https://github.com/elvinzhao10/LazyTrae \
   --install-root "<install-root>" --project "<project-root>" --json
 node "<install-root>/LazyTrae/launcher.js" lifecycle status \
