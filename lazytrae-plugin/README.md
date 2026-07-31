@@ -49,20 +49,24 @@ projects. Keep it self-contained and run the CLI test suite after changes.
 
 ## Install, verify, and remove
 
-Keep the pinned `v1.0.3` release in a permanent folder, open or link it in the
-selected Trae host, give the agent
-`https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The release-owned
-launcher is the primary command; it does not depend on PATH or a global npm
-install:
+Bootstrap v1.0.3 once from a verified official source checkout, then use the
+durable launcher rather than treating that checkout as the installed runtime:
 
 ```bash
-node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
-  --root /absolute/path/to/project init --host ide
-node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
-  --root /absolute/path/to/project load-check --host ide
-node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
-  --root /absolute/path/to/project doctor
+node <verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  lifecycle onboard --source https://github.com/elvinzhao10/LazyTrae \
+  --install-root <absolute-install-root> --project <absolute-project-root> --json
+node "<install-root>/LazyTrae/launcher.js" lifecycle status \
+  --install-root "<install-root>" --project "<project-root>" --json
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" init --host ide
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" load-check --host ide
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" doctor
 ```
+
+The source checkout is transport only and may be removed after promotion. The
+durable install root must be absolute, non-root, and outside disposable
+downloads or caches; the launcher does not depend on PATH or a global npm
+install.
 
 The onboarding protocol detects or asks for the host, runs safe package checks,
 and reports **package readiness** separately from **host readiness**. Before
@@ -91,24 +95,24 @@ read-only LSP bridge may be selected for a task without changing host or
 project configuration. CodeGraph and remote providers remain explicit optional
 lifecycles; onboarding, doctor, and InitDeep do not enable them.
 
-Remove only receipt-owned package assets:
+Remove only receipt-owned package assets through the durable launcher. Start
+with the non-mutating lifecycle plan, then confirm only the exact product root:
 
 ```bash
-node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
-  --root /absolute/path/to/project uninstall --yes
-node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
-  --root /absolute/path/to/project uninstall --yes --soft
-node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
-  --root /absolute/path/to/project uninstall --yes --purge-state
-node /permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js \
-  --root /absolute/path/to/project work uninstall
+node "<install-root>/LazyTrae/launcher.js" lifecycle offboard \
+  --install-root "<install-root>" --project "<project-root>" --json
+node "<install-root>/LazyTrae/launcher.js" lifecycle offboard \
+  --install-root "<install-root>" --project "<project-root>" --yes --json
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" uninstall --yes
 ```
 
 These commands preserve modified, unknown, caller-owned, linked, and
 host-managed paths. Remove MCP registrations manually: Work through **Settings
 → MCP**, CLI through the selected build's documented MCP settings flow, and IDE
 through its project MCP UI. Never assume a universal CLI command or guess a
-host-managed location.
+host-managed location. If recovery is needed, only an explicitly verified
+lifecycle-owned sibling bootstrap lock or product `staging/`/`locks/` artifact
+may be recovered; the caller workspace is preserved.
 
 ## For package contributors
 
