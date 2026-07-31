@@ -15,11 +15,13 @@ discovery or an MCP connection.
 onboard` only from `https://github.com/elvinzhao10/LazyTrae.git`. After
 promotion, invoke `node "<install-root>/LazyTrae/launcher.js"` from any
 project. The source checkout may be deleted. `lifecycle update`, `lifecycle
-status`, and plan-first `lifecycle offboard` manage
+status`, `recover-bootstrap-lock`, and plan-first `lifecycle offboard` manage
 `LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`.
 A moved same-version ref requires `--confirm-revision <full-sha>`; stale runtime
-recovery is scoped offboard/re-onboard. Package checks leave **HOST READINESS:
-PENDING** without current observation.
+recovery is scoped offboard/re-onboard. `--yes` is accepted only for the
+explicitly confirmed `lifecycle offboard` and `lifecycle recover-bootstrap-lock`
+actions. Package checks leave **HOST READINESS: PENDING** without current
+observation.
 
 ## Commands
 
@@ -45,6 +47,11 @@ node "<install-root>/LazyTrae/launcher.js" lifecycle update \
   --install-root "<install-root>" --project "<project-root>" --json
 node "<install-root>/LazyTrae/launcher.js" lifecycle offboard \
   --install-root "<install-root>" --project "<project-root>" --json
+
+# Recovery is confirmation-gated; pass --yes only after verifying the stale,
+# lifecycle-owned sibling bootstrap lock named by the status report.
+node "<install-root>/LazyTrae/launcher.js" lifecycle recover-bootstrap-lock \
+  --install-root "<install-root>" --project "<project-root>" --yes --json
 
 # Remove only receipt-owned project assets after the lifecycle plan is confirmed.
 "${LOCAL_LAZYTRAE[@]}" uninstall --yes
