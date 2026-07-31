@@ -236,7 +236,7 @@ fs.openSync = (target, flags, mode) => {
 
   // Then: structured failure preserves the exact caller-owned root and directory identities.
   assert.equal(result.status, 1, result.stderr);
-  assert.equal(JSON.parse(result.stdout).error.code, 'PREREQUISITE_MISSING');
+  assert.equal(JSON.parse(result.stdout).error.code, 'WORKSPACE_PRESERVED');
   const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
   for (const [entry, identity] of Object.entries(snapshot)) {
     const stat = fs.lstatSync(path.join(productRoot, entry));
