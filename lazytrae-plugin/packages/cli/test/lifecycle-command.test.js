@@ -129,7 +129,7 @@ test('status keeps package readiness separate from unobserved host readiness', (
   assert.equal(fs.existsSync(fixture.installRoot), false);
 });
 
-test('fresh onboard prerequisite failure leaves no lifecycle scaffold', (t) => {
+test('fresh onboard prerequisite failure leaves a reusable fail-closed scaffold', (t) => {
   // Given: fresh spaced project/install roots and a PATH without Git.
   const sandbox = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'lazytrae prerequisite failure '));
   t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
@@ -145,10 +145,44 @@ test('fresh onboard prerequisite failure leaves no lifecycle scaffold', (t) => {
     '--install-root', installRoot, '--project', project, '--json',
   ], { cwd: project, env: { ...process.env, PATH: emptyPath } });
 
-  // Then: the prerequisite error is reported without creating product state.
+  // Then: the prerequisite error is reported with only the reusable scaffold retained.
   assert.equal(result.status, 1);
   assert.equal(JSON.parse(result.stdout).error.code, 'PREREQUISITE_MISSING');
-  assert.equal(fs.existsSync(path.join(installRoot, 'LazyTrae')), false);
+  const productRoot = path.join(installRoot, 'LazyTrae');
+  assert.deepEqual(fs.readdirSync(productRoot).sort(), ['locks', 'receipts', 'releases', 'rollback', 'staging']);
+  for (const entry of fs.readdirSync(productRoot)) assert.deepEqual(fs.readdirSync(path.join(productRoot, entry)), []);
+});
+
+test('onboard preserves an unverified workspace with a structured refusal', (t) => {
+  // Given: a caller-owned workspace already occupies the lifecycle product path.
+  const sandbox = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'lazytrae preserved workspace '));
+  t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
+  const project = path.join(sandbox, 'project with spaces');
+  const installRoot = path.join(sandbox, 'install root');
+  const productRoot = path.join(installRoot, 'LazyTrae');
+  const sentinel = path.join(productRoot, 'caller-owned.txt');
+  fs.mkdirSync(project, { recursive: true });
+  fs.mkdirSync(productRoot, { recursive: true });
+  fs.writeFileSync(sentinel, 'retain me\n');
+  const before = fs.lstatSync(productRoot);
+
+  // When: the real lifecycle CLI attempts onboard against that path.
+  const result = runCli([
+    'lifecycle', 'onboard', '--source', OFFICIAL,
+    '--install-root', installRoot, '--project', project, '--json',
+  ], { cwd: project });
+  const report = JSON.parse(result.stdout);
+
+  // Then: refusal is machine-readable and the workspace remains byte- and identity-exact.
+  assert.equal(result.status, 1, result.stderr);
+  assert.equal(report.status, 'error');
+  assert.equal(report.error.code, 'WORKSPACE_PRESERVED');
+  assert.equal(report.package_readiness.status, 'blocked');
+  assert.equal(report.host_readiness.status, 'pending');
+  assert.equal(fs.readFileSync(sentinel, 'utf8'), 'retain me\n');
+  const after = fs.lstatSync(productRoot);
+  assert.deepEqual({ dev: after.dev, ino: after.ino }, { dev: before.dev, ino: before.ino });
+  assert.deepEqual(fs.readdirSync(productRoot), ['caller-owned.txt']);
 });
 
 test('failed onboard preserves a caller scaffold swapped into the invocation-created path', (t) => {
@@ -353,13 +387,14 @@ if (process.env.BOOTSTRAP_ROLE === 'contender') {
   fs.writeFileSync(releaseContender, '');
   const results = await Promise.all([owner, contender]);
 
-  // Then: both failures are structured and the creator removes its fresh root.
+  // Then: both failures are structured and leave only a reusable unlocked scaffold.
   for (const result of results) {
     assert.equal(result.status, 1, result.stderr);
     assert.equal(JSON.parse(result.stdout).error.code, 'PREREQUISITE_MISSING');
     assert.doesNotMatch(result.stderr, /ENOENT/);
   }
-  assert.equal(fs.existsSync(productRoot), false, 'lock contention left the fresh LazyTrae scaffold');
+  assert.equal(fs.existsSync(productRoot), true);
+  assert.deepEqual(fs.readdirSync(path.join(productRoot, 'locks')), []);
 });
 
 test('malformed status arguments retain the common readiness envelope', (t) => {

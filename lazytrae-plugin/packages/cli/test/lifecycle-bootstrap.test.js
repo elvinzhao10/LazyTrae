@@ -13,7 +13,10 @@ const {
   bootstrapProduct,
   bootstrapRelease,
   parseOfficialSource,
+  prepareBootstrapProductRoot,
   prepareProductRoot,
+  productPaths,
+  quarantineEmptyProductRoot,
 } = require('../src/lib/lifecycle');
 
 const OFFICIAL = 'https://github.com/elvinzhao10/LazyTrae.git';
@@ -270,50 +273,36 @@ test('manifest, checksum, self-test, prerequisite, and clone failures preserve a
   }
 });
 
-test('failed fresh bootstrap quarantines its root before a concurrent successful bootstrap', () => {
-  // Given: a fresh product root and a concurrent bootstrap triggered at cleanup relocation.
+test('failed fresh bootstrap leaves a reusable scaffold for a later successful bootstrap', () => {
+  // Given: a fresh product root and a prerequisite failure.
   const f = fixture();
   fs.rmSync(f.paths.productRoot, { recursive: true });
   const missingGit = path.join(f.sandbox, 'missing-git');
-  const realRenameSync = fs.renameSync;
   const realSpawnSync = childProcess.spawnSync;
-  let concurrentResult;
   childProcess.spawnSync = (command, args, options) => realSpawnSync(
     command,
     args.map((arg) => arg === OFFICIAL ? f.remote : arg),
     options,
   );
-  fs.renameSync = (source, target) => {
-    const result = realRenameSync(source, target);
-    if (source === f.paths.productRoot && concurrentResult === undefined) {
-      assert.equal(
-        fs.existsSync(path.join(target, 'locks', 'lifecycle.lock')),
-        true,
-        'cleanup relocated the product root after releasing its lifecycle lock',
-      );
-      concurrentResult = bootstrapProduct(f.paths, 'onboard', {
-        sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
-      });
-    }
-    return result;
-  };
-
+  let laterResult;
   try {
-    // When: missing-Git failure cleanup overlaps the second real bootstrap.
+    // When: a missing-Git failure is followed by a real bootstrap.
     expectCode(() => bootstrapProduct(f.paths, 'onboard', {
       gitPath: missingGit,
       sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
     }), 'PREREQUISITE_MISSING');
+    laterResult = bootstrapProduct(f.paths, 'onboard', {
+      sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
+    });
   } finally {
-    fs.renameSync = realRenameSync;
     childProcess.spawnSync = realSpawnSync;
   }
 
-  // Then: the concurrent success occupies a new root and survives cleanup.
-  assert.notEqual(concurrentResult, undefined, 'failed cleanup did not atomically quarantine its product root');
-  assert.equal(concurrentResult.status, 'ready');
+  // Then: fail-closed preservation remains reusable without hidden cleanup roots.
+  assert.equal(laterResult.status, 'ready');
   assert.equal(fs.existsSync(f.paths.active), true);
   assert.equal(fs.existsSync(f.paths.launcher), true);
+  assert.deepEqual(fs.readdirSync(f.paths.installRoot).filter((entry) => entry.startsWith('.LazyTrae-')), []);
 });
 
 test('failed fresh bootstrap never adopts a caller replacement installed before creator ownership capture', (t) => {
@@ -361,7 +350,7 @@ test('failed fresh bootstrap never adopts a caller replacement installed before 
   );
 });
 
-test('failed fresh bootstrap restores a caller replacement installed after quarantine identity check', (t) => {
+test('failed fresh bootstrap never attempts to relocate a caller replacement at cleanup', (t) => {
   // Given: a fresh creator and a caller scaffold prepared for the identity-check-to-rename race window.
   const f = fixture();
   fs.rmSync(f.paths.productRoot, { recursive: true });
@@ -385,13 +374,132 @@ test('failed fresh bootstrap restores a caller replacement installed after quara
     sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
   }), 'PREREQUISITE_MISSING');
 
-  // Then: cleanup restores the caller root to its original path and exact identity.
-  assert.equal(swapped, true, 'test seam did not replace the root after the quarantine identity check');
-  assert.deepEqual(identity(f.paths.productRoot), callerIdentity);
+  // Then: cleanup never invokes the relocation seam and leaves both roots untouched.
+  assert.equal(swapped, false, 'cleanup attempted to relocate the public root');
+  assert.deepEqual(identity(callerRoot), callerIdentity);
+  assert.equal(fs.existsSync(f.paths.productRoot), true);
   assert.deepEqual(
     fs.readdirSync(f.paths.installRoot).filter((entry) => entry.startsWith('.LazyTrae-')),
     [],
   );
+});
+
+test('failed bootstrap preserves a caller replacement installed before creator ownership capture', (t) => {
+  const f = fixture();
+  fs.rmSync(f.paths.productRoot, { recursive: true });
+  const caller = path.join(f.sandbox, 'capture caller');
+  exactScaffold(caller);
+  const callerIdentity = identity(caller);
+  const realMkdtempSync = fs.mkdtempSync;
+  const realMkdirSync = fs.mkdirSync;
+  const realRenameSync = fs.renameSync;
+  let callerTarget;
+  const replace = (target) => {
+    fs.rmSync(target, { recursive: true, force: true });
+    realRenameSync(caller, target);
+    callerTarget = target;
+  };
+  t.mock.method(fs, 'mkdtempSync', (...args) => {
+    const created = realMkdtempSync(...args);
+    if (!callerTarget && path.basename(created).startsWith('.LazyTrae-bootstrap-')) replace(created);
+    return created;
+  });
+  t.mock.method(fs, 'mkdirSync', (target, ...args) => {
+    const result = realMkdirSync(target, ...args);
+    if (!callerTarget && target === f.paths.productRoot) replace(target);
+    return result;
+  });
+
+  expectCode(() => bootstrapProduct(f.paths, 'onboard', {
+    gitPath: path.join(f.sandbox, 'missing-git'),
+    sourceUrl: 'https://github.com/elvinzhao10/LazyTrae/tree/main',
+  }), 'PREREQUISITE_MISSING');
+
+  assert.ok(callerTarget, 'test seam did not install the caller root');
+  assert.deepEqual(identity(callerTarget), callerIdentity);
+});
+
+test('bootstrap refuses an exact-empty caller product root without changing it', (t) => {
+  const sandbox = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'lazytrae empty caller '));
+  t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
+  const installRoot = path.join(sandbox, 'install root');
+  const paths = productPaths({ installRoot, product: 'LazyTrae' });
+  fs.mkdirSync(paths.productRoot, { recursive: true });
+  const before = identity(paths.productRoot);
+
+  expectCode(() => prepareBootstrapProductRoot({ installRoot, product: 'LazyTrae', timeoutMs: 50 }), 'WORKSPACE_PRESERVED');
+
+  assert.deepEqual(identity(paths.productRoot), before);
+  assert.deepEqual(fs.readdirSync(paths.productRoot), []);
+});
+
+test('cleanup never relocates either caller when a second caller occupies the public root', (t) => {
+  const sandbox = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'lazytrae two callers '));
+  t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
+  const paths = productPaths({ installRoot: sandbox, product: 'LazyTrae' });
+  exactScaffold(paths.productRoot);
+  fs.writeFileSync(paths.lock, '{}');
+  const ownership = identity(paths.productRoot);
+  const callerA = path.join(sandbox, 'caller-a');
+  const callerB = path.join(sandbox, 'caller-b');
+  exactScaffold(callerA);
+  exactScaffold(callerB);
+  const callerAIdentity = identity(callerA);
+  const callerBIdentity = identity(callerB);
+  const realRenameSync = fs.renameSync;
+  let injected = false;
+  t.mock.method(fs, 'renameSync', (source, target) => {
+    if (!injected && source === paths.productRoot && path.basename(target).startsWith('.LazyTrae-cleanup-')) {
+      injected = true;
+      fs.rmSync(source, { recursive: true });
+      realRenameSync(callerA, source);
+      realRenameSync(source, target);
+      realRenameSync(callerB, source);
+      return;
+    }
+    return realRenameSync(source, target);
+  });
+
+  assert.equal(quarantineEmptyProductRoot(paths, ownership), null);
+  assert.equal(injected, false, 'cleanup attempted to relocate a public root');
+  assert.deepEqual(identity(callerA), callerAIdentity);
+  assert.deepEqual(identity(callerB), callerBIdentity);
+  assert.deepEqual(identity(paths.productRoot), ownership);
+  assert.deepEqual(fs.readdirSync(sandbox).filter((entry) => entry.startsWith('.LazyTrae-cleanup-')), []);
+});
+
+test('bootstrap preparation collision retry is bounded by its timeout', (t) => {
+  const sandbox = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'lazytrae collision timeout '));
+  t.after(() => fs.rmSync(sandbox, { recursive: true, force: true }));
+  const modulePath = require.resolve('../src/lib/lifecycle');
+  const program = `'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const realMkdirSync = fs.mkdirSync;
+const realRenameSync = fs.renameSync;
+const root = process.argv[1];
+fs.mkdirSync = (target, ...args) => {
+  if (target === path.join(root, 'LazyTrae')) { const error = new Error('collision'); error.code = 'EEXIST'; throw error; }
+  return realMkdirSync(target, ...args);
+};
+fs.renameSync = (source, target) => {
+  if (target === path.join(root, 'LazyTrae')) { const error = new Error('collision'); error.code = 'EEXIST'; throw error; }
+  return realRenameSync(source, target);
+};
+try {
+  require(${JSON.stringify(modulePath)}).prepareBootstrapProductRoot({ installRoot: root, product: 'LazyTrae', timeoutMs: 40 });
+  process.exitCode = 2;
+} catch (error) {
+  process.stdout.write(String(error.code));
+  process.exitCode = error.code === 'LOCKED' ? 0 : 3;
+}`;
+
+  const result = spawnSync(process.execPath, ['-e', program, path.join(sandbox, 'install root')], {
+    encoding: 'utf8',
+    timeout: 500,
+  });
+  assert.equal(result.status, 0, result.error ? result.error.message : result.stderr);
+  assert.equal(result.stdout, 'LOCKED');
 });
 
 test('dirty source bytes, local transport bypass, and mismatched confirmations fail closed', () => {
