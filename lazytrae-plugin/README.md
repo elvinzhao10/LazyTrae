@@ -53,9 +53,9 @@ Bootstrap v1.0.3 once from a verified official source checkout, then use the
 durable launcher rather than treating that checkout as the installed runtime:
 
 ```bash
-node <verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+node "<verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js" \
   lifecycle onboard --source https://github.com/elvinzhao10/LazyTrae \
-  --install-root <absolute-install-root> --project <absolute-project-root> --json
+  --install-root "<absolute-install-root>" --project "<absolute-project-root>" --json
 node "<install-root>/LazyTrae/launcher.js" lifecycle status \
   --install-root "<install-root>" --project "<project-root>" --json
 node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" init --host ide
