@@ -27,15 +27,26 @@ PENDING** without current observation.
 # Keep both paths absolute; this array prevents PATH/global command lookup.
 LOCAL_LAZYTRAE=(node "<install-root>/LazyTrae/launcher.js" --root "<project-root>")
 
-# Install, verify, and inspect local readiness.
+# Project-local package commands.
 "${LOCAL_LAZYTRAE[@]}" init --host ide
-"${LOCAL_LAZYTRAE[@]}" onboard --host ide
 "${LOCAL_LAZYTRAE[@]}" load-check --host ide
 "${LOCAL_LAZYTRAE[@]}" doctor
 "${LOCAL_LAZYTRAE[@]}" sync
 "${LOCAL_LAZYTRAE[@]}" verify --must-pass
 
-# Remove only receipt-owned project assets.
+# Durable lifecycle commands use their own subcommand and arguments.
+node <verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+  lifecycle onboard --source https://github.com/elvinzhao10/LazyTrae \
+  --install-root "<install-root>" --project "<project-root>" --json
+node "<install-root>/LazyTrae/launcher.js" lifecycle status \
+  --install-root "<install-root>" --project "<project-root>" --json
+node "<install-root>/LazyTrae/launcher.js" lifecycle update \
+  --source https://github.com/elvinzhao10/LazyTrae \
+  --install-root "<install-root>" --project "<project-root>" --json
+node "<install-root>/LazyTrae/launcher.js" lifecycle offboard \
+  --install-root "<install-root>" --project "<project-root>" --json
+
+# Remove only receipt-owned project assets after the lifecycle plan is confirmed.
 "${LOCAL_LAZYTRAE[@]}" uninstall --yes
 "${LOCAL_LAZYTRAE[@]}" work status
 "${LOCAL_LAZYTRAE[@]}" work uninstall
@@ -45,6 +56,11 @@ LOCAL_LAZYTRAE=(node "<install-root>/LazyTrae/launcher.js" --root "<project-root
 "${LOCAL_LAZYTRAE[@]}" tooling codegraph-doctor --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
 "${LOCAL_LAZYTRAE[@]}" tooling remote-status
 ```
+
+The bootstrap source is transport only; after promotion, `launcher.js` is the
+durable command. A lifecycle collision preserves the caller workspace. Only an
+explicitly verified lifecycle-owned sibling bootstrap lock or product
+`staging/`/`locks/` artifact may be recovered.
 
 ## Managed LSP bridge
 

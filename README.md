@@ -181,6 +181,11 @@ self-test, and only then promotes the release. A moved same-version ref is not
 silently trusted: `lifecycle update` exits with the resolved SHA and must be
 re-run with `--confirm-revision <full-sha>`.
 
+If lifecycle state collides with an existing path or an interrupted operation,
+the caller workspace is preserved. Recovery is limited to an explicitly
+verified lifecycle-owned sibling bootstrap lock or product `staging/`/`locks/`
+artifact; it never authorizes removal or replacement of caller workspace files.
+
 ### Upgrade from v1.0.2
 
 Use `lifecycle onboard` to create the v1.0.3 durable root, then run the stable
@@ -239,9 +244,11 @@ READINESS: PENDING**.
 `lifecycle offboard` first prints a non-mutating plan and exits for
 confirmation. Re-run with `--yes` only after reviewing the exact product root.
 It removes only receipt-owned LazyTrae state, refuses modified or unknown
-content, and preserves the project, other LazySeries products, and host
-settings. Remove the host registration separately through the selected host,
-one approved GUI action at a time.
+content, and preserves the caller workspace, other LazySeries products, and
+host settings. A recovery command may address only an explicitly verified
+lifecycle-owned sibling bootstrap lock or product `staging/`/`locks/` artifact.
+Remove the host registration separately through the selected host, one approved
+GUI action at a time.
 
 The distributable is a **self-contained CLI tarball**: after installation it
 does not require a source checkout. See
