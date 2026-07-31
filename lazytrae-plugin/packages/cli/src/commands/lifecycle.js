@@ -214,6 +214,7 @@ function failureEnvelope(args, error) {
     host_readiness: { status: 'pending' },
     install_root: installRoot,
     project_root: rawProjectRoot || null,
+    ...(error.preservation ? { preservation: error.preservation } : {}),
     error: { code: error.code || 'LIFECYCLE_FAILED', message: error.message },
   };
 }
