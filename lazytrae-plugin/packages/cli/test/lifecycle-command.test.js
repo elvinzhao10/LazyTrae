@@ -177,6 +177,11 @@ test('onboard preserves an unverified workspace with a structured refusal', (t) 
   assert.equal(result.status, 1, result.stderr);
   assert.equal(report.status, 'error');
   assert.equal(report.error.code, 'WORKSPACE_PRESERVED');
+  assert.deepEqual(report.preservation, {
+    status: 'recovery_required',
+    public_workspace: productRoot,
+    retained_artifacts: [],
+  });
   assert.equal(report.package_readiness.status, 'blocked');
   assert.equal(report.host_readiness.status, 'pending');
   assert.equal(fs.readFileSync(sentinel, 'utf8'), 'retain me\n');
@@ -242,7 +247,6 @@ fs.openSync = (target, flags, mode) => {
     status: 'recovery_required',
     public_workspace: productRoot,
     retained_artifacts: [
-      { kind: 'bootstrap_workspace', last_known_path: productRoot },
       { kind: 'lifecycle_lock', last_known_path: path.join(installRoot, '.LazyTrae.bootstrap.lock') },
     ],
   });

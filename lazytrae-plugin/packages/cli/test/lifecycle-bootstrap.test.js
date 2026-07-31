@@ -498,7 +498,6 @@ test('post-lock root replacement stops before bootstrap descendants and remains 
       status: 'recovery_required',
       public_workspace: f.paths.productRoot,
       retained_artifacts: [
-        { kind: 'bootstrap_workspace', last_known_path: f.paths.productRoot },
         { kind: 'lifecycle_lock', last_known_path: f.paths.bootstrapLock },
       ],
     },
@@ -568,7 +567,6 @@ test('lock-acquisition collision retains the private lock without touching repla
       status: 'recovery_required',
       public_workspace: f.paths.productRoot,
       retained_artifacts: [
-        { kind: 'bootstrap_workspace', last_known_path: f.paths.productRoot },
         { kind: 'lifecycle_lock', last_known_path: f.paths.bootstrapLock },
       ],
     },
