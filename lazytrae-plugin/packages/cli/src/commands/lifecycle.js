@@ -3,18 +3,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {
   LifecycleError,
-  LAUNCHER,
   bootstrapProduct,
   offboardProduct,
   parseOfficialSource,
   productPaths,
-  readActive,
-  recoveryReport,
 } = require('../lib/lifecycle');
-const { verifiedActiveReceipt } = require('../lib/lifecycle/receipt');
 const LIFECYCLE_HELP = require('./lifecycle-help');
+const { createStatus } = require('./lifecycle-status');
 const PRODUCT = 'LazyTrae';
-const SUBCOMMANDS = new Set(['onboard', 'update', 'status', 'offboard']);
+const SUBCOMMANDS = new Set(['onboard', 'update', 'status', 'offboard', 'recover-bootstrap-lock']);
 const VALUE_FLAGS = new Set(['--install-root', '--project', '--source', '--confirm-revision']);
 const BOOLEAN_FLAGS = new Set(['--json', '--yes']);
 function usage() {
@@ -26,7 +23,7 @@ function invalid(message) {
 function parseArgs(args) {
   if (args.includes('--help') || args.includes('-h')) return { help: true };
   const command = args[0];
-  if (!SUBCOMMANDS.has(command)) throw invalid('expected lifecycle onboard, update, status, or offboard');
+  if (!SUBCOMMANDS.has(command)) throw invalid('expected lifecycle onboard, update, status, offboard, or recover-bootstrap-lock');
   const values = {};
   const booleans = new Set();
   for (let index = 1; index < args.length; index += 1) {
@@ -50,7 +47,9 @@ function parseArgs(args) {
   if (command !== 'update' && Object.hasOwn(values, '--confirm-revision')) {
     throw invalid('--confirm-revision is valid only for update');
   }
-  if (command !== 'offboard' && booleans.has('--yes')) throw invalid('--yes is valid only for offboard');
+  if (!['offboard', 'recover-bootstrap-lock'].includes(command) && booleans.has('--yes')) {
+    throw invalid('--yes is valid only for offboard or recover-bootstrap-lock');
+  }
   return {
     command,
     confirmRevision: values['--confirm-revision'],
@@ -86,63 +85,7 @@ function envelope(parsed, paths, status) {
     project_root: parsed.projectRoot,
   };
 }
-function inspect(parsed, paths) {
-  const report = envelope(parsed, paths, 'absent');
-  if (!fs.existsSync(paths.productRoot)) return report;
-  try {
-    const issues = recoveryReport(paths).issues;
-    const active = readActive(paths);
-    if (!active) issues.push({ code: 'ACTIVE_ABSENT', path: paths.active });
-    let verified = null;
-    if (active) {
-      try {
-        verified = verifiedActiveReceipt(paths, active);
-      } catch (error) {
-        issues.push({ code: error.code || 'INVALID_BUNDLE', path: error.code === 'STALE_RUNTIME' ? active.runtime_path : paths.releases });
-      }
-    }
-    try {
-      const launcher = fs.lstatSync(paths.launcher);
-      if (!launcher.isFile() || launcher.isSymbolicLink() || launcher.nlink !== 1
-        || !fs.readFileSync(paths.launcher).equals(Buffer.from(LAUNCHER))) {
-        issues.push({ code: 'MODIFIED_LAUNCHER', path: paths.launcher });
-      }
-    } catch (_) {
-      issues.push({ code: 'INVALID_LAUNCHER', path: paths.launcher });
-    }
-    if (issues.length > 0) {
-      return {
-        ...report,
-        status: 'blocked',
-        package_readiness: { status: 'blocked', issues },
-      };
-    }
-    return {
-      ...report,
-      status: 'ready',
-      release_id: active.active_release,
-      commit_sha: verified.receipt.commit_sha,
-      package_readiness: {
-        status: 'ready',
-        bundle: {
-          release_id: active.active_release,
-          version: verified.receipt.manifest.version,
-          launcher: paths.launcher,
-        },
-      },
-      host_readiness: { status: verified.receipt.host_evidence.status },
-    };
-  } catch (error) {
-    return {
-      ...report,
-      status: 'blocked',
-      package_readiness: {
-        status: 'blocked',
-        issues: [{ code: error.code || 'INVALID_STATE', path: paths.productRoot }],
-      },
-    };
-  }
-}
+const { inspect, recoverBootstrap } = createStatus({ envelope });
 function install(parsed) {
   parseOfficialSource(parsed.sourceUrl, PRODUCT);
   const paths = productPaths({ installRoot: parsed.installRoot, product: PRODUCT });
@@ -231,6 +174,8 @@ function run(args) {
     if (parsed.command === 'status') {
       const report = inspect(parsed, paths);
       outcome = { code: report.status === 'blocked' ? 1 : 0, report };
+    } else if (parsed.command === 'recover-bootstrap-lock') {
+      outcome = recoverBootstrap(parsed, paths);
     } else if (parsed.command === 'offboard') {
       outcome = offboard(parsed, paths);
     } else {
