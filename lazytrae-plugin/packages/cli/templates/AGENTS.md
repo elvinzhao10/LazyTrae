@@ -18,7 +18,7 @@ same URL without `.git`). The first checkout is transport only; it is not the
 installed runtime and may be deleted after successful promotion.
 
 ```text
-node <verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js lifecycle onboard --source https://github.com/elvinzhao10/LazyTrae --install-root <absolute-install-root> --project <absolute-project-root> --json
+node "<verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js" lifecycle onboard --source https://github.com/elvinzhao10/LazyTrae --install-root "<absolute-install-root>" --project "<absolute-project-root>" --json
 node "<install-root>/LazyTrae/launcher.js" lifecycle status --install-root "<install-root>" --project "<project-root>" --json
 __LAZYTRAE_LOCAL_COMMAND__ <command>
 ```

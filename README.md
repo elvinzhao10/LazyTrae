@@ -136,11 +136,11 @@ installation. Replace the two absolute placeholders; do not use a temporary
 install root:
 
 ```bash
-node <verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js \
+node "<verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js" \
   lifecycle onboard \
   --source https://github.com/elvinzhao10/LazyTrae \
-  --install-root <absolute-install-root> \
-  --project <absolute-project-root> \
+  --install-root "<absolute-install-root>" \
+  --project "<absolute-project-root>" \
   --json
 ```
 
