@@ -129,7 +129,7 @@ test('tooling install keeps compatible host providers outside the owned root', (
   const root = makeRepo('lazytrae-tooling-host-ready-');
   const toolingRoot = path.join(root, 'tooling-root');
   try {
-    const bin = toolingHostBin(root, { rg: 'ripgrep 14.1.0', sg: 'ast-grep 0.44.1' });
+    const bin = toolingHostBin(root, { rg: 'ripgrep 14.1.0', sg: 'ast-grep 0.45.0' });
     const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
     const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
     const status = runCliWithHost(['tooling', 'status', '--tooling-root', toolingRoot], root, bin);

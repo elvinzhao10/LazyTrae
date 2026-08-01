@@ -33,7 +33,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const dependencies = JSON.parse(fs.readFileSync('package.json', 'utf8')).optionalDependencies || {};
 const executables = {
-  '@ast-grep/cli': ['node_modules/.bin/sg', 'ast-grep 0.44.1'],
+  '@ast-grep/cli': ['node_modules/.bin/ast-grep', 'ast-grep 0.45.0'],
   '@vscode/ripgrep': [
     'node_modules/@vscode/ripgrep-${process.platform}-${process.arch === 'arm' ? 'arm' : process.arch}/bin/${process.platform === 'win32' ? 'rg.exe' : 'rg'}',
     'ripgrep 14.1.0',
