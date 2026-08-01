@@ -37,6 +37,9 @@
     "ajv",
     "ajv-formats"
   ],
+  "overrides": {
+    "fast-uri": "3.1.5"
+  },
   "engines": {
     "node": ">=18.0.0"
   }
