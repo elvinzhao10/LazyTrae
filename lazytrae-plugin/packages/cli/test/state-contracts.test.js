@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 const { HANDLERS } = require('../../mcp/src/tools');
+const { classifyAdaptiveDecision } = require('../src/lib/adaptive-decision');
 const { validateStateFile } = require('../src/lib/validator');
 const { REPO_ROOT, makeFixture, runCli } = require('./test-helpers');
 
@@ -177,6 +178,61 @@ test('doctor accepts the idle loop and rejects strict values for source and inst
       assert.match(strict.stdout, /Schema validation: active-loop\.json[\s\S]*WARN/);
       assert.match(strict.stdout, /Structural validation unchecked/);
     }
+  }
+});
+
+test('source and installed schemas accept only the closed canonical adaptive snapshot', () => {
+  const sourceFixture = makeFixture('lazytrae-source-adaptive-schema-');
+  const installedFixture = makeFixture('lazytrae-installed-adaptive-schema-');
+  try {
+    fs.copyFileSync(
+      path.join(REPO_ROOT, '.lazytrae', 'schemas', 'active-loop.schema.json'),
+      path.join(sourceFixture, '.lazytrae', 'schemas', 'active-loop.schema.json'),
+    );
+    const canonical = classifyAdaptiveDecision('Fix one typo in one file.').snapshot;
+
+    for (const fixture of [sourceFixture, installedFixture]) {
+      const activeLoopPath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
+      const activeLoop = JSON.parse(fs.readFileSync(activeLoopPath, 'utf8'));
+      activeLoop.adaptive = canonical;
+      fs.writeFileSync(activeLoopPath, JSON.stringify(activeLoop, null, 2) + '\n');
+      const valid = validateStateFile(fixture, 'active-loop.json', 'active-loop.schema.json');
+      assert.equal(valid.valid, true, valid.errors.join('; '));
+
+      for (const corrupt of [
+        { ...canonical, escalation_count: 0 },
+        { ...canonical, capabilityClasses: ['unknown-capability'] },
+        { ...canonical, approval: { ...canonical.approval, extra: true } },
+        { ...canonical, currentStage: 'plan' },
+        { ...canonical, escalationCount: 1 },
+        {
+          ...canonical,
+          escalationCount: 1,
+          escalationHistory: [{
+            fromMode: 'direct',
+            sequence: 2,
+            stageAdded: 'debug',
+            toMode: 'assisted',
+            trigger: 'verification-failure',
+          }],
+        },
+        Object.fromEntries(Object.entries(canonical).filter(([key]) => key !== 'requestDigest')),
+      ]) {
+        activeLoop.adaptive = corrupt;
+        fs.writeFileSync(activeLoopPath, JSON.stringify(activeLoop, null, 2) + '\n');
+        const invalid = validateStateFile(fixture, 'active-loop.json', 'active-loop.schema.json');
+        if (HAS_AJV) {
+          assert.equal(invalid.valid, false, JSON.stringify(corrupt));
+          assert.equal(invalid.structuralValidation, undefined);
+        } else {
+          assert.equal(invalid.valid, true);
+          assert.equal(invalid.structuralValidation, 'unchecked');
+        }
+      }
+    }
+  } finally {
+    fs.rmSync(sourceFixture, { recursive: true, force: true });
+    fs.rmSync(installedFixture, { recursive: true, force: true });
   }
 });
 

@@ -1,6 +1,6 @@
 {
   "name": "@lazytrae/codegraph-tooling",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Locked package-owned CodeGraph root for LazyTrae",
   "license": "MIT",
@@ -8,6 +8,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@colbymchenry/codegraph": "1.4.1"
+    "@colbymchenry/codegraph": "1.5.0"
   }
 }

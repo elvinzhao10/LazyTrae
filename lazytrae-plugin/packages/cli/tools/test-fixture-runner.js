@@ -3,7 +3,8 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const fixturePrefixes = ['lazytrae-', 'lazyseries-'];
+const fixturePrefixes = ['lazytrae-', 'lazyseries-', 'lazytrae lifecycle command '];
+const suiteTimeoutMs = 15 * 60 * 1000;
 const suiteRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-suite-'));
 const preload = path.join(__dirname, '..', 'test', 'temp-fixture-cleanup.js');
 const testRoot = path.join(__dirname, '..', 'test');
@@ -32,6 +33,7 @@ try {
     ...selectedTests(),
   ], {
     stdio: 'inherit',
+    timeout: suiteTimeoutMs,
     env: {
       ...process.env,
       TMPDIR: suiteRoot,
@@ -42,6 +44,7 @@ try {
       npm_config_update_notifier: 'false',
     },
   });
+  if (result.error) process.stderr.write(`LAZYTRAE_TEST_RUNNER_ERROR ${result.error.message}\n`);
   status = result.status === null ? 1 : result.status;
   const remaining = ownedFixtures();
   process.stderr.write(`LAZYTRAE_TEST_FIXTURE_INVENTORY root=${suiteRoot} remaining=${JSON.stringify(remaining)}\n`);

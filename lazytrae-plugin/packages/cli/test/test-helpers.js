@@ -19,6 +19,38 @@ function runCli(args, options = {}) {
   });
 }
 
+function toolingHostBin(root, versions) {
+  const directory = path.join(root, 'host-bin');
+  fs.mkdirSync(directory, { recursive: true });
+  for (const [name, version] of Object.entries(versions)) {
+    const executable = path.join(directory, name);
+    fs.writeFileSync(executable, `#!/bin/sh\nprintf '%s\\n' '${version}'\n`);
+    fs.chmodSync(executable, 0o755);
+  }
+  const npm = path.join(directory, 'npm');
+  fs.writeFileSync(npm, `#!/usr/bin/env node
+const fs = require('node:fs');
+const path = require('node:path');
+const dependencies = JSON.parse(fs.readFileSync('package.json', 'utf8')).optionalDependencies || {};
+const executables = {
+  '@ast-grep/cli': ['node_modules/.bin/sg', 'ast-grep 0.44.1'],
+  '@vscode/ripgrep': [
+    'node_modules/@vscode/ripgrep-${process.platform}-${process.arch === 'arm' ? 'arm' : process.arch}/bin/${process.platform === 'win32' ? 'rg.exe' : 'rg'}',
+    'ripgrep 14.1.0',
+  ],
+};
+for (const [name, [relative, version]] of Object.entries(executables)) {
+  if (!Object.hasOwn(dependencies, name)) continue;
+  const target = path.resolve(relative);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, "#!/bin/sh\\nprintf '%s\\\\n' '" + version + "'\\n", { mode: 0o755 });
+}
+fs.writeFileSync('package-lock.json', JSON.stringify({ lockfileVersion: 3 }) + '\\n');
+`);
+  fs.chmodSync(npm, 0o755);
+  return directory;
+}
+
 function makeFixture(prefix = 'lazytrae-cli-test-') {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
   fs.mkdirSync(path.join(root, '.git'));
@@ -37,6 +69,23 @@ function makeFixture(prefix = 'lazytrae-cli-test-') {
     path.join(root, 'packages', 'cli', 'src', 'lib', 'path-boundary.js'),
   );
   fs.copyFileSync(path.join(__dirname, '..', 'templates', 'AGENTS.md'), path.join(root, 'AGENTS.md'));
+  return root;
+}
+
+function makeGitFixture(prefix = 'lazytrae-cli-git-test-') {
+  const root = makeFixture(prefix);
+  fs.rmSync(path.join(root, '.git'), { recursive: true, force: true });
+  const commands = [
+    ['init', '-q'],
+    ['config', 'user.email', 'adaptive@example.invalid'],
+    ['config', 'user.name', 'Adaptive Test'],
+    ['add', '.'],
+    ['commit', '-qm', 'fixture'],
+  ];
+  for (const args of commands) {
+    const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+    if (result.status !== 0) throw new Error(`Git fixture failed: ${result.stderr}`);
+  }
   return root;
 }
 
@@ -187,9 +236,11 @@ module.exports = {
   makeCanonicalQualityGate,
   makeCompletionFixture,
   makeFixture,
+  makeGitFixture,
   makeLoopFixture,
   readLoopState,
   runCli,
+  toolingHostBin,
   writeCanonicalQualityGate,
   writeJson,
 };

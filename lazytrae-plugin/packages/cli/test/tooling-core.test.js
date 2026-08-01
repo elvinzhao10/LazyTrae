@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const { CLI, runCli } = require('./test-helpers');
+const { CLI, runCli, toolingHostBin } = require('./test-helpers');
 
 function makeRepo(prefix) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -17,17 +17,6 @@ function snapshot(root) {
     const target = path.join(root, name);
     return [name, fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : null];
   }));
-}
-
-function hostBin(root, versions) {
-  const directory = path.join(root, 'host-bin');
-  fs.mkdirSync(directory);
-  for (const [name, version] of Object.entries(versions)) {
-    const executable = path.join(directory, name);
-    fs.writeFileSync(executable, `#!/bin/sh\nprintf '%s\\n' '${version}'\n`);
-    fs.chmodSync(executable, 0o755);
-  }
-  return directory;
 }
 
 function runCliWithHost(args, cwd, bin) {
@@ -120,7 +109,7 @@ test('tooling verify leaves unsupported projects untouched and tooling reports s
     fs.writeFileSync(path.join(root, '.gitignore'), '# user-owned dirty change\n');
     const before = snapshot(root);
     const unsupported = runCli(['tooling', 'verify', '--dry-run'], { cwd: root });
-    const bin = hostBin(root, { rg: 'ripgrep 13.0.0', sg: 'ast-grep 0.43.0' });
+    const bin = toolingHostBin(root, { rg: 'ripgrep 13.0.0', sg: 'ast-grep 0.43.0' });
     const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
     const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
 
@@ -140,7 +129,7 @@ test('tooling install keeps compatible host providers outside the owned root', (
   const root = makeRepo('lazytrae-tooling-host-ready-');
   const toolingRoot = path.join(root, 'tooling-root');
   try {
-    const bin = hostBin(root, { rg: 'ripgrep 14.1.0', sg: 'ast-grep 0.44.1' });
+    const bin = toolingHostBin(root, { rg: 'ripgrep 14.1.0', sg: 'ast-grep 0.44.1' });
     const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
     const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
     const status = runCliWithHost(['tooling', 'status', '--tooling-root', toolingRoot], root, bin);
@@ -161,7 +150,7 @@ test('tooling install provisions only missing or incompatible providers and reco
   const root = makeRepo('lazytrae-tooling-selective-');
   const toolingRoot = path.join(root, 'tooling-root');
   try {
-    const bin = hostBin(root, { rg: 'ripgrep 14.1.0', sg: 'ast-grep 0.43.0' });
+    const bin = toolingHostBin(root, { rg: 'ripgrep 14.1.0', sg: 'ast-grep 0.43.0' });
     const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
     const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
     const receipt = JSON.parse(fs.readFileSync(path.join(toolingRoot, 'lazytrae-tooling-receipt.json'), 'utf8'));
@@ -181,7 +170,7 @@ test('tooling install replaces incompatible host providers with pinned owned fal
   const root = makeRepo('lazytrae-tooling-host-incompatible-');
   const toolingRoot = path.join(root, 'tooling-root');
   try {
-    const bin = hostBin(root, { rg: 'ripgrep 13.0.0', sg: 'ast-grep 0.43.0' });
+    const bin = toolingHostBin(root, { rg: 'ripgrep 13.0.0', sg: 'ast-grep 0.43.0' });
     const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
     const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
     const receipt = JSON.parse(fs.readFileSync(path.join(toolingRoot, 'lazytrae-tooling-receipt.json'), 'utf8'));

@@ -58,5 +58,6 @@ dev/
 # LazyTrae runtime (managed by lazytrae init)
 .lazytrae/state/
 .lazytrae/logs/
+.lazytrae/loop/
 .lazytrae/evidence/
 # lazytrae:managed:end:gitignore

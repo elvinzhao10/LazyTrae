@@ -36,13 +36,13 @@ command. Never call a bare `lazytrae` executable or search `PATH`:
 
 ```bash
 # Trae IDE
-node <absolute-release-launcher-from-.trae/mcp.json> --root <absolute-project-root-from-.trae/mcp.json> load-check --host ide
+node "<absolute-release-launcher-from-.trae/mcp.json>" --root "<absolute-project-root-from-.trae/mcp.json>" load-check --host ide
 
 # Trae Work
-node <absolute-release-launcher-from-.trae/mcp.json> --root <absolute-project-root-from-.trae/mcp.json> load-check --host work
+node "<absolute-release-launcher-from-.trae/mcp.json>" --root "<absolute-project-root-from-.trae/mcp.json>" load-check --host work
 
 # Trae CLI
-node <absolute-release-launcher-from-.trae/mcp.json> --root <absolute-project-root-from-.trae/mcp.json> load-check --host cli
+node "<absolute-release-launcher-from-.trae/mcp.json>" --root "<absolute-project-root-from-.trae/mcp.json>" load-check --host cli
 ```
 
 This is package readiness only: it verifies skills, commands, agents, hooks,

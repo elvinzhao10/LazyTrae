@@ -1,7 +1,21 @@
 # Host routes
 
-Use exactly one route at a time. Start with the pinned `v1.0.2` release in a
-permanent folder, open or link it in the host, give the agent
+Use exactly one route at a time. **Node.js LTS 20 or newer** and **Git** are
+required. Bootstrap with `lifecycle onboard` only from the verified official
+origin `https://github.com/elvinzhao10/LazyTrae.git`, then use
+`node "<install-root>/LazyTrae/launcher.js"`. `lifecycle update`,
+`lifecycle status`, and plan-first `lifecycle offboard` operate on
+`LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`.
+The bootstrap checkout may be deleted after promotion.
+
+The default install root is `~/Library/Application Support/LazySeries` on
+macOS, `${XDG_DATA_HOME:-~/.local/share}/lazyseries` on Linux, and
+`%LOCALAPPDATA%\LazySeries` on Windows. A moved same-version tag requires
+`--confirm-revision <full-sha>`. If Node changes, use a fresh verified checkout
+for scoped offboard and re-onboard rather than editing receipts. These package
+operations never prove a host: **HOST READINESS: PENDING** until observation.
+
+Open or link the durable `v1.0.3` release in the host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for the host, runs safe package checks, and reports package readiness
 before any host-managed mutation.
@@ -30,10 +44,10 @@ unverified; use only the selected build's documented/manual configuration.
 
 ## Local command and package checks
 
-Use the release-owned launcher, never a PATH/global lookup:
+Use the stable durable launcher, never a source, PATH, or global lookup:
 
 ```text
-node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> <command>
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" <command>
 ```
 
 Run only `init --host ide|cli`, `sync`, `load-check --host <host>`, and
@@ -52,10 +66,9 @@ Do not translate the JSON to an undocumented command.
 
 ## Troubleshooting the handoff
 
-- **Moved or missing release:** stop when the absolute launcher no longer
-  exists. Restore the pinned folder or run the current absolute launcher with
-  `sync`; never fall back to a PATH/global command. Re-run package checks before
-  asking for another host action.
+- **Missing durable launcher:** stop. Use a fresh checkout from the verified
+  origin to inspect or re-onboard only the scoped product; never substitute a
+  source-relative, PATH, or global command.
 - **Work Skills absent:** `sync` cannot install the host's Skills copy. Ask for
   approval, then use the absolute launcher with `init --host work` as the next
   single action.

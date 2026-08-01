@@ -30,6 +30,7 @@
   "review_blockers": [],
   "final_quality_gate": null,
   "checkpoints": [],
+  "adaptive": null,
   "metadata": {
     "description": "LazyTrae active-loop state.",
     "max_iterations": 500,

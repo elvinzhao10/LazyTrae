@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const RELEASE_VERSION = '1.0.2';
+const RELEASE_VERSION = '1.0.3';
 
 function readRoot(args) {
   const indexes = args.flatMap((value, index) => value === '--root' ? [index] : []);

@@ -3,7 +3,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 const temporaryRoot = path.resolve(os.tmpdir());
-const fixturePrefixes = ['lazytrae-', 'lazyseries-'];
+const fixturePrefixes = ['lazytrae-', 'lazyseries-', 'lazytrae lifecycle command '];
 const fixtures = new Set();
 const originalMkdtempSync = fs.mkdtempSync;
 

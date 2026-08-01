@@ -11,33 +11,63 @@ templates, package-local `LICENSE` and `NOTICE`, and its production dependency
 closure; a cold offline install checks that artifact without asserting host
 discovery or an MCP connection.
 
-A developer keeps the release in a permanent folder and invokes its absolute
-launcher from any project. A global shorthand is optional and never required.
+**Node.js LTS 20 or newer** and **Git** are required. Bootstrap `lifecycle
+onboard` only from `https://github.com/elvinzhao10/LazyTrae.git`. After
+promotion, invoke `node "<install-root>/LazyTrae/launcher.js"` from any
+project. The source checkout may be deleted. `lifecycle update`, `lifecycle
+status`, `recover-bootstrap-lock`, and plan-first `lifecycle offboard` manage
+`LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`.
+A moved same-version ref requires `--confirm-revision <full-sha>`; stale runtime
+recovery is scoped offboard/re-onboard. `--yes` is accepted only for the
+explicitly confirmed `lifecycle offboard` and `lifecycle recover-bootstrap-lock`
+actions. Package checks leave **HOST READINESS: PENDING** without current
+observation.
 
 ## Commands
 
 ```bash
 # Keep both paths absolute; this array prevents PATH/global command lookup.
-LOCAL_LAZYTRAE=(node "/permanent/path/LazyTrae/lazytrae-plugin/packages/cli/bin/lazytrae.js" --root "/absolute/path/to/project")
+LOCAL_LAZYTRAE=(node "<install-root>/LazyTrae/launcher.js" --root "<project-root>")
 
-# Install, verify, and inspect local readiness.
+# Project-local package commands.
 "${LOCAL_LAZYTRAE[@]}" init --host ide
-"${LOCAL_LAZYTRAE[@]}" onboard --host ide
 "${LOCAL_LAZYTRAE[@]}" load-check --host ide
 "${LOCAL_LAZYTRAE[@]}" doctor
 "${LOCAL_LAZYTRAE[@]}" sync
 "${LOCAL_LAZYTRAE[@]}" verify --must-pass
 
-# Remove only receipt-owned project assets.
+# Durable lifecycle commands use their own subcommand and arguments.
+node "<verified-source-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js" \
+  lifecycle onboard --source https://github.com/elvinzhao10/LazyTrae \
+  --install-root "<install-root>" --project "<project-root>" --json
+node "<install-root>/LazyTrae/launcher.js" lifecycle status \
+  --install-root "<install-root>" --project "<project-root>" --json
+node "<install-root>/LazyTrae/launcher.js" lifecycle update \
+  --source https://github.com/elvinzhao10/LazyTrae \
+  --install-root "<install-root>" --project "<project-root>" --json
+node "<install-root>/LazyTrae/launcher.js" lifecycle offboard \
+  --install-root "<install-root>" --project "<project-root>" --json
+
+# Recovery is confirmation-gated; pass --yes only after verifying the stale,
+# lifecycle-owned sibling bootstrap lock named by the status report.
+node "<install-root>/LazyTrae/launcher.js" lifecycle recover-bootstrap-lock \
+  --install-root "<install-root>" --project "<project-root>" --yes --json
+
+# Remove only receipt-owned project assets after the lifecycle plan is confirmed.
 "${LOCAL_LAZYTRAE[@]}" uninstall --yes
 "${LOCAL_LAZYTRAE[@]}" work status
 "${LOCAL_LAZYTRAE[@]}" work uninstall
 
 # Optional explicit lifecycle commands remain task- and approval-gated.
-"${LOCAL_LAZYTRAE[@]}" tooling lsp-status --target /absolute/project --tooling-root /absolute/lazytrae-lsp
-"${LOCAL_LAZYTRAE[@]}" tooling codegraph-doctor --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
+"${LOCAL_LAZYTRAE[@]}" tooling lsp-status --target "/absolute/project" --tooling-root "/absolute/lazytrae-lsp"
+"${LOCAL_LAZYTRAE[@]}" tooling codegraph-doctor --target "/absolute/project" --tooling-root "/absolute/lazytrae-codegraph"
 "${LOCAL_LAZYTRAE[@]}" tooling remote-status
 ```
+
+The bootstrap source is transport only; after promotion, `launcher.js` is the
+durable command. A lifecycle collision preserves the caller workspace. Only an
+explicitly verified lifecycle-owned sibling bootstrap lock or product
+`staging/`/`locks/` artifact may be recovered.
 
 ## Managed LSP bridge
 
@@ -88,14 +118,13 @@ Context7 and `grep_app` are disabled by default. `lazytrae tooling enable contex
 
 ## Onboard
 
-Keep the pinned `v1.0.2` release in a permanent folder, open or link it in the
-selected Trae host, give the agent
+Open or link the durable `v1.0.3` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The setup guide
-asks for Trae IDE, Trae Work, or Trae CLI and uses the absolute release-owned
+asks for Trae IDE, Trae Work, or Trae CLI and uses the stable durable
 launcher, never PATH/global lookup:
 
 ```text
-node <permanent-release-root>/lazytrae-plugin/packages/cli/bin/lazytrae.js --root <project-root> <command>
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" <command>
 ```
 
 It runs only safe package checks and project-local setup first. **Package

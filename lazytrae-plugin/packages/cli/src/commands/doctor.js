@@ -208,7 +208,7 @@ Options:
   const routingResult = checkModelRouting(repoRoot);
   addResult(routingResult.label, routingResult.status, routingResult.detail);
 
-  // Team mode check (v0.11)
+  // Team mode check
   const teamResult = sourceTree || fs.existsSync(path.join(repoRoot, '.lazytrae', 'team'))
     ? checkTeamMode(repoRoot)
     : { label: 'Team mode', status: 'WARN', detail: 'No team state initialized' };
@@ -245,7 +245,7 @@ Options:
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v1.0.2`);
+  console.log(`LazyTrae Doctor v1.0.3`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);

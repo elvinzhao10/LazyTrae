@@ -39,3 +39,36 @@ implementation detail. For example:
 | packed MCP/JSON-RPC | cold package install and malformed stream | Artifact-only import bugs or a bad request killing later requests. |
 
 When a regression fails, start from its fixture and expected assertion, then follow the smallest source function named in the failure. Do not “fix” a release check by weakening its assertion: each assertion encodes a published ownership or evidence contract.
+
+## Adaptive harness (v1.0.3)
+
+The v1.0.3 adaptive harness adds behavior-only tests on top of the layered
+checks above. They prove the harness selects the smallest sufficient workflow
+mode, composes existing Skills/agents/commands/MCPs/tools/hooks/verifiers,
+persists an additive single-writer snapshot, falls back safely, escalates
+within bounds, and explains material choices. They are `package evidence` —
+they do not prove a live host loaded the package or connected the core MCP.
+
+| Test family | Fixture/action | Failure it prevents |
+| --- | --- | --- |
+| adaptive contract + digest parity | byte-identical contract with LazyBuddy; ajv schema validation; sha256 digest | A drift in the shared behavior contract between the two repos. |
+| adaptive detector | classifier returns structured decision per Section 5 schema for each fixture | Mixing classification with provider activation; missing reasons/approvalRequired. |
+| adaptive mapping per mode | each of direct/assisted/planned/orchestrated/long-horizon maps to existing surfaces | A mode with no runtime mapping or duplicated orchestration logic. |
+| adaptive snapshot backward-compat | v1.0.2 state without `adaptive` block continues to load; single-writer rule enforced | Breaking v1.0.2 state or allowing non-orchestrator writes. |
+| adaptive explanation | `completion-status` output includes mode/stages/responsibilities/capabilities/not-selected/approval | Suppressing material choices or exposing internal routing noise. |
+| adaptive W4.1 explicit override | explicit named workflow remains authoritative; classifier does not silently downgrade | Silent replacement of explicit user requests. |
+| adaptive W4.2 bounded escalation | max-two-escalation bound; blocked-state record with reproduced failure and next decision | Indefinite escalation or growing repair lineage. |
+| adaptive W4.3 capability fallback | preferred provider unavailable → safe fallback in same class; substitution reported; no approval-free remote activation | Hidden provider authority or false equivalent-evidence claims. |
+| adaptive W4.4 responsibility ownership | one owner per stage; no duplicate work in orchestrated mode | Parallel agents duplicating investigation or edits. |
+| adaptive W4.5 continuation (gap) | incompatible-revision forces fresh decision; original snapshot preserved; **compatible-resume is a known v1.0.3 `xfail`** | Accepting a stale snapshot as completion evidence; mutating old goals invisibly. |
+| adaptive W4.6 evidence freshness (gap) | revisionMarker present; `validateEvidencePaths` rejects missing paths; **stale detection and re-verification signalling are known v1.0.3 `xfail` cases** | A snapshot resuming silently after implementation changes. |
+
+### Adaptive evidence boundary
+
+Adaptive tests are `package evidence`. They prove the contract, classifier,
+mapping, snapshot, and explanation modules behave per the shared contract
+against the shared fixture set. They do **not** prove that a live Trae IDE,
+Trae Work, or Trae CLI session observed adaptive selection, the explanation
+surface, failure escalation, or continuation. Live-host observation for W5.3
+and W5.4 is **PENDING** — see the known gaps in
+[`docs/v1.0.3-adaptive-harness-contract.md`](v1.0.3-adaptive-harness-contract.md).
