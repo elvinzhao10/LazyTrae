@@ -25,8 +25,8 @@ function assertInitDeepSafety(content, initDeepPath) {
 
 function assertManagedAstGrepGuidance(content, skillPath) {
   assert.doesNotMatch(content, /npm\s+install\s+-g\s+@ast-grep\/cli/i, `${skillPath} must not recommend an unpinned global ast-grep install`);
-  assert.match(content, /lazytrae tooling status --tooling-root \/absolute\/lazytrae-tools/, `${skillPath} must direct ast-grep setup through receipt-owned tooling status`);
-  assert.match(content, /lazytrae tooling install --tooling-root \/absolute\/lazytrae-tools/, `${skillPath} must direct ast-grep setup through the managed tooling lifecycle`);
+  assert.match(content, /lazytrae tooling status --tooling-root "\/absolute\/lazytrae-tools"/, `${skillPath} must direct ast-grep setup through receipt-owned tooling status`);
+  assert.match(content, /lazytrae tooling install --tooling-root "\/absolute\/lazytrae-tools"/, `${skillPath} must direct ast-grep setup through the managed tooling lifecycle`);
 }
 
 function assertDurableLifecycleGuidance(content, documentationPath) {
