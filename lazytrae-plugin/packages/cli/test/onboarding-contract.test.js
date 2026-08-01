@@ -21,6 +21,33 @@ function readInitDeepSkills() {
 const BARE_INITDEEP_COMMAND = /(?:^|[\s`"'])lazytrae (?:load-check|init|sync|work install)\b/m;
 const PORTABLE_LOCAL_COMMAND = 'node "<install-root>/LazyTrae/launcher.js" --root "<project-root>"';
 
+function shellCodeBlocks(content) {
+  return Array.from(content.matchAll(/^[ \t]*```bash[^\n]*\n([\s\S]*?)^[ \t]*```/gm), (match) => match[1]);
+}
+
+function assertQuotedPathOptionInShellExamples(content, option, source) {
+  const optionPattern = new RegExp(`${option.replaceAll('-', '\\-')}\\s+((?:"[^"]+")|(?:'[^']+')|\\S+)`, 'g');
+  const operands = shellCodeBlocks(content)
+    .flatMap((block) => Array.from(block.matchAll(optionPattern), (match) => match[1]))
+    .filter((operand) => /^(?:["']?)(?:\/|<)/.test(operand));
+
+  assert.ok(operands.length > 0, `${source} must document a filesystem-valued ${option} operand`);
+  for (const operand of operands) {
+    assert.match(operand, /^(?:"[^"]+"|'[^']+')$/, `${source} must quote filesystem-valued ${option} operands`);
+  }
+}
+
+function assertQuotedNodeLauncherInShellExamples(content, source) {
+  const operands = shellCodeBlocks(content)
+    .flatMap((block) => Array.from(block.matchAll(/^\s*node\s+((?:"[^"]+")|(?:'[^']+')|\S+)/gm), (match) => match[1]))
+    .filter((operand) => /^(?:["']?)(?:\/|<)/.test(operand));
+
+  assert.ok(operands.length > 0, `${source} must document an absolute Node launcher operand`);
+  for (const operand of operands) {
+    assert.match(operand, /^(?:"[^"]+"|'[^']+')$/, `${source} must quote absolute Node launcher operands`);
+  }
+}
+
 function assertNoUnsafeOnboardingClaims(content, source) {
   assert.doesNotMatch(content, /\/Users\/(?:[^/< >]+)\//, `${source} must not contain a developer-specific absolute path`);
   assert.doesNotMatch(
@@ -46,7 +73,8 @@ function assertLocalInitDeepGuidance(content, source) {
   assert.match(content, /\.trae\/mcp\.json/, source);
   assert.match(content, /mcpServers\.lazytrae/, source);
   assert.match(content, /command[^\n]*node/, source);
-  assert.match(content, /node "<absolute-release-launcher[^\n]*--root "<absolute-project-root/, source);
+  assertQuotedNodeLauncherInShellExamples(content, source);
+  assertQuotedPathOptionInShellExamples(content, '--root', source);
 }
 
 test('onboarding documents all host routes without claiming host discovery', () => {

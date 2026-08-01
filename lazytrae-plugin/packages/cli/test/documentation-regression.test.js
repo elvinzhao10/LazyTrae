@@ -6,6 +6,22 @@ const test = require('node:test');
 
 const repositoryRoot = path.resolve(__dirname, '../../../..');
 
+function shellCodeBlocks(content) {
+  return Array.from(content.matchAll(/^[ \t]*```bash[^\n]*\n([\s\S]*?)^[ \t]*```/gm), (match) => match[1]);
+}
+
+function assertQuotedPathOptionInShellExamples(content, option, source) {
+  const optionPattern = new RegExp(`${option.replaceAll('-', '\\-')}\\s+((?:"[^"]+")|(?:'[^']+')|\\S+)`, 'g');
+  const operands = shellCodeBlocks(content)
+    .flatMap((block) => Array.from(block.matchAll(optionPattern), (match) => match[1]))
+    .filter((operand) => /^(?:["']?)(?:\/|<)/.test(operand));
+
+  assert.ok(operands.length > 0, `${source} must document a filesystem-valued ${option} operand`);
+  for (const operand of operands) {
+    assert.match(operand, /^(?:"[^"]+"|'[^']+')$/, `${source} must quote filesystem-valued ${option} operands`);
+  }
+}
+
 function assertInitDeepSafety(content, initDeepPath) {
   assert.doesNotMatch(content, /corrupted or unparseable:\s*treat as --create-new/i, `${initDeepPath} must reject the unsafe malformed-file fallback`);
   assert.doesNotMatch(content, /delete all existing AGENTS\.md files and regenerate from scratch/i, `${initDeepPath} must not present deletion as an automatic mode`);
@@ -25,8 +41,7 @@ function assertInitDeepSafety(content, initDeepPath) {
 
 function assertManagedAstGrepGuidance(content, skillPath) {
   assert.doesNotMatch(content, /npm\s+install\s+-g\s+@ast-grep\/cli/i, `${skillPath} must not recommend an unpinned global ast-grep install`);
-  assert.match(content, /lazytrae tooling status --tooling-root "\/absolute\/lazytrae-tools"/, `${skillPath} must direct ast-grep setup through receipt-owned tooling status`);
-  assert.match(content, /lazytrae tooling install --tooling-root "\/absolute\/lazytrae-tools"/, `${skillPath} must direct ast-grep setup through the managed tooling lifecycle`);
+  assertQuotedPathOptionInShellExamples(content, '--tooling-root', skillPath);
 }
 
 function assertDurableLifecycleGuidance(content, documentationPath) {
