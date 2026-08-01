@@ -50,7 +50,7 @@ function assertManagedDeclaration(declaration, launcher, project) {
   assert.match(declaration._lazytrae.fingerprint, /^sha256:[a-f0-9]{64}$/);
 }
 
-test('permanent local launcher reports v1.0.2 and owns both package bins', () => {
+test('permanent local launcher reports v1.0.3 and owns both package bins', () => {
   // Given: the publishable package manifest and release-owned launcher.
   const manifest = require('../package.json');
 
@@ -60,7 +60,7 @@ test('permanent local launcher reports v1.0.2 and owns both package bins', () =>
   // Then: both binary aliases resolve to that launcher and it reports the current package version.
   assert.deepEqual(manifest.bin, { 'lazytrae-ai': 'bin/lazytrae.js', lazytrae: 'bin/lazytrae.js' });
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.stdout.trim(), '1.0.2');
+  assert.equal(result.stdout.trim(), '1.0.3');
 });
 
 test('local release launcher initializes a project from an unrelated cwd when paths contain spaces', () => {
@@ -89,7 +89,7 @@ test('local release launcher initializes a project from an unrelated cwd when pa
     assert.doesNotMatch(stopHook, /command -v lazytrae|&& lazytrae /);
     const mcp = initialize(declaration, caller, home);
     assert.equal(mcp.status, 0, mcp.stderr);
-    assert.equal(JSON.parse(mcp.stdout.trim()).result.serverInfo.version, '1.0.2');
+    assert.equal(JSON.parse(mcp.stdout.trim()).result.serverInfo.version, '1.0.3');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -112,7 +112,7 @@ test('release-owned launcher serves MCP initialize from outside the release with
 
     // Then: initialize reports the current release.
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(JSON.parse(result.stdout.trim()).result.serverInfo.version, '1.0.2');
+    assert.equal(JSON.parse(result.stdout.trim()).result.serverInfo.version, '1.0.3');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

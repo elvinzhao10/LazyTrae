@@ -7,7 +7,7 @@ const test = require('node:test');
 const expectedVersion = require('../package.json').version;
 const packagedMcp = require('../src/mcp');
 const sourceMcp = require('../../mcp/src');
-const RELEASE_VERSION = '1.0.2';
+const RELEASE_VERSION = '1.0.3';
 const previousReleaseVersion = RELEASE_VERSION.replace(/\d+$/, patch => String(Number(patch) - 1));
 
 const CURRENT_RELEASE_PATHS = [
@@ -62,10 +62,15 @@ const CURRENT_RELEASE_PATHS = [
 const REGEX_EXPECTATION_PATHS = [
   {
     relativePath: '../test/documentation-regression.test.js',
-    previous: /1\\\.0\\\.1/,
-    current: /1\\\.0\\\.2/,
+    previous: /1\\\.0\\\.2/,
+    current: /1\\\.0\\\.3/,
   },
 ];
+const HISTORICAL_CONTEXT_PATHS = new Set([
+  '../../../../README.md',
+  '../../../../AGENTS.md',
+  '../templates/AGENTS.md',
+]);
 
 function initializeVersion(server) {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-version-mcp-'));
@@ -97,7 +102,9 @@ test(`v${RELEASE_VERSION} package release identities are consistent`, () => {
   for (const relativePath of CURRENT_RELEASE_PATHS) {
     const contents = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
     assert.doesNotMatch(contents, /0\.16\.0-alpha\.1/, `${relativePath} retained the prior release identity`);
-    assert.doesNotMatch(contents, new RegExp(previousReleaseVersion.replaceAll('.', '\\.')), `${relativePath} retained the previous current release`);
+    if (!HISTORICAL_CONTEXT_PATHS.has(relativePath)) {
+      assert.doesNotMatch(contents, new RegExp(previousReleaseVersion.replaceAll('.', '\\.')), `${relativePath} retained the previous current release`);
+    }
     assert.match(contents, new RegExp(RELEASE_VERSION.replaceAll('.', '\\.')), `${relativePath} omitted v${RELEASE_VERSION}`);
   }
 

@@ -6,7 +6,28 @@
 verification gate, hook dispatcher, loop controls, team mode, model routing,
 tooling lifecycle, and the launcher for the local MCP server.
 
-The packaged baseline is `v1.0.2`. Keep maintainer guidance grounded
+The packaged baseline is `v1.0.3`.
+
+## ADAPTIVE HARNESS (v1.0.3)
+
+v1.0.3 adds an adaptive decision layer that selects the smallest sufficient
+of five workflow modes (`direct`, `assisted`, `planned`, `orchestrated`,
+`long-horizon`) for an outcome-based request, composes existing Skills,
+agents, commands, MCPs, tools, hooks, and verifiers, persists an additive
+single-writer `adaptive` block inside existing loop/run state, and
+explains material choices through the existing `completion-status`
+surface. Named workflows remain authoritative; explicit user requests are
+never silently downgraded.
+
+Implementation lives in `src/lib/adaptive-decision.js`, `adaptive-mapping.js`,
+`adaptive-snapshot.js`, and `adaptive-explanation.js`. The shared contract
+is at `contracts/adaptive-harness-contract.v1.json` (byte-identical with
+LazyBuddy). Fixtures live at `contracts/fixtures/v103/`. The behavior-only
+contract, authority matrix, fallback rules, evidence labels, and known
+v1.0.3 gaps are documented in `docs/v1.0.3-adaptive-harness-contract.md`
+(repository root). When extending the adaptive layer, keep the surgical
+boundary: no new MCP server, no new provider, no state-store replacement,
+no cross-repo runtime dependency. Keep maintainer guidance grounded
 in the current source and test suite rather than historical release notes.
 
 ## WHERE TO LOOK

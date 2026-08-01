@@ -6,6 +6,22 @@ const test = require('node:test');
 
 const repositoryRoot = path.resolve(__dirname, '../../../..');
 
+function shellCodeBlocks(content) {
+  return Array.from(content.matchAll(/^[ \t]*```bash[^\n]*\n([\s\S]*?)^[ \t]*```/gm), (match) => match[1]);
+}
+
+function assertQuotedPathOptionInShellExamples(content, option, source) {
+  const optionPattern = new RegExp(`${option.replaceAll('-', '\\-')}\\s+((?:"[^"]+")|(?:'[^']+')|\\S+)`, 'g');
+  const operands = shellCodeBlocks(content)
+    .flatMap((block) => Array.from(block.matchAll(optionPattern), (match) => match[1]))
+    .filter((operand) => /^(?:["']?)(?:\/|<)/.test(operand));
+
+  assert.ok(operands.length > 0, `${source} must document a filesystem-valued ${option} operand`);
+  for (const operand of operands) {
+    assert.match(operand, /^(?:"[^"]+"|'[^']+')$/, `${source} must quote filesystem-valued ${option} operands`);
+  }
+}
+
 function assertInitDeepSafety(content, initDeepPath) {
   assert.doesNotMatch(content, /corrupted or unparseable:\s*treat as --create-new/i, `${initDeepPath} must reject the unsafe malformed-file fallback`);
   assert.doesNotMatch(content, /delete all existing AGENTS\.md files and regenerate from scratch/i, `${initDeepPath} must not present deletion as an automatic mode`);
@@ -25,8 +41,24 @@ function assertInitDeepSafety(content, initDeepPath) {
 
 function assertManagedAstGrepGuidance(content, skillPath) {
   assert.doesNotMatch(content, /npm\s+install\s+-g\s+@ast-grep\/cli/i, `${skillPath} must not recommend an unpinned global ast-grep install`);
-  assert.match(content, /lazytrae tooling status --tooling-root \/absolute\/lazytrae-tools/, `${skillPath} must direct ast-grep setup through receipt-owned tooling status`);
-  assert.match(content, /lazytrae tooling install --tooling-root \/absolute\/lazytrae-tools/, `${skillPath} must direct ast-grep setup through the managed tooling lifecycle`);
+  assertQuotedPathOptionInShellExamples(content, '--tooling-root', skillPath);
+}
+
+function assertDurableLifecycleGuidance(content, documentationPath) {
+  assert.doesNotMatch(content, /\/private\/tmp/, `${documentationPath} must not publish a temporary installation path`);
+  assert.doesNotMatch(content, /\bv1\.0\.4\b/, `${documentationPath} must keep deferred work described as v1.0.3 gaps`);
+  assert.doesNotMatch(content, /release folder as the source of truth/i, `${documentationPath} must not make a removable source checkout authoritative`);
+  assert.match(content, /Node\.js LTS 20/i, `${documentationPath} must state the Node.js prerequisite`);
+  assert.match(content, /\bGit\b/, `${documentationPath} must state the Git prerequisite`);
+  assert.match(content, /https:\/\/github\.com\/elvinzhao10\/LazyTrae(?:\.git)?/, `${documentationPath} must name the verified official origin`);
+  assert.match(content, /launcher\.js/, `${documentationPath} must use the stable durable launcher`);
+  assert.match(content, /lifecycle (?:onboard|update|status|offboard)/, `${documentationPath} must document lifecycle commands`);
+  assert.match(content, /HOST READINESS:\s*PENDING/i, `${documentationPath} must keep unobserved host readiness pending`);
+}
+
+function assertTraeCliRemovalGuidance(content, documentationPath) {
+  assert.doesNotMatch(content, /trae-cli\s+mcp\s+remove\s+lazytrae/i, `${documentationPath} must not advertise a universal Trae CLI MCP removal command`);
+  assert.match(content, /Trae CLI[\s\S]*selected build's\s+documented\/manual MCP settings flow/i, `${documentationPath} must direct Trae CLI removal through the selected build's documented/manual MCP settings flow`);
 }
 
 test('Given installed LazyTrae guidance, when its package boundary is checked, then readiness and offboarding remain explicit', () => {
@@ -36,16 +68,42 @@ test('Given installed LazyTrae guidance, when its package boundary is checked, t
   assert.match(packageReadme, /init --host work` invokes the bounded Work skill installation/, 'package README must describe the Work init lifecycle accurately');
   assert.match(packageReadme, /self-contained CLI tarball/i, 'package README must describe the self-contained CLI artifact');
   assert.match(packageReadme, /cold offline/i, 'package README must describe the cold-offline artifact check');
-  assert.match(installedGuide, /pinned release folder as the source of\s+truth/i, 'installed onboarding guidance must keep the permanent local release authoritative');
-  assert.match(installedGuide, /absolute launcher path must remain stable/i, 'installed onboarding guidance must make moved-release failure explicit');
+  assertDurableLifecycleGuidance(installedGuide, 'installed AGENTS.md');
   assert.match(installedGuide, /## `offboard` protocol/, 'installed setup guide must provide safe offboarding');
   assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI README must describe the self-contained CLI artifact');
+});
+
+test('Given public lifecycle documentation, when its installation contract is checked, then it uses the durable launcher and v1.0.3 evidence boundaries', () => {
+  const paths = [
+    'README.md',
+    'AGENTS.md',
+    'docs/03-install-and-host-verification.md',
+    'docs/10-host-capability-matrix.md',
+    'docs/reference/host-routes.md',
+    'docs/v1.0.3-migration-guide.md',
+    'RELEASE_NOTES-v1.0.3.md',
+    'CHANGELOG.md',
+    'lazytrae-plugin/README.md',
+    'lazytrae-plugin/packages/cli/templates/AGENTS.md',
+  ];
+
+  for (const relativePath of paths) {
+    assertDurableLifecycleGuidance(
+      fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8'),
+      relativePath,
+    );
+  }
+});
+
+test('Given safe-removal guidance, when Trae CLI host removal is documented, then it uses the selected build settings flow', () => {
+  const safeRemovalPath = path.join(repositoryRoot, 'docs', '08-safe-removal.md');
+  assertTraeCliRemovalGuidance(fs.readFileSync(safeRemovalPath, 'utf8'), safeRemovalPath);
 });
 
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {
   const packageAgents = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'AGENTS.md'), 'utf8');
 
-  assert.match(packageAgents, /1\.0\.2/, 'CLI maintainer guidance must name the packaged baseline');
+  assert.match(packageAgents, /1\.0\.3/, 'CLI maintainer guidance must name the packaged baseline');
   assert.match(packageAgents, /broad Node test suite/i, 'CLI maintainer guidance must describe the current suite');
   assert.doesNotMatch(packageAgents, /v0\.13|250 LOC|Currently thin/i, 'CLI maintainer guidance must not retain stale constraints');
   assert.match(packageAgents, /node --test test\/documentation-regression\.test\.js/, 'CLI maintainer guidance must name a focused documentation check');

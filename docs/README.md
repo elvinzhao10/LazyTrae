@@ -60,6 +60,7 @@ settings and live integration remain outside package ownership.
 | [08 — Safe removal](08-safe-removal.md) | Why does removal stop at package-owned paths? |
 | [09 — Test and release verification](09-test-and-release-verification.md) | What does each release gate prove? |
 | [10 — Host capability matrix](10-host-capability-matrix.md) | Where do Trae IDE, Work, and CLI intentionally diverge? |
+| [v1.0.3 migration guide](v1.0.3-migration-guide.md) | How do durable onboarding, update confirmation, runtime refresh, and scoped offboard work? |
 
 The lookup tables in [reference](reference/) provide the concrete state
 artifacts, MCP inventory, verification vocabulary, and host routes used by

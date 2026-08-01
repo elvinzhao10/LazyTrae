@@ -2,10 +2,31 @@
 
 This page explains the deployment boundary in code terms. The CLI contains canonical templates and a local MCP runtime; it does not contain Trae's settings database, session state, or live connector process table.
 
-## Local-first onboarding
+## Durable lifecycle
 
-Keep the pinned `v1.0.2` release in a permanent folder, open or link it in the
-selected Trae host, give the agent
+Prerequisites are **Node.js LTS 20 or newer** and **Git**. Bootstrap with
+`lifecycle onboard` only from the verified official GitHub origin
+`https://github.com/elvinzhao10/LazyTrae.git` (optionally without `.git`, or
+with `/tree/<ref>`). The bootstrap checkout is transport only.
+
+After promotion use `node "<install-root>/LazyTrae/launcher.js"`.
+`lifecycle status`, `lifecycle update`, and plan-first `lifecycle offboard`
+operate on the exact durable tree
+`LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`.
+The original checkout may be deleted.
+
+The default install root is `~/Library/Application Support/LazySeries` on
+macOS, `${XDG_DATA_HOME:-~/.local/share}/lazyseries` on Linux, and
+`%LOCALAPPDATA%\LazySeries` on Windows. A moved same-version tag requires
+`--confirm-revision <full-sha>`; a tag name is not immutable identity. If Node
+moves and status reports `STALE_RUNTIME`, use a fresh verified checkout for
+scoped offboard and re-onboard; do not rewrite `active.json` or receipts.
+Platform defaults are package behavior, not host-support evidence:
+**HOST READINESS: PENDING** until current observation.
+
+## Host onboarding
+
+Open or link the durable `v1.0.3` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for Trae IDE, Trae Work, or Trae CLI, runs safe package checks, and
 reports package readiness separately from host readiness. Before copying Work
@@ -34,7 +55,10 @@ The supplied QA could not access Trae CLI; its live-host route is unverified.
 
 `packages/cli/src/commands/init.js` is the installer. It resolves the target project, copies or merges files from `packages/cli/templates/`, and then runs the selected host's load check. `sync.js` follows the same managed-content rules for later updates. The safe-write and managed-block helpers prevent an update from silently overwriting protected destinations.
 
-The templates produce `.trae/` workflow assets and `.lazytrae/` schemas/state defaults. The executable `lazytrae` companion and packaged MCP server are separate installed artifacts; the self-contained CLI tarball does not need the source checkout after installation.
+The templates produce `.trae/` workflow assets and `.lazytrae/` schemas/state
+defaults. The executable companion and packaged MCP server are separate
+installed artifacts. Project declarations use the stable durable launcher, so
+the self-contained bundle does not need the source checkout after installation.
 
 ## Two evidence channels
 

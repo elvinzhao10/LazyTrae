@@ -3,6 +3,7 @@ const { assertSafeRepoWritePath } = require('./path-boundary');
 const { isAtomicRenamePermissionError, readExistingFile } = require('./safe-write');
 const { writeRepoFile } = require('./templates');
 const { classifyCoreServer, isManagedLocalServer, managedCoreServer } = require('./local-launcher');
+const { assertUniqueManagedEntry, replaceManagedEntry } = require('./mcp-json-edit');
 const {
   isManagedOptionalServer, MANAGED_CODEGRAPH_DESCRIPTION, managedCodeGraphServer,
   managedOptionalServers,
@@ -136,6 +137,7 @@ function plannedUpdate(repoRoot, templatePath, destinationPath) {
   Object.assign(template.mcpServers, managedOptionalServers(repoRoot));
   const { file, config } = readDestination(repoRoot, destinationPath);
   if (!file.exists) return { file, content: `${JSON.stringify(template, null, 2)}\n`, coreState: 'absent' };
+  assertUniqueManagedEntry(file.content);
   const existingServers = config.mcpServers || {};
   const core = classifyCoreServer(existingServers.lazytrae, repoRoot);
   if (core.state === 'modified') {
@@ -145,15 +147,32 @@ function plannedUpdate(repoRoot, templatePath, destinationPath) {
       detail: 'The same-name LazyTrae MCP entry is modified and was preserved; rename or remove it before retrying init/sync.',
     };
   }
-  const merged = {
-    ...template,
-    ...config,
-    mcpServers: {
-      ...template.mcpServers,
-      ...callerServers(repoRoot, existingServers, template.mcpServers),
-    },
+  const durableManaged = template.mcpServers.lazytrae._lazytrae.schema_version === 2;
+  if (durableManaged && core.state === 'current') {
+    return { file, content: file.content, coreState: core.state, previousLauncher: core.launcher };
+  }
+  if (!durableManaged) {
+    const merged = {
+      ...template,
+      ...config,
+      mcpServers: {
+        ...template.mcpServers,
+        ...callerServers(repoRoot, existingServers, template.mcpServers),
+      },
+    };
+    return {
+      file,
+      content: `${JSON.stringify(merged, null, 2)}\n`,
+      coreState: core.state,
+      previousLauncher: core.launcher,
+    };
+  }
+  return {
+    file,
+    content: replaceManagedEntry(file.content, template.mcpServers.lazytrae),
+    coreState: core.state,
+    previousLauncher: core.launcher,
   };
-  return { file, content: `${JSON.stringify(merged, null, 2)}\n`, coreState: core.state, previousLauncher: core.launcher };
 }
 
 function updateMcpDeclaration(repoRoot, templatePath, destinationPath) {
@@ -161,7 +180,7 @@ function updateMcpDeclaration(repoRoot, templatePath, destinationPath) {
   if (update.status) return { status: update.status, detail: update.detail };
   if (update.content === update.file.content) return { status: 'unchanged' };
   try {
-    writeRepoFile(repoRoot, destinationPath, update.content);
+    writeRepoFile(repoRoot, destinationPath, update.content, 'utf8', update.file.mode);
   } catch (error) {
     if (isAtomicRenamePermissionError(error)) {
       return { status: update.file.exists ? 'unavailable_existing' : 'unavailable_absent' };
@@ -169,7 +188,7 @@ function updateMcpDeclaration(repoRoot, templatePath, destinationPath) {
     throw new McpDeclarationError('Atomic update of .trae/mcp.json failed; the original is unchanged. Resolve the write error and retry.', error);
   }
   const result = { status: 'updated' };
-  if (['missing', 'stale', 'stale_root'].includes(update.coreState)) result.refreshed = true;
+  if (['missing', 'stale', 'stale_root', 'stale_runtime'].includes(update.coreState)) result.refreshed = true;
   if (update.previousLauncher !== undefined) result.previousLauncher = update.previousLauncher;
   return result;
 }

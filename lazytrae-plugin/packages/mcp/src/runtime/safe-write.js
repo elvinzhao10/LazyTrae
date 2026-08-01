@@ -82,7 +82,7 @@ function readExistingFile(repoRoot, filePath, encoding) {
   try {
     const stat = fs.fstatSync(descriptor);
     if (!stat.isFile() || stat.nlink !== 1) throw new Error('refusing to append through a non-regular file');
-    return { exists: true, content: fs.readFileSync(descriptor, encoding) };
+    return { exists: true, content: fs.readFileSync(descriptor, encoding), mode: stat.mode & 0o777 };
   } finally {
     fs.closeSync(descriptor);
   }

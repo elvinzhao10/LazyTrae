@@ -99,6 +99,7 @@ function defaultLoop() {
     checkpoints: [],
     failure_attempts: [],
     review_blockers: [],
+    adaptive: null,
   };
 }
 

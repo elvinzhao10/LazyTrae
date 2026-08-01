@@ -180,6 +180,34 @@ test('uninstall removes only its marker-delimited gitignore block', () => {
   }
 });
 
+test('managed gitignore migration is idempotent and fully removable', () => {
+  const fixture = makeRepo('lazytrae-uninstall-gitignore-migration-');
+  try {
+    const userContent = 'user-before/\n';
+    const oldBlock = [
+      '',
+      '# lazytrae:managed:start:gitignore',
+      '# LazyTrae runtime (managed by lazytrae init)',
+      '.lazytrae/state/',
+      '.lazytrae/logs/',
+      '.lazytrae/evidence/',
+      '# lazytrae:managed:end:gitignore',
+      '',
+    ].join('\n');
+    writeFile(fixture, '.gitignore', userContent + oldBlock);
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+    const migrated = readFile(fixture, '.gitignore');
+    assert.equal(migrated.includes('.lazytrae/loop/'), true);
+    assert.equal((migrated.match(/lazytrae:managed:start:gitignore/g) || []).length, 1);
+    assert.equal(runCli(['init', '--host', 'ide'], { cwd: fixture }).status, 0);
+    assert.equal(readFile(fixture, '.gitignore'), migrated);
+    assert.equal(runCli(['uninstall', '--yes'], { cwd: fixture }).status, 0);
+    assert.equal(readFile(fixture, '.gitignore'), userContent);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
 test('work uninstall removes only exact manifest skills and retains modified or nonempty directories', () => {
   const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-uninstall-'));
   try {

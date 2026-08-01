@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const { CLI, runCli } = require('./test-helpers');
+const { CLI, runCli, toolingHostBin } = require('./test-helpers');
 
 function makeRepo(prefix) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -21,13 +21,7 @@ function snapshotTarget(root) {
 }
 
 function install(root, toolingRoot) {
-  const bin = path.join(root, 'incompatible-host-bin');
-  fs.mkdirSync(bin, { recursive: true });
-  for (const [name, version] of Object.entries({ rg: 'ripgrep 13.0.0', sg: 'ast-grep 0.43.0' })) {
-    const executable = path.join(bin, name);
-    fs.writeFileSync(executable, `#!/bin/sh\nprintf '%s\\n' '${version}'\n`);
-    fs.chmodSync(executable, 0o755);
-  }
+  const bin = toolingHostBin(root, { rg: 'ripgrep 13.0.0', sg: 'ast-grep 0.43.0' });
   return spawnSync(process.execPath, [CLI, 'tooling', 'install', '--tooling-root', toolingRoot], {
     cwd: root,
     encoding: 'utf8',

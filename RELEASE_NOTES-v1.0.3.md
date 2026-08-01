@@ -1,0 +1,134 @@
+# LazyTrae v1.0.3 — Adaptive Harness
+
+**Release date:** 2026-07-20
+**Status:** Release-ready commits and artifacts only. Not pushed, tagged, or
+published.
+
+## Durable package lifecycle
+
+v1.0.3 requires **Node.js LTS 20 or newer** and **Git** and verifies the
+official origin `https://github.com/elvinzhao10/LazyTrae.git`. The one-time
+`lifecycle onboard` bootstrap promotes an immutable commit-addressed bundle to
+`LazyTrae/{active.json,launcher.js,releases/,receipts/,rollback/,staging/,locks/}`.
+The source checkout may be deleted; subsequent `lifecycle update`, `lifecycle
+status`, plan-first `lifecycle offboard`, and project commands use
+`node "<install-root>/LazyTrae/launcher.js"`. Same-version ref movement
+requires `--confirm-revision <full-sha>`. Runtime replacement is recovered by
+scoped offboard/re-onboard, never receipt edits. These are package guarantees;
+without current host observation, **HOST READINESS: PENDING**.
+
+## What's new
+
+v1.0.3 turns LazyTrae's menu of named workflows into one adaptive experience.
+You state the outcome; the harness selects the smallest sufficient workflow,
+composes the specialists and capabilities it needs, explains the material
+choices, escalates only when evidence requires it, and resumes through the
+existing runtime state.
+
+## Outcome-first adaptive selection
+
+When you describe an outcome without naming a workflow, the adaptive harness
+picks a mode for you. It does not replace the workflows you already know — it
+chooses among them. If you name one explicitly, that request stays
+authoritative.
+
+## Five workflow modes
+
+The harness selects one of five modes, each mapping onto existing LazyTrae
+surfaces (Skills, commands, agents, MCP, local tooling, verification gates):
+
+| Mode | When it applies |
+| --- | --- |
+| **direct** | Small, localized, low-risk change with clear acceptance criteria. |
+| **assisted** | Unfamiliar or cross-file diagnostic work that needs exploration first. |
+| **planned** | Broad or ambiguous work where decisions must be resolved before editing. |
+| **orchestrated** | Security-sensitive, release, or multi-system work needing independent review. |
+| **long-horizon** | Multi-session work needing durable checkpoints and a continuation loop. |
+
+The policy always picks the **lowest** mode that satisfies the identified
+risk, uncertainty, and verification requirements. It never escalates just
+because more capabilities are available.
+
+## Automatic specialist and capability composition
+
+The harness dynamically selects existing Skills, agent responsibilities, MCP
+capabilities, local tools, hooks, and verification depth. It reuses what is
+already installed and declared — it does not install new commands, hooks, or
+providers per task. One owner is assigned to each implementation stage;
+parallel agents are used only for genuinely independent work.
+
+## Explicit override remains authoritative
+
+Named workflows — `lazy-ulw-plan`, `lazy-start-work`, `lazy-review-work`,
+`lazy-ulw-loop`, and others — remain fully authoritative. If you ask for a
+plan only, you get planning. If you ask for a direct fix, the harness will not
+silently insert a planning stage unless safety or missing authority requires
+it. The classifier may add required verification or approval boundaries, but
+it never silently downgrades or replaces an explicit request.
+
+## Bounded escalation
+
+A targeted verification failure adds a debugging stage. A failure that
+reveals broader scope may increase the mode by one level. An unavailable
+capability uses a safe fallback before increasing workflow depth. The harness
+performs **at most two automatic depth escalations** per decision. After
+that, it produces a blocked-state record with the reproduced failure,
+attempted approaches, current evidence, and the exact next user decision
+needed — rather than looping indefinitely.
+
+## Concise orchestration explanation
+
+Every decision is surfaced through the existing `completion-status` command.
+The explanation shows the selected mode, stages, responsibilities, and
+capabilities, plus what was **not** selected and why. When a capability
+fallback occurs, the `Substituted:` section reports the substitution and its
+effect on evidence strength — so you never see a silent downgrade.
+
+## Lightweight continuation snapshot
+
+The harness writes an optional, additive `adaptive` block into the existing
+loop/run state. It records the decision, current stage, runtime resolution,
+escalation count, revision marker, and next action. The block is
+single-writer (only the adaptive orchestrator writes it), backward-compatible
+(v1.0.2 state without the block loads unchanged), and adds no new locks or
+compare-and-swap machinery.
+
+## Capability-qualified Trae mapping
+
+The same adaptive contract maps onto Trae IDE, Trae Work, and Trae CLI. Each
+host is qualified by its available surface — the harness uses what each host
+provides without fabricating parity for unavailable or unverified functions.
+
+## Unchanged authority and host-readiness boundaries
+
+- **Authority:** read-only and package-owned capabilities activate
+  automatically. Installations, persistence, host settings, credentials,
+  browser/desktop control, remote access, and data egress still require
+  explicit approval. No hidden host mutation occurs.
+- **Host readiness:** package evidence is not live-host evidence. Package
+  checks validate local files and declarations only; host discovery, hook
+  execution, and MCP connection remain PENDING until observed in a fresh
+  session.
+- **No new MCP servers, remote providers, host settings, or production
+  dependencies.** No cross-repository runtime dependencies. No state-store
+  replacement or memory migration.
+
+## Known v1.0.3 gaps
+
+- **Continuation resume:** the classifier does not yet resume from compatible
+  snapshots. Every request produces a fresh decision. Pinned by xfail tests.
+- **Evidence freshness:** `revisionMarker` is constant; stale snapshot
+  detection and the re-verification trigger signal are not implemented.
+  Pinned by xfail tests.
+- **Live-host QA:** Trae IDE, Trae Work, and Trae CLI live-host verification
+  is PENDING — no live host was available in the release session. Package
+  evidence and fixture-based parity are verified; live-host evidence was not
+  captured.
+
+## Cross-repo parity
+
+LazyTrae and LazyBuddy consume the same byte-identical
+`adaptive-harness-contract.v1.json` and the same ten behavioral fixtures,
+with paired sha256 digest parity. Equivalent requests produce equivalent
+user-level modes, responsibilities, approval boundaries, and verification
+gates — with no runtime coupling between repositories.
