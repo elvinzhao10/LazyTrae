@@ -59,8 +59,8 @@ node "<install-root>/LazyTrae/launcher.js" lifecycle recover-bootstrap-lock \
 "${LOCAL_LAZYTRAE[@]}" work uninstall
 
 # Optional explicit lifecycle commands remain task- and approval-gated.
-"${LOCAL_LAZYTRAE[@]}" tooling lsp-status --target /absolute/project --tooling-root /absolute/lazytrae-lsp
-"${LOCAL_LAZYTRAE[@]}" tooling codegraph-doctor --target /absolute/project --tooling-root /absolute/lazytrae-codegraph
+"${LOCAL_LAZYTRAE[@]}" tooling lsp-status --target "/absolute/project" --tooling-root "/absolute/lazytrae-lsp"
+"${LOCAL_LAZYTRAE[@]}" tooling codegraph-doctor --target "/absolute/project" --tooling-root "/absolute/lazytrae-codegraph"
 "${LOCAL_LAZYTRAE[@]}" tooling remote-status
 ```
 
