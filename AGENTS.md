@@ -141,9 +141,10 @@ unknown assets, and report package removal separately from observed host
 removal. Remove host MCP registrations manually: Trae Work through **Settings
 → MCP**, Trae CLI through the selected build's documented MCP settings flow,
 and Trae IDE through its project MCP UI. Do not assume a universal CLI command.
-Recovery remains limited to an explicitly verified lifecycle-owned sibling
-bootstrap lock or product `staging/`/`locks/` artifact; the caller workspace is
-always preserved.
+`lifecycle recover-bootstrap-lock` remains limited to an explicitly verified
+lifecycle-owned sibling bootstrap lock or product `staging/`/`locks/` artifact,
+and requires `--yes` after that verification; the caller workspace is always
+preserved.
 For an upgrade rollback, remove only v1.0.3 managed assets after approval; do
 not restore v1.0.2 over user-modified files.
 
