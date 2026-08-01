@@ -46,7 +46,7 @@ function assertLocalInitDeepGuidance(content, source) {
   assert.match(content, /\.trae\/mcp\.json/, source);
   assert.match(content, /mcpServers\.lazytrae/, source);
   assert.match(content, /command[^\n]*node/, source);
-  assert.match(content, /node <absolute-release-launcher[^\n]*--root <absolute-project-root/, source);
+  assert.match(content, /node "<absolute-release-launcher[^\n]*--root "<absolute-project-root/, source);
 }
 
 test('onboarding documents all host routes without claiming host discovery', () => {
