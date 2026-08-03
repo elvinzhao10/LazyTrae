@@ -20,7 +20,7 @@ function readFiles(directory, prefix = '') {
 
 function readTraeTemplateFiles() {
   return readFiles(path.join(REPO_ROOT, 'packages', 'cli', 'templates'))
-    .filter(relativePath => !['AGENTS.md', 'config.json'].includes(relativePath))
+    .filter(relativePath => !['AGENTS.md', 'config.json', 'hooks.json'].includes(relativePath))
     .filter(relativePath => !['evidence', 'schemas', 'state'].includes(relativePath.split(path.sep)[0]));
 }
 
@@ -246,7 +246,6 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
     assert.match(recovered.stdout, /Post-compact recovery needed/);
 
     fs.rmSync(path.join(fixture, '.trae', 'hooks', 'context-recovery.sh'));
-    fs.rmSync(path.join(fixture, '.trae', 'hooks.json'));
     fs.rmSync(path.join(fixture, '.trae', 'mcp.json'));
     fs.rmSync(path.join(fixture, '.lazytrae', 'state', 'active-loop.json'));
     const sessionsBeforeSync = fs.readFileSync(path.join(fixture, '.lazytrae', 'state', 'sessions.json'), 'utf8');
@@ -254,7 +253,6 @@ test('fresh init is self-contained for doctor, sync, and context recovery', () =
     assert.equal(sync.status, 0, sync.stderr);
     for (const relativePath of [
       '.trae/hooks/context-recovery.sh',
-      '.trae/hooks.json',
       '.trae/mcp.json',
       '.lazytrae/state/active-loop.json',
     ]) {

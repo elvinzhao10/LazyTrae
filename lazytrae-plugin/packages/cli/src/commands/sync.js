@@ -8,6 +8,10 @@ const { updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { RECEIPT_PATH, checkProjectAssets, installProjectAssets } = require('../lib/project-assets');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
+const {
+  installVerifiedHookConfiguration, preflightVerifiedHookConfiguration,
+} = require('../lib/trae-ide-config');
+const { inspectManagedBlocks } = require('../lib/managed-blocks');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -28,13 +32,32 @@ Update managed templates and managed blocks.
 Options:
   --help, -h   Show this help message
   --check      Report stale, missing, orphaned, or modified generated assets without writing
+  --ide-probe <path>  Verified host-probe JSON authorizing the IDE Hook schema
+  --global-hooks <path>  Explicit absolute global Hook config path; never guessed
 `);
     return;
   }
 
   const repoRoot = detectRepoRoot();
+  const probeIndex = args.indexOf('--ide-probe');
+  const globalHooksIndex = args.indexOf('--global-hooks');
+  const ideProbePath = probeIndex === -1 ? null : args[probeIndex + 1];
+  const globalHooksPath = globalHooksIndex === -1 ? null : args[globalHooksIndex + 1];
   localLauncherContext();
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
+  const existingAgentsPath = path.join(repoRoot, 'AGENTS.md');
+  if (fs.existsSync(existingAgentsPath)) {
+    const inspection = inspectManagedBlocks(fs.readFileSync(existingAgentsPath, 'utf8'));
+    if (inspection.malformed.length > 0) {
+      throw new Error(`AGENTS.md has malformed managed markers: ${inspection.malformed.join(', ')}`);
+    }
+  }
+  preflightVerifiedHookConfiguration({
+    repoRoot,
+    probePath: ideProbePath,
+    globalHooksPath,
+    templatePath: path.join(templatesDir, 'hooks.json'),
+  });
 
   if (args.includes('--check')) {
     const result = checkProjectAssets(repoRoot);
@@ -103,11 +126,18 @@ Options:
     summary.skipped.push('rules (no changes)');
   }
 
-  for (const relativePath of ['.trae/hooks.json']) {
-    const templatePath = path.join(templatesDir, relativePath.slice('.trae/'.length));
-    const destinationPath = path.join(repoRoot, relativePath);
-    if (copyRepoFileIfChanged(repoRoot, templatePath, destinationPath)) summary.updated.push(relativePath);
-    else summary.skipped.push(`${relativePath} (no changes)`);
+  try {
+    const hooks = installVerifiedHookConfiguration({
+      repoRoot,
+      probePath: ideProbePath,
+      globalHooksPath,
+      templatePath: path.join(templatesDir, 'hooks.json'),
+    });
+    if (hooks.status === 'updated') summary.updated.push(`${hooks.written.length} verified Hook configuration file(s)`);
+    else summary.skipped.push('Hook configuration (probe did not verify the IDE event/config schema)');
+  } catch (error) {
+    console.error(`LazyTrae sync: Hook configuration merge refused: ${error.message}`);
+    return 1;
   }
 
   const mcpTemplatePath = path.join(templatesDir, 'mcp.json');

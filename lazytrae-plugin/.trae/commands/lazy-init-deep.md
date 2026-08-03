@@ -1,3 +1,8 @@
+---
+description: Initialize hierarchical project guidance without replacing user prose.
+argument-hint: "[--create-new] [path]"
+---
+
 # init-deep
 
 ## Usage

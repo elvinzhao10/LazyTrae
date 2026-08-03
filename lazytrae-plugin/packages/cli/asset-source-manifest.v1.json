@@ -7,6 +7,7 @@
     { "source": "templates/hooks", "destination": ".trae/hooks", "default_format": "text", "format_by_extension": {} },
     { "source": "templates/rules", "destination": ".trae/rules", "default_format": "text", "format_by_extension": {} },
     { "source": "templates/schemas", "destination": ".lazytrae/schemas", "default_format": "text", "format_by_extension": { ".json": "json" } },
+    { "source": "templates/skills", "destination": ".agents/skills", "default_format": "text", "format_by_extension": {} },
     { "source": "templates/skills", "destination": ".trae/skills", "default_format": "text", "format_by_extension": {} }
   ]
 }

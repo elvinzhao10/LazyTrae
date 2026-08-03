@@ -128,6 +128,18 @@ test('rejects duplicate destinations and malformed frontmatter while preserving 
   assert.equal(fs.readFileSync(path.join(prompt.destinationRoot, '.host', 'guide.md'), 'utf8'), promptBytes);
 });
 
+test('rejects duplicate skill identities before compiling any destination', (t) => {
+  // Given: two canonical Skill files with distinct paths but the same routed identity.
+  const input = fixture(t);
+  fs.mkdirSync(path.join(input.sourceRoot, 'neutral', 'first'), { recursive: true });
+  fs.mkdirSync(path.join(input.sourceRoot, 'neutral', 'second'), { recursive: true });
+  fs.writeFileSync(path.join(input.sourceRoot, 'neutral', 'first', 'SKILL.md'), '---\nname: duplicate-skill\ndescription: first\n---\n');
+  fs.writeFileSync(path.join(input.sourceRoot, 'neutral', 'second', 'SKILL.md'), '---\nname: duplicate-skill\ndescription: second\n---\n');
+
+  // When/Then: compilation refuses the ambiguous semantic identity before writing outputs.
+  assert.throws(() => compileAssets(input), /duplicate skill identity.*duplicate-skill/i);
+});
+
 test('refuses same-line conflicts without changing caller bytes', (t) => {
   // Given: caller and source changed the same line from the receipted base.
   const input = fixture(t);

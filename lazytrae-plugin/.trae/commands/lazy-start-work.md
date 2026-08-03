@@ -1,3 +1,8 @@
+---
+description: Execute one task at a time from an approved LazyTrae plan.
+argument-hint: "[plan-name]"
+---
+
 # start-work
 
 ## Usage

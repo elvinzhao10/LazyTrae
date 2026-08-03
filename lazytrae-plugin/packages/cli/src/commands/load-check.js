@@ -30,13 +30,14 @@ const ARTIFACT_CONTRACT = Object.freeze({
   rules: ['css.md', 'lazytrae.md', 'python.md', 'typescript.md'],
   hooks: [
     'context-recovery.sh', 'dynamic-rules.sh', 'post-tool-use.sh', 'pre-tool-use.sh', 'recover-context.sh',
-    'session-start.sh', 'stop.sh', 'user-prompt-submit.sh',
+    'session-start.sh', 'notification.sh', 'stop.sh', 'user-prompt-submit.sh',
   ],
   hookEvents: {
     SessionStart: 'session-start.sh',
     UserPromptSubmit: 'user-prompt-submit.sh',
     PreToolUse: 'pre-tool-use.sh',
     PostToolUse: 'post-tool-use.sh',
+    Notification: 'notification.sh',
     Stop: 'stop.sh',
   },
   mcp: { command: 'node', launcher: 'absolute release-owned bin/lazytrae.js' },
@@ -67,7 +68,11 @@ function missingArtifacts(repoRoot, directory, names, nestedFile) {
 
 function hookMappingFailures(repoRoot) {
   const hooksPath = path.join(repoRoot, '.trae', 'hooks.json');
-  if (!fs.existsSync(hooksPath)) return { failures: ['missing .trae/hooks.json'], ready: 0 };
+  if (!fs.existsSync(hooksPath)) {
+    const probeGated = fs.existsSync(path.join(repoRoot, '.lazytrae', 'asset-receipt.v1.json'))
+      && !fs.existsSync(path.join(repoRoot, '.lazytrae', 'trae-ide-config-receipt.v1.json'));
+    return { failures: probeGated ? [] : ['missing .trae/hooks.json'], ready: 0, pending: probeGated };
+  }
 
   let hooks;
   try {
@@ -176,7 +181,11 @@ configuration only; it does not claim that a host has registered or loaded them.
     console.log(`${result.missing.length ? 'FAIL' : 'PASS'} ${result.label}: ${ready}/${expected}${result.missing.length ? ` (missing: ${result.missing.join(', ')})` : ''}`);
   }
   const eventCount = Object.keys(ARTIFACT_CONTRACT.hookEvents).length;
-  console.log(`${hookMappings.failures.length ? 'FAIL' : 'PASS'} hooks.json event mappings: ${hookMappings.ready}/${eventCount}${hookMappings.failures.length ? ` (${hookMappings.failures.join('; ')})` : ''}`);
+  const hookMappingLabel = hookMappings.pending ? 'PENDING' : hookMappings.failures.length ? 'FAIL' : 'PASS';
+  const hookMappingDetail = hookMappings.pending
+    ? ' (probe has not verified the IDE event/config schema; no config written)'
+    : hookMappings.failures.length ? ` (${hookMappings.failures.join('; ')})` : '';
+  console.log(`${hookMappingLabel} hooks.json event mappings: ${hookMappings.ready}/${eventCount}${hookMappingDetail}`);
   const hookCount = ARTIFACT_CONTRACT.hooks.length;
   console.log(`${hookPermissions.length ? 'FAIL' : 'PASS'} hook executability: ${hookCount - hookPermissions.length}/${hookCount}${hookPermissions.length ? ` (not executable: ${hookPermissions.join(', ')})` : ''}`);
   console.log(host === 'work'

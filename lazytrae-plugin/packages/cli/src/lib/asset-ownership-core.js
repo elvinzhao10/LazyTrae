@@ -81,6 +81,7 @@ function readManifest(sourceRoot, manifestPath) {
 function collectEntries(sourceRoot, manifest) {
   const entries = [];
   const destinations = new Set();
+  const skillIdentities = new Map();
   const walk = (absolute, relative, rule) => {
     for (const item of fs.readdirSync(absolute, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
       const source = path.join(absolute, item.name);
@@ -95,9 +96,20 @@ function collectEntries(sourceRoot, manifest) {
         const format = rule.format_by_extension?.[path.extname(item.name)] || rule.default_format;
         if (!['json', 'text'].includes(format)) throw new Error(`unsupported asset format: ${format}`);
         const bytes = fs.readFileSync(source);
-        if (path.extname(item.name) === '.md' && bytes.toString('utf8').startsWith('---\n')) {
-          const end = bytes.toString('utf8').indexOf('\n---\n', 4);
+        const text = bytes.toString('utf8');
+        if (path.extname(item.name) === '.md' && text.startsWith('---\n')) {
+          const end = text.indexOf('\n---\n', 4);
           if (end === -1) throw new Error(`malformed frontmatter: ${child}`);
+          if (item.name === 'SKILL.md') {
+            const name = /^name:\s*([a-z0-9][a-z0-9-]*)\s*$/m.exec(text.slice(4, end))?.[1];
+            if (!name) throw new Error(`malformed skill identity: ${child}`);
+            const semanticSource = `${rule.source}/${child}`;
+            const previous = skillIdentities.get(name);
+            if (previous && previous !== semanticSource) {
+              throw new Error(`duplicate skill identity ${name}: ${previous}, ${semanticSource}`);
+            }
+            skillIdentities.set(name, semanticSource);
+          }
         }
         entries.push({ path: destination, format, mode: stat.mode & 0o777, bytes });
       } else throw new Error(`source asset is not a regular file: ${child}`);
@@ -126,11 +138,14 @@ function same(left, right) {
 function mergeJson(base, caller, incoming, location = '$') {
   if (same(caller, base)) return incoming;
   if (same(incoming, base) || same(caller, incoming)) return caller;
-  const objects = [base, caller, incoming].every((value) => value && typeof value === 'object' && !Array.isArray(value));
+  const emptyBase = base === undefined
+    && [caller, incoming].every((value) => value && typeof value === 'object' && !Array.isArray(value));
+  const mergeBase = emptyBase ? {} : base;
+  const objects = [mergeBase, caller, incoming].every((value) => value && typeof value === 'object' && !Array.isArray(value));
   if (!objects) throw new Error(`JSON merge conflict at ${location}`);
   const result = {};
-  const keys = [...new Set([...Object.keys(base), ...Object.keys(caller), ...Object.keys(incoming)])].sort();
-  for (const key of keys) result[key] = mergeJson(base[key], caller[key], incoming[key], `${location}.${key}`);
+  const keys = [...new Set([...Object.keys(mergeBase), ...Object.keys(caller), ...Object.keys(incoming)])].sort();
+  for (const key of keys) result[key] = mergeJson(mergeBase[key], caller[key], incoming[key], `${location}.${key}`);
   return result;
 }
 

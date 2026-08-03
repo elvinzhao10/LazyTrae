@@ -1,3 +1,8 @@
+---
+description: Run an evidence-led long-horizon LazyTrae execution loop.
+argument-hint: "[task brief] [--heavy]"
+---
+
 # ulw-loop
 
 ## Usage

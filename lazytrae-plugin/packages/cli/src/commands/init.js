@@ -10,6 +10,10 @@ const { RECEIPT_PATH, installProjectAssets } = require('../lib/project-assets');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
 const { readHost } = require('../lib/host-route');
+const {
+  installVerifiedHookConfiguration, preflightVerifiedHookConfiguration,
+} = require('../lib/trae-ide-config');
+const { inspectManagedBlocks } = require('../lib/managed-blocks');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -31,6 +35,8 @@ Install LazyTrae into the current repo.
 Options:
   --help, -h   Show this help message
   --host <id>  Run the final load check for ide, work, or cli
+  --ide-probe <path>  Verified host-probe JSON authorizing the IDE Hook schema
+  --global-hooks <path>  Explicit absolute global Hook config path; never guessed
   --skills-dir <path>  Override Trae Work's global skills directory with --host work
 `);
     return;
@@ -39,11 +45,29 @@ Options:
   const host = readHost(args);
   const work = host === 'work' ? require('./work') : null;
   const workSkillsDir = work ? work.readSkillsDir(args) : null;
+  const probeIndex = args.indexOf('--ide-probe');
+  const globalHooksIndex = args.indexOf('--global-hooks');
+  const ideProbePath = probeIndex === -1 ? null : args[probeIndex + 1];
+  const globalHooksPath = globalHooksIndex === -1 ? null : args[globalHooksIndex + 1];
   const repoRoot = detectRepoRoot();
   localLauncherContext();
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
   const summary = { created: [], updated: [], skipped: [], merged: [], warnings: [] };
+
+  const existingAgentsPath = path.join(repoRoot, 'AGENTS.md');
+  if (fs.existsSync(existingAgentsPath)) {
+    const inspection = inspectManagedBlocks(fs.readFileSync(existingAgentsPath, 'utf8'));
+    if (inspection.malformed.length > 0) {
+      throw new Error(`AGENTS.md has malformed managed markers: ${inspection.malformed.join(', ')}`);
+    }
+  }
+  preflightVerifiedHookConfiguration({
+    repoRoot,
+    probePath: ideProbePath,
+    globalHooksPath,
+    templatePath: path.join(templatesDir, 'hooks.json'),
+  });
 
   console.log(`LazyTrae init v1.0.3`);
   console.log(`Repo root: ${repoRoot}\n`);
@@ -53,7 +77,7 @@ Options:
 
   // Create directory structure
   const dirs = [
-    '.trae/rules', '.trae/skills', '.trae/commands', '.trae/agents', '.trae/hooks',
+    '.agents/skills', '.trae/rules', '.trae/skills', '.trae/commands', '.trae/agents', '.trae/hooks',
     '.lazytrae/state', '.lazytrae/evidence', '.lazytrae/schemas', '.lazytrae/logs',
     '.lazytrae/plans', '.lazytrae/loop',
   ];
@@ -134,16 +158,18 @@ Options:
     process.exitCode = 1;
   }
 
-  // Copy .trae/hooks.json
   try {
-    if (copyRepoFileIfChanged(repoRoot,
-      path.join(templatesDir, 'hooks.json'),
-      path.join(repoRoot, '.trae', 'hooks.json')
-    )) {
-      summary.created.push('.trae/hooks.json');
-    }
+    const hooks = installVerifiedHookConfiguration({
+      repoRoot,
+      probePath: ideProbePath,
+      globalHooksPath,
+      templatePath: path.join(templatesDir, 'hooks.json'),
+    });
+    if (hooks.status === 'updated') summary.created.push(`${hooks.written.length} verified Hook configuration file(s)`);
+    else summary.skipped.push('Hook configuration (probe did not verify the IDE event/config schema)');
   } catch (e) {
-    summary.skipped.push(`.trae/hooks.json (copy failed: ${e.message})`);
+    summary.skipped.push(`Hook configuration (merge refused: ${e.message})`);
+    process.exitCode = 1;
   }
 
   // Copy .trae/hooks/ shell scripts

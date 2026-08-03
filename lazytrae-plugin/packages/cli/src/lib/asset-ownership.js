@@ -247,4 +247,4 @@ function uninstallAssets(options) {
   return { removed, preserved };
 }
 
-module.exports = { checkAssets, compileAssets, installAssets, uninstallAssets };
+module.exports = { checkAssets, compileAssets, installAssets, transactionalWrite, uninstallAssets };

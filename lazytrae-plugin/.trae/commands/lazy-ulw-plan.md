@@ -1,3 +1,8 @@
+---
+description: Produce one decision-complete executable LazyTrae plan.
+argument-hint: "[user request]"
+---
+
 # ulw-plan
 
 ## Usage

@@ -1,3 +1,8 @@
+---
+description: Review implementation evidence and report concrete blocking findings.
+argument-hint: "[branch or diff range]"
+---
+
 # review-work
 
 ## Usage
