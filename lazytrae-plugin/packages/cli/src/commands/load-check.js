@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 const { inspectInitializeReceipt } = require('../lib/initialize-receipt');
+const { readHost } = require('../lib/host-route');
 const {
   formatHostMcpConfiguration,
   inspectCoreDeclaration,
@@ -152,9 +153,7 @@ configuration only; it does not claim that a host has registered or loaded them.
     return 0;
   }
 
-  const hostIndex = args.indexOf('--host');
-  const host = hostIndex === -1 ? 'ide' : args[hostIndex + 1];
-  if (!['ide', 'work', 'cli'].includes(host)) throw new Error('--host must be ide, work, or cli.');
+  const host = readHost(args);
 
   const repoRoot = detectRepoRoot();
   const checks = [

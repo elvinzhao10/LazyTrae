@@ -8,8 +8,7 @@ const { localLauncherContext, materializeGuidance, materializeHook } = require('
 const { updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
-
-const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
+const { readHost } = require('../lib/host-route');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -21,15 +20,8 @@ function detectRepoRoot() {
   }
 }
 
-function readHost(args) {
-  const hostIndex = args.indexOf('--host');
-  if (hostIndex === -1) return 'ide';
-  const host = args[hostIndex + 1];
-  if (!VALID_HOSTS.has(host)) throw new Error('--host must be ide, work, or cli.');
-  return host;
-}
-
 function run(args) {
+  if (args.includes('--force')) throw new Error('--force is not supported; asset ownership conflicts cannot be bypassed.');
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae init [options]
 
@@ -37,10 +29,8 @@ Install LazyTrae into the current repo.
 
 Options:
   --help, -h   Show this help message
-  --force      Force re-copy all files (even if unchanged)
   --host <id>  Run the final load check for ide, work, or cli
-  --skills-dir <path>
-                Override Trae Work's global skills directory with --host work
+  --skills-dir <path>  Override Trae Work's global skills directory with --host work
 `);
     return;
   }
@@ -50,7 +40,6 @@ Options:
   const workSkillsDir = work ? work.readSkillsDir(args) : null;
   const repoRoot = detectRepoRoot();
   localLauncherContext();
-  const force = args.includes('--force');
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
   const summary = { created: [], updated: [], skipped: [], merged: [], warnings: [] };
@@ -92,12 +81,12 @@ Options:
   const commandsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'commands'),
     path.join(repoRoot, '.trae', 'commands'),
-    { overwrite: force },
+    { overwrite: false },
   );
   if (commandsResult.created > 0) summary.created.push(`${commandsResult.created} command files`);
   if (commandsResult.updated > 0) summary.updated.push(`${commandsResult.updated} command files`);
   if (commandsResult.skipped > 0) {
-    summary.skipped.push(`refused to overwrite ${commandsResult.skipped} modified command files (preserved; rerun with --force to overwrite)`);
+    summary.skipped.push(`refused to overwrite ${commandsResult.skipped} modified command files (preserved; resolve ownership before retrying)`);
     process.exitCode = 1;
   }
 

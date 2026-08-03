@@ -142,12 +142,14 @@ test('packed CLI re-init refuses to overwrite a modified managed command', () =>
 
     // Then: the caller edit survives and the CLI refuses the unsafe re-init.
     assert.equal(reinit.status, 1, `${reinit.stdout}${reinit.stderr}`);
-    assert.match(`${reinit.stdout}${reinit.stderr}`, /refused to overwrite 1 modified command files .*--force/);
+    assert.match(`${reinit.stdout}${reinit.stderr}`, /refused to overwrite 1 modified command files .*resolve ownership before retrying/);
+    assert.doesNotMatch(`${reinit.stdout}${reinit.stderr}`, /--force/);
     assert.match(fs.readFileSync(command, 'utf8'), /caller note/);
 
     const forced = require('node:child_process').spawnSync(binary, ['init', '--host', 'ide', '--force'], { cwd: project, encoding: 'utf8' });
-    assert.equal(forced.status, 0, `${forced.stdout}${forced.stderr}`);
-    assert.doesNotMatch(fs.readFileSync(command, 'utf8'), /caller note/);
+    assert.equal(forced.status, 1, `${forced.stdout}${forced.stderr}`);
+    assert.match(`${forced.stdout}${forced.stderr}`, /force is not supported/);
+    assert.match(fs.readFileSync(command, 'utf8'), /caller note/);
   } finally { fs.rmSync(temporaryRoot, { recursive: true, force: true }); }
 });
 

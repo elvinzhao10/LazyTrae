@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "owner": "lazytrae-project-assets",
+  "roots": [
+    { "source": "templates/agents", "destination": ".trae/agents", "default_format": "text", "format_by_extension": {} },
+    { "source": "templates/commands", "destination": ".trae/commands", "default_format": "text", "format_by_extension": {} },
+    { "source": "templates/hooks", "destination": ".trae/hooks", "default_format": "text", "format_by_extension": {} },
+    { "source": "templates/rules", "destination": ".trae/rules", "default_format": "text", "format_by_extension": {} },
+    { "source": "templates/schemas", "destination": ".lazytrae/schemas", "default_format": "text", "format_by_extension": { ".json": "json" } },
+    { "source": "templates/skills", "destination": ".trae/skills", "default_format": "text", "format_by_extension": {} }
+  ]
+}
