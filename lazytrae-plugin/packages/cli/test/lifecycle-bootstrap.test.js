@@ -37,7 +37,12 @@ function writeFixtureFiles(root, selfTest = "process.stdout.write('self-test-ok\
   fs.writeFileSync(path.join(packageRoot, 'package.json'), '{"name":"lazytrae-ai","version":"1.0.3"}\n');
   fs.writeFileSync(path.join(packageRoot, 'bin', 'lazytrae.js'), "console.log('fixture-launch-ok')\n");
   fs.writeFileSync(path.join(packageRoot, 'scripts', 'lifecycle-self-test.js'), selfTest);
-  for (const name of ['lazy-harness-lifecycle.v1.schema.json', 'lazy-harness-lifecycle.v1.example.json']) {
+  for (const name of [
+    'lazy-harness-lifecycle.v1.schema.json',
+    'lazy-harness-lifecycle.v1.example.json',
+    'lazy-harness-lifecycle.v2.schema.json',
+    'lazy-harness-active.v2.schema.json',
+  ]) {
     const bytes = fs.readFileSync(path.join(FIXTURE_CONTRACTS, name));
     fs.writeFileSync(path.join(contracts, name), bytes);
     fs.writeFileSync(
@@ -291,6 +296,23 @@ test('manifest, checksum, self-test, prerequisite, and clone failures preserve a
       assert.deepEqual(fs.readdirSync(f.paths.staging), []);
     });
   }
+});
+
+test('bootstrap authenticates the v2 receipt and active-state contracts before promotion', () => {
+  // Given: an official-identity fixture whose v2 receipt contract was modified after commit.
+  const f = fixture();
+  fs.appendFileSync(
+    path.join(f.source, 'lazytrae-plugin/packages/cli/contracts/lazy-harness-lifecycle.v2.schema.json'),
+    '\n',
+  );
+  git(f.source, ['add', '.']);
+  git(f.source, ['commit', '-m', 'tamper v2 lifecycle contract']);
+  git(f.source, ['push', '--force', f.remote, 'main']);
+
+  // When: the actual bootstrap operation stages and verifies that revision.
+  // Then: v2 contract drift blocks promotion and leaves active state absent.
+  expectCode(() => bootstrap(f), 'CHECKSUM_MISMATCH');
+  assert.equal(fs.existsSync(f.paths.active), false);
 });
 
 test('failed fresh bootstrap leaves a reusable scaffold for a later successful bootstrap', () => {

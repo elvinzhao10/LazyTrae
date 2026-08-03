@@ -159,6 +159,52 @@ test('rollback restores the selected release entrypoint', () => {
   assert.equal(output.trim(), 'first-entry');
 });
 
+test('rollback interruption preserves the prior active bytes and boot selection', (t) => {
+  // Given: two bootable releases and a rollback marker promotion that will be interrupted.
+  const f = fixture();
+  promote(f, stage(f, 'a'));
+  fs.writeFileSync(path.join(f.sourceRoot, 'entry.js'), "console.log('entry-v2')\n");
+  promote(f, stage(f, 'b'));
+  const activeBefore = fs.readFileSync(f.paths.active);
+  const renameSync = fs.renameSync;
+  t.mock.method(fs, 'renameSync', (source, target) => {
+    if (target === f.paths.rollbackMarker) throw new Error('simulated rollback interruption');
+    return renameSync(source, target);
+  });
+
+  // When: the actual rollback operation cannot commit its retention marker.
+  assert.throws(() => rollbackRelease(f.paths), /simulated rollback interruption/);
+
+  // Then: the original active bytes and launcher selection remain unchanged.
+  assert.deepEqual(fs.readFileSync(f.paths.active), activeBefore);
+  const output = require('node:child_process').execFileSync(process.execPath, [f.paths.launcher], { encoding: 'utf8' });
+  assert.equal(output.trim(), 'entry-v2');
+  assert.equal(fs.existsSync(f.paths.rollbackMarker), false);
+});
+
+test('rollback active-state interruption removes the partial retention marker', (t) => {
+  // Given: two releases whose rollback marker can commit but active-state promotion will be interrupted.
+  const f = fixture();
+  promote(f, stage(f, 'a'));
+  fs.writeFileSync(path.join(f.sourceRoot, 'entry.js'), "console.log('entry-v2')\n");
+  promote(f, stage(f, 'b'));
+  const activeBefore = fs.readFileSync(f.paths.active);
+  const renameSync = fs.renameSync;
+  t.mock.method(fs, 'renameSync', (source, target) => {
+    if (target === f.paths.active) throw new Error('simulated active-state interruption');
+    return renameSync(source, target);
+  });
+
+  // When: the actual rollback operation fails after writing its retention marker.
+  assert.throws(() => rollbackRelease(f.paths), /simulated active-state interruption/);
+
+  // Then: both the active selection and rollback directory return to their prior state.
+  assert.deepEqual(fs.readFileSync(f.paths.active), activeBefore);
+  assert.equal(fs.existsSync(f.paths.rollbackMarker), false);
+  const output = require('node:child_process').execFileSync(process.execPath, [f.paths.launcher], { encoding: 'utf8' });
+  assert.equal(output.trim(), 'entry-v2');
+});
+
 test('prune refusal leaves the previous release pointer intact', () => {
   // Given: two releases where the retained previous release was modified.
   const f = fixture();

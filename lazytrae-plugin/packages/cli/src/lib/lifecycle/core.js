@@ -103,8 +103,13 @@ function rollbackRelease(paths) {
     runtime_path: previousMetadata.runtime_path,
     updated_at: new Date().toISOString(),
   };
-  writeActive(paths, next);
   atomicJson(paths.productRoot, paths.rollbackMarker, { release_id: active.active_release }, 0o600);
+  try {
+    writeActive(paths, next);
+  } catch (error) {
+    fs.unlinkSync(paths.rollbackMarker);
+    throw error;
+  }
   return next;
 }
 
