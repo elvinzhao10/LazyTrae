@@ -119,9 +119,13 @@ test('modified managed Hook configuration conflicts without changing caller byte
 });
 
 test('malformed root markers and linked Hook targets refuse before host configuration mutation', (t) => {
-  // Given: separate malformed-guidance and linked-config projects.
+  // Given: separate malformed-guidance, linked-probe, and linked-config projects.
   const malformed = fixture(t);
   fs.writeFileSync(path.join(malformed, 'AGENTS.md'), '<!-- lazytrae:managed:start:onboarding -->\n');
+  const linkedProbeProject = fixture(t);
+  const linkedProbeTarget = probe(t);
+  const linkedProbe = path.join(fixture(t), 'linked-probe.json');
+  fs.symlinkSync(linkedProbeTarget, linkedProbe);
   const linked = fixture(t);
   const verifiedProbe = probe(t);
   const outside = path.join(fixture(t), 'outside-hooks.json');
@@ -129,14 +133,18 @@ test('malformed root markers and linked Hook targets refuse before host configur
   fs.mkdirSync(path.join(linked, '.trae'), { recursive: true });
   fs.symlinkSync(outside, path.join(linked, '.trae', 'hooks.json'));
 
-  // When: both real initializer invocations preflight their destinations.
+  // When: all real initializer invocations preflight their inputs and destinations.
   const malformedResult = run(malformed, ['init', '--host', 'ide']);
+  const linkedProbeResult = run(linkedProbeProject, ['init', '--host', 'ide', '--ide-probe', linkedProbe]);
   const linkedResult = run(linked, ['init', '--host', 'ide', '--ide-probe', verifiedProbe]);
 
-  // Then: both fail closed and preserve the user-owned bytes outside the target.
+  // Then: all fail closed and preserve user-owned bytes outside the target.
   assert.notEqual(malformedResult.status, 0);
   assert.match(malformedResult.stderr, /malformed managed markers/);
   assert.equal(fs.existsSync(path.join(malformed, '.agents')), false);
+  assert.notEqual(linkedProbeResult.status, 0);
+  assert.match(`${linkedProbeResult.stdout}${linkedProbeResult.stderr}`, /probe.*symlink/i);
+  assert.deepEqual(fs.readdirSync(linkedProbeProject), ['.git']);
   assert.notEqual(linkedResult.status, 0);
   assert.match(`${linkedResult.stdout}${linkedResult.stderr}`, /symlink/i);
   assert.equal(fs.readFileSync(outside, 'utf8'), '{}\n');

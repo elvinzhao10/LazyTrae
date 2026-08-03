@@ -13,7 +13,9 @@ const RECEIPT_PATH = '.lazytrae/trae-ide-config-receipt.v1.json';
 function verifiedHookProbe(probePath) {
   if (!probePath) return false;
   if (!path.isAbsolute(probePath)) throw new Error('--ide-probe must be an absolute path');
-  const probe = JSON.parse(fs.readFileSync(probePath, 'utf8'));
+  const probeFile = safeFile(probePath, 'IDE capability probe');
+  if (!probeFile) throw new Error('IDE capability probe is missing');
+  const probe = JSON.parse(probeFile.bytes.toString('utf8'));
   const capability = Array.isArray(probe.capabilities)
     ? probe.capabilities.find((entry) => entry?.name === 'ide-hook-configuration-v1')
     : null;
