@@ -2,6 +2,7 @@
 
 const crypto = require('node:crypto');
 const fs = require('node:fs');
+const { buildSurfaceRecords } = require('./trae-ide-observation-records');
 
 const ID = /^[a-z0-9][a-z0-9._:-]{2,127}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
@@ -93,7 +94,8 @@ function parseFeatureObservations(values) {
 function observeTraeIde(snapshot, { now = new Date().toISOString() } = {}) {
   exactKeys(snapshot, [
     'schema_version', 'contract_version', 'record_type', 'host', 'observation_id', 'session_id',
-    'observed_at', 'expires_at', 'source_receipt', 'sandbox', 'model', 'remote', 'feature_observations',
+    'observed_at', 'expires_at', 'source_receipt', 'sandbox', 'mcp', 'model', 'plan_spec', 'task',
+    'diff', 'remote', 'feature_observations',
   ], [], 'snapshot');
   if (snapshot.schema_version !== 1) fail('schema_version is unsupported');
   if (snapshot.contract_version !== '1.1.0') fail('contract_version is unsupported');
@@ -108,17 +110,20 @@ function observeTraeIde(snapshot, { now = new Date().toISOString() } = {}) {
   exactKeys(snapshot.source_receipt, ['receipt_id', 'sha256'], [], 'source_receipt');
   text(snapshot.source_receipt.receipt_id, 'source_receipt.receipt_id', ID);
   text(snapshot.source_receipt.sha256, 'source_receipt.sha256', SHA256);
-  exactKeys(snapshot.sandbox, ['mode', 'network', 'bypassed', 'permission_mutation_observed'], [], 'sandbox');
+  exactKeys(snapshot.sandbox, ['mode', 'network', 'bypassed', 'permission_mutation_observed', 'filesystem_mode', 'terminal_mode'], [], 'sandbox');
   if (!['read-only', 'workspace-write'].includes(snapshot.sandbox.mode)) fail('sandbox.mode is unsupported');
   if (!['restricted', 'enabled'].includes(snapshot.sandbox.network)) fail('sandbox.network is unsupported');
+  if (!['read-only', 'workspace-write'].includes(snapshot.sandbox.filesystem_mode)) fail('sandbox.filesystem_mode is unsupported');
+  if (!['integrated', 'external', 'unavailable'].includes(snapshot.sandbox.terminal_mode)) fail('sandbox.terminal_mode is unsupported');
   if (typeof snapshot.sandbox.bypassed !== 'boolean' || typeof snapshot.sandbox.permission_mutation_observed !== 'boolean') fail('sandbox flags must be boolean');
-  exactKeys(snapshot.model, ['base_url', 'expected_endpoint_fingerprint'], ['credential'], 'model');
+  exactKeys(snapshot.model, ['base_url', 'expected_endpoint_fingerprint', 'context_window_tokens', 'tool_rounds_supported'], ['credential'], 'model');
   if (snapshot.model.credential !== undefined && typeof snapshot.model.credential !== 'string') fail('model.credential must be a string');
   text(snapshot.model.expected_endpoint_fingerprint, 'model.expected_endpoint_fingerprint', SHA256);
-  exactKeys(snapshot.remote, ['root', 'expected_root_fingerprint'], ['credential'], 'remote');
+  exactKeys(snapshot.remote, ['root', 'expected_root_fingerprint', 'identity'], ['credential'], 'remote');
   if (snapshot.remote.credential !== undefined && typeof snapshot.remote.credential !== 'string') fail('remote.credential must be a string');
   text(snapshot.remote.expected_root_fingerprint, 'remote.expected_root_fingerprint', SHA256);
   const statuses = parseFeatureObservations(snapshot.feature_observations);
+  const surfaceRecords = buildSurfaceRecords(snapshot);
   const modelEndpointFingerprint = fingerprint(normalizeEndpoint(snapshot.model.base_url));
   const remoteRootFingerprint = fingerprint(normalizeRemoteRoot(snapshot.remote.root));
   const invalidations = [];
@@ -143,6 +148,7 @@ function observeTraeIde(snapshot, { now = new Date().toISOString() } = {}) {
     model_endpoint_fingerprint: modelEndpointFingerprint,
     invalidations,
     source_receipt: { ...snapshot.source_receipt, redacted: true },
+    surface_records: surfaceRecords,
     feature_descriptors: FEATURES.map(feature => ({
       canonical_id: feature.canonicalId,
       host_card: { card_id: `trae-ide:card:${feature.canonicalId.split(':').at(-1)}`, canonical_id: feature.canonicalId, read_only: true },

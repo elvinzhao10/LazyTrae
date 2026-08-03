@@ -52,6 +52,7 @@ test('packed release carries the automatic-tooling contract, adapters, and CLI s
     'src/lib/automatic-tooling-policy.js',
     'src/lib/readiness-v2-contract.js',
     'src/lib/trae-ide-observation.js',
+    'src/lib/trae-ide-observation-records.js',
     'src/lib/provider-lifecycle.js',
   ]) assert.equal(files.has(file), true, `${file} must be packed`);
 });

@@ -11,7 +11,16 @@ const addFormats = require('ajv-formats');
 const cliRoot = path.resolve(__dirname, '..');
 const fixturePath = path.join(cliRoot, 'contracts', 'fixtures', 'host-evidence-v1', 'valid-trae-ide-native-snapshot.json');
 const driverPath = path.join(cliRoot, 'src', 'lib', 'trae-ide-observation.js');
-const { FEATURES, observeTraeIde } = require('../src/lib/trae-ide-observation');
+const { observeTraeIde } = require('../src/lib/trae-ide-observation');
+const expectedClassifications = [
+  ['lazyseries:feature:sandbox', 'observe-only', 'host-observed'],
+  ['lazyseries:feature:mcp', 'observe-only', 'host-observed'],
+  ['lazyseries:feature:model', 'descriptor-only', 'host-descriptor'],
+  ['lazyseries:feature:plan-spec', 'descriptor-only', 'host-descriptor'],
+  ['lazyseries:feature:task', 'descriptor-only', 'host-descriptor'],
+  ['lazyseries:feature:diff', 'observe-only', 'host-observed'],
+  ['lazyseries:feature:remote-ssh', 'descriptor-only', 'host-descriptor'],
+];
 
 function fixture() {
   return JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
@@ -38,12 +47,12 @@ test('emits a typed sanitized descriptor without mutating its source fixture', (
   // Then: the descriptor is typed, complete, read-only, sanitized, and side-effect free.
   validateSchema(descriptor);
   assert.equal(descriptor.status, 'valid');
-  assert.equal(descriptor.feature_descriptors.length, FEATURES.length);
-  assert.equal(new Set(descriptor.feature_descriptors.map(feature => feature.canonical_id)).size, FEATURES.length);
+  assert.equal(descriptor.feature_descriptors.length, expectedClassifications.length);
+  assert.equal(new Set(descriptor.feature_descriptors.map(feature => feature.canonical_id)).size, expectedClassifications.length);
   assert.ok(descriptor.feature_descriptors.every(feature => feature.host_card.read_only && feature.host_card.canonical_id === feature.canonical_id));
   assert.deepEqual(
     descriptor.feature_descriptors.map(({ canonical_id, native_mode, evidence_tier }) => ({ canonical_id, native_mode, evidence_tier })),
-    FEATURES.map(feature => ({ canonical_id: feature.canonicalId, native_mode: feature.nativeMode, evidence_tier: feature.evidenceTier })),
+    expectedClassifications.map(([canonical_id, native_mode, evidence_tier]) => ({ canonical_id, native_mode, evidence_tier })),
   );
   const serialized = JSON.stringify(descriptor);
   assert.doesNotMatch(serialized, /fixture-(?:user|password|token|secret)|models\.example|remote\.example|base_url|credential/i);
@@ -76,6 +85,59 @@ test('invalidates changed remote roots and model endpoints', () => {
   // Then: both fingerprint dependencies explicitly invalidate the record.
   assert.equal(descriptor.status, 'invalid');
   assert.deepEqual(descriptor.invalidations, ['model-endpoint-changed', 'remote-root-changed']);
+});
+
+test('emits sanitized typed records for every named Trae IDE surface', () => {
+  // Given: native observations for MCP, model, Plan/Spec, tasks, subagents, retries, Diff history, and Remote SSH identity.
+  const input = fixture();
+
+  // When: the complete native snapshot crosses the observation boundary.
+  const descriptor = observeTraeIde(input, { now: '2026-08-03T10:00:00Z' });
+
+  // Then: each named surface is represented without writable canonical state.
+  validateSchema(descriptor);
+  assert.deepEqual(descriptor.surface_records.mcp, { oauth_state: 'connected', project_scope: 'workspace', read_only: true });
+  assert.deepEqual(descriptor.surface_records.model, { context_window_tokens: 200000, tool_rounds_supported: true, read_only: true });
+  assert.deepEqual(descriptor.surface_records.plan_spec.commands.map(command => command.kind), ['plan', 'spec']);
+  assert.ok(descriptor.surface_records.plan_spec.commands.every(command => command.read_only));
+  assert.deepEqual(descriptor.surface_records.task.cards[0], { host_card_id: 'trae:task:card:001', canonical_task_id: 'task:001', observed_status: 'running', read_only: true });
+  assert.deepEqual(descriptor.surface_records.task.subagents[0], { subagent_id: 'trae:subagent:001', canonical_task_id: 'task:001', observed_status: 'running', read_only: true });
+  assert.deepEqual(descriptor.surface_records.task.retries[0], { retry_id: 'trae:retry:001', canonical_task_id: 'task:001', attempt: 2, observed_status: 'failed', canonical_completion: 'unclaimed', read_only: true });
+  assert.deepEqual(descriptor.surface_records.diff.history[0].canonical_diff_id, 'diff:001');
+  assert.equal(descriptor.surface_records.diff.history[0].read_only, true);
+  assert.deepEqual(descriptor.surface_records.remote_ssh.identity, { host_key_fingerprint: 'd'.repeat(64), profile_fingerprint: 'e'.repeat(64), read_only: true });
+  assert.doesNotMatch(JSON.stringify(descriptor), /base_url|credential|fixture-(?:user|password|token|secret)|models\.example|remote\.example/i);
+});
+
+test('rejects a supported retry card that claims canonical completion', () => {
+  // Given: a structurally supported retry card whose host status claims completion.
+  const input = fixture();
+  input.task.retries[0].status = 'complete';
+
+  // When/Then: completion authority is rejected at the retry semantic boundary.
+  assert.throws(
+    () => observeTraeIde(input, { now: '2026-08-03T10:00:00Z' }),
+    /retry status complete cannot claim canonical completion/i,
+  );
+});
+
+test('fails closed for hostile named-surface metadata', () => {
+  // Given: one hostile mutation for each newly supported observation record.
+  const cases = [
+    [value => { value.mcp.oauth_token = 'fixture-token'; }, /mcp has unknown fields: oauth_token/i],
+    [value => { value.model.context_window_tokens = 0; }, /context_window_tokens must be a positive integer/i],
+    [value => { value.plan_spec.commands[1] = { ...value.plan_spec.commands[0] }; }, /duplicate plan_spec commands/i],
+    [value => { value.task.subagents[0].canonical_task_id = '!'; }, /canonical_task_id is malformed/i],
+    [value => { value.diff.history.push({ ...value.diff.history[0] }); }, /duplicate diff history/i],
+    [value => { value.remote.identity.host_key_fingerprint = 'raw-host-name'; }, /host_key_fingerprint is malformed/i],
+  ];
+
+  // When/Then: every named-surface attack is rejected before descriptor emission.
+  for (const [mutate, expected] of cases) {
+    const input = fixture();
+    mutate(input);
+    assert.throws(() => observeTraeIde(input, { now: '2026-08-03T10:00:00Z' }), expected);
+  }
 });
 
 test('fails closed for duplicate mirrors unsupported schemas prompts malformed dirty and misleading input', () => {
