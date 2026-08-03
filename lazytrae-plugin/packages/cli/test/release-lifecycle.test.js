@@ -36,6 +36,7 @@ test('packed release carries the automatic-tooling contract, adapters, and CLI s
     'contracts/lazyseries-capability-readiness.v1.json.sha256',
     'contracts/lazyseries-capability-readiness.v2.json',
     'contracts/lazyseries-capability-readiness.v2.json.sha256',
+    'contracts/lazyseries-trae-ide-observation-descriptor.v1.schema.json',
     'contracts/paired-candidate-contract.v1.schema.json',
     'contracts/paired-candidate-contract.v1.schema.json.sha256',
     'contracts/validate-paired-candidate.js',
@@ -50,6 +51,7 @@ test('packed release carries the automatic-tooling contract, adapters, and CLI s
     'src/lib/automatic-tooling-broker.js',
     'src/lib/automatic-tooling-policy.js',
     'src/lib/readiness-v2-contract.js',
+    'src/lib/trae-ide-observation.js',
     'src/lib/provider-lifecycle.js',
   ]) assert.equal(files.has(file), true, `${file} must be packed`);
 });
