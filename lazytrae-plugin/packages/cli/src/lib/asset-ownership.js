@@ -7,9 +7,12 @@ const {
   collectEntries, contained, mergeBytes, normalizedRelative, readManifest, safeDestination, safeFile, sha256,
 } = require('./asset-ownership-core');
 
-function compileAssets({ sourceRoot, manifestPath, tempParent = os.tmpdir() }) {
+function compileAssets(options) {
+  const { sourceRoot, manifestPath, tempParent = os.tmpdir() } = options;
   const parsed = readManifest(sourceRoot, manifestPath);
-  const entries = collectEntries(parsed.root, parsed.manifest);
+  const sourceEntries = collectEntries(parsed.root, parsed.manifest);
+  const transform = options.transform || ((entry) => entry.bytes);
+  const entries = sourceEntries.map((entry) => ({ ...entry, bytes: transform(entry) }));
   const inventory = entries.map((entry) => ({
     path: entry.path, format: entry.format, mode: entry.mode, sha256: sha256(entry.bytes),
   }));
@@ -55,6 +58,7 @@ function readReceipt(destinationRoot, receiptPath) {
     normalizedRelative(entry.path);
     const base = Buffer.from(entry.base_base64, 'base64');
     if (seen.has(entry.path) || !['json', 'text'].includes(entry.format)
+      || !Number.isInteger(entry.mode) || entry.mode < 0 || entry.mode > 0o777
       || sha256(base) !== entry.base_sha256 || !/^[0-9a-f]{64}$/.test(entry.output_sha256)
       || typeof entry.caller_modified !== 'boolean') throw new Error('asset receipt is malformed');
     seen.add(entry.path);
@@ -71,10 +75,16 @@ function planInstall(compiled, destinationRoot, receipt) {
     const target = safeDestination(destinationRoot, entry.path);
     const existing = safeFile(target, `asset output ${entry.path}`);
     const prior = previous.get(entry.path);
-    if (existing && !prior) throw new Error(`refusing unreceipted file adoption: ${entry.path}`);
-    if (!existing && prior) throw new Error(`stale receipt: missing output ${entry.path}`);
+    if (existing && !prior && !existing.bytes.equals(entry.bytes)) {
+      throw new Error(`refusing unreceipted file adoption: ${entry.path}`);
+    }
+    if (!existing && prior?.caller_modified) {
+      throw new Error(`stale receipt: missing caller-modified output ${entry.path}`);
+    }
     const merged = prior
-      ? mergeBytes(entry.format, Buffer.from(prior.base_base64, 'base64'), existing.bytes, entry.bytes)
+      ? existing
+        ? mergeBytes(entry.format, Buffer.from(prior.base_base64, 'base64'), existing.bytes, entry.bytes)
+        : entry.bytes
       : entry.bytes;
     return {
       target, relative: entry.path, bytes: merged, mode: entry.mode,
@@ -146,7 +156,10 @@ function installAssets(options) {
       schema_version: 1, owner: compiled.owner, manifest_sha256: compiled.manifestSha256,
       files: plan.map((item) => item.receipt),
     }, null, 2)}\n`);
-    const writes = plan.filter((item) => !safeFile(item.target, `asset output ${item.relative}`)?.bytes.equals(item.bytes));
+    const writes = plan.filter((item) => {
+      const existing = safeFile(item.target, `asset output ${item.relative}`);
+      return !existing || !existing.bytes.equals(item.bytes) || existing.mode !== item.mode;
+    });
     writes.push({ target: location.absolute, bytes: nextReceipt, mode: 0o600 });
     transactionalWrite(writes, options.rename || fs.renameSync);
     return { written: writes.slice(0, -1).map((item) => item.relative), receipt: location.absolute };
@@ -154,7 +167,6 @@ function installAssets(options) {
     fs.rmSync(compiled.treeRoot, { recursive: true, force: true });
   }
 }
-
 function checkAssets(options) {
   const destinationRoot = path.resolve(options.destinationRoot);
   if (!fs.existsSync(destinationRoot)) return { issues: ['destination root is missing'] };
@@ -163,14 +175,17 @@ function checkAssets(options) {
     const { receipt } = readReceipt(destinationRoot, options.receiptPath);
     if (!receipt) return { issues: ['asset receipt is missing'] };
     const expected = new Set(compiled.compiledEntries.map((entry) => entry.path));
+    const receipted = new Set(receipt.files.map((entry) => entry.path));
     const issues = receipt.manifest_sha256 === compiled.manifestSha256 && receipt.owner === compiled.owner
       ? [] : ['stale manifest or owner'];
     issues.push(...receipt.files.filter((entry) => !expected.has(entry.path)).map((entry) => `orphan output ${entry.path}`));
+    issues.push(...compiled.compiledEntries.filter((entry) => !receipted.has(entry.path)).map((entry) => `missing receipt entry ${entry.path}`));
     for (const entry of receipt.files) {
       const target = safeDestination(destinationRoot, entry.path);
       const file = safeFile(target, `asset output ${entry.path}`);
       if (!file) issues.push(`missing output ${entry.path}`);
       else if (sha256(file.bytes) !== entry.output_sha256) issues.push(`modified output ${entry.path}`);
+      else if (file.mode !== entry.mode) issues.push(`modified mode ${entry.path}`);
     }
     return { issues };
   } finally {
@@ -216,7 +231,12 @@ function uninstallAssets(options) {
   const classification = receipt.files.map((entry) => {
     const target = safeDestination(destinationRoot, entry.path);
     const file = safeFile(target, `asset output ${entry.path}`);
-    return { entry, target, removable: Boolean(file) && !entry.caller_modified && sha256(file.bytes) === entry.output_sha256 };
+    return {
+      entry,
+      target,
+      removable: Boolean(file) && !entry.caller_modified
+        && sha256(file.bytes) === entry.output_sha256 && file.mode === entry.mode,
+    };
   });
   const removed = classification.filter((item) => item.removable).map((item) => item.entry.path);
   const preserved = classification.filter((item) => !item.removable).map((item) => item.entry.path);

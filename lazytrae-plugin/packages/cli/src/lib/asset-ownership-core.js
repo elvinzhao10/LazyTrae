@@ -51,7 +51,7 @@ function safeDestination(root, relativePath) {
       if (error && error.code === 'ENOENT') continue;
       throw error;
     }
-    if (stat.isSymbolicLink()) throw new Error('asset destination is a symlink or linked path');
+    if (stat.isSymbolicLink()) throw new Error('asset destination is outside the repo root or is a symlink or linked path');
     if (current !== absolute && !stat.isDirectory()) throw new Error('asset destination has a non-directory parent');
     if (current === absolute && stat.isFile() && stat.nlink !== 1) throw new Error('asset destination is hard-linked');
   }
@@ -95,6 +95,10 @@ function collectEntries(sourceRoot, manifest) {
         const format = rule.format_by_extension?.[path.extname(item.name)] || rule.default_format;
         if (!['json', 'text'].includes(format)) throw new Error(`unsupported asset format: ${format}`);
         const bytes = fs.readFileSync(source);
+        if (path.extname(item.name) === '.md' && bytes.toString('utf8').startsWith('---\n')) {
+          const end = bytes.toString('utf8').indexOf('\n---\n', 4);
+          if (end === -1) throw new Error(`malformed frontmatter: ${child}`);
+        }
         entries.push({ path: destination, format, mode: stat.mode & 0o777, bytes });
       } else throw new Error(`source asset is not a regular file: ${child}`);
     }
