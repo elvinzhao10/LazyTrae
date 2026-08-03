@@ -26,6 +26,7 @@ const commands = {
   codegraph: () => require('./commands/codegraph').run,
   'load-check': () => require('./commands/load-check').run,
   'host-probe': () => require('./commands/host-probe').run,
+  'traecli-candidate': () => require('./commands/traecli-candidate').run,
   lifecycle: () => require('./commands/lifecycle').run,
 };
 
@@ -70,6 +71,8 @@ Commands:
   codegraph   Start the separate optional receipt-owned CodeGraph MCP bridge
   load-check  Verify every host component is ready after init
   host-probe  Safely inspect Trae host identity and capabilities
+  traecli-candidate
+              Generate inert Trae CLI assets or invoke a probe-proven structured runner
   lifecycle   Manage the durable verified package bundle
 
 Aliases: i, d, s, rm, v, h, l, r, t
