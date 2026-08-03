@@ -39,7 +39,8 @@ Options:
   --execution <mode>   local or cloud (profile/bundle; required)
   --output <path>      Absolute descriptor or .skill output path
   --worktree <path>    Explicit local Git worktree (desktop/local only)
-  --probe <path>       Verified Work probe required with --worktree
+  --executable <path>  Absolute Work executable required with --worktree
+  --expected-sha256    Pinned Work executable digest required with --worktree
 
 Trae Work has no global command registry. Use the installed skills by name or
 natural language. MCP registration is intentionally manual in Settings → MCP.

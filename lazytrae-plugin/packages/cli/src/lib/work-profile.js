@@ -2,10 +2,12 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+const { ALLOWED_ARGV, probeHost } = require('./host-probe');
 
 const CLIENTS = new Set(['desktop', 'web', 'mobile']);
 const EXECUTIONS = new Set(['local', 'cloud']);
-const VALUE_FLAGS = new Set(['--client', '--execution', '--skills-dir', '--worktree', '--probe', '--output']);
+const VALUE_FLAGS = new Set(['--client', '--execution', '--skills-dir', '--worktree', '--executable', '--expected-sha256', '--output']);
 const FORBIDDEN_FLAGS = new Set(['--upload', '--login', '--account', '--token', '--credential', '--api-key', '--password']);
 
 function parseOptions(args) {
@@ -23,6 +25,9 @@ function parseOptions(args) {
   if (!options['--client'] || !options['--execution']) throw new Error('--client and --execution are required.');
   if (!CLIENTS.has(options['--client'])) throw new Error('--client must be desktop, web, or mobile.');
   if (!EXECUTIONS.has(options['--execution'])) throw new Error('--execution must be local or cloud.');
+  if (options['--expected-sha256'] && !/^[0-9a-f]{64}$/i.test(options['--expected-sha256'])) {
+    throw new Error('--expected-sha256 must be a 64-character hexadecimal digest.');
+  }
   return options;
 }
 
@@ -34,29 +39,65 @@ function explicitDirectory(value, flag) {
 }
 
 function verifyWorktree(options) {
-  if (!options['--worktree']) return null;
-  const worktree = explicitDirectory(options['--worktree'], '--worktree');
-  if (!fs.existsSync(path.join(worktree, '.git'))) throw new Error('--worktree must identify an explicit Git worktree.');
-  if (!options['--probe'] || !path.isAbsolute(options['--probe'])) {
-    throw new Error('Local worktrees require an absolute --probe report path.');
+  if (!options['--worktree']) {
+    if (options['--executable'] || options['--expected-sha256']) {
+      throw new Error('Work probe arguments require an explicit --worktree.');
+    }
+    return null;
   }
-  const report = JSON.parse(fs.readFileSync(options['--probe'], 'utf8'));
-  const verified = report.schema_version === 1 && report.product === 'trae'
-    && report.host === 'work' && report.status === 'accessible'
-    && report.capabilities?.some(capability => capability.name === 'local-worktree' && capability.status === 'accessible');
-  if (!verified) throw new Error('Local worktree capability is not verified by the supplied probe.');
-  return worktree;
+  if (fs.lstatSync(options['--worktree']).isSymbolicLink()) throw new Error('--worktree must not be a symlink.');
+  const worktree = explicitDirectory(options['--worktree'], '--worktree');
+  const git = spawnSync('git', [
+    '-C', worktree, 'rev-parse', '--is-inside-work-tree', '--show-toplevel',
+    '--git-common-dir', '--verify', 'HEAD',
+  ], {
+    encoding: 'utf8',
+    env: {
+      GIT_CONFIG_GLOBAL: '/dev/null',
+      GIT_CONFIG_NOSYSTEM: '1',
+      GIT_OPTIONAL_LOCKS: '0',
+      HOME: '/nonexistent',
+      LANG: 'C',
+      LC_ALL: 'C',
+      PATH: '/usr/bin:/bin',
+    },
+    input: '',
+    maxBuffer: 64 * 1024,
+    timeout: 5_000,
+  });
+  const lines = (git.stdout || '').trim().split('\n');
+  if (git.error || git.status !== 0 || lines.length !== 4 || lines[0] !== 'true') {
+    throw new Error('--worktree must identify a real Git worktree with a current HEAD.');
+  }
+  const topLevel = fs.realpathSync(lines[1]);
+  const commonDir = fs.realpathSync(path.isAbsolute(lines[2]) ? lines[2] : path.resolve(worktree, lines[2]));
+  if (topLevel !== worktree || !/^[0-9a-f]{40}$/.test(lines[3])) {
+    throw new Error('--worktree must be the explicit top level of a real Git worktree.');
+  }
+  const report = probeHost({
+    host: 'work',
+    executable: options['--executable'],
+    expectedSha256: options['--expected-sha256']?.toLowerCase(),
+  });
+  if (report.status !== 'accessible' || !report.binary
+    || JSON.stringify(report.observed_argv) !== JSON.stringify(ALLOWED_ARGV)) {
+    throw new Error(`Bounded Work probe refused the local worktree: ${report.detail}`);
+  }
+  return {
+    worktree: { mode: 'local-probe-verified', path: worktree, head_sha: lines[3], git_common_dir: commonDir },
+    probe: { mode: 'bounded-host-introspection', binary_sha256: report.binary.sha256, observed_argv: report.observed_argv },
+  };
 }
 
 function buildProfile(options) {
   const client = options['--client'];
   const execution = options['--execution'];
   const localDesktop = client === 'desktop' && execution === 'local';
-  if (!localDesktop && (options['--skills-dir'] || options['--worktree'] || options['--probe'])) {
+  if (!localDesktop && (options['--skills-dir'] || options['--worktree'] || options['--executable'] || options['--expected-sha256'])) {
     throw new Error('Skills paths, probes, and worktrees are available only for the desktop/local profile.');
   }
   const skillsDir = localDesktop ? explicitDirectory(options['--skills-dir'], '--skills-dir') : null;
-  const worktree = localDesktop ? verifyWorktree(options) : null;
+  const verification = localDesktop ? verifyWorktree(options) : null;
   return {
     schema_version: 1,
     host: 'trae-work',
@@ -65,7 +106,8 @@ function buildProfile(options) {
     native_mode: localDesktop ? 'invoke-documented' : 'descriptor-only',
     skills: localDesktop ? { route: 'local-copy', directory: skillsDir } : { route: 'descriptor-only', directory: null },
     bundle: localDesktop ? { mode: 'deterministic-artifact', upload_invoked: false } : { mode: 'descriptor-only', upload_invoked: false },
-    worktree: worktree ? { mode: 'local-probe-verified', path: worktree } : { mode: localDesktop ? 'local-disabled' : 'unavailable', path: null },
+    worktree: verification ? verification.worktree : { mode: localDesktop ? 'local-disabled' : 'unavailable', path: null },
+    probe: verification ? verification.probe : null,
     host_actions: { upload: false, login: false, account: false },
   };
 }

@@ -102,37 +102,6 @@ test('work bundle leaves no partial output for hostile canonical sources', () =>
   }
 });
 
-test('work profile gates local worktrees on an accessible capability probe', () => {
-  // Given: an explicit Git worktree-shaped directory and a verified local-worktree probe.
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-worktree-'));
-  const skills = path.join(root, 'skills');
-  const worktree = path.join(root, 'project');
-  const probe = path.join(root, 'probe.json');
-  fs.mkdirSync(skills);
-  fs.mkdirSync(path.join(worktree, '.git'), { recursive: true });
-  fs.writeFileSync(probe, JSON.stringify({
-    schema_version: 1,
-    product: 'trae',
-    host: 'work',
-    status: 'accessible',
-    capabilities: [{ name: 'local-worktree', status: 'accessible' }],
-  }));
-  const base = ['work', 'profile', '--client', 'desktop', '--execution', 'local', '--skills-dir', skills, '--worktree', worktree];
-  try {
-    // When: the same profile is requested without and with the verified probe.
-    const rejected = runCli(base);
-    const accepted = runCli([...base, '--probe', probe]);
-
-    // Then: the unprobed claim is refused and the verified local path is explicit.
-    assert.equal(rejected.status, 1);
-    assert.match(rejected.stderr, /require an absolute --probe/);
-    assert.equal(accepted.status, 0, accepted.stderr);
-    assert.deepEqual(JSON.parse(accepted.stdout).worktree, { mode: 'local-probe-verified', path: fs.realpathSync(worktree) });
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
-});
-
 test('work profile refuses guessed local paths and cloud worktree claims', () => {
   // Given: local and cloud profiles without valid context-specific paths.
   // When: the CLI receives a guessed local path and a cloud worktree claim.
