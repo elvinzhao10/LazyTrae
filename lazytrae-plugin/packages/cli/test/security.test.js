@@ -73,7 +73,7 @@ test('session-start hook treats Boulder active_work_id as data', (t) => {
   assert.equal(fs.existsSync(path.join(fixture, 'pwned-session')), false);
 });
 
-test('run command passes prompt to trae-agent as argv', (t) => {
+test('run command never executes a PATH-spoofed open-source trae-agent', (t) => {
   const fixture = makeGitFixture('lazytrae-run-prompt-injection-');
   const binDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-fake-bin-'));
   t.after(() => {
@@ -93,7 +93,8 @@ test('run command passes prompt to trae-agent as argv', (t) => {
 
   assert.equal(result.status, 0);
   assert.equal(fs.existsSync(marker), false);
-  assert.equal(JSON.parse(fs.readFileSync(argsFile, 'utf-8')).includes('$(touch pwned-run)'), true);
+  assert.equal(fs.existsSync(argsFile), false);
+  assert.match(result.stdout, /project-local Trae IDE route/);
 });
 
 test('MCP dependency graph rejects symlinks that resolve outside the repo', (t) => {

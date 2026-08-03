@@ -25,6 +25,7 @@ const commands = {
   lsp: () => require('./commands/lsp').run,
   codegraph: () => require('./commands/codegraph').run,
   'load-check': () => require('./commands/load-check').run,
+  'host-probe': () => require('./commands/host-probe').run,
   lifecycle: () => require('./commands/lifecycle').run,
 };
 
@@ -59,7 +60,7 @@ Commands:
   hook        Dispatch a LazyTrae hook event
   mcp         Start the LazyTrae MCP server (stdio JSON-RPC)
   loop        Long-horizon execution loop status and control
-  run         Execute a task with explicit model routing (optional trae-agent backend)
+  run         Present explicit model routing for the supported Trae IDE route
   team        Team mode / parallel-work coordination
   work        Install or inspect global Trae Work skills
   tooling     Manage a package-owned local tooling root
@@ -68,6 +69,7 @@ Commands:
   lsp         Start the separate managed read-only LSP MCP bridge
   codegraph   Start the separate optional receipt-owned CodeGraph MCP bridge
   load-check  Verify every host component is ready after init
+  host-probe  Safely inspect Trae host identity and capabilities
   lifecycle   Manage the durable verified package bundle
 
 Aliases: i, d, s, rm, v, h, l, r, t

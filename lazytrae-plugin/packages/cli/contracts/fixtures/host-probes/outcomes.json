@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "product": "trae",
+  "host": "cli",
+  "region": "global",
+  "edition": "enterprise",
+  "capabilities": [
+    { "name": "available", "status": "accessible" },
+    { "name": "enterprise", "status": "enterprise-only" },
+    { "name": "regional", "status": "region-blocked" },
+    { "name": "preview", "status": "coming-soon" },
+    { "name": "missing", "status": "absent" },
+    { "name": "bad-response", "status": "malformed" },
+    { "name": "slow", "status": "timeout" },
+    { "name": "replaced", "status": "changed-binary" },
+    { "name": "unknown", "status": "unsupported" }
+  ]
+}

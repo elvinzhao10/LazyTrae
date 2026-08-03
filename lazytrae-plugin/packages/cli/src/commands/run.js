@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
 const { sha256Digest } = require('../lib/adaptive-decision');
 const { formatAdaptiveDirective, processAdaptivePrompt } = require('../lib/adaptive-runtime');
 const { assertSafeRepoWritePath } = require('../lib/path-boundary');
@@ -37,10 +36,6 @@ function resolveCategory(config, agent) {
   return { category: 'quick', traeMode: 'auto', description: 'Default routing' };
 }
 
-function checkTraeAgent() {
-  return spawnSync('trae-agent', ['--help'], { stdio: 'ignore' }).status === 0;
-}
-
 function recordTrajectory(repoRoot, entry) {
   const logsDir = path.join(repoRoot, '.lazytrae', 'logs');
   assertSafeRepoWritePath(repoRoot, logsDir);
@@ -62,7 +57,7 @@ function printRoutingGuidance(agent, category, prompt) {
 
   console.log(`
   ╔══════════════════════════════════════════════════════════╗
-  ║  trae-agent CLI is not installed.                       ║
+  ║  Direct product CLI execution is disabled.              ║
   ║  Use the routing guidance below to run this task        ║
   ║  manually in Trae IDE.                                  ║
   ╚══════════════════════════════════════════════════════════╝
@@ -81,7 +76,7 @@ function printRoutingGuidance(agent, category, prompt) {
     3. Select the "${agent}" agent (or run the task in the main session).
     4. Paste: ${prompt}
 
-  Direct CLI routing is unavailable without a host-provided trae-agent executable.
+  No open-source trae-agent or PATH-discovered binary is used as a Trae product CLI.
   Continue with the project-local Trae IDE route above.
 
   Routing guidance is included in this command and .lazytrae/config.json
@@ -94,7 +89,7 @@ function printUsage() {
 Options:
   --agent <name>       Agent to use (e.g., atlas, oracle, explorer)
   --category <name>    Routing category: quick, deep, ultrabrain, visual-engineering, writing, review
-  --loop active        Run the active loop using trae-agent
+  --loop active        Present the active loop for continuation in Trae IDE
   --help, -h           Show this help message
 
 Categories:
@@ -160,8 +155,6 @@ function run(args) {
     if (adaptive.warning) process.stderr.write(`[LazyTrae run warning] ${adaptive.warning}\n`);
     if (adaptive.directive.dispatch !== 'presented-to-host') return;
   }
-  const hasTraeAgent = checkTraeAgent();
-
   if (useLoop) {
     const activeLoopPath = path.join(repoRoot, '.lazytrae', 'state', 'active-loop.json');
     if (!fs.existsSync(activeLoopPath)) {
@@ -169,21 +162,10 @@ function run(args) {
       process.exit(1);
     }
 
-    if (!hasTraeAgent) {
-      console.log(`\ntrae-agent is not installed. Cannot run loop directly.\n`);
-      console.log('Use the Trae IDE with the ulw-loop command to continue the active loop.');
-      console.log('See .lazytrae/state/active-loop.json for current loop state.\n');
-      process.exit(0);
-    }
-
-    try {
-      console.log('Running active loop with trae-agent...');
-      const result = spawnSync('trae-agent', ['run', '--trajectory', '.lazytrae/logs/active-loop.json'], { cwd: repoRoot, stdio: 'inherit' });
-      process.exit(result.status || 0);
-    } catch (e) {
-      console.error('trae-agent failed:', e.message);
-      process.exit(1);
-    }
+    console.log('\nDirect product CLI execution is disabled.\n');
+    console.log('Use Trae IDE with the ulw-loop command to continue the active loop.');
+    console.log('See .lazytrae/state/active-loop.json for current loop state.\n');
+    process.exit(0);
     return;
   }
 
@@ -192,46 +174,12 @@ function run(args) {
     agent: agent || 'default',
     category: category || 'quick',
     prompt,
-    runner_used: hasTraeAgent,
+    runner_used: false,
   };
 
-  if (!hasTraeAgent) {
-    recordTrajectory(repoRoot, { ...trajectoryEntry, status: 'guidance_only' });
-    printRoutingGuidance(agent, category, prompt);
-    process.exit(0);
-  }
-
-  const config = loadConfig(repoRoot);
-  const resolved = resolveCategory(config, agent);
-  const effectiveCategory = category || resolved.category;
-  const effectiveMode = resolved.traeMode || 'auto';
-
-  const runArgs = ['run'];
-  if (effectiveMode === 'max') runArgs.push('--reasoning', 'xhigh');
-  runArgs.push('--trajectory', '.lazytrae/logs/', '--input', prompt);
-
-  try {
-    console.log(`Running with trae-agent: agent=${agent}, category=${effectiveCategory}, mode=${effectiveMode}`);
-    const result = spawnSync('trae-agent', runArgs, { cwd: repoRoot, stdio: 'inherit' });
-    recordTrajectory(repoRoot, {
-      ...trajectoryEntry,
-      category: effectiveCategory,
-      mode: effectiveMode,
-      status: 'success',
-      exit_code: result.status || 0,
-    });
-    process.exit(result.status || 0);
-  } catch (e) {
-    recordTrajectory(repoRoot, {
-      ...trajectoryEntry,
-      category: effectiveCategory,
-      mode: effectiveMode,
-      status: 'error',
-      error: e.message,
-    });
-    console.error('trae-agent execution failed:', e.message);
-    process.exit(1);
-  }
+  recordTrajectory(repoRoot, { ...trajectoryEntry, status: 'guidance_only' });
+  printRoutingGuidance(agent, category, prompt);
+  process.exit(0);
 }
 
 module.exports = { run };
