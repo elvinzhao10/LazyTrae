@@ -20,7 +20,8 @@ function fixture(t) {
 function probe(t) {
   const probePath = path.join(fixture(t), 'verified-ide-probe.json');
   fs.writeFileSync(probePath, `${JSON.stringify({
-    schema_version: 1,
+    schema_version: 2,
+    contract_version: '2.0.0',
     product: 'trae',
     host: 'ide',
     status: 'accessible',

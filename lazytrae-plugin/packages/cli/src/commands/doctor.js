@@ -14,6 +14,7 @@ const { providerMatrix } = require('../lib/provider-lifecycle');
 const { readLedger } = require('../lib/automatic-tooling-policy');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 const { localCommand } = require('../lib/local-launcher');
+const { inspectHostProfiles } = require('../lib/host-adapter-lifecycle');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -227,6 +228,11 @@ Options:
     addResult('Approval status', 'PASS', `${Object.keys(ledger.approvals).length} persisted approval decision(s)`);
   } catch (error) {
     addResult('Approval status', 'WARN', `Unavailable: ${error.message}`);
+  }
+
+  for (const profile of inspectHostProfiles(repoRoot)) {
+    addResult(`Host adapter ${profile.host}`, profile.package_readiness === 'ready' ? 'PASS' : 'FAIL',
+      `generated=${profile.generated_assets.status}; config=${profile.config.status}; probe=${profile.probe.status}; registration=${profile.registration.status}; session=${profile.session.status}; mcp=${profile.mcp.status}; observation=${profile.observation.status}; support=${profile.support}; host=${profile.host_readiness}`);
   }
 
   // Parity ledger

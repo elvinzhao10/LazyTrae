@@ -10,6 +10,8 @@ const { RECEIPT_PATH, installProjectAssets } = require('../lib/project-assets');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
 const { readHost } = require('../lib/host-route');
+const { routeFor } = require('../lib/host-adapter-lifecycle');
+const { generateCandidate } = require('../lib/traecli-candidate');
 const {
   installVerifiedHookConfiguration, preflightVerifiedHookConfiguration,
 } = require('../lib/trae-ide-config');
@@ -43,6 +45,7 @@ Options:
   }
 
   const host = readHost(args);
+  routeFor(host);
   const work = host === 'work' ? require('./work') : null;
   const workSkillsDir = work ? work.readSkillsDir(args) : null;
   const probeIndex = args.indexOf('--ide-probe');
@@ -279,6 +282,11 @@ Options:
     summary[gitignoreExists ? 'updated' : 'created'].push('.gitignore');
   } else {
     summary.skipped.push('.gitignore (already has LazyTrae entries)');
+  }
+
+  if (!process.exitCode && host === 'cli') {
+    const candidate = generateCandidate(repoRoot);
+    summary.created.push(`${candidate.written.length} Trae CLI candidate asset(s)`);
   }
 
   // Print summary

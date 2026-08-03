@@ -120,6 +120,7 @@ function uninstall(skillsDir) {
   console.log(`Trae Work global skills: ${removed} removed, ${preserved} preserved.`);
   console.log(`Directory: ${skillsDir}`);
   console.log('Remove the LazyTrae MCP server manually in Settings → MCP; host installation paths are never guessed.');
+  return { removed, preserved };
 }
 
 function withSkillsDirOverride(skillsDir, callback) {

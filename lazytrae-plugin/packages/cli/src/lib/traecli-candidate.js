@@ -4,7 +4,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { checkAssets, installAssets } = require('./asset-ownership');
+const { checkAssets, installAssets, uninstallAssets } = require('./asset-ownership');
 const { probeHost } = require('./host-probe');
 
 const SOURCE_ROOT = path.resolve(__dirname, '..', '..');
@@ -33,6 +33,14 @@ function generateCandidate(repoRoot) {
     written: result.written,
     invoked: false,
   };
+}
+
+function checkCandidate(repoRoot) {
+  return checkAssets(optionsFor(repoRoot));
+}
+
+function uninstallCandidate(repoRoot) {
+  return uninstallAssets(optionsFor(repoRoot));
 }
 
 function sha256(target) {
@@ -147,4 +155,4 @@ function invokeCandidate(repoRoot, input) {
   return { ...response, invoked: true, argv: runner.argv, probe };
 }
 
-module.exports = { generateCandidate, invokeCandidate };
+module.exports = { checkCandidate, generateCandidate, invokeCandidate, uninstallCandidate };

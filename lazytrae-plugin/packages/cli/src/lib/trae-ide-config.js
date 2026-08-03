@@ -19,7 +19,7 @@ function verifiedHookProbe(probePath) {
   const capability = Array.isArray(probe.capabilities)
     ? probe.capabilities.find((entry) => entry?.name === 'ide-hook-configuration-v1')
     : null;
-  return probe.schema_version === 1 && probe.product === 'trae' && probe.host === 'ide'
+  return probe.schema_version === 2 && probe.contract_version === '2.0.0' && probe.product === 'trae' && probe.host === 'ide'
     && probe.status === 'accessible' && probe.host_readiness === 'pending'
     && capability?.status === 'accessible' && capability.schema_version === 1
     && capability.execution === 'sandbox'

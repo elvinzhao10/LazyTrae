@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lazyseries-trae-host-status.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "contract_version", "profiles"],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "contract_version": { "const": "2.0.0" },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["host", "contract_version", "evidence_fingerprint", "host_fingerprint", "package_assets", "generated_assets", "config", "probe", "registration", "session", "mcp", "observation", "support", "package_readiness", "host_readiness"],
+        "properties": {
+          "host": { "enum": ["trae-cli", "trae-ide", "trae-work"] },
+          "contract_version": { "const": "2.0.0" },
+          "evidence_fingerprint": { "$ref": "#/$defs/digest" },
+          "host_fingerprint": { "$ref": "#/$defs/digest" },
+          "package_assets": { "type": "object" },
+          "generated_assets": { "type": "object" },
+          "config": { "$ref": "#/$defs/evidence" },
+          "probe": { "$ref": "#/$defs/evidence" },
+          "registration": { "$ref": "#/$defs/evidence" },
+          "session": { "$ref": "#/$defs/evidence" },
+          "mcp": { "$ref": "#/$defs/evidence" },
+          "observation": { "$ref": "#/$defs/evidence" },
+          "support": { "type": "string" },
+          "package_readiness": { "enum": ["ready", "failed"] },
+          "host_readiness": { "enum": ["observed", "pending"] }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "evidence": { "type": "object", "additionalProperties": false, "required": ["status", "detail"], "properties": { "status": { "enum": ["ready", "missing", "conflict", "pending", "observed"] }, "detail": { "type": "string" } } }
+  }
+}

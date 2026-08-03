@@ -24,7 +24,8 @@ const TIMEOUT_MS = 3000;
 
 function outcome(host, status, detail, extra = {}) {
   return {
-    schema_version: 1,
+    schema_version: 2,
+    contract_version: '2.0.0',
     product: 'trae',
     host,
     status,
@@ -52,7 +53,7 @@ function parseFixture(fixturePath, host) {
   } catch (error) {
     return { kind: 'error', detail: `fixture is malformed: ${error.message}` };
   }
-  const baseValid = parsed && parsed.schema_version === 1 && parsed.product === 'trae'
+  const baseValid = parsed && parsed.schema_version === 2 && parsed.contract_version === '2.0.0' && parsed.product === 'trae'
     && parsed.host === host && REGIONS.has(parsed.region) && EDITIONS.has(parsed.edition)
     && Array.isArray(parsed.capabilities);
   const capabilitiesValid = baseValid && parsed.capabilities.every(capability => (

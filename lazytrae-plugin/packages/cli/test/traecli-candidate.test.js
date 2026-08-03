@@ -33,7 +33,8 @@ function digest(target) {
 function writeFixture(root, runner) {
   const target = path.join(root, 'probe.json');
   fs.writeFileSync(target, `${JSON.stringify({
-    schema_version: 1,
+    schema_version: 2,
+    contract_version: '2.0.0',
     product: 'trae',
     host: 'cli',
     region: 'global',

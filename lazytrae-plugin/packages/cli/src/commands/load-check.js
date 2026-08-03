@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 const { inspectInitializeReceipt } = require('../lib/initialize-receipt');
+const { inspectHostProfile } = require('../lib/host-adapter-lifecycle');
 const { readHost } = require('../lib/host-route');
 const {
   formatHostMcpConfiguration,
@@ -204,6 +205,8 @@ configuration only; it does not claim that a host has registered or loaded them.
     workSkillsFailed = current !== states.length;
     console.log(`${workSkillsFailed ? 'FAIL' : 'PASS'} global Trae Work skills: ${current}/${states.length} current`);
   }
+  const hostProfile = inspectHostProfile(repoRoot, host, { workSkillsDir });
+  console.log(`Host adapter profile: package=${hostProfile.package_readiness}; generated=${hostProfile.generated_assets.status}; config=${hostProfile.config.status}; probe=${hostProfile.probe.status}; registration=${hostProfile.registration.status}; session=${hostProfile.session.status}; mcp=${hostProfile.mcp.status}; observation=${hostProfile.observation.status}; support=${hostProfile.support}; host=${hostProfile.host_readiness}`);
 
   printHostRegistrationStatus(host, repoRoot);
   printInitializeReceiptStatus(repoRoot);

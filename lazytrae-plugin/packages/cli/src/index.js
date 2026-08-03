@@ -9,6 +9,8 @@ const commands = {
   initdeep: () => require('./commands/init').run,
   doctor: () => require('./commands/doctor').run,
   sync: () => require('./commands/sync').run,
+  status: () => require('./commands/status').run,
+  offboard: () => require('./commands/offboard').run,
   uninstall: () => require('./commands/uninstall').run,
   verify: () => require('./commands/verify').run,
   'completion-status': () => require('./commands/completion-status').run,
@@ -53,6 +55,8 @@ Commands:
   initdeep    Compatible InitDeep alias for safe core installation
   doctor      Check LazyTrae installation health
   sync        Update managed templates and managed blocks
+  status      Report independent package and host adapter evidence
+  offboard    Remove exact outputs owned by one host adapter
   uninstall   Remove LazyTrae from the current repo
   verify      Run doctor checks; --must-pass also checks completion gates
   completion-status

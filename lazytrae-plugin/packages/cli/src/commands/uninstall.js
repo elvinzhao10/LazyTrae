@@ -131,6 +131,7 @@ Normal uninstall retains .lazytrae state/, evidence/, plans/, and loop/ data.
     summary.preserved.forEach(s => console.log(`  + ${s}`));
   }
   console.log('\nDone.');
+  return summary;
 }
 
 module.exports = { run };

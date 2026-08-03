@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lazyseries-trae-host-probe.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "contract_version", "product", "host", "status", "detail", "region", "edition", "binary", "capabilities", "observed_argv", "host_readiness"],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "contract_version": { "const": "2.0.0" },
+    "product": { "const": "trae" },
+    "host": { "enum": ["ide", "work", "cli", "unknown"] },
+    "status": { "enum": ["accessible", "enterprise-only", "region-blocked", "coming-soon", "absent", "malformed", "timeout", "changed-binary", "unsupported"] },
+    "detail": { "type": "string" },
+    "region": { "enum": ["china", "global", "unknown"] },
+    "edition": { "enum": ["enterprise", "individual", "unknown"] },
+    "binary": { "type": ["object", "null"] },
+    "capabilities": { "type": "array", "items": { "type": "object" } },
+    "observed_argv": { "type": "array", "items": { "type": "array", "items": { "type": "string" } } },
+    "host_readiness": { "const": "pending" }
+  }
+}

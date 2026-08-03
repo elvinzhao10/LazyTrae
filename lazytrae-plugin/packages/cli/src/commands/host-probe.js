@@ -10,7 +10,7 @@ function usage() {
     '',
     'Read-only options:',
     '  --expected-sha256 <digest>  Fail closed if the binary fingerprint differs',
-    '  --fixture <absolute-path>   Classify a schema-v1 observation fixture',
+    '  --fixture <absolute-path>   Classify a schema-v2 observation fixture',
     '  --json                      Print the typed JSON report',
     '',
     'The probe runs only --version and --help with a credential-free environment.',
@@ -73,7 +73,8 @@ function run(args) {
   const parsed = parseArgs(args);
   if (parsed.kind === 'error') {
     const report = {
-      schema_version: 1,
+      schema_version: 2,
+      contract_version: '2.0.0',
       product: 'trae',
       host: 'unknown',
       status: 'unsupported',

@@ -12,6 +12,9 @@ const {
   installVerifiedHookConfiguration, preflightVerifiedHookConfiguration,
 } = require('../lib/trae-ide-config');
 const { inspectManagedBlocks } = require('../lib/managed-blocks');
+const { readHost } = require('../lib/host-route');
+const { routeFor } = require('../lib/host-adapter-lifecycle');
+const { generateCandidate } = require('../lib/traecli-candidate');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -32,6 +35,7 @@ Update managed templates and managed blocks.
 Options:
   --help, -h   Show this help message
   --check      Report stale, missing, orphaned, or modified generated assets without writing
+  --host <id>  Select the ide, work, or cli adapter manifest route
   --ide-probe <path>  Verified host-probe JSON authorizing the IDE Hook schema
   --global-hooks <path>  Explicit absolute global Hook config path; never guessed
 `);
@@ -39,6 +43,8 @@ Options:
   }
 
   const repoRoot = detectRepoRoot();
+  const host = readHost(args);
+  routeFor(host);
   const probeIndex = args.indexOf('--ide-probe');
   const globalHooksIndex = args.indexOf('--global-hooks');
   const ideProbePath = probeIndex === -1 ? null : args[probeIndex + 1];
@@ -61,11 +67,13 @@ Options:
 
   if (args.includes('--check')) {
     const result = checkProjectAssets(repoRoot);
-    if (result.issues.length === 0) {
+    const candidate = host === 'cli' ? require('../lib/traecli-candidate').checkCandidate(repoRoot) : { issues: [] };
+    const issues = [...result.issues, ...candidate.issues];
+    if (issues.length === 0) {
       console.log('PASS receipt-owned host assets are current');
       return 0;
     }
-    for (const issue of result.issues) console.log(`FAIL ${issue}`);
+    for (const issue of issues) console.log(`FAIL ${issue}`);
     return 1;
   }
 
@@ -86,6 +94,11 @@ Options:
   if (assetsResult.written.length > 0) summary.updated.push(`${assetsResult.written.length} receipt-owned host asset files`);
   else if (!assetReceiptExisted) summary.updated.push(`${RECEIPT_PATH} (adopted exact legacy assets)`);
   else summary.skipped.push('receipt-owned host assets (no changes)');
+  if (host === 'cli') {
+    const candidate = generateCandidate(repoRoot);
+    if (candidate.written.length > 0) summary.updated.push(`${candidate.written.length} Trae CLI candidate asset(s)`);
+    else summary.skipped.push('Trae CLI candidate assets (no changes)');
+  }
 
   // Update .trae/agents/
   const agentsResult = copyRepoDir(repoRoot,
