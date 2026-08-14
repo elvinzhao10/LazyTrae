@@ -6,12 +6,26 @@ const { stableDigest } = require('./adaptive-identity');
 const { jsonMaterial } = require('./host-adapter-fingerprint');
 const { inspectHostProfile } = require('./host-adapter-lifecycle');
 
+const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
+const MARKETPLACE_VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
+
 function availableMaterial(value) {
   return { status: 'available', digest: stableDigest(value) };
 }
 
 function unavailableMaterial() {
   return { status: 'unavailable', digest: null };
+}
+
+function marketplaceMaterial(context, selectedHost) {
+  const packageRecord = jsonMaterial(path.join(PACKAGE_ROOT, 'package.json'));
+  const version = context.marketplace_version ?? packageRecord.value?.version;
+  const route = context.marketplace_route ?? 'unavailable';
+  if (packageRecord.status !== 'ready' || route !== 'unavailable'
+    || typeof version !== 'string' || !MARKETPLACE_VERSION.test(version)) {
+    return unavailableMaterial();
+  }
+  return availableMaterial({ host: selectedHost, route, version });
 }
 
 function runtimeFingerprints(repoRoot, context) {
@@ -42,7 +56,7 @@ function runtimeFingerprints(repoRoot, context) {
           worktree: availableMaterial({ path: worktree }),
           mcp: availableMaterial(profile.mcp),
           generated_asset: availableMaterial(profile.generated_assets),
-          marketplace: availableMaterial({ route: 'unavailable', host: selectedHost }),
+          marketplace: marketplaceMaterial(context, selectedHost),
         },
       },
     };

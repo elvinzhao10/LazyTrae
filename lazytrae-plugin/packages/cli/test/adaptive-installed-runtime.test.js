@@ -713,6 +713,37 @@ test('native probe binary mutation reclassifies the installed continuation', (t)
   assert.equal(changed.directive.continuation.status, 'reclassified');
   assert.notEqual(changed.snapshot.decisionId, first.snapshot.decisionId);
   assert.notEqual(changed.snapshot.hostFingerprint, first.snapshot.hostFingerprint);
+
+  const unavailable = processAdaptivePrompt({
+    repoRoot: root,
+    prompt,
+    context: { marketplace_version: 'not-a-version' },
+  });
+  assert.equal(unavailable.directive.continuation.status, 'reclassified');
+  assert.notEqual(unavailable.snapshot.decisionId, changed.snapshot.decisionId);
+});
+
+test('marketplace version mutation reclassifies the installed continuation', (t) => {
+  const root = makeGitFixture('lazytrae-adaptive-marketplace-change-');
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  activateLoop(root);
+  writeCurrentIdeProbe(root);
+  const prompt = 'Continue this bounded task.';
+  const first = processAdaptivePrompt({
+    repoRoot: root,
+    prompt,
+    context: { marketplace_version: '1.0.0' },
+  });
+
+  const changed = processAdaptivePrompt({
+    repoRoot: root,
+    prompt,
+    context: { marketplace_version: '2.0.0' },
+  });
+
+  assert.equal(changed.directive.continuation.status, 'reclassified');
+  assert.notEqual(changed.snapshot.decisionId, first.snapshot.decisionId);
+  assert.notEqual(changed.snapshot.hostFingerprint, first.snapshot.hostFingerprint);
 });
 
 test('unavailable native probe cannot resume the installed continuation', (t) => {
