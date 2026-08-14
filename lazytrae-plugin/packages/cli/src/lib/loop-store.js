@@ -1,3 +1,4 @@
+const crypto = require('node:crypto');
 const fs = require('fs');
 const path = require('path');
 const { assertSafeRepoWritePath } = require('./path-boundary');
@@ -44,6 +45,10 @@ function statePath(repoRoot) {
 
 function logPath(repoRoot) {
   return path.join(repoRoot, '.lazytrae', 'logs', 'loop-events.ndjson');
+}
+
+function canonicalEventPath(repoRoot, loop) {
+  return path.join(repoRoot, loopArtifactPaths(loop).ledger_path.replace(/ledger\.jsonl$/, 'canonical-events.jsonl'));
 }
 
 function loopArtifactPaths(loop) {
@@ -120,9 +125,45 @@ function saveLoop(repoRoot, loop) {
   writeJSON(repoRoot, path.join(repoRoot, loop.goals_path), loop.goals);
 }
 
-function appendEvent(repoRoot, loop, mutation, details = {}) {
+function eventLines(filePath) {
+  if (!fs.existsSync(filePath)) return [];
+  const text = fs.readFileSync(filePath, 'utf8').trim();
+  return text.length === 0 ? [] : text.split('\n').map(line => JSON.parse(line));
+}
+
+function appendUnique(repoRoot, filePath, entry) {
+  assertSafeRepoWritePath(repoRoot, filePath);
+  const prior = eventLines(filePath).find(item => item.event_id === entry.event_id);
+  if (prior) {
+    if (JSON.stringify(prior) !== JSON.stringify(entry)) {
+      throw new Error(`Event id collision for ${entry.event_id}.`);
+    }
+    return false;
+  }
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.appendFileSync(filePath, `${JSON.stringify(entry)}\n`, 'utf8');
+  return true;
+}
+
+function appendEvent(repoRoot, loop, mutation, details = {}, options = {}) {
+  const timestamp = options.timestamp || new Date().toISOString();
+  const eventId = options.eventId || `evt:${crypto.randomUUID()}`;
+  if (typeof mutation !== 'string' || mutation.length === 0
+    || typeof eventId !== 'string' || !/^[a-z0-9][a-z0-9._:-]{2,127}$/.test(eventId)
+    || Number.isNaN(Date.parse(timestamp))) {
+    throw new Error('Canonical package event is malformed.');
+  }
+  const canonical = {
+    schema_version: 1,
+    event_id: eventId,
+    ts: timestamp,
+    run_id: loop.run_id || null,
+    event: mutation,
+    event_payload: details,
+  };
   const entry = {
-    timestamp: new Date().toISOString(),
+    timestamp,
+    event_id: eventId,
     run_id: loop.run_id || null,
     event_type: mutation,
     mutation,
@@ -130,16 +171,14 @@ function appendEvent(repoRoot, loop, mutation, details = {}) {
     active_goal_id: loop.active_goal_id || null,
     details,
   };
+  const canonicalPath = canonicalEventPath(repoRoot, loop);
+  const recorded = appendUnique(repoRoot, canonicalPath, canonical);
   const filePath = logPath(repoRoot);
-  assertSafeRepoWritePath(repoRoot, filePath);
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.appendFileSync(filePath, JSON.stringify(entry) + '\n', 'utf-8');
+  appendUnique(repoRoot, filePath, entry);
   const artifacts = loopArtifactPaths(loop);
   const ledgerFile = path.join(repoRoot, artifacts.ledger_path);
-  assertSafeRepoWritePath(repoRoot, ledgerFile);
-  fs.mkdirSync(path.dirname(ledgerFile), { recursive: true });
-  fs.appendFileSync(ledgerFile, JSON.stringify(entry) + '\n', 'utf-8');
-  return entry;
+  appendUnique(repoRoot, ledgerFile, entry);
+  return { outcome: recorded ? 'recorded' : 'duplicate', canonical, event: entry };
 }
 
 function persistBrief(repoRoot, loop, brief) {
@@ -167,6 +206,7 @@ function parseArgs(args) {
 
 module.exports = {
   appendEvent,
+  canonicalEventPath,
   defaultLoop,
   detectRepoRoot,
   loadLoop,

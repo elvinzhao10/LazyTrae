@@ -73,6 +73,25 @@ function activateLoop(root, additions = {}) {
   fs.writeFileSync(path.join(loopDir, 'ledger.jsonl'), '');
 }
 
+function writeCurrentIdeProbe(root) {
+  const probeDir = path.join(root, '.lazytrae', 'state', 'host-probes');
+  fs.mkdirSync(probeDir, { recursive: true });
+  fs.writeFileSync(path.join(probeDir, 'trae-ide.json'), `${JSON.stringify({
+    schema_version: 2,
+    contract_version: '2.0.0',
+    product: 'trae',
+    host: 'ide',
+    status: 'accessible',
+    detail: 'bounded fixture probe',
+    region: 'unknown',
+    edition: 'unknown',
+    capabilities: [],
+    observed_argv: [],
+    host_readiness: 'pending',
+    binary: { path: '/fixture/trae-ide', sha256: 'a'.repeat(64) },
+  })}\n`);
+}
+
 function directiveLines(output) {
   return output.split('\n').filter((line) => line.startsWith('{"lazytraeAdaptive"'));
 }
@@ -227,6 +246,7 @@ test('fresh init creates managed runtime ignores so adaptive persistence can res
   runGit(root, ['add', '.']);
   runGit(root, ['commit', '-qm', 'fixture']);
   activateLoop(root);
+  writeCurrentIdeProbe(root);
   const first = processAdaptivePrompt({ repoRoot: root, prompt: 'Continue the initialized task.' });
   const second = processAdaptivePrompt({ repoRoot: root, prompt: 'Continue the initialized task.' });
   assert.equal(second.directive.continuation.status, 'resumed');
@@ -668,11 +688,46 @@ test('unchanged active-loop intake resumes the compatible decision', (t) => {
   const root = makeGitFixture('lazytrae-adaptive-resume-loop-');
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   activateLoop(root);
+  writeCurrentIdeProbe(root);
   const first = processAdaptivePrompt({ repoRoot: root, prompt: 'Continue this bounded task.' });
   const second = processAdaptivePrompt({ repoRoot: root, prompt: 'Continue this bounded task.' });
   assert.equal(second.directive.continuation.status, 'resumed');
   assert.equal(second.snapshot.decisionId, first.snapshot.decisionId);
   assert.equal(second.directive.persistence, 'updated:active-loop');
+});
+
+test('native probe binary mutation reclassifies the installed continuation', (t) => {
+  const root = makeGitFixture('lazytrae-adaptive-native-probe-change-');
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  activateLoop(root);
+  writeCurrentIdeProbe(root);
+  const prompt = 'Continue this bounded task.';
+  const first = processAdaptivePrompt({ repoRoot: root, prompt });
+  const probePath = path.join(root, '.lazytrae', 'state', 'host-probes', 'trae-ide.json');
+  const probe = JSON.parse(fs.readFileSync(probePath, 'utf8'));
+  probe.binary.sha256 = 'b'.repeat(64);
+  fs.writeFileSync(probePath, `${JSON.stringify(probe)}\n`);
+
+  const changed = processAdaptivePrompt({ repoRoot: root, prompt });
+
+  assert.equal(changed.directive.continuation.status, 'reclassified');
+  assert.notEqual(changed.snapshot.decisionId, first.snapshot.decisionId);
+  assert.notEqual(changed.snapshot.hostFingerprint, first.snapshot.hostFingerprint);
+});
+
+test('unavailable native probe cannot resume the installed continuation', (t) => {
+  const root = makeGitFixture('lazytrae-adaptive-native-probe-missing-');
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  activateLoop(root);
+  writeCurrentIdeProbe(root);
+  const prompt = 'Continue this bounded task.';
+  const first = processAdaptivePrompt({ repoRoot: root, prompt });
+  fs.rmSync(path.join(root, '.lazytrae', 'state', 'host-probes', 'trae-ide.json'));
+
+  const unavailable = processAdaptivePrompt({ repoRoot: root, prompt });
+
+  assert.equal(unavailable.directive.continuation.status, 'reclassified');
+  assert.notEqual(unavailable.snapshot.decisionId, first.snapshot.decisionId);
 });
 
 test('source and installation template hook stay byte-identical', () => {

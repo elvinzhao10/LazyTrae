@@ -3,14 +3,15 @@
 const path = require('node:path');
 const { classifyAdaptiveDecision, stableDigest } = require('./adaptive-decision');
 const {
-  loadAdaptiveContract,
   mapAdaptiveDecisionToSurfaces,
   qualifyInstalledHost,
 } = require('./adaptive-mapping');
 const { computeRevisionFingerprint } = require('./adaptive-revision');
 const { writeAdaptiveSnapshot } = require('./adaptive-snapshot');
+const { runtimeFingerprints } = require('./adaptive-host-fingerprint');
 const {
   appendEvent,
+  canonicalEventPath,
   loadLoop,
   loopArtifactPaths,
   saveLoop,
@@ -58,16 +59,6 @@ function safeLoop(repoRoot) {
   }
 }
 
-function hostIdentity(repoRoot, host) {
-  const contract = loadAdaptiveContract();
-  return stableDigest({
-    approvalPolicy: contract.approval_policy,
-    authorityMatrix: contract.authority_matrix,
-    qualification: host.qualification,
-    workflowSurfaces: host.workflowSurfaces,
-  });
-}
-
 function changedMaterial(prior, current) {
   const fields = ['requestDigest', 'revisionFingerprint', 'scopeFingerprint', 'hostFingerprint'];
   return fields.filter((field) => JSON.stringify(prior?.[field]) !== JSON.stringify(current[field]));
@@ -83,6 +74,7 @@ function preflightPersistence(repoRoot, loop, diagnosticRequired) {
     targets.push(
       path.join(repoRoot, artifacts.ledger_path),
       path.join(repoRoot, '.lazytrae', 'logs', 'loop-events.ndjson'),
+      canonicalEventPath(repoRoot, loop),
     );
   }
   targets.forEach((target) => assertSafeRepoWritePath(repoRoot, target));
@@ -138,13 +130,13 @@ function processAdaptivePrompt({ repoRoot, prompt, context = {} }) {
     boundary: 'adaptive-intake',
     scope: context.scope || 'prompt-intake',
   });
-  const hostFingerprint = hostIdentity(repoRoot, host);
+  const nativeFingerprints = runtimeFingerprints(repoRoot, context);
   const priorSnapshot = initial.loop?.adaptive || null;
   const decision = classifyAdaptiveDecision(prompt, {
     ...context,
     revisionFingerprint,
     scopeFingerprint,
-    hostFingerprint,
+    ...nativeFingerprints,
     priorSnapshot,
   });
   const continuationStatus = priorSnapshot
