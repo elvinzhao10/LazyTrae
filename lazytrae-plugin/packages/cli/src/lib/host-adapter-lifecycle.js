@@ -11,6 +11,11 @@ const {
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 const MANIFEST_PATH = path.join(PACKAGE_ROOT, 'host-adapter-manifest.v2.json');
 const HOST_IDS = Object.freeze({ cli: 'trae-cli', ide: 'trae-ide', work: 'trae-work' });
+const HOST_CONTEXTS = Object.freeze({
+  'trae-cli': Object.freeze({ host_label: 'TRAE CLI', client_context: 'terminal', execution_context: 'local' }),
+  'trae-ide': Object.freeze({ host_label: 'TRAE IDE', client_context: 'desktop', execution_context: 'local' }),
+  'trae-work': Object.freeze({ host_label: 'TRAE Work', client_context: 'unspecified', execution_context: 'unspecified' }),
+});
 
 function readManifest() {
   const bytes = fs.readFileSync(MANIFEST_PATH);
@@ -163,8 +168,12 @@ function inspectHostProfile(repoRoot, host, options = {}) {
   const hostReadiness = packageReadiness === 'ready' && generatedAssets.status === 'ready'
     && [probe, registration, session, mcp, observed].every(item => item.status === 'observed')
     ? 'observed' : 'pending';
+  const context = HOST_CONTEXTS[route.host];
   return {
     host: route.host,
+    host_label: context.host_label,
+    client_context: context.client_context,
+    execution_context: context.execution_context,
     contract_version: '2.0.0',
     evidence_fingerprint: evidenceFingerprint,
     host_fingerprint: hostFingerprint,
@@ -172,6 +181,9 @@ function inspectHostProfile(repoRoot, host, options = {}) {
     generated_assets: generatedAssets,
     config: pendingEvidence(configStatus, route.config_path || 'manual host configuration'),
     probe,
+    discovery: probe.status === 'observed'
+      ? pendingEvidence('observed', 'bounded native host discovery')
+      : pendingEvidence('pending', 'generated package assets are inert and do not prove host discovery'),
     registration,
     session,
     mcp,
@@ -188,4 +200,4 @@ function inspectHostProfiles(repoRoot, options = {}) {
     .sort((left, right) => left.host.localeCompare(right.host));
 }
 
-module.exports = { HOST_IDS, inspectHostProfile, inspectHostProfiles, readManifest, routeFor };
+module.exports = { HOST_CONTEXTS, HOST_IDS, inspectHostProfile, inspectHostProfiles, readManifest, routeFor };

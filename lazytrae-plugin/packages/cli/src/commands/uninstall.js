@@ -6,6 +6,7 @@ const { removeManagedMcpDeclaration } = require('../lib/mcp-declaration');
 const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 const { removeEmptyDir, removeVerifiedFile, removeVerifiedTree } = require('../lib/owned-assets');
 const { hasProjectAssetReceipt, uninstallProjectAssets } = require('../lib/project-assets');
+const { CURRENT_VERSION } = require('../lib/version');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -50,7 +51,7 @@ Normal uninstall retains .lazytrae state/, evidence/, plans/, and loop/ data.
   const repoRoot = detectRepoRoot();
   const summary = { removed: [], preserved: [] };
 
-  console.log(`LazyTrae uninstall v1.0.3`);
+  console.log(`LazyTrae uninstall v${CURRENT_VERSION}`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');

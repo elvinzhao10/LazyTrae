@@ -3,6 +3,8 @@ const path = require('path');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 const { inspectInitializeReceipt } = require('../lib/initialize-receipt');
 const { inspectHostProfile } = require('../lib/host-adapter-lifecycle');
+const { buildStatusReport } = require('./status');
+const { CURRENT_VERSION } = require('../lib/version');
 const { readHost } = require('../lib/host-route');
 const {
   formatHostMcpConfiguration,
@@ -153,7 +155,7 @@ function run(args) {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae load-check [--host ide|work|cli]
 
-Check v1.0.3 package readiness after initialization. This validates local files and
+Check v${CURRENT_VERSION} package readiness after initialization. This validates local files and
 configuration only; it does not claim that a host has registered or loaded them.
 `);
     return 0;
@@ -174,7 +176,7 @@ configuration only; it does not claim that a host has registered or loaded them.
   const mcpResult = mcpDeclarationResult(repoRoot, host);
   const mcpError = mcpResult.error;
 
-  console.log('=== LazyTrae Tool Load Check — v1.0.3 Package Readiness ===');
+  console.log(`=== LazyTrae Tool Load Check — v${CURRENT_VERSION} Package Readiness ===`);
   console.log(`Host: ${host}`);
   for (const result of checks) {
     const expected = ARTIFACT_CONTRACT[result.label].length;
@@ -207,6 +209,9 @@ configuration only; it does not claim that a host has registered or loaded them.
   }
   const hostProfile = inspectHostProfile(repoRoot, host, { workSkillsDir });
   console.log(`Host adapter profile: package=${hostProfile.package_readiness}; generated=${hostProfile.generated_assets.status}; config=${hostProfile.config.status}; probe=${hostProfile.probe.status}; registration=${hostProfile.registration.status}; session=${hostProfile.session.status}; mcp=${hostProfile.mcp.status}; observation=${hostProfile.observation.status}; support=${hostProfile.support}; host=${hostProfile.host_readiness}`);
+  const machineStatus = buildStatusReport(repoRoot, host, { workSkillsDir });
+  const machineProfile = machineStatus.profiles[0];
+  console.log(`PASS Machine status v2: version=${machineStatus.version}; adapter=${machineProfile.host}; package=${machineProfile.package_readiness}; probe=${machineProfile.probe.status}; host=${machineProfile.host_readiness}`);
 
   printHostRegistrationStatus(host, repoRoot);
   printInitializeReceiptStatus(repoRoot);

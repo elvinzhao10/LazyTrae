@@ -120,7 +120,7 @@ test('packed CLI installs from a cold offline npm cache with only production dep
       env: nodeOnlyEnvironment,
     });
     assert.equal(localResponse.error, undefined);
-    assert.equal(localResponse.result.serverInfo.version, '1.0.3');
+    assert.equal(localResponse.result.serverInfo.version, '1.1.0');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

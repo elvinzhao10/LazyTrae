@@ -2,6 +2,7 @@ const readline = require('readline');
 const { advertised, execute, tool } = require('../lib/lsp-bridge');
 const { formatStatus, parseLspArgs, status } = require('../lib/lsp-lifecycle');
 const { ownedRuntimeEnvironment } = require('../lib/tooling-root');
+const { CURRENT_VERSION } = require('../lib/version');
 
 function json(value) {
   process.stdout.write(`${JSON.stringify(value)}\n`);
@@ -22,7 +23,7 @@ function content(value) {
 async function handle(request, context) {
   const id = Object.hasOwn(request, 'id') ? request.id : 0;
   if (request.method === 'initialize') {
-    result(id, { protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'lazytrae-lsp', version: '1.0.3' } });
+    result(id, { protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'lazytrae-lsp', version: CURRENT_VERSION } });
     return;
   }
   const provider = status(context.target, context.toolingRoot);

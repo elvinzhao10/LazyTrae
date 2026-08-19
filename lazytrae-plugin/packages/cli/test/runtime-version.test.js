@@ -7,8 +7,8 @@ const test = require('node:test');
 const expectedVersion = require('../package.json').version;
 const packagedMcp = require('../src/mcp');
 const sourceMcp = require('../../mcp/src');
-const RELEASE_VERSION = '1.0.3';
-const previousReleaseVersion = RELEASE_VERSION.replace(/\d+$/, patch => String(Number(patch) - 1));
+const RELEASE_VERSION = '1.1.0';
+const previousReleaseVersion = '1.0.3';
 
 const CURRENT_RELEASE_PATHS = [
   '../../../../README.md',

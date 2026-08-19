@@ -26,10 +26,10 @@ function durableFixture(sandbox, name, fill) {
     entrypoint: 'bin/lazytrae.js',
     manifestRelativePath: 'package.json',
     origin: ORIGIN,
-    releaseId: `1.0.3-${sha.slice(0, 12)}`,
+    releaseId: `1.1.0-${sha.slice(0, 12)}`,
     runtimePath: process.execPath,
     stagingPath: staging,
-    version: '1.0.3',
+    version: '1.1.0',
   });
   return { paths, sha, source };
 }
@@ -84,7 +84,7 @@ test('durable init records the absolute runtime and stable launcher after source
   assert.equal(server._lazytrae.release_sha, fixture.sha);
   assert.match(server._lazytrae.managed_entry_sha256, /^[a-f0-9]{64}$/);
   assert.equal(started.status, 0, started.stderr);
-  assert.equal(JSON.parse(started.stdout.trim()).result.serverInfo.version, '1.0.3');
+  assert.equal(JSON.parse(started.stdout.trim()).result.serverInfo.version, '1.1.0');
 });
 
 test('durable init rejects tampered provenance before writing project assets', async (t) => {
@@ -169,10 +169,10 @@ test('active release replacement changes stable launcher behavior without editin
     entrypoint: 'bin/lazytrae.js',
     manifestRelativePath: 'package.json',
     origin: ORIGIN,
-    releaseId: `1.0.3-${nextSha.slice(0, 12)}`,
+    releaseId: `1.1.0-${nextSha.slice(0, 12)}`,
     runtimePath: process.execPath,
     stagingPath: staging,
-    version: '1.0.3',
+    version: '1.1.0',
   });
   const probed = childProcess.spawnSync(process.execPath, [fixture.paths.launcher, 'release-probe'], {
     encoding: 'utf8',

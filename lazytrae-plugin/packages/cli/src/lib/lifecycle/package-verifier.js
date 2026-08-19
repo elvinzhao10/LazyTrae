@@ -4,8 +4,8 @@ const crypto = require('node:crypto');
 const path = require('node:path');
 const { LifecycleError } = require('./errors');
 const { safeFile } = require('./files');
+const { CURRENT_VERSION: VERSION } = require('../version');
 
-const VERSION = '1.0.3';
 const CONTRACT_DIGESTS = Object.freeze({
   'lazy-harness-active.v2.schema.json': '7ad41dbd2179791438e95690cdf234034e488dc93b724cf1dad261531cfcfd30',
   'lazy-harness-lifecycle.v1.example.json': '6b10b60074fd9dac366b9b92d22daf06de73e76f8530cc376b58fcae20b05445',

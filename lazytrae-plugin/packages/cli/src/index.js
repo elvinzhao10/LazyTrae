@@ -2,6 +2,7 @@
 
 const { existsSync } = require('fs');
 const path = require('path');
+const { CURRENT_VERSION } = require('./lib/version');
 
 const commands = {
   init: () => require('./commands/init').run,
@@ -45,7 +46,7 @@ const aliases = {
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v1.0.3 — Trae-native workflows
+  console.log(`LazyTrae CLI v${CURRENT_VERSION} — Trae-native workflows
 
 Usage: lazytrae <command> [options]
 

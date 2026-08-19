@@ -15,6 +15,7 @@ const { inspectManagedBlocks } = require('../lib/managed-blocks');
 const { readHost } = require('../lib/host-route');
 const { routeFor } = require('../lib/host-adapter-lifecycle');
 const { generateCandidate } = require('../lib/traecli-candidate');
+const { CURRENT_VERSION } = require('../lib/version');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -79,7 +80,7 @@ Options:
 
   const summary = { updated: [], skipped: [], warnings: [] };
 
-  console.log(`LazyTrae sync v1.0.3`);
+  console.log(`LazyTrae sync v${CURRENT_VERSION}`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const gitStatus = inspectGitMetadata(repoRoot);

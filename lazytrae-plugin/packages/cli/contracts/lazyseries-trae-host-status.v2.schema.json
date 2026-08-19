@@ -3,18 +3,23 @@
   "$id": "lazyseries-trae-host-status.v2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "contract_version", "profiles"],
+  "required": ["schema_version", "contract_version", "product", "version", "profiles"],
   "properties": {
     "schema_version": { "const": 2 },
     "contract_version": { "const": "2.0.0" },
+    "product": { "const": "LazyTrae" },
+    "version": { "const": "1.1.0" },
     "profiles": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["host", "contract_version", "evidence_fingerprint", "host_fingerprint", "package_assets", "generated_assets", "config", "probe", "registration", "session", "mcp", "observation", "support", "package_readiness", "host_readiness"],
+        "required": ["host", "host_label", "client_context", "execution_context", "contract_version", "evidence_fingerprint", "host_fingerprint", "package_assets", "generated_assets", "config", "probe", "discovery", "registration", "session", "mcp", "observation", "support", "package_readiness", "host_readiness"],
         "properties": {
           "host": { "enum": ["trae-cli", "trae-ide", "trae-work"] },
+          "host_label": { "enum": ["TRAE CLI", "TRAE IDE", "TRAE Work"] },
+          "client_context": { "enum": ["terminal", "desktop", "unspecified"] },
+          "execution_context": { "enum": ["local", "unspecified"] },
           "contract_version": { "const": "2.0.0" },
           "evidence_fingerprint": { "$ref": "#/$defs/digest" },
           "host_fingerprint": { "$ref": "#/$defs/digest" },
@@ -22,6 +27,7 @@
           "generated_assets": { "type": "object" },
           "config": { "$ref": "#/$defs/evidence" },
           "probe": { "$ref": "#/$defs/evidence" },
+          "discovery": { "$ref": "#/$defs/evidence" },
           "registration": { "$ref": "#/$defs/evidence" },
           "session": { "$ref": "#/$defs/evidence" },
           "mcp": { "$ref": "#/$defs/evidence" },

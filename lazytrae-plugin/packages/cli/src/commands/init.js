@@ -16,6 +16,7 @@ const {
   installVerifiedHookConfiguration, preflightVerifiedHookConfiguration,
 } = require('../lib/trae-ide-config');
 const { inspectManagedBlocks } = require('../lib/managed-blocks');
+const { CURRENT_VERSION } = require('../lib/version');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -72,7 +73,7 @@ Options:
     templatePath: path.join(templatesDir, 'hooks.json'),
   });
 
-  console.log(`LazyTrae init v1.0.3`);
+  console.log(`LazyTrae init v${CURRENT_VERSION}`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const gitStatus = inspectGitMetadata(repoRoot);
