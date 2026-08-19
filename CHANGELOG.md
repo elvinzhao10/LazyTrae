@@ -3,6 +3,35 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-08-19
+
+### Changed
+
+- Published v1.1 native-host documentation boundaries for three independent
+  surfaces: Trae IDE, Trae Work, and Trae CLI.
+- Defined distinct generator, profile, probe, package-readiness, and
+  host-readiness evidence modes. Current writers are v2; v1 receipts remain
+  immutable, read-only compatibility inputs.
+- Documented Work's explicit `--client`/`--execution` matrix and its
+  desktop/local-only local-worktree, executable, skills-path, and bundle
+  boundary.
+- Documented `.traecli/` candidates as receipt-owned inert configuration that
+  needs an exact fingerprinted probe before any structured-runner invocation.
+
+### Security and removal boundaries
+
+- No universal host CLI, marketplace publish/install, cloud upload, or native
+  capability is claimed. Host discovery, registration, credentials, sessions,
+  connector launch, and execution stay host-owned.
+- Offboard and removal preserve host registrations and caller-modified
+  candidates; package evidence cannot grant host-removal authority.
+
+### Verification
+
+- Current documentation separates package readiness from host readiness and
+  retains `pending` until current fingerprint-bound probe, registration,
+  session, MCP, and observation evidence agree.
+
 ## [1.0.3] - 2026-07-20
 
 The durable route requires **Node.js LTS 20 or newer** and **Git**. It accepts
@@ -154,6 +183,7 @@ runtime replacement uses scoped offboard/re-onboard. Package success leaves
   lifecycle.
 
 [1.0.3]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.2...v1.0.3
+[1.1.0]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.3...v1.1.0
 [1.0.2]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.0

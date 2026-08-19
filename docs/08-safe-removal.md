@@ -1,5 +1,8 @@
 # Safe removal
 
+**Current documentation release: v1.1.0.** Removal never turns a generated
+artifact into a claim about a host installation or registration.
+
 Removal follows ownership, not a broad directory delete. LazyTrae removes only
 assets that still match its receipts/templates and preserves modified, unknown,
 foreign, linked, caller-owned, project, and host-managed paths.
@@ -10,9 +13,9 @@ The project-local commands below require your explicit approval for the
 selected removal scope:
 
 ```bash
-lazytrae uninstall --yes
-lazytrae uninstall --yes --soft
-lazytrae uninstall --yes --purge-state
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" uninstall --yes
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" uninstall --yes --soft
+node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" uninstall --yes --purge-state
 ```
 
 `uninstall --yes` removes only exact project files. `--soft` removes verified
@@ -22,7 +25,7 @@ runtime template files; it never recursively deletes a runtime directory.
 `.lazytrae/state/`, `.lazytrae/evidence/`, `.lazytrae/plans/`, and
 `.lazytrae/loop/` are preserved.
 
-For Trae Work on macOS, run `lazytrae work uninstall` only after the operator
+For Trae Work on macOS, run the stable launcher `work uninstall` only after the operator
 explicitly approves removing global Work skills; then run `lazytrae work status`
 and observe which skills remain. It removes only manifest-listed `lazy-*`
 skills whose sole `SKILL.md` exactly matches the bundled content. It refuses
@@ -80,3 +83,14 @@ flowchart TD
 ```
 
 The important implementation rule is that a refusal is a successful safety outcome. `uninstall.js` and tooling-root helpers validate ownership before deleting project/tooling assets; Work removal separately checks each installed skill. No command turns a directory name, host registration, or `.codegraph` index into proof of package ownership.
+
+## v1.1 generated-host cleanup
+
+Remove CLI candidates with the host-specific, receipt-aware offboard route;
+only exact unmodified `.traecli/` candidate files may be removed. Preserve
+modified candidates and all host registrations. A generated candidate is inert
+configuration, not proof of discovery, execution, package installation, or a
+marketplace action. For Work, preserve web/mobile/cloud descriptors and any
+path not owned by the desktop/local receipt. A bounded probe or a v2 package
+record never grants removal authority over a host. Historical v1 evidence is
+immutable compatibility input and is never a deletion receipt.

@@ -6,6 +6,28 @@ LazyTrae is a self-contained workflow harness for **Trae IDE**, **Trae Work**,
 and **Trae CLI**. Its companion command installs project assets, checks local
 readiness, runs completion gates, and launches a local stdio MCP server.
 
+## Current release boundary (v1.1.0)
+
+v1.1.0 documents three independent native hosts. LazyTrae may generate local
+assets, profile a selected Work context, or collect a bounded host probe; the
+host alone owns discovery, registration, session lifetime, connector launch,
+and credentials. A package result never promotes **package readiness** to
+**host readiness**.
+
+- **Trae IDE:** `.trae/` assets and an optional bounded probe are package
+  evidence, not IDE discovery or a live MCP connection.
+- **Trae Work:** select `--client desktop|web|mobile` and
+  `--execution local|cloud` independently. Only desktop/local may use a local
+  worktree, executable, skills path, or bundle; other profiles are descriptors
+  only and do not upload, log in, or use cloud credentials.
+- **Trae CLI:** `traecli-candidate generate` writes receipt-owned `.traecli/`
+  configuration candidates. They are inert: no discovery, registration, marketplace installation, or execution is implied. Invocation requires an
+  exact fingerprinted probe that proves a structured runner for the current
+  session and worktree.
+
+Current writers emit v2 readiness records. Historical v1 records remain
+read-only compatibility evidence. No current route publishes to a marketplace, installs a marketplace package, uploads project data, or invents a native host command.
+
 It is verified on macOS only. Package checks establish copied assets and local
 contracts; the selected Trae surface remains the authority for discovery,
 hook execution, and MCP connection.
@@ -29,9 +51,9 @@ For a CLI project, invoke the release-owned launcher with `verify --must-pass`
 before reporting a task complete. Trae hooks are advisory; hard completion
 decisions live in the CLI and MCP gates.
 
-## Adaptive harness (v1.0.3)
+## Historical adaptive harness (v1.0.3)
 
-LazyTrae v1.0.3 introduces an **adaptive harness** that selects the smallest
+The historical v1.0.3 release introduced an **adaptive harness** that selects the smallest
 sufficient workflow for an outcome-based request, composes existing Skills,
 agents, commands, MCPs, tools, hooks, and verifiers, can persist an additive
 single-writer snapshot in an active loop, and explains material choices. Named
@@ -93,7 +115,7 @@ all require approval. Quality, release, and security review responsibilities
 run automatically. Approval follows the requested action class, not the
 selected workflow mode or review responsibility.
 
-### v1.0.3 policy behavior
+### Historical v1.0.3 policy behavior
 
 Current package tests enforce that `investigate why` selects
 `assisted`; broad validation refactors select `planned`; work explicitly
@@ -131,7 +153,7 @@ the verified official origin, `https://github.com/elvinzhao10/LazyTrae.git`
 (the `.git` suffix is optional). A checkout is transport for the first command,
 not the installed runtime and not host evidence.
 
-Run the source checkout's v1.0.3 entrypoint once to create the durable
+Run the source checkout's v1.1.0 entrypoint once to create the durable
 installation. Replace the two absolute placeholders; do not use a temporary
 install root:
 
@@ -189,10 +211,10 @@ removal or replacement of caller workspace files.
 
 ### Upgrade from v1.0.2
 
-Use `lifecycle onboard` to create the v1.0.3 durable root, then run the stable
+Use `lifecycle onboard` to create the v1.1.0 durable root, then run the stable
 launcher with `doctor`, `load-check`, and `init`/`sync`. Only managed project
 assets are replaced; modified or unknown files are preserved. See the
-[v1.0.3 migration guide](docs/v1.0.3-migration-guide.md) for recovery,
+[v1.1.0 migration guide](docs/v1.1.0-migration-guide.md) for recovery,
 rollback-retention, runtime-refresh, and scoped-offboard rules.
 
 The agent first detects or asks for **Trae IDE**, **Trae Work**, or **Trae CLI**,
@@ -233,7 +255,7 @@ explicitly unverified.
 
 See [AGENTS.md](AGENTS.md) for the host-specific artifact boundary and manual
 steps. The source is available at the [LazyTrae repository](https://github.com/elvinzhao10/LazyTrae),
-with release notes on the [v1.0.3 release page](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.3).
+with v1.1.0 release boundaries in [RELEASE_NOTES-v1.1.0.md](RELEASE_NOTES-v1.1.0.md).
 
 ## Verify and remove
 

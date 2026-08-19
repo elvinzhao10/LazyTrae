@@ -1,5 +1,8 @@
 # Package delivery
 
+**Current documentation release: v1.1.0.** The package can create evidence;
+only the selected host can supply discovery and live-session evidence.
+
 This page explains the deployment boundary in code terms. The CLI contains canonical templates and a local MCP runtime; it does not contain Trae's settings database, session state, or live connector process table.
 
 ## Durable lifecycle
@@ -26,7 +29,7 @@ Platform defaults are package behavior, not host-support evidence:
 
 ## Host onboarding
 
-Open or link the durable `v1.0.3` release in the selected Trae host, give the agent
+Open or link the durable `v1.1.0` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for Trae IDE, Trae Work, or Trae CLI, runs safe package checks, and
 reports package readiness separately from host readiness. Before copying Work
@@ -50,6 +53,21 @@ into Work's **Settings → MCP** or the selected CLI build's documented/manual
 MCP settings flow. Pasting, reloading/new session, and testing are separate
 actions. The package result does not change **HOST READINESS: PENDING**.
 The supplied QA could not access Trae CLI; its live-host route is unverified.
+
+## v1.1 independent native-host evidence
+
+IDE project assets, Work profiles, and CLI candidates are separate package
+outputs. Work requires both `--client desktop|web|mobile` and
+`--execution local|cloud`; only desktop/local permits a local worktree,
+executable, skills path, or bounded probe. Web/mobile/cloud descriptions do
+not upload data or invoke a cloud account.
+
+`traecli-candidate generate` writes receipt-owned `.traecli/` files. They are
+inert configuration, not host discovery, MCP registration, execution, package
+installation, or marketplace publication. `host-probe` performs only bounded,
+credential-free host introspection. Current v2 writers keep host readiness
+pending until fingerprint-bound probe, registration, session, MCP, and live
+observation evidence agree; historical v1 receipts are read-only inputs.
 
 ## Template installation pipeline
 

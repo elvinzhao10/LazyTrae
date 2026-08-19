@@ -1,5 +1,8 @@
 # Host capability matrix
 
+**Current documentation release: v1.1.0.** This is a boundary matrix, not a
+claim that a package result has made any host ready.
+
 LazyTrae deliberately aligns policy and package safety across Trae surfaces while keeping host adapters distinct. The same project assets may be present on two surfaces without both hosts exposing the same discovery or registration behavior.
 
 This matrix assumes **Node.js LTS 20 or newer** and **Git** bootstrap
@@ -35,6 +38,19 @@ The host adapter differs, but the safety model does not:
 - **Host integration:** IDE, Work, and CLI each own discovery, registration, session lifetime, and event delivery.
 - **State/path:** project assets live in `.trae/` and `.lazytrae/`; the verified Work skills path is macOS `~/.trae-cn/skills/`; host settings and credentials remain user-owned.
 - **Inventory:** eight MCP declarations are shipped: one executable core server and seven disabled placeholders. Optional providers remain explicit lifecycle decisions.
+
+## v1.1 host-native routes
+
+| Independent host | LazyTrae-owned local output | Host-native boundary | Evidence mode |
+| --- | --- | --- | --- |
+| Trae IDE | `.trae/` assets and an optional bounded capability probe | Discovery, hooks, session and MCP connection remain IDE-owned. | Package evidence; probe is bounded and non-promoting. |
+| Trae Work | An explicit `--client` and `--execution` profile; only desktop/local can name a local worktree, executable, skills path, or `.skill` bundle. | Work owns skill loading, account context, connector and execution environment. Web/mobile/cloud profiles are descriptors only. | Profile evidence; no upload, login, credential, or cloud action. |
+| Trae CLI | `traecli-candidate generate` creates receipt-owned `.traecli/` candidates. | Candidate files are inert configuration, not discovery, registration, marketplace installation, or execution. A runner needs an exact probe-proven structured interface. | Generated evidence then bounded probe evidence; host readiness remains pending. |
+
+The current writers produce v2 readiness and host-adapter records. Historical
+v1 records are only read-only compatibility inputs. No route may promote
+package readiness to host readiness: all current probe, registration, session,
+MCP, and observation evidence must be fingerprint-bound and current first.
 
 ## Package-built versus host-native behavior
 
