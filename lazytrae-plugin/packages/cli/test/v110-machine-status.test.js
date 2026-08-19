@@ -125,3 +125,33 @@ test('public status validation rejects malformed and stale current documents', (
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('public status validation rejects a complete contradictory host profile without mutation', () => {
+  // Given: a complete generated status document whose CLI identity is relabeled as Work.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-v110-contradictory-'));
+  fs.mkdirSync(path.join(root, '.git'));
+  const contradictory = path.join(root, 'contradictory.json');
+  try {
+    const generated = runCli(['status', '--json'], { cwd: root });
+    assert.equal(generated.status, 0, `${generated.stdout}\n${generated.stderr}`);
+    const report = JSON.parse(generated.stdout);
+    Object.assign(report.profiles[0], {
+      host_label: 'TRAE Work',
+      client_context: 'unspecified',
+      execution_context: 'unspecified',
+    });
+    fs.writeFileSync(contradictory, `${JSON.stringify(report, null, 2)}\n`);
+    const before = fs.readFileSync(contradictory);
+
+    // When: the contradictory complete record crosses the public validation boundary.
+    const result = runCli(['status', '--validate', contradictory], { cwd: root });
+
+    // Then: validation fails closed and leaves the input bytes untouched.
+    assert.notEqual(result.status, 0);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, /STATUS_INVALID/);
+    assert.deepEqual(fs.readFileSync(contradictory), before);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

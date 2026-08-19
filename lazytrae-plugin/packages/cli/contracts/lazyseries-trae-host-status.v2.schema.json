@@ -35,7 +35,21 @@
           "support": { "type": "string" },
           "package_readiness": { "enum": ["ready", "failed"] },
           "host_readiness": { "enum": ["observed", "pending"] }
-        }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "host": { "const": "trae-cli" } }, "required": ["host"] },
+            "then": { "properties": { "host_label": { "const": "TRAE CLI" }, "client_context": { "const": "terminal" }, "execution_context": { "const": "local" } } }
+          },
+          {
+            "if": { "properties": { "host": { "const": "trae-ide" } }, "required": ["host"] },
+            "then": { "properties": { "host_label": { "const": "TRAE IDE" }, "client_context": { "const": "desktop" }, "execution_context": { "const": "local" } } }
+          },
+          {
+            "if": { "properties": { "host": { "const": "trae-work" } }, "required": ["host"] },
+            "then": { "properties": { "host_label": { "const": "TRAE Work" }, "client_context": { "const": "unspecified" }, "execution_context": { "const": "unspecified" } } }
+          }
+        ]
       }
     }
   },

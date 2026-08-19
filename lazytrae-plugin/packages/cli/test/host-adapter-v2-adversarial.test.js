@@ -139,6 +139,13 @@ test('public status probe and observation artifacts satisfy the exact v2 schemas
       const validate = ajv.compile(schema);
       assert.equal(validate(value), true, `${label}: ${ajv.errorsText(validate.errors)}`);
     }
+    const statusSchema = JSON.parse(fs.readFileSync(path.join(PACKAGE_ROOT, 'contracts', cases[0][1]), 'utf8'));
+    const validateStatus = new Ajv2020({ strict: true }).compile(statusSchema);
+    const contradictory = structuredClone(status);
+    Object.assign(contradictory.profiles[0], {
+      host_label: 'TRAE Work', client_context: 'unspecified', execution_context: 'unspecified',
+    });
+    assert.equal(validateStatus(contradictory), false);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

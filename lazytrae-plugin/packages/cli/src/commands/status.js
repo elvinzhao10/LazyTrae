@@ -5,7 +5,12 @@ const path = require('node:path');
 const { inspectHostProfile, inspectHostProfiles } = require('../lib/host-adapter-lifecycle');
 const { CURRENT_VERSION, MACHINE_STATUS_CONTRACT_VERSION } = require('../lib/version');
 
-const EXPECTED_HOSTS = Object.freeze(['trae-cli', 'trae-ide', 'trae-work']);
+const HOST_IDENTITIES = Object.freeze({
+  'trae-cli': Object.freeze(['TRAE CLI', 'terminal', 'local']),
+  'trae-ide': Object.freeze(['TRAE IDE', 'desktop', 'local']),
+  'trae-work': Object.freeze(['TRAE Work', 'unspecified', 'unspecified']),
+});
+const EXPECTED_HOSTS = Object.freeze(Object.keys(HOST_IDENTITIES));
 
 function detectRepoRoot() {
   let current = process.cwd();
@@ -42,7 +47,10 @@ function validateStatusReport(report) {
       'config', 'probe', 'discovery', 'registration', 'session', 'mcp', 'observation',
       'support', 'package_readiness', 'host_readiness',
     ];
+    const identity = HOST_IDENTITIES[profile.host];
     if (!exactKeys(profile, required) || profile.contract_version !== MACHINE_STATUS_CONTRACT_VERSION
+      || !identity || profile.host_label !== identity[0]
+      || profile.client_context !== identity[1] || profile.execution_context !== identity[2]
       || !['ready', 'failed'].includes(profile.package_readiness)
       || !['pending', 'observed'].includes(profile.probe.status)
       || !['pending', 'observed'].includes(profile.discovery.status)
