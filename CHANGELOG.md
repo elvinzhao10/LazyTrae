@@ -9,6 +9,8 @@ All notable public changes to LazyTrae are documented here. Versions follow
 
 - Published v1.1 native-host documentation boundaries for three independent
   surfaces: Trae IDE, Trae Work, and Trae CLI.
+- Kept local-first onboarding on the release-owned launcher while preserving
+  the boundary between package evidence and host-owned execution.
 - Defined distinct generator, profile, probe, package-readiness, and
   host-readiness evidence modes. Current writers are v2; v1 receipts remain
   immutable, read-only compatibility inputs.

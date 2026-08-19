@@ -61,6 +61,15 @@ const RELEASE_TEXT_PATHS = [
   'lazytrae-plugin/.trae/hooks/stop.sh',
   'lazytrae-plugin/.trae/hooks/user-prompt-submit.sh',
 ];
+const DYNAMIC_VERSION_PATHS = new Set([
+  'lazytrae-plugin/packages/cli/src/index.js',
+  'lazytrae-plugin/packages/cli/src/commands/doctor.js',
+  'lazytrae-plugin/packages/cli/src/commands/init.js',
+  'lazytrae-plugin/packages/cli/src/commands/load-check.js',
+  'lazytrae-plugin/packages/cli/src/commands/lsp.js',
+  'lazytrae-plugin/packages/cli/src/commands/sync.js',
+  'lazytrae-plugin/packages/cli/src/commands/uninstall.js',
+]);
 
 function readJson(root, relativePath) {
   const absolutePath = path.join(root, relativePath);
@@ -91,11 +100,15 @@ function assertJsonReleaseVersions(root) {
 function assertTextReleaseVersions(root) {
   for (const relativePath of RELEASE_TEXT_PATHS) {
     const contents = fs.readFileSync(path.join(root, relativePath), 'utf8');
-    assert.match(
-      contents,
-      new RegExp(`(?:v)?${RELEASE_VERSION.replaceAll('.', '\\.')}`),
-      `LazyTrae release identity missing at ${relativePath}`,
-    );
+    if (DYNAMIC_VERSION_PATHS.has(relativePath)) {
+      assert.match(contents, /CURRENT_VERSION/, `LazyTrae version import missing at ${relativePath}`);
+    } else {
+      assert.match(
+        contents,
+        new RegExp(`(?:v)?${RELEASE_VERSION.replaceAll('.', '\\.')}`),
+        `LazyTrae release identity missing at ${relativePath}`,
+      );
+    }
   }
 
   const hooks = readJson(root, 'lazytrae-plugin/.trae/hooks.json');

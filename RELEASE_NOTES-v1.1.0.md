@@ -11,6 +11,9 @@ may generate local assets, construct an explicit Work profile, or run a bounded
 host probe. Those outputs are not host discovery, registration, execution,
 credential access, connector launch, or a live MCP connection.
 
+Local-first onboarding remains on the release-owned launcher, with package
+evidence kept separate from host-owned discovery and execution.
+
 - **IDE:** generated project assets and optional bounded probes are package
   evidence only.
 - **Work:** `--client desktop|web|mobile` and `--execution local|cloud` are

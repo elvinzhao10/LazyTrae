@@ -150,7 +150,7 @@ test('Given current v1.1 documentation references, when a linked Markdown or JSO
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {
   const packageAgents = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'AGENTS.md'), 'utf8');
 
-  assert.match(packageAgents, /1\.0\.3/, 'CLI maintainer guidance must name the packaged baseline');
+  assert.match(packageAgents, /1\.1\.0/, 'CLI maintainer guidance must name the packaged baseline');
   assert.match(packageAgents, /broad Node test suite/i, 'CLI maintainer guidance must describe the current suite');
   assert.doesNotMatch(packageAgents, /v0\.13|250 LOC|Currently thin/i, 'CLI maintainer guidance must not retain stale constraints');
   assert.match(packageAgents, /node --test test\/documentation-regression\.test\.js/, 'CLI maintainer guidance must name a focused documentation check');
