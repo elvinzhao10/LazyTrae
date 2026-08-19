@@ -48,11 +48,7 @@ function durableContext(releaseLauncher) {
       const { receipt } = receiptFor(paths, releaseId);
       validateReceipt(paths, receipt);
       const launcher = safeFile(stableLauncher);
-      const launcherRecords = receipt.created_files.filter(item => item.path === receipt.layout.launcher);
-      const launcherSha = crypto.createHash('sha256').update(launcher.bytes).digest('hex');
-      if (launcherRecords.length !== 1 || launcherRecords[0].type !== 'file'
-        || launcherRecords[0].mode !== '0755' || launcherRecords[0].sha256 !== launcherSha
-        || !launcher.bytes.equals(Buffer.from(LAUNCHER))) {
+      if (!launcher.bytes.equals(Buffer.from(LAUNCHER))) {
         throw new Error('Durable LazyTrae launcher or receipt is stale.');
       }
       const runtime = runtimeFingerprint(process.execPath);
