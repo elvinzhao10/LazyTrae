@@ -24,7 +24,9 @@ function createFixture(environment = {}, prefix = 'lazytrae-fixture-cleanup-') {
 }
 
 test('test fixture runner isolates and inventories only this invocation temporary directories', () => {
-  assert.match(packageManifest.scripts.test, /test-fixture-runner\.js/);
+  assert.equal(packageManifest.scripts.test, 'npm run test:package');
+  assert.match(packageManifest.scripts['test:package'], /test-fixture-runner\.js/);
+  assert.match(packageManifest.scripts['test:source'], /test-fixture-runner\.js/);
   const runner = fs.readFileSync(inventoryRunner, 'utf8');
   assert.match(runner, /TMPDIR: suiteRoot/);
   assert.match(runner, /npm_config_cache: path\.join\(suiteRoot, 'npm-cache'\)/);

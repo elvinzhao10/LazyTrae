@@ -73,11 +73,15 @@ Run from `packages/cli/`:
 ```bash
 node --test test/documentation-regression.test.js test/onboarding-contract.test.js
 npm test
+npm run test:source
+npm run test:all
 node src/index.js --help
 ```
 
-Use focused tests while iterating and `npm test` before handing off a broad
-change. `node src/index.js --help` is the direct CLI smoke check. The
-`load-check` command is a package-readiness tool for an initialized project;
-run it there, not against an uninitialized source checkout with repository hook
-mirrors.
+Use focused tests while iterating. `npm test` runs the archive-contained package
+verification suite (runtime/doctor smoke, work profiles, work flows, and MCP
+declaration safety). `npm run test:source` runs the complete source-tree suite;
+run `npm run test:all` before handing off a broad change. `node src/index.js
+--help` is the direct CLI smoke check. The `load-check` command is a
+package-readiness tool for an initialized project; run it there, not against an
+uninitialized source checkout with repository hook mirrors.

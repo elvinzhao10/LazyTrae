@@ -3,9 +3,15 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
-const MONOREPO_ROOT = path.resolve(REPO_ROOT, '..');
-const CLI = path.join(REPO_ROOT, 'packages', 'cli', 'src', 'index.js');
+const PACKAGE_ROOT = path.resolve(__dirname, '..');
+const SOURCE_MCP_ROOT = path.resolve(PACKAGE_ROOT, '..', 'mcp', 'src');
+const HAS_SOURCE_MCP = fs.existsSync(SOURCE_MCP_ROOT);
+const REPO_ROOT = HAS_SOURCE_MCP ? path.resolve(PACKAGE_ROOT, '..', '..') : PACKAGE_ROOT;
+const MONOREPO_ROOT = HAS_SOURCE_MCP ? path.resolve(REPO_ROOT, '..') : PACKAGE_ROOT;
+const CLI = HAS_SOURCE_MCP
+  ? path.join(REPO_ROOT, 'packages', 'cli', 'src', 'index.js')
+  : path.join(PACKAGE_ROOT, 'src', 'index.js');
+const MCP_SOURCE_ROOT = HAS_SOURCE_MCP ? SOURCE_MCP_ROOT : path.join(PACKAGE_ROOT, 'src', 'mcp');
 const QUALITY_GATE_PATH = '.lazytrae/evidence/quality.json';
 const BAD_QUALITY_GATE_PATH = '.lazytrae/evidence/bad-quality.json';
 const OLD_QUALITY_GATE_PATH = '.lazytrae/evidence/old-quality.json';
@@ -58,14 +64,14 @@ function makeFixture(prefix = 'lazytrae-cli-test-') {
   if (init.status !== 0) throw new Error(`Fixture init failed: ${init.stderr || init.stdout}`);
   fs.writeFileSync(path.join(root, '.lazytrae', 'plans', 'demo.md'), '# Demo plan\n');
   fs.mkdirSync(path.join(root, 'packages', 'mcp', 'src'), { recursive: true });
-  fs.cpSync(path.join(REPO_ROOT, 'packages', 'mcp', 'src'), path.join(root, 'packages', 'mcp', 'src'), { recursive: true });
+  fs.cpSync(MCP_SOURCE_ROOT, path.join(root, 'packages', 'mcp', 'src'), { recursive: true });
   fs.mkdirSync(path.join(root, 'packages', 'cli', 'src', 'lib'), { recursive: true });
   fs.copyFileSync(
-    path.join(REPO_ROOT, 'packages', 'cli', 'src', 'lib', 'completion-gates.js'),
+    path.join(PACKAGE_ROOT, 'src', 'lib', 'completion-gates.js'),
     path.join(root, 'packages', 'cli', 'src', 'lib', 'completion-gates.js'),
   );
   fs.copyFileSync(
-    path.join(REPO_ROOT, 'packages', 'cli', 'src', 'lib', 'path-boundary.js'),
+    path.join(PACKAGE_ROOT, 'src', 'lib', 'path-boundary.js'),
     path.join(root, 'packages', 'cli', 'src', 'lib', 'path-boundary.js'),
   );
   fs.copyFileSync(path.join(__dirname, '..', 'templates', 'AGENTS.md'), path.join(root, 'AGENTS.md'));

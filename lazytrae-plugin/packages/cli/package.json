@@ -8,7 +8,10 @@
     "lazytrae": "bin/lazytrae.js"
   },
   "scripts": {
-    "test": "node ./tools/test-fixture-runner.js",
+    "test": "npm run test:package",
+    "test:package": "node ./tools/test-fixture-runner.js test/packaged-self-verification.test.js test/work-profile.test.js test/work-profile-worktree.test.js test/work.test.js test/work-mcp-declaration.test.js test/mcp-declaration-safety.test.js",
+    "test:source": "node ./tools/test-fixture-runner.js",
+    "test:all": "npm run test:source && npm run test:package",
     "test:publication": "node ./tools/test-fixture-runner.js publication/documentation-publication.js"
   },
   "keywords": [

@@ -118,9 +118,13 @@ may be recovered; the caller workspace is preserved.
 
 ```bash
 cd packages/cli
-npm test
+npm run test:all
 node src/index.js --help
 ```
+
+`npm test` runs the archive-contained package verification suite. `npm run
+test:source` runs the complete source-tree suite, and `npm run test:all` runs
+both so package contributors do not lose either coverage layer.
 
 For contributors, keep source/template mirrors aligned, preserve receipt
 ownership boundaries, and run the CLI suite before changing package behavior.
