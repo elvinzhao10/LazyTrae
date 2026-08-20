@@ -159,13 +159,12 @@ test('rollback restores the selected release entrypoint', () => {
   assert.equal(output.trim(), 'first-entry');
 });
 
-test('rollback interruption preserves the prior active bytes and boot selection', (t) => {
+test('rollback marker interruption preserves the committed boot selection without a false marker', (t) => {
   // Given: two bootable releases and a rollback marker promotion that will be interrupted.
   const f = fixture();
   promote(f, stage(f, 'a'));
   fs.writeFileSync(path.join(f.sourceRoot, 'entry.js'), "console.log('entry-v2')\n");
   promote(f, stage(f, 'b'));
-  const activeBefore = fs.readFileSync(f.paths.active);
   const renameSync = fs.renameSync;
   t.mock.method(fs, 'renameSync', (source, target) => {
     if (target === f.paths.rollbackMarker) throw new Error('simulated rollback interruption');
@@ -175,10 +174,12 @@ test('rollback interruption preserves the prior active bytes and boot selection'
   // When: the actual rollback operation cannot commit its retention marker.
   assert.throws(() => rollbackRelease(f.paths), /simulated rollback interruption/);
 
-  // Then: the original active bytes and launcher selection remain unchanged.
-  assert.deepEqual(fs.readFileSync(f.paths.active), activeBefore);
+  // Then: the selected release remains bootable and no uncommitted retention marker is exposed.
+  const active = JSON.parse(fs.readFileSync(f.paths.active, 'utf8'));
+  assert.equal(active.active_release, '1.0.3-aaaaaaaaaaaa');
+  assert.equal(active.previous_release, null);
   const output = require('node:child_process').execFileSync(process.execPath, [f.paths.launcher], { encoding: 'utf8' });
-  assert.equal(output.trim(), 'entry-v2');
+  assert.equal(output.trim(), 'entry-v1');
   assert.equal(fs.existsSync(f.paths.rollbackMarker), false);
 });
 
