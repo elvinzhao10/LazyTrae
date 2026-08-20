@@ -43,7 +43,7 @@ test('authoritative package versions advance while historical v1.0.3 receipts st
   assert.deepEqual(versions, Array(currentFiles.length).fill('1.1.0'));
   assert.equal(historical.manifest.version, '1.0.3');
   assert.match(historical.release.id, /^1\.0\.3-/);
-  assert.equal(path.basename(REPOSITORY_ROOT), 'LazyTrae');
+  assert.equal(path.relative(REPOSITORY_ROOT, PACKAGE_ROOT), path.join('lazytrae-plugin', 'packages', 'cli'));
 });
 
 test('public status publishes the authoritative v1.1 three-host boundary', () => {
