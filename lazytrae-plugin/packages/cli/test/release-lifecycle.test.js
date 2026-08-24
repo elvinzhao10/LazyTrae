@@ -34,8 +34,19 @@ test('packed release carries the automatic-tooling contract, adapters, and CLI s
     'contracts/automatic-tooling-contract.v1.json.sha256',
     'contracts/lazyseries-capability-readiness.v1.json',
     'contracts/lazyseries-capability-readiness.v1.json.sha256',
+    'contracts/lazyseries-capability-readiness.v2.json',
+    'contracts/lazyseries-capability-readiness.v2.json.sha256',
+    'contracts/lazyseries-trae-ide-observation-descriptor.v1.schema.json',
+    'contracts/lazyseries-trae-host-observation.v2.schema.json',
+    'contracts/lazyseries-trae-host-probe.v2.schema.json',
+    'contracts/lazyseries-trae-host-status.v2.schema.json',
+    'contracts/paired-candidate-contract.v1.schema.json',
+    'contracts/paired-candidate-contract.v1.schema.json.sha256',
+    'contracts/validate-paired-candidate.js',
+    'contracts/fixtures/readiness-v2/sha256sums.txt',
     'templates/AGENTS.md',
     'templates/mcp.json',
+    'host-adapter-manifest.v2.json',
     'bin/lazytrae.js',
     'src/index.js',
     'src/mcp/index.js',
@@ -43,6 +54,11 @@ test('packed release carries the automatic-tooling contract, adapters, and CLI s
     'src/commands/providers.js',
     'src/lib/automatic-tooling-broker.js',
     'src/lib/automatic-tooling-policy.js',
+    'src/lib/readiness-v2-contract.js',
+    'src/lib/host-adapter-fingerprint.js',
+    'src/lib/host-adapter-lifecycle.js',
+    'src/lib/trae-ide-observation.js',
+    'src/lib/trae-ide-observation-records.js',
     'src/lib/provider-lifecycle.js',
   ]) assert.equal(files.has(file), true, `${file} must be packed`);
 });
@@ -138,12 +154,14 @@ test('packed CLI re-init refuses to overwrite a modified managed command', () =>
 
     // Then: the caller edit survives and the CLI refuses the unsafe re-init.
     assert.equal(reinit.status, 1, `${reinit.stdout}${reinit.stderr}`);
-    assert.match(`${reinit.stdout}${reinit.stderr}`, /refused to overwrite 1 modified command files .*--force/);
+    assert.match(`${reinit.stdout}${reinit.stderr}`, /refused to overwrite 1 modified command files .*resolve ownership before retrying/);
+    assert.doesNotMatch(`${reinit.stdout}${reinit.stderr}`, /--force/);
     assert.match(fs.readFileSync(command, 'utf8'), /caller note/);
 
     const forced = require('node:child_process').spawnSync(binary, ['init', '--host', 'ide', '--force'], { cwd: project, encoding: 'utf8' });
-    assert.equal(forced.status, 0, `${forced.stdout}${forced.stderr}`);
-    assert.doesNotMatch(fs.readFileSync(command, 'utf8'), /caller note/);
+    assert.equal(forced.status, 1, `${forced.stdout}${forced.stderr}`);
+    assert.match(`${forced.stdout}${forced.stderr}`, /force is not supported/);
+    assert.match(fs.readFileSync(command, 'utf8'), /caller note/);
   } finally { fs.rmSync(temporaryRoot, { recursive: true, force: true }); }
 });
 

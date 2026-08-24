@@ -15,6 +15,8 @@ const {
   MCP_JSON_END,
   shellQuote,
 } = require('../lib/local-launcher');
+const { writeBundle } = require('../lib/deterministic-skill-bundle');
+const { buildProfile, parseOptions, writeDescriptor } = require('../lib/work-profile');
 
 const TEMPLATES_DIR = path.resolve(__dirname, '..', '..', 'templates');
 const WORK_SKILLS_DIR_ENV = 'LAZYTRAE_WORK_SKILLS_DIR';
@@ -28,9 +30,17 @@ Commands:
   install     Copy every lazy-* skill into Trae Work's global skills directory
   status      Report whether the global skills are current
   uninstall   Remove only exact, unmodified LazyTrae skills
+  profile     Emit one explicit client/execution descriptor
+  bundle      Build a deterministic desktop/local .skill artifact
 
 Options:
   --skills-dir <path>  Override the macOS default (~/.trae-cn/skills)
+  --client <context>   desktop, web, or mobile (profile/bundle; required)
+  --execution <mode>   local or cloud (profile/bundle; required)
+  --output <path>      Absolute descriptor or .skill output path
+  --worktree <path>    Explicit local Git worktree (desktop/local only)
+  --executable <path>  Absolute Work executable required with --worktree
+  --expected-sha256    Pinned Work executable digest required with --worktree
 
 Trae Work has no global command registry. Use the installed skills by name or
 natural language. MCP registration is intentionally manual in Settings → MCP.
@@ -110,6 +120,7 @@ function uninstall(skillsDir) {
   console.log(`Trae Work global skills: ${removed} removed, ${preserved} preserved.`);
   console.log(`Directory: ${skillsDir}`);
   console.log('Remove the LazyTrae MCP server manually in Settings → MCP; host installation paths are never guessed.');
+  return { removed, preserved };
 }
 
 function withSkillsDirOverride(skillsDir, callback) {
@@ -137,15 +148,35 @@ function status(skillsDir) {
   return missing || outdated ? 1 : 0;
 }
 
+function profile(args) {
+  const options = parseOptions(args);
+  const descriptor = buildProfile(options);
+  process.stdout.write(writeDescriptor(descriptor, options['--output']));
+}
+
+function bundle(args) {
+  const options = parseOptions(args);
+  const descriptor = buildProfile(options);
+  if (descriptor.client_context !== 'desktop' || descriptor.execution_context !== 'local') {
+    throw new Error('Skill bundles are available only for the desktop/local profile; cloud and mobile remain descriptor-only.');
+  }
+  if (!options['--output']) throw new Error('bundle requires an absolute --output .skill path.');
+  const result = writeBundle(path.join(TEMPLATES_DIR, 'skills'), options['--output']);
+  console.log(JSON.stringify({ schema_version: 1, artifact: path.resolve(options['--output']), ...result }));
+}
+
 function run(args) {
   const command = args[0];
   if (!command || args.includes('--help') || args.includes('-h')) {
     printHelp();
     return;
   }
-  if (!['install', 'status', 'uninstall'].includes(command)) {
+  if (!['install', 'status', 'uninstall', 'profile', 'bundle'].includes(command)) {
     throw new Error(`Unknown Trae Work command '${command}'. Run \`lazytrae work --help\`.`);
   }
+
+  if (command === 'profile') return profile(args.slice(1));
+  if (command === 'bundle') return bundle(args.slice(1));
 
   const skillsDir = readSkillsDir(args.slice(1));
   if (command === 'install') install(skillsDir);
@@ -161,6 +192,8 @@ module.exports = {
   readSkillsDir,
   rejectHardLinkedFile,
   run,
+  bundle,
+  profile,
   skillState,
   status,
   uninstall,

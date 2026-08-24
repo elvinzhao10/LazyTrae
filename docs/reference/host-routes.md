@@ -1,5 +1,9 @@
 # Host routes
 
+**Current documentation release: v1.1.0.** Select exactly one independent
+host route; package outputs never prove that the selected host discovered or
+executed them.
+
 Use exactly one route at a time. **Node.js LTS 20 or newer** and **Git** are
 required. Bootstrap with `lifecycle onboard` only from the verified official
 origin `https://github.com/elvinzhao10/LazyTrae.git`, then use
@@ -15,7 +19,7 @@ macOS, `${XDG_DATA_HOME:-~/.local/share}/lazyseries` on Linux, and
 for scoped offboard and re-onboard rather than editing receipts. These package
 operations never prove a host: **HOST READINESS: PENDING** until observation.
 
-Open or link the durable `v1.0.3` release in the host, give the agent
+Open or link the durable `v1.1.0` documentation release in the host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for the host, runs safe package checks, and reports package readiness
 before any host-managed mutation.
@@ -41,6 +45,33 @@ unverified; use only the selected build's documented/manual configuration.
 | **Trae IDE** | Documented package route: `init --host ide` copies project assets. `.trae/mcp.json` is generated with `command: node`, the absolute release launcher, and the project root. | Auto-discovery is an observed prerelease route. After approval, reopen the project and verify one Skill/command plus the core MCP. |
 | **Trae Work** | Approval-gated Skills copy/import uses the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the JSON printed by `load-check --host work` in **Settings → MCP**. Paste only after approval, reload later, then observe one Skill plus the core MCP. |
 | **Trae CLI** | Documented package route: `init --host cli` writes local project and verification assets. | No public universal MCP registration command is assumed. Use the JSON from `load-check --host cli` with the selected build's documented/manual settings flow, start a new session later, then observe one command plus the core MCP. |
+
+## v1.1 generator, profile, and probe limits
+
+`traecli-candidate generate` creates receipt-owned `.traecli/` candidate
+assets. The generator is inert and configuration-only: it does not discover a
+Trae CLI host, register an MCP, execute a candidate, publish to a marketplace,
+or install anything. A candidate run remains pending unless an exact,
+fingerprinted probe fixture proves the selected structured runner, current
+session, and current worktree.
+
+For Trae Work, select `--client desktop|web|mobile` separately from
+`--execution local|cloud`. Only `--client desktop --execution local` can use a
+local skills directory, local Git worktree, host executable, and bounded
+fingerprinted probe. The other combinations emit descriptors only. They do not
+upload, synchronize to a cloud service, open an account, log in, or use
+credentials.
+
+`host-probe` runs bounded `--version` and `--help` introspection in a
+credential-free environment. It reports build-specific probe evidence, never
+host discovery or readiness. Current v2 writers retain `host_readiness:
+pending` until current probe, registration, session, MCP, and observation
+evidence agree. Historical v1 evidence is read-only and cannot become an
+active writer or a readiness promotion.
+
+The v2 writer boundary is defined by the checked-in
+[capability-readiness contract](../../lazytrae-plugin/packages/cli/contracts/lazyseries-capability-readiness.v2.json);
+the contract is package validation, not host evidence.
 
 ## Local command and package checks
 

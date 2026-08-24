@@ -1,5 +1,9 @@
 # LazyTrae verification evidence
 
+**Current documentation release: v1.1.0.** Historical v1.0.3 evidence below
+is retained as historical release evidence; it is not a current writer or a
+host-readiness claim.
+
 This document records what the public package implements and what its tests
 verify. It is evidence for the package and its local CLI/MCP behaviour, not a
 claim that a chosen Trae host has already loaded or connected it.
@@ -74,10 +78,15 @@ indexes, or remove a host MCP registration.
 
 | Surface | Package evidence | User observation still required |
 | --- | --- | --- |
-| Trae IDE | Project files and MCP declaration are generated and checked. | Reopen the project and observe discovery and MCP connection. |
-| Trae Work on macOS | The default `~/.trae-cn/skills/` copy, status, and bounded removal paths are checked. | Reload Work, confirm skill discovery, and add or confirm `lazytrae mcp` in **Settings → MCP**. |
-| Trae Work on Linux or Windows | No default location or host behaviour is asserted. | Obtain the host-reported directory, pass it with `--skills-dir`, and observe the session. |
-| Trae CLI | Project configuration and registration command are covered. | Add the MCP registration, start a new session, and observe the connection. |
+| Trae IDE | Project files and MCP declaration are generated and checked; an optional probe is bounded. | Reopen the project and observe discovery and MCP connection. |
+| Trae Work | The `--client` and `--execution` profile is explicit; only desktop/local can use local skills, a worktree, executable, and bounded probe. | Reload Work, confirm skill discovery, then use its manual MCP setting after approval. Web/mobile/cloud profiles are descriptors only. |
+| Trae CLI | `.traecli/` candidates are generated receipt-owned configuration. | A candidate remains inert until an exact probe proves a structured runner for the current session/worktree; use the selected build's documented/manual settings flow separately. |
+
+The active readiness and host-adapter writers emit v2 records. v1 receipts are
+read-only compatibility inputs. The generator, profile, and probe are separate
+evidence modes: none discovers a host, registers a connector, uploads data,
+installs or publishes a marketplace package, or turns package readiness into
+host readiness.
 
 ## Public capability status contract
 

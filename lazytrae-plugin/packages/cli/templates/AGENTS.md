@@ -7,8 +7,8 @@
 LazyTrae packages local routes for **Trae IDE**, **Trae Work**, and **Trae
 CLI**. The release-owned local launcher supplies the portable installer,
 verification gate, and local MCP server. Package behavior is verified on
-macOS only; host behavior keeps the evidence labels below. The current package
-version is `1.0.3`.
+macOS only; host behavior keeps the evidence labels below. The current
+documentation release is `1.1.0`.
 
 ## Durable onboarding (start here)
 
@@ -45,7 +45,7 @@ When the user types `onboard`:
 2. Run `lifecycle status` through the durable `launcher.js`. If absent, use the
    verified source entrypoint to run `lifecycle onboard`; if blocked, stop and
    report the exact issue without editing lifecycle state.
-3. When upgrading from v1.0.2, inventory managed versus modified/unknown
+3. When migrating to v1.1.0, inventory managed versus modified/unknown
    assets first. Replace only managed assets, preserve user changes, and
    record any conflict.
 4. Run only safe package checks and project-local setup through the local
@@ -84,6 +84,35 @@ seen in the supplied macOS reports is an **observed prerelease route**; and a
 current host stays **HOST READINESS: PENDING** until it is actually observed.
 The supplied QA could not access Trae CLI, so its live-host route is explicitly
 unverified even though the package can generate its local configuration.
+
+## v1.1 native-host boundary
+
+Trae IDE, Trae Work, and Trae CLI are three independent hosts. A generated
+file, a successful package check, or an accepted profile never promotes
+**package readiness** to **host readiness**. The host owns discovery,
+registration, session lifetime, connector launch, and credentials; LazyTrae
+owns only the described local generator, profile, probe, and evidence records.
+
+- **IDE:** generated `.trae/` project assets are package evidence. A bounded
+  IDE probe may inspect declared capabilities without claiming that the host
+  loaded hooks, skills, or MCP.
+- **Work:** choose both `--client desktop|web|mobile` and
+  `--execution local|cloud`. Only the explicit `desktop`/`local` profile may
+  use a local skills path, local worktree, and fingerprinted bounded probe.
+  Profiles for web, mobile, or cloud are descriptors only: there is no upload,
+  login, account, credential, or cloud action.
+- **CLI:** `traecli-candidate generate` writes receipt-owned `.traecli/`
+  candidate files. They are inert, configuration-only artifacts; they are not
+  a discovery mechanism, registration, or native execution claim. A candidate
+  runner can be invoked only after an exact fingerprinted host probe proves the
+  selected structured runner for the selected session and worktree.
+
+Current readiness writers emit v2 records and preserve `host_readiness:
+pending` until fingerprint-bound probe, registration, session, MCP, and live
+observation evidence are all current. Historical v1 receipts are read-only
+compatibility inputs, never active writers. Never publish to or install from a
+marketplace, upload project data to a cloud service, or invent a native command
+for any host.
 
 ## Select the host route
 
@@ -145,8 +174,10 @@ and Trae IDE through its project MCP UI. Do not assume a universal CLI command.
 lifecycle-owned sibling bootstrap lock or product `staging/`/`locks/` artifact,
 and requires `--yes` after that verification; the caller workspace is always
 preserved.
-For an upgrade rollback, remove only v1.0.3 managed assets after approval; do
-not restore v1.0.2 over user-modified files.
+For an upgrade rollback, remove only the exact receipt-owned v1.1.0 generated
+assets after approval; do not restore an earlier release over user-modified
+files. Historical v1.0.3 release evidence is immutable and is not removal
+authority.
 
 If `lifecycle status` reports `STALE_RUNTIME` after Node was moved or replaced,
 do not edit `active.json` or its receipt. Use a fresh checkout from the

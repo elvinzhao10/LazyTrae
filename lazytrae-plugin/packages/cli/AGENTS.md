@@ -6,13 +6,13 @@
 verification gate, hook dispatcher, loop controls, team mode, model routing,
 tooling lifecycle, and the launcher for the local MCP server.
 
-The packaged baseline is `v1.0.3`.
+The packaged baseline is `v1.1.0`.
 
-## ADAPTIVE HARNESS (v1.0.3)
+## ADAPTIVE HARNESS
 
-v1.0.3 adds an adaptive decision layer that selects the smallest sufficient
-of five workflow modes (`direct`, `assisted`, `planned`, `orchestrated`,
-`long-horizon`) for an outcome-based request, composes existing Skills,
+The current package retains the adaptive decision layer that selects the
+smallest sufficient of five workflow modes (`direct`, `assisted`, `planned`,
+`orchestrated`, `long-horizon`) for an outcome-based request, composes existing Skills,
 agents, commands, MCPs, tools, hooks, and verifiers, persists an additive
 single-writer `adaptive` block inside existing loop/run state, and
 explains material choices through the existing `completion-status`
@@ -24,7 +24,7 @@ Implementation lives in `src/lib/adaptive-decision.js`, `adaptive-mapping.js`,
 is at `contracts/adaptive-harness-contract.v1.json` (byte-identical with
 LazyBuddy). Fixtures live at `contracts/fixtures/v103/`. The behavior-only
 contract, authority matrix, fallback rules, evidence labels, and known
-v1.0.3 gaps are documented in `docs/v1.0.3-adaptive-harness-contract.md`
+historical gaps are documented in the repository's versioned contract archive
 (repository root). When extending the adaptive layer, keep the surgical
 boundary: no new MCP server, no new provider, no state-store replacement,
 no cross-repo runtime dependency. Keep maintainer guidance grounded
@@ -73,11 +73,15 @@ Run from `packages/cli/`:
 ```bash
 node --test test/documentation-regression.test.js test/onboarding-contract.test.js
 npm test
+npm run test:source
+npm run test:all
 node src/index.js --help
 ```
 
-Use focused tests while iterating and `npm test` before handing off a broad
-change. `node src/index.js --help` is the direct CLI smoke check. The
-`load-check` command is a package-readiness tool for an initialized project;
-run it there, not against an uninitialized source checkout with repository hook
-mirrors.
+Use focused tests while iterating. `npm test` runs the archive-contained package
+verification suite (runtime/doctor smoke, work profiles, work flows, and MCP
+declaration safety). `npm run test:source` runs the complete source-tree suite;
+run `npm run test:all` before handing off a broad change. `node src/index.js
+--help` is the direct CLI smoke check. The `load-check` command is a
+package-readiness tool for an initialized project; run it there, not against an
+uninitialized source checkout with repository hook mirrors.

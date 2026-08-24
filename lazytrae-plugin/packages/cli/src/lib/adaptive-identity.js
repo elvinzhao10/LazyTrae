@@ -4,6 +4,10 @@ const crypto = require('node:crypto');
 const { validateAdaptiveSnapshot } = require('./adaptive-snapshot');
 
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
+const RUNTIME_MATERIAL_FIELDS = Object.freeze([
+  'host', 'profile', 'probe', 'binary', 'session', 'worktree', 'mcp',
+  'generated_asset', 'marketplace',
+]);
 
 function sha256Digest(value) {
   return `sha256:${crypto.createHash('sha256').update(String(value), 'utf8').digest('hex')}`;
@@ -23,6 +27,31 @@ function boundedStrings(value) {
   return Array.isArray(value)
     ? [...new Set(value.filter((entry) => typeof entry === 'string' && entry.length > 0))]
     : [];
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function runtimeFingerprint(context, supplied) {
+  const selectedHost = context.selected_host || supplied.selected_host;
+  const fingerprints = context.runtime_fingerprints || supplied.runtime_fingerprints;
+  if (selectedHost === undefined && fingerprints === undefined) return null;
+  const material = isPlainObject(fingerprints) && typeof selectedHost === 'string'
+    ? fingerprints[selectedHost] : null;
+  const exact = isPlainObject(material)
+    && JSON.stringify(Object.keys(material).sort()) === JSON.stringify([...RUNTIME_MATERIAL_FIELDS].sort());
+  const available = exact && material.host === selectedHost
+    && RUNTIME_MATERIAL_FIELDS.slice(1).every((field) => isPlainObject(material[field])
+      && JSON.stringify(Object.keys(material[field]).sort()) === JSON.stringify(['digest', 'status'])
+      && material[field].status === 'available'
+      && SHA256.test(material[field].digest));
+  return {
+    status: available ? 'available' : 'unavailable',
+    digest: stableDigest(available
+      ? { selected_host: selectedHost, ...material }
+      : { selected_host: typeof selectedHost === 'string' ? selectedHost : null, status: 'unavailable' }),
+  };
 }
 
 function isNegatedApprovalAction(prefix) {
@@ -61,6 +90,8 @@ function approvalClasses(text, context) {
 function fingerprintContext(request, context) {
   const supplied = context.currentFingerprints || context.current_fingerprints || {};
   const revision = context.revisionFingerprint || supplied.revisionFingerprint;
+  const runtime = runtimeFingerprint(context, supplied);
+  const legacyHost = context.hostFingerprint || supplied.hostFingerprint || '';
   return {
     requestDigest: sha256Digest(request),
     revisionFingerprint: revision && ['available', 'unavailable'].includes(revision.status)
@@ -69,9 +100,10 @@ function fingerprintContext(request, context) {
     scopeFingerprint: SHA256.test(context.scopeFingerprint || supplied.scopeFingerprint || '')
       ? context.scopeFingerprint || supplied.scopeFingerprint
       : stableDigest({ boundary: 'adaptive-prompt', scope: context.scope || 'unspecified' }),
-    hostFingerprint: SHA256.test(context.hostFingerprint || supplied.hostFingerprint || '')
-      ? context.hostFingerprint || supplied.hostFingerprint
-      : stableDigest({ host: 'unverified-library-context' }),
+    hostFingerprint: runtime?.digest || (SHA256.test(legacyHost)
+      ? legacyHost
+      : stableDigest({ host: 'unverified-library-context' })),
+    hostFingerprintStatus: runtime?.status || (SHA256.test(legacyHost) ? 'available' : 'unavailable'),
   };
 }
 
@@ -80,6 +112,7 @@ function compatibleSnapshotIdentity(prior, identity) {
     && prior.requestDigest === identity.requestDigest
     && prior.scopeFingerprint === identity.scopeFingerprint
     && prior.hostFingerprint === identity.hostFingerprint
+    && identity.hostFingerprintStatus === 'available'
     && prior.revisionFingerprint?.status === 'available'
     && identity.revisionFingerprint.status === 'available'
     && prior.revisionFingerprint.digest === identity.revisionFingerprint.digest;

@@ -22,7 +22,7 @@ function detectRepoRoot() {
   return process.cwd();
 }
 
-const VALID_EVENTS = ['session-start', 'user-prompt-submit', 'pre-tool-use', 'post-tool-use', 'stop', 'recover-context'];
+const VALID_EVENTS = ['session-start', 'user-prompt-submit', 'pre-tool-use', 'post-tool-use', 'notification', 'stop', 'recover-context'];
 
 async function readBoundedStdin() {
   const chunks = [];
@@ -84,6 +84,7 @@ Events:
   user-prompt-submit    Detect ulw/ultrawork keywords, context-pressure markers
   pre-tool-use          Warn on write-before-read and destructive git commands
   post-tool-use         Record changed files, run comment-checker
+  notification          Ingest advisory status without completion authority
   recover-context       Manually emit and clear post-compact recovery context
   stop                  Emit continuation reminder if work is incomplete
 

@@ -1,3 +1,8 @@
+---
+description: Remove scoped AI-generated code smells without changing behavior.
+argument-hint: "[file ... | --branch]"
+---
+
 # remove-ai-slops
 
 ## Usage

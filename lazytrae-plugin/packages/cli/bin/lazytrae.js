@@ -2,8 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const { CURRENT_VERSION: RELEASE_VERSION } = require('../src/lib/version');
 
-const RELEASE_VERSION = '1.0.3';
 
 function readRoot(args) {
   const indexes = args.flatMap((value, index) => value === '--root' ? [index] : []);

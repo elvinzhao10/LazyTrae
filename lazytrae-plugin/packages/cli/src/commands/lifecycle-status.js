@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const {
   LAUNCHER,
+  LEGACY_LAUNCHER_V1,
   readActive,
   recoverBootstrapLock,
   recoveryReport,
@@ -24,6 +25,9 @@ function createStatus({ envelope }) {
     try {
       const issues = recovery.issues;
       const active = readActive(paths);
+      const rawActive = active === null ? null : JSON.parse(fs.readFileSync(paths.active, 'utf8'));
+      const legacyActive = rawActive !== null && rawActive.schema_version === 1
+        && (rawActive.$schema === undefined || rawActive.$schema === 'lazy-harness-active.v1.schema.json');
       if (!active) issues.push({ code: 'ACTIVE_ABSENT', path: paths.active });
       let verified = null;
       if (active) {
@@ -35,8 +39,10 @@ function createStatus({ envelope }) {
       }
       try {
         const launcher = fs.lstatSync(paths.launcher);
+        const launcherBytes = fs.readFileSync(paths.launcher);
         if (!launcher.isFile() || launcher.isSymbolicLink() || launcher.nlink !== 1
-          || !fs.readFileSync(paths.launcher).equals(Buffer.from(LAUNCHER))) {
+          || (!launcherBytes.equals(Buffer.from(LAUNCHER))
+            && !(legacyActive && launcherBytes.equals(Buffer.from(LEGACY_LAUNCHER_V1))))) {
           issues.push({ code: 'MODIFIED_LAUNCHER', path: paths.launcher });
         }
       } catch (_) {

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "owner": "lazytrae-traecli-candidate",
+  "roots": [
+    { "source": "templates/agents", "destination": ".traecli/candidates/lazytrae/agents", "default_format": "text", "format_by_extension": {} },
+    { "source": "templates/commands", "destination": ".traecli/candidates/lazytrae/commands", "default_format": "text", "format_by_extension": {} },
+    { "source": "templates/skills", "destination": ".traecli/candidates/lazytrae/skills", "default_format": "text", "format_by_extension": {} },
+    { "source": "traecli-candidate", "destination": ".traecli/candidates/lazytrae", "default_format": "text", "format_by_extension": { ".json": "json" } }
+  ]
+}

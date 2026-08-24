@@ -14,6 +14,8 @@ const { providerMatrix } = require('../lib/provider-lifecycle');
 const { readLedger } = require('../lib/automatic-tooling-policy');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 const { localCommand } = require('../lib/local-launcher');
+const { buildStatusReport } = require('./status');
+const { CURRENT_VERSION } = require('../lib/version');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -229,6 +231,13 @@ Options:
     addResult('Approval status', 'WARN', `Unavailable: ${error.message}`);
   }
 
+  const machineStatus = buildStatusReport(repoRoot);
+  addResult('Machine status v2', 'PASS', `version=${machineStatus.version}; ${machineStatus.profiles.length} host rows`);
+  for (const profile of machineStatus.profiles) {
+    addResult(`Host adapter ${profile.host}`, profile.package_readiness === 'ready' ? 'PASS' : 'FAIL',
+      `generated=${profile.generated_assets.status}; config=${profile.config.status}; probe=${profile.probe.status}; registration=${profile.registration.status}; session=${profile.session.status}; mcp=${profile.mcp.status}; observation=${profile.observation.status}; support=${profile.support}; host=${profile.host_readiness}`);
+  }
+
   // Parity ledger
   if (sourceTree) {
     const parityResult = checkParityLedger(repoRoot);
@@ -245,7 +254,7 @@ Options:
   }
 
   // Print report
-  console.log(`LazyTrae Doctor v1.0.3`);
+  console.log(`LazyTrae Doctor v${CURRENT_VERSION}`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const maxLabelLen = Math.max(...checks.map(c => c.label.length), 0);

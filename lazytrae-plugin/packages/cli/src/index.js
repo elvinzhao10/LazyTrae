@@ -2,6 +2,7 @@
 
 const { existsSync } = require('fs');
 const path = require('path');
+const { CURRENT_VERSION } = require('./lib/version');
 
 const commands = {
   init: () => require('./commands/init').run,
@@ -9,6 +10,8 @@ const commands = {
   initdeep: () => require('./commands/init').run,
   doctor: () => require('./commands/doctor').run,
   sync: () => require('./commands/sync').run,
+  status: () => require('./commands/status').run,
+  offboard: () => require('./commands/offboard').run,
   uninstall: () => require('./commands/uninstall').run,
   verify: () => require('./commands/verify').run,
   'completion-status': () => require('./commands/completion-status').run,
@@ -25,6 +28,8 @@ const commands = {
   lsp: () => require('./commands/lsp').run,
   codegraph: () => require('./commands/codegraph').run,
   'load-check': () => require('./commands/load-check').run,
+  'host-probe': () => require('./commands/host-probe').run,
+  'traecli-candidate': () => require('./commands/traecli-candidate').run,
   lifecycle: () => require('./commands/lifecycle').run,
 };
 
@@ -41,7 +46,7 @@ const aliases = {
 };
 
 function printUsage() {
-  console.log(`LazyTrae CLI v1.0.3 — Trae-native workflows
+  console.log(`LazyTrae CLI v${CURRENT_VERSION} — Trae-native workflows
 
 Usage: lazytrae <command> [options]
 
@@ -51,6 +56,8 @@ Commands:
   initdeep    Compatible InitDeep alias for safe core installation
   doctor      Check LazyTrae installation health
   sync        Update managed templates and managed blocks
+  status      Report independent package and host adapter evidence
+  offboard    Remove exact outputs owned by one host adapter
   uninstall   Remove LazyTrae from the current repo
   verify      Run doctor checks; --must-pass also checks completion gates
   completion-status
@@ -59,7 +66,7 @@ Commands:
   hook        Dispatch a LazyTrae hook event
   mcp         Start the LazyTrae MCP server (stdio JSON-RPC)
   loop        Long-horizon execution loop status and control
-  run         Execute a task with explicit model routing (optional trae-agent backend)
+  run         Present explicit model routing for the supported Trae IDE route
   team        Team mode / parallel-work coordination
   work        Install or inspect global Trae Work skills
   tooling     Manage a package-owned local tooling root
@@ -68,6 +75,9 @@ Commands:
   lsp         Start the separate managed read-only LSP MCP bridge
   codegraph   Start the separate optional receipt-owned CodeGraph MCP bridge
   load-check  Verify every host component is ready after init
+  host-probe  Safely inspect Trae host identity and capabilities
+  traecli-candidate
+              Generate inert Trae CLI assets or invoke a probe-proven structured runner
   lifecycle   Manage the durable verified package bundle
 
 Aliases: i, d, s, rm, v, h, l, r, t

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "owner": "lazytrae-traecli-candidate",
+  "status": "pending",
+  "discovery": "configuration-only",
+  "authority": {
+    "instructions": "AGENTS.md",
+    "precedence": "root-authoritative",
+    "candidate_instructions": false
+  },
+  "assets": [
+    { "kind": "commands", "path": ".traecli/candidates/lazytrae/commands" },
+    { "kind": "agents", "path": ".traecli/candidates/lazytrae/agents" },
+    { "kind": "skills", "path": ".traecli/candidates/lazytrae/skills" }
+  ],
+  "runners": [
+    { "kind": "session", "status": "pending", "protocol": "probe-required", "argv": null },
+    { "kind": "worktree", "status": "pending", "protocol": "probe-required", "argv": null },
+    { "kind": "mcp", "status": "pending", "protocol": "probe-required", "argv": null },
+    { "kind": "acp", "status": "pending", "protocol": "probe-required", "argv": null }
+  ]
+}

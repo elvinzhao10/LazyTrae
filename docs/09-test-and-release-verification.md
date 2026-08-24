@@ -1,5 +1,8 @@
 # Test and release verification
 
+**Current documentation release: v1.1.0.** Release checks must distinguish a
+local generator/profile/probe result from a native host observation.
+
 LazyTrae uses layered evidence. A release check is useful only when its scope is explicit: a unit test does not prove a packed artifact, a packed artifact does not prove a host connection, and host observation does not rewrite package ownership.
 
 ```mermaid
@@ -24,6 +27,16 @@ The cold offline packed-artifact check establishes that the **self-contained CLI
 Normal CI is self-contained: it does not require a sibling repository. Documentation and contract parity with LazyBuddy are release-only paired parity checks, run only when both absolute roots are explicitly supplied. That keeps the shared safety contract auditable without creating a runtime, installer, or CI dependency between packages.
 
 The final host layer is intentionally manual. A selected Trae host must show asset discovery, any relevant hook behavior, and MCP connection before those facts are claimed. Current package evidence is verified on macOS only.
+
+## v1.1 host-boundary release checks
+
+The release documentation contract checks all three independent host sections,
+the explicit Work `--client`/`--execution` matrix, inert `.traecli/`
+generation, bounded credential-free probes, v2 current writers, and read-only
+historical v1 evidence. It rejects a malformed local link or JSON reference,
+unsupported universal host command, marketplace publish/install, cloud upload,
+and package-to-host readiness promotion. A passing textual status cannot
+override a broken link or forbidden claim.
 
 ## How to read a regression by boundary
 

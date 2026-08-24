@@ -1,5 +1,8 @@
 # Security and authority
 
+**Current documentation release: v1.1.0.** A host generator, profile, or probe
+is local evidence, not authority over a native host.
+
 LazyTrae can inspect local project information, but a package check does not
 grant authority to change a host, contact a provider, spend money, or read a
 secret. Treat every capability as a separate decision with an observable
@@ -43,3 +46,17 @@ connection boundary.
 | Provider and browser activity | Explicit enable/approval/budget policy | Automatic consent based on package readiness. |
 
 Security is therefore fail-closed at the boundaries the package can model, not a claim that the package can sandbox a host or make arbitrary external code safe. Tests attack the safe-write, managed-content, state, and optional-provider boundaries directly.
+
+## v1.1 native-host restrictions
+
+Work profiles require explicit, independent `--client` and `--execution`
+choices. Only desktop/local can use a local worktree, executable, and bounded
+host probe; other profiles are descriptor-only. The profile commands reject
+upload, account, login, and credential flags. CLI candidate generation writes
+only receipt-owned inert `.traecli/` configuration: it neither discovers a
+host nor registers, installs, publishes, or executes against one. A bounded
+probe runs credential-free introspection and cannot make host readiness ready.
+
+Current writers use v2 readiness records. Historical v1 evidence is accepted
+only as read-only compatibility input. Never infer a host capability, cloud
+permission, marketplace action, or live session from package-ready files.

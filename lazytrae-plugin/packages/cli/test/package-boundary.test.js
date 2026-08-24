@@ -54,10 +54,14 @@ test('installed LazyTrae operations do not require repository docs or dev direct
   }
 });
 
-test('default package health excludes the explicit publication entry point', () => {
+test('package and source verification entry points are explicitly separate', () => {
   const packageManifest = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'packages/cli/package.json'), 'utf8'));
 
-  assert.equal(packageManifest.scripts.test, 'node ./tools/test-fixture-runner.js');
+  assert.equal(packageManifest.scripts.test, 'npm run test:package');
+  assert.match(packageManifest.scripts['test:package'], /work-profile\.test\.js/);
+  assert.match(packageManifest.scripts['test:package'], /mcp-declaration-safety\.test\.js/);
+  assert.equal(packageManifest.scripts['test:source'], 'node ./tools/test-fixture-runner.js');
+  assert.equal(packageManifest.scripts['test:all'], 'npm run test:source && npm run test:package');
   assert.equal(packageManifest.scripts['test:publication'],
     'node ./tools/test-fixture-runner.js publication/documentation-publication.js');
   assert.equal(path.basename('publication/documentation-publication.js').endsWith('.test.js'), false);

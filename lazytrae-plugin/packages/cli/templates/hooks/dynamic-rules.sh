@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.0.3 — Dynamic rule matching (companion to post-tool-use.sh)
+# LazyTrae v1.1.0 — Dynamic rule matching (companion to post-tool-use.sh)
 # Extracts file types from changed files and reminds about relevant rules.
 # Match rules by file extension and path.
 # Always exits 0 — never blocks a session.

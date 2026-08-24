@@ -2,6 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 const { inspectInitializeReceipt } = require('../lib/initialize-receipt');
+const { inspectHostProfile } = require('../lib/host-adapter-lifecycle');
+const { buildStatusReport } = require('./status');
+const { CURRENT_VERSION } = require('../lib/version');
+const { readHost } = require('../lib/host-route');
 const {
   formatHostMcpConfiguration,
   inspectCoreDeclaration,
@@ -29,13 +33,14 @@ const ARTIFACT_CONTRACT = Object.freeze({
   rules: ['css.md', 'lazytrae.md', 'python.md', 'typescript.md'],
   hooks: [
     'context-recovery.sh', 'dynamic-rules.sh', 'post-tool-use.sh', 'pre-tool-use.sh', 'recover-context.sh',
-    'session-start.sh', 'stop.sh', 'user-prompt-submit.sh',
+    'session-start.sh', 'notification.sh', 'stop.sh', 'user-prompt-submit.sh',
   ],
   hookEvents: {
     SessionStart: 'session-start.sh',
     UserPromptSubmit: 'user-prompt-submit.sh',
     PreToolUse: 'pre-tool-use.sh',
     PostToolUse: 'post-tool-use.sh',
+    Notification: 'notification.sh',
     Stop: 'stop.sh',
   },
   mcp: { command: 'node', launcher: 'absolute release-owned bin/lazytrae.js' },
@@ -66,7 +71,11 @@ function missingArtifacts(repoRoot, directory, names, nestedFile) {
 
 function hookMappingFailures(repoRoot) {
   const hooksPath = path.join(repoRoot, '.trae', 'hooks.json');
-  if (!fs.existsSync(hooksPath)) return { failures: ['missing .trae/hooks.json'], ready: 0 };
+  if (!fs.existsSync(hooksPath)) {
+    const probeGated = fs.existsSync(path.join(repoRoot, '.lazytrae', 'asset-receipt.v1.json'))
+      && !fs.existsSync(path.join(repoRoot, '.lazytrae', 'trae-ide-config-receipt.v1.json'));
+    return { failures: probeGated ? [] : ['missing .trae/hooks.json'], ready: 0, pending: probeGated };
+  }
 
   let hooks;
   try {
@@ -146,15 +155,13 @@ function run(args) {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae load-check [--host ide|work|cli]
 
-Check v1.0.3 package readiness after initialization. This validates local files and
+Check v${CURRENT_VERSION} package readiness after initialization. This validates local files and
 configuration only; it does not claim that a host has registered or loaded them.
 `);
     return 0;
   }
 
-  const hostIndex = args.indexOf('--host');
-  const host = hostIndex === -1 ? 'ide' : args[hostIndex + 1];
-  if (!['ide', 'work', 'cli'].includes(host)) throw new Error('--host must be ide, work, or cli.');
+  const host = readHost(args);
 
   const repoRoot = detectRepoRoot();
   const checks = [
@@ -169,7 +176,7 @@ configuration only; it does not claim that a host has registered or loaded them.
   const mcpResult = mcpDeclarationResult(repoRoot, host);
   const mcpError = mcpResult.error;
 
-  console.log('=== LazyTrae Tool Load Check — v1.0.3 Package Readiness ===');
+  console.log(`=== LazyTrae Tool Load Check — v${CURRENT_VERSION} Package Readiness ===`);
   console.log(`Host: ${host}`);
   for (const result of checks) {
     const expected = ARTIFACT_CONTRACT[result.label].length;
@@ -177,7 +184,11 @@ configuration only; it does not claim that a host has registered or loaded them.
     console.log(`${result.missing.length ? 'FAIL' : 'PASS'} ${result.label}: ${ready}/${expected}${result.missing.length ? ` (missing: ${result.missing.join(', ')})` : ''}`);
   }
   const eventCount = Object.keys(ARTIFACT_CONTRACT.hookEvents).length;
-  console.log(`${hookMappings.failures.length ? 'FAIL' : 'PASS'} hooks.json event mappings: ${hookMappings.ready}/${eventCount}${hookMappings.failures.length ? ` (${hookMappings.failures.join('; ')})` : ''}`);
+  const hookMappingLabel = hookMappings.pending ? 'PENDING' : hookMappings.failures.length ? 'FAIL' : 'PASS';
+  const hookMappingDetail = hookMappings.pending
+    ? ' (probe has not verified the IDE event/config schema; no config written)'
+    : hookMappings.failures.length ? ` (${hookMappings.failures.join('; ')})` : '';
+  console.log(`${hookMappingLabel} hooks.json event mappings: ${hookMappings.ready}/${eventCount}${hookMappingDetail}`);
   const hookCount = ARTIFACT_CONTRACT.hooks.length;
   console.log(`${hookPermissions.length ? 'FAIL' : 'PASS'} hook executability: ${hookCount - hookPermissions.length}/${hookCount}${hookPermissions.length ? ` (not executable: ${hookPermissions.join(', ')})` : ''}`);
   console.log(host === 'work'
@@ -196,6 +207,11 @@ configuration only; it does not claim that a host has registered or loaded them.
     workSkillsFailed = current !== states.length;
     console.log(`${workSkillsFailed ? 'FAIL' : 'PASS'} global Trae Work skills: ${current}/${states.length} current`);
   }
+  const hostProfile = inspectHostProfile(repoRoot, host, { workSkillsDir });
+  console.log(`Host adapter profile: package=${hostProfile.package_readiness}; generated=${hostProfile.generated_assets.status}; config=${hostProfile.config.status}; probe=${hostProfile.probe.status}; registration=${hostProfile.registration.status}; session=${hostProfile.session.status}; mcp=${hostProfile.mcp.status}; observation=${hostProfile.observation.status}; support=${hostProfile.support}; host=${hostProfile.host_readiness}`);
+  const machineStatus = buildStatusReport(repoRoot, host, { workSkillsDir });
+  const machineProfile = machineStatus.profiles[0];
+  console.log(`PASS Machine status v2: version=${machineStatus.version}; adapter=${machineProfile.host}; package=${machineProfile.package_readiness}; probe=${machineProfile.probe.status}; host=${machineProfile.host_readiness}`);
 
   printHostRegistrationStatus(host, repoRoot);
   printInitializeReceiptStatus(repoRoot);

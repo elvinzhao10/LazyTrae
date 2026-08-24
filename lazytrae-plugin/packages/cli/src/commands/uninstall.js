@@ -5,6 +5,8 @@ const { removeManagedGitignoreBlock } = require('../lib/managed-gitignore');
 const { removeManagedMcpDeclaration } = require('../lib/mcp-declaration');
 const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 const { removeEmptyDir, removeVerifiedFile, removeVerifiedTree } = require('../lib/owned-assets');
+const { hasProjectAssetReceipt, uninstallProjectAssets } = require('../lib/project-assets');
+const { CURRENT_VERSION } = require('../lib/version');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -16,6 +18,7 @@ function detectRepoRoot() {
 }
 
 function run(args) {
+  if (args.includes('--force')) throw new Error('--force is not supported; asset ownership conflicts cannot be bypassed.');
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae uninstall [options]
 
@@ -48,11 +51,16 @@ Normal uninstall retains .lazytrae state/, evidence/, plans/, and loop/ data.
   const repoRoot = detectRepoRoot();
   const summary = { removed: [], preserved: [] };
 
-  console.log(`LazyTrae uninstall v1.0.3`);
+  console.log(`LazyTrae uninstall v${CURRENT_VERSION}`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
   const traeDir = path.join(repoRoot, '.trae');
+  if (hasProjectAssetReceipt(repoRoot)) {
+    const assets = uninstallProjectAssets(repoRoot);
+    if (assets.removed.length > 0) summary.removed.push(`${assets.removed.length} receipt-owned host asset(s)`);
+    if (assets.preserved.length > 0) summary.preserved.push(`${assets.preserved.length} caller-modified host asset(s)`);
+  }
   const mcpRemoval = removeManagedMcpDeclaration(
     repoRoot,
     path.join(templatesDir, 'mcp.json'),
@@ -124,6 +132,7 @@ Normal uninstall retains .lazytrae state/, evidence/, plans/, and loop/ data.
     summary.preserved.forEach(s => console.log(`  + ${s}`));
   }
   console.log('\nDone.');
+  return summary;
 }
 
 module.exports = { run };

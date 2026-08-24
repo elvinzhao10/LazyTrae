@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lazyseries-trae-host-observation.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "contract_version", "host", "evidence_fingerprint", "probe_sha256", "session_id", "expires_at", "registration", "mcp", "observation"],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "contract_version": { "const": "2.0.0" },
+    "host": { "enum": ["trae-cli", "trae-ide", "trae-work"] },
+    "evidence_fingerprint": { "$ref": "#/$defs/digest" },
+    "probe_sha256": { "$ref": "#/$defs/digest" },
+    "session_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "registration": { "$ref": "#/$defs/registration" },
+    "mcp": { "$ref": "#/$defs/mcp" },
+    "observation": { "$ref": "#/$defs/observation" }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "registration": { "type": "object", "additionalProperties": false, "required": ["status"], "properties": { "status": { "enum": ["observed", "pending"] } } },
+    "mcp": { "type": "object", "additionalProperties": false, "required": ["status"], "properties": { "status": { "enum": ["connected", "registered", "pending"] } } },
+    "observation": { "type": "object", "additionalProperties": false, "required": ["status"], "properties": { "status": { "enum": ["observed", "pending"] } } }
+  }
+}

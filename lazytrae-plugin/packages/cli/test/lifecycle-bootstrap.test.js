@@ -34,10 +34,15 @@ function writeFixtureFiles(root, selfTest = "process.stdout.write('self-test-ok\
   fs.mkdirSync(path.join(packageRoot, 'bin'), { recursive: true });
   fs.mkdirSync(path.join(packageRoot, 'scripts'), { recursive: true });
   fs.mkdirSync(contracts, { recursive: true });
-  fs.writeFileSync(path.join(packageRoot, 'package.json'), '{"name":"lazytrae-ai","version":"1.0.3"}\n');
+  fs.writeFileSync(path.join(packageRoot, 'package.json'), '{"name":"lazytrae-ai","version":"1.1.0"}\n');
   fs.writeFileSync(path.join(packageRoot, 'bin', 'lazytrae.js'), "console.log('fixture-launch-ok')\n");
   fs.writeFileSync(path.join(packageRoot, 'scripts', 'lifecycle-self-test.js'), selfTest);
-  for (const name of ['lazy-harness-lifecycle.v1.schema.json', 'lazy-harness-lifecycle.v1.example.json']) {
+  for (const name of [
+    'lazy-harness-lifecycle.v1.schema.json',
+    'lazy-harness-lifecycle.v1.example.json',
+    'lazy-harness-lifecycle.v2.schema.json',
+    'lazy-harness-active.v2.schema.json',
+  ]) {
     const bytes = fs.readFileSync(path.join(FIXTURE_CONTRACTS, name));
     fs.writeFileSync(path.join(contracts, name), bytes);
     fs.writeFileSync(
@@ -59,7 +64,7 @@ function fixture() {
   git(source, ['add', 'lazytrae-plugin']);
   git(source, ['commit', '-m', 'fixture v1']);
   git(source, ['branch', '-M', 'main']);
-  git(source, ['tag', 'v1.0.3']);
+  git(source, ['tag', 'v1.1.0']);
   git(sandbox, ['clone', '--bare', source, remote]);
   return {
     paths: prepareProductRoot({ installRoot: path.join(sandbox, 'durable root'), product: 'LazyTrae' }),
@@ -124,14 +129,14 @@ function treeSnapshot(root) {
 test('parses only canonical official HTTPS source forms for the selected product', () => {
   // Given: the three documented source forms and hostile or ambiguous alternatives.
   const accepted = [
-    ['https://github.com/elvinzhao10/LazyTrae', 'v1.0.3'],
-    ['https://github.com/elvinzhao10/LazyTrae.git', 'v1.0.3'],
-    ['https://github.com/elvinzhao10/LazyTrae/tree/release/v1.0.3', 'release/v1.0.3'],
+    ['https://github.com/elvinzhao10/LazyTrae', 'v1.1.0'],
+    ['https://github.com/elvinzhao10/LazyTrae.git', 'v1.1.0'],
+    ['https://github.com/elvinzhao10/LazyTrae/tree/release/v1.1.0', 'release/v1.1.0'],
   ];
   const rejected = [
     'http://github.com/elvinzhao10/LazyTrae',
     'https://github.com/elvinzhao10/LazyTrae/',
-    'https://github.com/elvinzhao10/LazyTrae?ref=v1.0.3',
+    'https://github.com/elvinzhao10/LazyTrae?ref=v1.1.0',
     'https://github.com/elvinzhao10/LazyTrae#readme',
     'https://user@github.com/elvinzhao10/LazyTrae',
     'https://github.com:443/elvinzhao10/LazyTrae',
@@ -156,7 +161,7 @@ test('parses only canonical official HTTPS source forms for the selected product
 });
 
 test('resolves, verifies, self-tests, and promotes a local fixture under an official identity', () => {
-  // Given: a local Git transport containing the expected v1.0.3 package and contracts.
+  // Given: a local Git transport containing the expected v1.1.0 package and contracts.
   const f = fixture();
   const expectedSha = git(f.source, ['rev-parse', 'HEAD']);
 
@@ -178,7 +183,7 @@ test('resolves, verifies, self-tests, and promotes a local fixture under an offi
     commit_sha: expectedSha,
     status: 'ready',
     test_status: 'passed',
-    version: '1.0.3',
+    version: '1.1.0',
   });
   assert.equal(launched.status, 0, launched.stderr);
   assert.equal(launched.stdout.trim(), 'fixture-launch-ok');
@@ -190,7 +195,7 @@ test('repo, tag, branch, and full-SHA sources resolve through Git to the same im
   // Given: one official-identity fixture exposed through every approved source form.
   const sources = [
     'https://github.com/elvinzhao10/LazyTrae',
-    'https://github.com/elvinzhao10/LazyTrae/tree/v1.0.3',
+    'https://github.com/elvinzhao10/LazyTrae/tree/v1.1.0',
     'https://github.com/elvinzhao10/LazyTrae/tree/main',
   ];
 
@@ -209,7 +214,7 @@ test('repo, tag, branch, and full-SHA sources resolve through Git to the same im
 });
 
 test('same version at a different SHA requires an exact revision confirmation', () => {
-  // Given: one active v1.0.3 release and a second commit at the same mutable branch.
+  // Given: one active v1.1.0 release and a second commit at the same mutable branch.
   const f = fixture();
   const first = bootstrap(f);
   fs.appendFileSync(path.join(f.source, 'lazytrae-plugin', 'packages', 'cli', 'bin', 'lazytrae.js'), "// v2\n");
@@ -291,6 +296,23 @@ test('manifest, checksum, self-test, prerequisite, and clone failures preserve a
       assert.deepEqual(fs.readdirSync(f.paths.staging), []);
     });
   }
+});
+
+test('bootstrap authenticates the v2 receipt and active-state contracts before promotion', () => {
+  // Given: an official-identity fixture whose v2 receipt contract was modified after commit.
+  const f = fixture();
+  fs.appendFileSync(
+    path.join(f.source, 'lazytrae-plugin/packages/cli/contracts/lazy-harness-lifecycle.v2.schema.json'),
+    '\n',
+  );
+  git(f.source, ['add', '.']);
+  git(f.source, ['commit', '-m', 'tamper v2 lifecycle contract']);
+  git(f.source, ['push', '--force', f.remote, 'main']);
+
+  // When: the actual bootstrap operation stages and verifies that revision.
+  // Then: v2 contract drift blocks promotion and leaves active state absent.
+  expectCode(() => bootstrap(f), 'CHECKSUM_MISMATCH');
+  assert.equal(fs.existsSync(f.paths.active), false);
 });
 
 test('failed fresh bootstrap leaves a reusable scaffold for a later successful bootstrap', () => {

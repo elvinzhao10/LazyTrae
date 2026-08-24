@@ -1,3 +1,8 @@
+---
+description: Produce a factual resumable handoff from current LazyTrae state.
+argument-hint: ""
+---
+
 # handoff
 
 ## Usage

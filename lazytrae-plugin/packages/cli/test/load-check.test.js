@@ -13,52 +13,54 @@ function withFixture(prefix, callback) {
   }
 }
 
-test('load-check reports v1.0.3 package readiness separately from unverified IDE registration', () => {
+test('load-check reports v1.1.0 package readiness separately from unverified IDE registration', () => {
   withFixture('lazytrae-load-check-ready-', fixture => {
     const result = runCli(['load-check', '--host', 'ide'], { cwd: fixture });
 
     assert.equal(result.status, 0, result.stdout);
-    assert.match(result.stdout, /LazyTrae Tool Load Check — v1\.0\.3 Package Readiness/);
+    assert.match(result.stdout, /LazyTrae Tool Load Check — v1\.1\.0 Package Readiness/);
+    assert.match(result.stdout, /PASS Machine status v2: version=1\.1\.0/);
     assert.doesNotMatch(result.stdout, /v0\.17/);
     assert.doesNotMatch(result.stdout, /v0\.16/);
-    assert.match(result.stdout, /PASS hooks\.json event mappings: 5\/5/);
-    assert.match(result.stdout, /PASS hook executability: 8\/8/);
+    assert.match(result.stdout, /PENDING hooks\.json event mappings: 0\/6/);
+    assert.match(result.stdout, /PASS hook executability: 9\/9/);
     assert.match(result.stdout, /PASS LazyTrae MCP declaration: node with absolute release-owned launcher/);
     assert.match(result.stdout, /IDE registration: NOT VERIFIED/);
     assert.match(result.stdout, /Package readiness passed/);
   });
 });
 
-test('load-check help identifies the v1.0.3 package readiness check', () => {
+test('load-check help identifies the v1.1.0 package readiness check', () => {
   const result = runCli(['load-check', '--help']);
 
   assert.equal(result.status, 0, result.stdout);
-  assert.match(result.stdout, /Check v1\.0\.3 package readiness after initialization\./);
+  assert.match(result.stdout, /Check v1\.1\.0 package readiness after initialization\./);
   assert.doesNotMatch(result.stdout, /v0\.17/);
 });
 
-test('load-check fails when hooks.json is deleted', () => {
+test('load-check keeps an unverified hook schema pending when hooks.json is absent', () => {
   withFixture('lazytrae-load-check-missing-hooks-', fixture => {
-    fs.rmSync(path.join(fixture, '.trae', 'hooks.json'));
-
     const result = runCli(['load-check'], { cwd: fixture });
 
-    assert.equal(result.status, 1, result.stdout);
-    assert.match(result.stdout, /FAIL hooks\.json event mappings: 0\/5 \(missing \.trae\/hooks\.json\)/);
+    assert.equal(result.status, 0, result.stdout);
+    assert.match(result.stdout, /PENDING hooks\.json event mappings: 0\/6/);
   });
 });
 
 test('load-check fails when a hooks.json event points to the wrong script', () => {
   withFixture('lazytrae-load-check-corrupt-hooks-', fixture => {
     const hooksPath = path.join(fixture, '.trae', 'hooks.json');
-    const hooks = JSON.parse(fs.readFileSync(hooksPath, 'utf8'));
+    const hooks = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'templates', 'hooks.json'), 'utf8'));
+    hooks.hooks.Notification = [{
+      type: 'command', command: 'bash "${PROJECT_DIR}/.trae/hooks/notification.sh"', timeout: 10,
+    }];
     hooks.hooks.UserPromptSubmit[0].command = 'bash "${PROJECT_DIR}/.trae/hooks/stop.sh"';
     fs.writeFileSync(hooksPath, JSON.stringify(hooks, null, 2) + '\n');
 
     const result = runCli(['load-check'], { cwd: fixture });
 
     assert.equal(result.status, 1, result.stdout);
-    assert.match(result.stdout, /FAIL hooks\.json event mappings: 4\/5 \(UserPromptSubmit must invoke user-prompt-submit\.sh\)/);
+    assert.match(result.stdout, /FAIL hooks\.json event mappings: 5\/6 \(UserPromptSubmit must invoke user-prompt-submit\.sh\)/);
   });
 });
 
@@ -69,7 +71,7 @@ test('load-check fails when a required hook is not executable', () => {
     const result = runCli(['load-check'], { cwd: fixture });
 
     assert.equal(result.status, 1, result.stdout);
-    assert.match(result.stdout, /FAIL hook executability: 7\/8 \(not executable: stop\.sh\)/);
+    assert.match(result.stdout, /FAIL hook executability: 8\/9 \(not executable: stop\.sh\)/);
   });
 });
 

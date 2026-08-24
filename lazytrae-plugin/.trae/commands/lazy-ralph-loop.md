@@ -1,3 +1,8 @@
+---
+description: Run the durable LazyTrae loop compatibility alias.
+argument-hint: "[task brief]"
+---
+
 # ralph-loop
 
 ## Usage

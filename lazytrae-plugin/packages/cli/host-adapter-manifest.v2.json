@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "contract_version": "2.0.0",
+  "owner": "lazytrae-host-adapters",
+  "hosts": [
+    {
+      "host": "trae-cli",
+      "package_paths": ["traecli-candidate/manifest.json", "traecli-candidate-source-manifest.v1.json"],
+      "generated_receipt": ".traecli/candidate-receipt.v1.json",
+      "config_path": ".trae/mcp.json",
+      "support": "documented-untested"
+    },
+    {
+      "host": "trae-ide",
+      "package_paths": ["asset-source-manifest.v1.json", "templates/mcp.json"],
+      "generated_receipt": ".lazytrae/asset-receipt.v1.json",
+      "config_path": ".trae/mcp.json",
+      "support": "observed-build-specific"
+    },
+    {
+      "host": "trae-work",
+      "package_paths": ["templates/skills", "contracts/trae-work-observation.v1.js"],
+      "generated_receipt": null,
+      "config_path": null,
+      "support": "observed-build-specific"
+    }
+  ]
+}

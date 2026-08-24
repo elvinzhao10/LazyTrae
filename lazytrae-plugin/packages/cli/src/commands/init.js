@@ -4,12 +4,19 @@ const {
   chmodRepoFile, copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
 } = require('../lib/templates');
 const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
-const { localLauncherContext, materializeGuidance, materializeHook } = require('../lib/local-launcher');
+const { localLauncherContext, materializeGuidance } = require('../lib/local-launcher');
 const { updateMcpDeclaration } = require('../lib/mcp-declaration');
+const { RECEIPT_PATH, installProjectAssets } = require('../lib/project-assets');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
-
-const VALID_HOSTS = new Set(['ide', 'work', 'cli']);
+const { readHost } = require('../lib/host-route');
+const { routeFor } = require('../lib/host-adapter-lifecycle');
+const { generateCandidate } = require('../lib/traecli-candidate');
+const {
+  installVerifiedHookConfiguration, preflightVerifiedHookConfiguration,
+} = require('../lib/trae-ide-config');
+const { inspectManagedBlocks } = require('../lib/managed-blocks');
+const { CURRENT_VERSION } = require('../lib/version');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -21,15 +28,8 @@ function detectRepoRoot() {
   }
 }
 
-function readHost(args) {
-  const hostIndex = args.indexOf('--host');
-  if (hostIndex === -1) return 'ide';
-  const host = args[hostIndex + 1];
-  if (!VALID_HOSTS.has(host)) throw new Error('--host must be ide, work, or cli.');
-  return host;
-}
-
 function run(args) {
+  if (args.includes('--force')) throw new Error('--force is not supported; asset ownership conflicts cannot be bypassed.');
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae init [options]
 
@@ -37,25 +37,43 @@ Install LazyTrae into the current repo.
 
 Options:
   --help, -h   Show this help message
-  --force      Force re-copy all files (even if unchanged)
   --host <id>  Run the final load check for ide, work, or cli
-  --skills-dir <path>
-                Override Trae Work's global skills directory with --host work
+  --ide-probe <path>  Verified host-probe JSON authorizing the IDE Hook schema
+  --global-hooks <path>  Explicit absolute global Hook config path; never guessed
+  --skills-dir <path>  Override Trae Work's global skills directory with --host work
 `);
     return;
   }
 
   const host = readHost(args);
+  routeFor(host);
   const work = host === 'work' ? require('./work') : null;
   const workSkillsDir = work ? work.readSkillsDir(args) : null;
+  const probeIndex = args.indexOf('--ide-probe');
+  const globalHooksIndex = args.indexOf('--global-hooks');
+  const ideProbePath = probeIndex === -1 ? null : args[probeIndex + 1];
+  const globalHooksPath = globalHooksIndex === -1 ? null : args[globalHooksIndex + 1];
   const repoRoot = detectRepoRoot();
   localLauncherContext();
-  const force = args.includes('--force');
   const templatesDir = path.resolve(__dirname, '..', '..', 'templates');
 
   const summary = { created: [], updated: [], skipped: [], merged: [], warnings: [] };
 
-  console.log(`LazyTrae init v1.0.3`);
+  const existingAgentsPath = path.join(repoRoot, 'AGENTS.md');
+  if (fs.existsSync(existingAgentsPath)) {
+    const inspection = inspectManagedBlocks(fs.readFileSync(existingAgentsPath, 'utf8'));
+    if (inspection.malformed.length > 0) {
+      throw new Error(`AGENTS.md has malformed managed markers: ${inspection.malformed.join(', ')}`);
+    }
+  }
+  preflightVerifiedHookConfiguration({
+    repoRoot,
+    probePath: ideProbePath,
+    globalHooksPath,
+    templatePath: path.join(templatesDir, 'hooks.json'),
+  });
+
+  console.log(`LazyTrae init v${CURRENT_VERSION}`);
   console.log(`Repo root: ${repoRoot}\n`);
 
   const gitStatus = inspectGitMetadata(repoRoot);
@@ -63,7 +81,7 @@ Options:
 
   // Create directory structure
   const dirs = [
-    '.trae/rules', '.trae/skills', '.trae/commands', '.trae/agents', '.trae/hooks',
+    '.agents/skills', '.trae/rules', '.trae/skills', '.trae/commands', '.trae/agents', '.trae/hooks',
     '.lazytrae/state', '.lazytrae/evidence', '.lazytrae/schemas', '.lazytrae/logs',
     '.lazytrae/plans', '.lazytrae/loop',
   ];
@@ -72,10 +90,17 @@ Options:
     ensureRepoDir(repoRoot, fullPath);
   }
 
+  const assetReceiptExisted = fs.existsSync(path.join(repoRoot, RECEIPT_PATH));
+  const assetsResult = installProjectAssets(repoRoot);
+  if (assetsResult.written.length > 0) summary.created.push(`${assetsResult.written.length} receipt-owned host asset files`);
+  else summary.skipped.push('receipt-owned host assets (no changes)');
+  if (!assetReceiptExisted) summary.created.push(RECEIPT_PATH);
+
   // Copy .trae/agents/
   const agentsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'agents'),
-    path.join(repoRoot, '.trae', 'agents')
+    path.join(repoRoot, '.trae', 'agents'),
+    { overwrite: false },
   );
   if (agentsResult.created > 0) summary.created.push(`${agentsResult.created} agent files`);
   if (agentsResult.updated > 0) summary.updated.push(`${agentsResult.updated} agent files`);
@@ -83,7 +108,8 @@ Options:
   // Copy .trae/skills/
   const skillsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'skills'),
-    path.join(repoRoot, '.trae', 'skills')
+    path.join(repoRoot, '.trae', 'skills'),
+    { overwrite: false },
   );
   if (skillsResult.created > 0) summary.created.push(`${skillsResult.created} skill files`);
   if (skillsResult.updated > 0) summary.updated.push(`${skillsResult.updated} skill files`);
@@ -92,19 +118,20 @@ Options:
   const commandsResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'commands'),
     path.join(repoRoot, '.trae', 'commands'),
-    { overwrite: force },
+    { overwrite: false },
   );
   if (commandsResult.created > 0) summary.created.push(`${commandsResult.created} command files`);
   if (commandsResult.updated > 0) summary.updated.push(`${commandsResult.updated} command files`);
   if (commandsResult.skipped > 0) {
-    summary.skipped.push(`refused to overwrite ${commandsResult.skipped} modified command files (preserved; rerun with --force to overwrite)`);
+    summary.skipped.push(`refused to overwrite ${commandsResult.skipped} modified command files (preserved; resolve ownership before retrying)`);
     process.exitCode = 1;
   }
 
   // Copy .trae/rules/
   const rulesResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'rules'),
-    path.join(repoRoot, '.trae', 'rules')
+    path.join(repoRoot, '.trae', 'rules'),
+    { overwrite: false },
   );
   if (rulesResult.created > 0) summary.created.push(`${rulesResult.created} rule files`);
   if (rulesResult.updated > 0) summary.updated.push(`${rulesResult.updated} rule files`);
@@ -135,35 +162,28 @@ Options:
     process.exitCode = 1;
   }
 
-  // Copy .trae/hooks.json
   try {
-    if (copyRepoFileIfChanged(repoRoot,
-      path.join(templatesDir, 'hooks.json'),
-      path.join(repoRoot, '.trae', 'hooks.json')
-    )) {
-      summary.created.push('.trae/hooks.json');
-    }
+    const hooks = installVerifiedHookConfiguration({
+      repoRoot,
+      probePath: ideProbePath,
+      globalHooksPath,
+      templatePath: path.join(templatesDir, 'hooks.json'),
+    });
+    if (hooks.status === 'updated') summary.created.push(`${hooks.written.length} verified Hook configuration file(s)`);
+    else summary.skipped.push('Hook configuration (probe did not verify the IDE event/config schema)');
   } catch (e) {
-    summary.skipped.push(`.trae/hooks.json (copy failed: ${e.message})`);
+    summary.skipped.push(`Hook configuration (merge refused: ${e.message})`);
+    process.exitCode = 1;
   }
 
   // Copy .trae/hooks/ shell scripts
   const hooksResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'hooks'),
-    path.join(repoRoot, '.trae', 'hooks')
+    path.join(repoRoot, '.trae', 'hooks'),
+    { overwrite: false },
   );
   if (hooksResult.created > 0) summary.created.push(`${hooksResult.created} hook scripts`);
   if (hooksResult.updated > 0) summary.updated.push(`${hooksResult.updated} hook scripts`);
-  const userPromptHook = path.join(repoRoot, '.trae', 'hooks', 'user-prompt-submit.sh');
-  writeRepoFile(
-    repoRoot,
-    userPromptHook,
-    materializeHook(fs.readFileSync(
-      path.join(templatesDir, 'hooks', 'user-prompt-submit.sh'),
-      'utf8',
-    )),
-  );
-
   // Make hook scripts executable
   const hooksDestDir = path.join(repoRoot, '.trae', 'hooks');
   if (fs.existsSync(hooksDestDir)) {
@@ -263,6 +283,11 @@ Options:
     summary[gitignoreExists ? 'updated' : 'created'].push('.gitignore');
   } else {
     summary.skipped.push('.gitignore (already has LazyTrae entries)');
+  }
+
+  if (!process.exitCode && host === 'cli') {
+    const candidate = generateCandidate(repoRoot);
+    summary.created.push(`${candidate.written.length} Trae CLI candidate asset(s)`);
   }
 
   // Print summary

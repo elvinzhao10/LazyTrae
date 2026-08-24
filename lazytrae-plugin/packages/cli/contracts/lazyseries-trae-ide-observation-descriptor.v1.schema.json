@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LazySeries Trae IDE Observation Descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "contract_version", "record_type", "descriptor_id", "observation_id", "host", "session_id", "status", "observed_at", "expires_at", "remote_root_fingerprint", "model_endpoint_fingerprint", "invalidations", "source_receipt", "surface_records", "feature_descriptors"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "contract_version": { "const": "1.1.0" },
+    "record_type": { "const": "trae-ide-observation-descriptor" },
+    "descriptor_id": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/id" },
+    "observation_id": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/id" },
+    "host": { "const": "trae-ide" },
+    "session_id": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/id" },
+    "status": { "enum": ["valid", "invalid"] },
+    "observed_at": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/timestamp" },
+    "expires_at": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/timestamp" },
+    "remote_root_fingerprint": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/sha256" },
+    "model_endpoint_fingerprint": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/sha256" },
+    "invalidations": { "type": "array", "uniqueItems": true, "items": { "enum": ["sandbox-bypass", "permission-mutation", "model-endpoint-changed", "remote-root-changed", "observation-stale"] } },
+    "source_receipt": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/source_receipt" },
+    "surface_records": { "$ref": "#/$defs/surfaceRecords" },
+    "feature_descriptors": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": { "$ref": "#/$defs/featureDescriptor" }
+    }
+  },
+  "$defs": {
+    "id": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/id" },
+    "sha256": { "$ref": "lazyseries-host-evidence-defs.v1.schema.json#/$defs/sha256" },
+    "surfaceRecords": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sandbox", "mcp", "model", "plan_spec", "task", "diff", "remote_ssh"],
+      "properties": {
+        "sandbox": {
+          "type": "object", "additionalProperties": false,
+          "required": ["filesystem_mode", "terminal_mode", "read_only"],
+          "properties": {
+            "filesystem_mode": { "enum": ["read-only", "workspace-write"] },
+            "terminal_mode": { "enum": ["integrated", "external", "unavailable"] },
+            "read_only": { "const": true }
+          }
+        },
+        "mcp": {
+          "type": "object", "additionalProperties": false,
+          "required": ["oauth_state", "project_scope", "read_only"],
+          "properties": {
+            "oauth_state": { "enum": ["connected", "required", "unavailable"] },
+            "project_scope": { "enum": ["workspace", "global", "none"] },
+            "read_only": { "const": true }
+          }
+        },
+        "model": {
+          "type": "object", "additionalProperties": false,
+          "required": ["context_window_tokens", "tool_rounds_supported", "read_only"],
+          "properties": {
+            "context_window_tokens": { "type": "integer", "minimum": 1 },
+            "tool_rounds_supported": { "type": "boolean" },
+            "read_only": { "const": true }
+          }
+        },
+        "plan_spec": {
+          "type": "object", "additionalProperties": false, "required": ["commands"],
+          "properties": {
+            "commands": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/commandRecord" } }
+          }
+        },
+        "task": {
+          "type": "object", "additionalProperties": false, "required": ["cards", "subagents", "retries"],
+          "properties": {
+            "cards": { "type": "array", "items": { "$ref": "#/$defs/taskCard" } },
+            "subagents": { "type": "array", "items": { "$ref": "#/$defs/subagentRecord" } },
+            "retries": { "type": "array", "items": { "$ref": "#/$defs/retryRecord" } }
+          }
+        },
+        "diff": {
+          "type": "object", "additionalProperties": false, "required": ["view_status", "history", "read_only"],
+          "properties": {
+            "view_status": { "enum": ["open", "closed", "unavailable"] },
+            "history": { "type": "array", "items": { "$ref": "#/$defs/diffRecord" } },
+            "read_only": { "const": true }
+          }
+        },
+        "remote_ssh": {
+          "type": "object", "additionalProperties": false, "required": ["identity", "read_only"],
+          "properties": {
+            "identity": { "$ref": "#/$defs/remoteIdentity" },
+            "read_only": { "const": true }
+          }
+        }
+      }
+    },
+    "commandRecord": {
+      "type": "object", "additionalProperties": false, "required": ["command_id", "kind", "status", "read_only"],
+      "properties": { "command_id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["plan", "spec"] }, "status": { "enum": ["available", "unsupported"] }, "read_only": { "const": true } }
+    },
+    "taskCard": {
+      "type": "object", "additionalProperties": false, "required": ["host_card_id", "canonical_task_id", "observed_status", "read_only"],
+      "properties": { "host_card_id": { "$ref": "#/$defs/id" }, "canonical_task_id": { "$ref": "#/$defs/id" }, "observed_status": { "enum": ["pending", "running", "failed"] }, "read_only": { "const": true } }
+    },
+    "subagentRecord": {
+      "type": "object", "additionalProperties": false, "required": ["subagent_id", "canonical_task_id", "observed_status", "read_only"],
+      "properties": { "subagent_id": { "$ref": "#/$defs/id" }, "canonical_task_id": { "$ref": "#/$defs/id" }, "observed_status": { "enum": ["running", "stopped", "failed"] }, "read_only": { "const": true } }
+    },
+    "retryRecord": {
+      "type": "object", "additionalProperties": false, "required": ["retry_id", "canonical_task_id", "attempt", "observed_status", "canonical_completion", "read_only"],
+      "properties": { "retry_id": { "$ref": "#/$defs/id" }, "canonical_task_id": { "$ref": "#/$defs/id" }, "attempt": { "type": "integer", "minimum": 1 }, "observed_status": { "enum": ["pending", "running", "failed"] }, "canonical_completion": { "const": "unclaimed" }, "read_only": { "const": true } }
+    },
+    "diffRecord": {
+      "type": "object", "additionalProperties": false, "required": ["canonical_diff_id", "revision_fingerprint", "status", "read_only"],
+      "properties": { "canonical_diff_id": { "$ref": "#/$defs/id" }, "revision_fingerprint": { "$ref": "#/$defs/sha256" }, "status": { "enum": ["available", "closed"] }, "read_only": { "const": true } }
+    },
+    "remoteIdentity": {
+      "type": "object", "additionalProperties": false, "required": ["host_key_fingerprint", "profile_fingerprint", "read_only"],
+      "properties": { "host_key_fingerprint": { "$ref": "#/$defs/sha256" }, "profile_fingerprint": { "$ref": "#/$defs/sha256" }, "read_only": { "const": true } }
+    },
+    "featureDescriptor": {
+      "type": "object", "additionalProperties": false,
+      "required": ["canonical_id", "host_card", "native_mode", "evidence_tier", "observation_status"],
+      "properties": {
+        "canonical_id": { "enum": ["lazyseries:feature:sandbox", "lazyseries:feature:mcp", "lazyseries:feature:model", "lazyseries:feature:plan-spec", "lazyseries:feature:task", "lazyseries:feature:diff", "lazyseries:feature:remote-ssh"] },
+        "host_card": {
+          "type": "object", "additionalProperties": false, "required": ["card_id", "canonical_id", "read_only"],
+          "properties": { "card_id": { "$ref": "#/$defs/id" }, "canonical_id": { "$ref": "#/$defs/id" }, "read_only": { "const": true } }
+        },
+        "native_mode": { "enum": ["observe-only", "descriptor-only"] },
+        "evidence_tier": { "enum": ["host-observed", "host-descriptor"] },
+        "observation_status": { "enum": ["observed", "unsupported"] }
+      }
+    }
+  }
+}

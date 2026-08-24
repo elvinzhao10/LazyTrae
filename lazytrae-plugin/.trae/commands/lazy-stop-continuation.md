@@ -1,3 +1,8 @@
+---
+description: Stop the active continuation workflow and preserve resumable state.
+argument-hint: ""
+---
+
 # stop-continuation
 
 ## Usage

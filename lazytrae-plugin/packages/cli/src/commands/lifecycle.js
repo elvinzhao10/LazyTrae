@@ -3,15 +3,26 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {
   LifecycleError,
+  acquireLock,
   bootstrapProduct,
   offboardProduct,
   parseOfficialSource,
+  pruneRollback,
   productPaths,
+  rollbackRelease,
 } = require('../lib/lifecycle');
 const LIFECYCLE_HELP = require('./lifecycle-help');
 const { createStatus } = require('./lifecycle-status');
 const PRODUCT = 'LazyTrae';
-const SUBCOMMANDS = new Set(['onboard', 'update', 'status', 'offboard', 'recover-bootstrap-lock']);
+const SUBCOMMANDS = new Set([
+  'onboard',
+  'update',
+  'status',
+  'rollback',
+  'prune',
+  'offboard',
+  'recover-bootstrap-lock',
+]);
 const VALUE_FLAGS = new Set(['--install-root', '--project', '--source', '--confirm-revision']);
 const BOOLEAN_FLAGS = new Set(['--json', '--yes']);
 function usage() {
@@ -23,7 +34,9 @@ function invalid(message) {
 function parseArgs(args) {
   if (args.includes('--help') || args.includes('-h')) return { help: true };
   const command = args[0];
-  if (!SUBCOMMANDS.has(command)) throw invalid('expected lifecycle onboard, update, status, offboard, or recover-bootstrap-lock');
+  if (!SUBCOMMANDS.has(command)) {
+    throw invalid('expected lifecycle onboard, update, status, rollback, prune, offboard, or recover-bootstrap-lock');
+  }
   const values = {};
   const booleans = new Set();
   for (let index = 1; index < args.length; index += 1) {
@@ -47,8 +60,8 @@ function parseArgs(args) {
   if (command !== 'update' && Object.hasOwn(values, '--confirm-revision')) {
     throw invalid('--confirm-revision is valid only for update');
   }
-  if (!['offboard', 'recover-bootstrap-lock'].includes(command) && booleans.has('--yes')) {
-    throw invalid('--yes is valid only for offboard or recover-bootstrap-lock');
+  if (!['rollback', 'prune', 'offboard', 'recover-bootstrap-lock'].includes(command) && booleans.has('--yes')) {
+    throw invalid('--yes is valid only for rollback, prune, offboard, or recover-bootstrap-lock');
   }
   return {
     command,
@@ -75,7 +88,7 @@ function resolveProject(value) {
 }
 function envelope(parsed, paths, status) {
   return {
-    schema_version: 1,
+    schema_version: 2,
     product: PRODUCT,
     command: parsed.command,
     status,
@@ -127,6 +140,43 @@ function offboard(parsed, paths) {
   offboardProduct(paths, 'offboard-product');
   return { code: 0, report: { ...report, status: 'removed' } };
 }
+function confirmedOperation(parsed, paths, operation) {
+  if (!fs.existsSync(paths.active)) throw new LifecycleError('NOT_INSTALLED', 'no active LazyTrae release is installed');
+  if (!parsed.yes) {
+    return {
+      code: 2,
+      report: {
+        ...envelope(parsed, paths, 'confirmation_required'),
+        package_readiness: { status: 'ready' },
+        action: `${operation} the exact receipt-owned LazyTrae release state; rerun with --yes`,
+      },
+    };
+  }
+  const lock = acquireLock(paths, operation);
+  try {
+    if (operation === 'rollback') {
+      const active = rollbackRelease(paths);
+      return {
+        code: 0,
+        report: {
+          ...envelope(parsed, paths, 'rolled_back'),
+          release_id: active.active_release,
+          package_readiness: { status: 'ready' },
+        },
+      };
+    }
+    pruneRollback(paths, 'prune-rollback');
+    return {
+      code: 0,
+      report: {
+        ...envelope(parsed, paths, 'pruned'),
+        package_readiness: { status: 'ready' },
+      },
+    };
+  } finally {
+    lock.release();
+  }
+}
 function print(report, json) {
   if (json) {
     console.log(JSON.stringify(report));
@@ -146,7 +196,7 @@ function failureEnvelope(args, error) {
     && path.parse(path.resolve(rawInstallRoot)).root !== path.resolve(rawInstallRoot)
     ? path.resolve(rawInstallRoot) : null;
   return {
-    schema_version: 1,
+    schema_version: 2,
     product: PRODUCT,
     command: args[0] || null,
     status: 'error',
@@ -176,6 +226,8 @@ function run(args) {
       outcome = { code: report.status === 'blocked' ? 1 : 0, report };
     } else if (parsed.command === 'recover-bootstrap-lock') {
       outcome = recoverBootstrap(parsed, paths);
+    } else if (parsed.command === 'rollback' || parsed.command === 'prune') {
+      outcome = confirmedOperation(parsed, paths, parsed.command);
     } else if (parsed.command === 'offboard') {
       outcome = offboard(parsed, paths);
     } else {

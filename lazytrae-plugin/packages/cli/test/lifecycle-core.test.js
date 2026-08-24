@@ -96,7 +96,7 @@ test('promotes two releases transactionally and launches after source deletion',
   // Then: active state points at v2, retains exactly v1, and runs from durable state.
   const active = JSON.parse(fs.readFileSync(f.paths.active, 'utf8'));
   const receipt = JSON.parse(fs.readFileSync(second.receiptPath, 'utf8'));
-  const schema = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'contracts', 'lazy-harness-lifecycle.v1.schema.json')));
+  const schema = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'contracts', 'lazy-harness-lifecycle.v2.schema.json')));
   const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
   assert.equal(active.active_release, second.releaseId);
   assert.equal(active.previous_release, first.releaseId);

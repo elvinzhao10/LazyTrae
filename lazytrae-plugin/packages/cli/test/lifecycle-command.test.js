@@ -11,6 +11,7 @@ const { CLI, runCli } = require('./test-helpers');
 
 const OFFICIAL = 'https://github.com/elvinzhao10/LazyTrae.git';
 const CONTRACTS = path.resolve(__dirname, '..', 'contracts');
+const CLI_ROOT = path.resolve(__dirname, '..');
 
 function git(cwd, args) {
   const result = childProcess.spawnSync('git', args, { cwd, encoding: 'utf8' });
@@ -23,10 +24,15 @@ function writeRelease(root, selfTest = "process.stdout.write('self-test-ok\\n');
   fs.mkdirSync(path.join(cli, 'bin'), { recursive: true });
   fs.mkdirSync(path.join(cli, 'scripts'), { recursive: true });
   fs.mkdirSync(path.join(cli, 'contracts'), { recursive: true });
-  fs.writeFileSync(path.join(cli, 'package.json'), '{"name":"lazytrae-ai","version":"1.0.3"}\n');
+  fs.writeFileSync(path.join(cli, 'package.json'), '{"name":"lazytrae-ai","version":"1.1.0"}\n');
   fs.writeFileSync(path.join(cli, 'bin', 'lazytrae.js'), "process.stdout.write('durable-cli-ok\\n');\n");
   fs.writeFileSync(path.join(cli, 'scripts', 'lifecycle-self-test.js'), selfTest);
-  for (const name of ['lazy-harness-lifecycle.v1.schema.json', 'lazy-harness-lifecycle.v1.example.json']) {
+  for (const name of [
+    'lazy-harness-lifecycle.v1.schema.json',
+    'lazy-harness-lifecycle.v1.example.json',
+    'lazy-harness-lifecycle.v2.schema.json',
+    'lazy-harness-active.v2.schema.json',
+  ]) {
     const bytes = fs.readFileSync(path.join(CONTRACTS, name));
     fs.writeFileSync(path.join(cli, 'contracts', name), bytes);
     fs.writeFileSync(
@@ -34,6 +40,41 @@ function writeRelease(root, selfTest = "process.stdout.write('self-test-ok\\n');
       `${crypto.createHash('sha256').update(bytes).digest('hex')}  ${name}\n`,
     );
   }
+}
+
+function writeFullLifecycleRelease(root) {
+  const cli = path.join(root, 'lazytrae-plugin', 'packages', 'cli');
+  fs.mkdirSync(cli, { recursive: true });
+  for (const name of ['bin', 'contracts', 'scripts', 'src']) {
+    fs.cpSync(path.join(CLI_ROOT, name), path.join(cli, name), { recursive: true });
+  }
+  for (const name of ['package.json', 'LICENSE', 'NOTICE']) {
+    fs.copyFileSync(path.join(CLI_ROOT, name), path.join(cli, name));
+  }
+}
+
+function packedBinary(t, sandbox) {
+  const packRoot = path.join(sandbox, 'packed cli');
+  const installRoot = path.join(packRoot, 'install');
+  fs.mkdirSync(packRoot);
+  const packed = childProcess.spawnSync('npm', ['pack', '--json', '--pack-destination', packRoot], {
+    cwd: CLI_ROOT,
+    encoding: 'utf8',
+    env: { ...process.env, npm_config_cache: path.join(sandbox, 'npm cache') },
+  });
+  assert.equal(packed.status, 0, packed.stderr || packed.stdout);
+  const [{ filename }] = JSON.parse(packed.stdout);
+  const installed = childProcess.spawnSync('npm', [
+    'install', '--prefix', installRoot, '--ignore-scripts', '--no-audit', '--no-fund', '--offline',
+    '--package-lock=false', path.join(packRoot, filename),
+  ], {
+    encoding: 'utf8',
+    env: { ...process.env, npm_config_cache: path.join(sandbox, 'npm cache') },
+  });
+  assert.equal(installed.status, 0, installed.stderr || installed.stdout);
+  const binary = path.join(installRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lazytrae.cmd' : 'lazytrae');
+  t.after(() => assert.equal(fs.existsSync(path.join(installRoot, 'node_modules', '.bin', 'traecli')), false));
+  return binary;
 }
 
 function lifecycleFixture(t) {
@@ -54,7 +95,7 @@ function lifecycleFixture(t) {
   git(source, ['add', '.']);
   git(source, ['commit', '-qm', 'fixture v1']);
   git(source, ['branch', '-M', 'main']);
-  git(source, ['tag', 'v1.0.3']);
+  git(source, ['tag', 'v1.1.0']);
   git(sandbox, ['clone', '--bare', source, remote]);
   const realGit = childProcess.spawnSync('which', ['git'], { encoding: 'utf8' }).stdout.trim();
   const shim = `#!/usr/bin/env node
@@ -109,7 +150,7 @@ test('lifecycle help documents the durable subcommands and exact flags', () => {
 
   // Then: every durable operation and its public option names are visible.
   assert.equal(result.status, 0);
-  for (const token of ['onboard', 'update', 'status', 'offboard', '--install-root', '--project', '--json', '--source', '--confirm-revision', '--yes']) {
+  for (const token of ['onboard', 'update', 'status', 'rollback', 'prune', 'offboard', '--install-root', '--project', '--json', '--source', '--confirm-revision', '--yes']) {
     assert.match(result.stdout, new RegExp(token.replaceAll('-', '\\-')));
   }
 });
@@ -534,6 +575,82 @@ test('offboard prints a confirmation plan before exact owned removal', (t) => {
   assert.equal(repeated.status, 0, repeated.stderr);
   assert.equal(JSON.parse(repeated.stdout).status, 'absent');
   assert.equal(fs.readFileSync(projectSentinel, 'utf8'), 'keep\n');
+});
+
+test('packed lifecycle upgrades a copied v1 install, rolls back, prunes, and offboards through the durable launcher', (t) => {
+  // Given: an offline-installed LazyTrae package and a full copied release fixture downgraded to immutable v1 evidence.
+  const fixture = lifecycleFixture(t);
+  fs.rmSync(path.join(fixture.source, 'lazytrae-plugin'), { recursive: true });
+  writeFullLifecycleRelease(fixture.source);
+  git(fixture.source, ['add', '.']);
+  git(fixture.source, ['commit', '-qm', 'full lifecycle fixture']);
+  git(fixture.source, ['push', '--force', fixture.remote, 'main']);
+  const binary = packedBinary(t, fixture.sandbox);
+  const runPacked = (entry, subcommand, extra = []) => childProcess.spawnSync(process.execPath, [
+    entry, 'lifecycle', subcommand, ...fixture.common, ...extra,
+  ], { cwd: fixture.project, encoding: 'utf8', env: fixture.env });
+  const onboarded = runPacked(binary, 'onboard', ['--source', `${OFFICIAL.slice(0, -4)}/tree/main`]);
+  assert.equal(onboarded.status, 0, onboarded.stderr);
+  const productRoot = path.join(fixture.installRoot, 'LazyTrae');
+  const launcher = path.join(productRoot, 'launcher.js');
+  const firstReport = JSON.parse(onboarded.stdout);
+  const firstReceiptPath = path.join(
+    productRoot,
+    'receipts',
+    `lazytrae-1-1-0-${firstReport.commit_sha.slice(0, 12)}.json`,
+  );
+  const firstReceipt = JSON.parse(fs.readFileSync(firstReceiptPath, 'utf8'));
+  firstReceipt.$schema = 'lazy-harness-lifecycle.v1.schema.json';
+  firstReceipt.schema_version = 1;
+  delete firstReceipt.created_files_scope;
+  firstReceipt.created_files.unshift({ path: 'launcher.js', type: 'file', mode: '0755', sha256: 'a'.repeat(64) });
+  fs.writeFileSync(firstReceiptPath, JSON.stringify(firstReceipt, null, 2) + '\n');
+  const firstReceiptBytes = fs.readFileSync(firstReceiptPath);
+  const activePath = path.join(productRoot, 'active.json');
+  const firstActive = JSON.parse(fs.readFileSync(activePath, 'utf8'));
+  delete firstActive.$schema;
+  firstActive.schema_version = 1;
+  fs.writeFileSync(activePath, JSON.stringify(firstActive, null, 2) + '\n');
+  fs.writeFileSync(launcher, require('../src/lib/lifecycle').LEGACY_LAUNCHER_V1, { mode: 0o755 });
+  const legacyStatus = runPacked(launcher, 'status');
+  assert.equal(legacyStatus.status, 0, legacyStatus.stderr);
+  assert.equal(JSON.parse(legacyStatus.stdout).schema_version, 2);
+  fs.appendFileSync(path.join(fixture.source, 'lazytrae-plugin/packages/cli/bin/lazytrae.js'), '\n// upgraded fixture\n');
+  git(fixture.source, ['add', '.']);
+  git(fixture.source, ['commit', '-qm', 'upgraded fixture']);
+  git(fixture.source, ['push', '--force', fixture.remote, 'main']);
+  const nextSha = git(fixture.source, ['rev-parse', 'HEAD']);
+
+  // When: packed update and the durable launcher perform the v1-to-v2 operational flow.
+  const updated = runPacked(binary, 'update', [
+    '--source', `${OFFICIAL.slice(0, -4)}/tree/main`, '--confirm-revision', nextSha,
+  ]);
+  assert.equal(updated.status, 0, updated.stderr);
+  const status = runPacked(launcher, 'status');
+  const rollbackPlan = runPacked(launcher, 'rollback');
+  const rolledBack = runPacked(launcher, 'rollback', ['--yes']);
+  const prunePlan = runPacked(launcher, 'prune');
+  const pruned = runPacked(launcher, 'prune', ['--yes']);
+
+  // Then: public output/state are v2, legacy receipt bytes stay immutable, and each destructive step is confirmed.
+  assert.equal(status.status, 0, status.stderr);
+  assert.equal(JSON.parse(status.stdout).schema_version, 2);
+  assert.equal(JSON.parse(fs.readFileSync(activePath, 'utf8')).schema_version, 2);
+  assert.deepEqual(fs.readFileSync(firstReceiptPath), firstReceiptBytes);
+  assert.equal(rollbackPlan.status, 2, rollbackPlan.stderr);
+  assert.equal(rolledBack.status, 0, rolledBack.stderr);
+  assert.equal(prunePlan.status, 2, prunePlan.stderr);
+  assert.equal(pruned.status, 0, pruned.stderr);
+  assert.equal(childProcess.spawnSync(process.execPath, [launcher, '--version']).status, 0);
+
+  const caller = path.join(fixture.installRoot, 'caller-owned.txt');
+  const hostSettings = path.join(fixture.project, 'unknown-host-settings.json');
+  fs.writeFileSync(caller, 'caller\n');
+  fs.writeFileSync(hostSettings, 'host\n');
+  assert.equal(runPacked(launcher, 'offboard').status, 2);
+  assert.equal(runPacked(launcher, 'offboard', ['--yes']).status, 0);
+  assert.equal(fs.readFileSync(caller, 'utf8'), 'caller\n');
+  assert.equal(fs.readFileSync(hostSettings, 'utf8'), 'host\n');
 });
 
 test('malformed options and misleading self-test success fail closed', (t) => {

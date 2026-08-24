@@ -17,6 +17,7 @@ const {
 } = require('../src/lib/lifecycle');
 
 const ORIGIN = 'https://github.com/elvinzhao10/LazyTrae.git';
+const { receiptFor } = require('../src/lib/lifecycle/receipt');
 
 function fixture() {
   const sandbox = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'lazy lifecycle regression '));
@@ -54,6 +55,26 @@ function promote(f, staged, overrides = {}) {
 function expectCode(action, code) {
   assert.throws(action, (error) => error instanceof LifecycleError && error.code === code);
 }
+
+test('characterizes legacy v1 receipt reads as immutable ownership evidence', () => {
+  // Given: a release installed by the existing v1 lifecycle writer.
+  const f = fixture();
+  const promoted = promote(f, stage(f, 'a'));
+  const legacy = JSON.parse(fs.readFileSync(promoted.receiptPath, 'utf8'));
+  legacy.$schema = 'lazy-harness-lifecycle.v1.schema.json';
+  legacy.schema_version = 1;
+  delete legacy.created_files_scope;
+  legacy.created_files.unshift({ path: 'launcher.js', type: 'file', mode: '0755', sha256: 'a'.repeat(64) });
+  fs.writeFileSync(promoted.receiptPath, JSON.stringify(legacy, null, 2) + '\n');
+  const before = fs.readFileSync(promoted.receiptPath);
+
+  // When: the ownership reader verifies the installed release.
+  const verified = receiptFor(f.paths, promoted.releaseId);
+
+  // Then: it returns the v1 evidence without rewriting the receipt.
+  assert.equal(verified.receipt.schema_version, 2);
+  assert.deepEqual(fs.readFileSync(promoted.receiptPath), before);
+});
 
 test('rejects entrypoint traversal before promotion', () => {
   // Given: a valid stage and an entrypoint outside that release.
@@ -136,6 +157,53 @@ test('rollback restores the selected release entrypoint', () => {
   // Then: active metadata and execution both use the first release entrypoint.
   assert.equal(active.entrypoint, 'first.js');
   assert.equal(output.trim(), 'first-entry');
+});
+
+test('rollback marker interruption preserves the committed boot selection without a false marker', (t) => {
+  // Given: two bootable releases and a rollback marker promotion that will be interrupted.
+  const f = fixture();
+  promote(f, stage(f, 'a'));
+  fs.writeFileSync(path.join(f.sourceRoot, 'entry.js'), "console.log('entry-v2')\n");
+  promote(f, stage(f, 'b'));
+  const renameSync = fs.renameSync;
+  t.mock.method(fs, 'renameSync', (source, target) => {
+    if (target === f.paths.rollbackMarker) throw new Error('simulated rollback interruption');
+    return renameSync(source, target);
+  });
+
+  // When: the actual rollback operation cannot commit its retention marker.
+  assert.throws(() => rollbackRelease(f.paths), /simulated rollback interruption/);
+
+  // Then: the selected release remains bootable and no uncommitted retention marker is exposed.
+  const active = JSON.parse(fs.readFileSync(f.paths.active, 'utf8'));
+  assert.equal(active.active_release, '1.0.3-aaaaaaaaaaaa');
+  assert.equal(active.previous_release, null);
+  const output = require('node:child_process').execFileSync(process.execPath, [f.paths.launcher], { encoding: 'utf8' });
+  assert.equal(output.trim(), 'entry-v1');
+  assert.equal(fs.existsSync(f.paths.rollbackMarker), false);
+});
+
+test('rollback active-state interruption removes the partial retention marker', (t) => {
+  // Given: two releases whose rollback marker can commit but active-state promotion will be interrupted.
+  const f = fixture();
+  promote(f, stage(f, 'a'));
+  fs.writeFileSync(path.join(f.sourceRoot, 'entry.js'), "console.log('entry-v2')\n");
+  promote(f, stage(f, 'b'));
+  const activeBefore = fs.readFileSync(f.paths.active);
+  const renameSync = fs.renameSync;
+  t.mock.method(fs, 'renameSync', (source, target) => {
+    if (target === f.paths.active) throw new Error('simulated active-state interruption');
+    return renameSync(source, target);
+  });
+
+  // When: the actual rollback operation fails after writing its retention marker.
+  assert.throws(() => rollbackRelease(f.paths), /simulated active-state interruption/);
+
+  // Then: both the active selection and rollback directory return to their prior state.
+  assert.deepEqual(fs.readFileSync(f.paths.active), activeBefore);
+  assert.equal(fs.existsSync(f.paths.rollbackMarker), false);
+  const output = require('node:child_process').execFileSync(process.execPath, [f.paths.launcher], { encoding: 'utf8' });
+  assert.equal(output.trim(), 'entry-v2');
 });
 
 test('prune refusal leaves the previous release pointer intact', () => {

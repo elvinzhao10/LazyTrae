@@ -1,16 +1,18 @@
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
+const {
+  INTERNAL_STATE_MAPPING,
+  createReadinessRecord,
+  normalizeV1ReadinessRecord,
+  readinessContractIntegrity,
+  validateReadinessRecord,
+} = require('./readiness-v2-contract');
 const { indexState, ownedExecutable } = require('./codegraph-lifecycle');
 const { readinessStatus: lspReadinessStatus } = require('./lsp-lifecycle');
 const { inspectHostCapabilitiesForReadiness } = require('./tooling-capabilities');
 const { readReceipt, validateReceipt } = require('./tooling-root');
 const { OPTIONAL_CAPABILITIES, readToolingState, toolingStatePath } = require('./tooling-state');
 
-const CONTRACT_VERSION = '0.18.0';
-const CONTRACT_DIGEST = '3a65e1d7108c1a607035cbb127117dc5c18d0116ddf88c3e9ca5aaa4db032c4a';
-const READINESS_CONTRACT_SHA256 = 'ef78955b26f77769b3717f8ec8699781972a47f9514ce4955ee7dcbd6738c219';
-const READINESS_CONTRACT_PATH = path.resolve(__dirname, '..', '..', 'contracts', 'lazyseries-capability-readiness.v1.json');
 const CAPABILITIES = [
   ['local_search', 'ripgrep'], ['structural_search', 'ast-grep'], ['code_navigation', 'lsp'],
   ['architecture_search', 'codegraph'], ['documentation_search', 'context7'], ['web_search', 'web'],
@@ -18,24 +20,7 @@ const CAPABILITIES = [
 ];
 
 function record(capability, provider, status, message, reasonCode = null, receipt = null, details = {}) {
-  return { schema_version: 1, contract_version: CONTRACT_VERSION, contract_digest: CONTRACT_DIGEST, host: 'lazytrae', capability, provider, status, readiness_scope: 'package-ready', reason_code: reasonCode, message, receipt, details };
-}
-
-function readinessContractIntegrity(paths = {}) {
-  const contractPath = paths.contractPath || READINESS_CONTRACT_PATH;
-  const checksumPath = paths.checksumPath || `${contractPath}.sha256`;
-  try {
-    const bytes = fs.readFileSync(contractPath);
-    const [declared] = fs.readFileSync(checksumPath, 'utf8').trim().split(/\s+/);
-    const contract = JSON.parse(bytes.toString('utf8'));
-    return declared === READINESS_CONTRACT_SHA256
-      && crypto.createHash('sha256').update(bytes).digest('hex') === READINESS_CONTRACT_SHA256
-      && contract.schema_version === 1
-      && contract.contract_version === CONTRACT_VERSION
-      && contract.properties?.contract_digest?.const === CONTRACT_DIGEST;
-  } catch (_) {
-    return false;
-  }
+  return createReadinessRecord(capability, provider, status, message, reasonCode);
 }
 
 function contractFailureRecords() {
@@ -135,9 +120,10 @@ function formatLegacyCapabilityStatus(repoRoot) {
 function formatReadinessSummary(records) {
   const groups = new Map();
   for (const value of records) {
-    const members = groups.get(value.status) || [];
+    const status = value.internal_status || value.status;
+    const members = groups.get(status) || [];
     members.push(value.provider || value.capability || 'unknown');
-    groups.set(value.status, members);
+    groups.set(status, members);
   }
   const summary = [...groups.entries()]
     .map(([status, members]) => `${status}=${members.length} [${members.join(', ')}]`)
@@ -145,4 +131,12 @@ function formatReadinessSummary(records) {
   return `Capability readiness (report-only; host and MCP connection remain unverified): ${summary}`;
 }
 
-module.exports = { formatLegacyCapabilityStatus, formatReadinessSummary, readinessContractIntegrity, readinessReport };
+module.exports = {
+  INTERNAL_STATE_MAPPING,
+  formatLegacyCapabilityStatus,
+  formatReadinessSummary,
+  normalizeV1ReadinessRecord,
+  readinessContractIntegrity,
+  readinessReport,
+  validateReadinessRecord,
+};

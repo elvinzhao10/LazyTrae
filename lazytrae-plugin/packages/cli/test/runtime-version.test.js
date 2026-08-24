@@ -7,8 +7,8 @@ const test = require('node:test');
 const expectedVersion = require('../package.json').version;
 const packagedMcp = require('../src/mcp');
 const sourceMcp = require('../../mcp/src');
-const RELEASE_VERSION = '1.0.3';
-const previousReleaseVersion = RELEASE_VERSION.replace(/\d+$/, patch => String(Number(patch) - 1));
+const RELEASE_VERSION = '1.1.0';
+const previousReleaseVersion = '1.0.3';
 
 const CURRENT_RELEASE_PATHS = [
   '../../../../README.md',
@@ -62,14 +62,25 @@ const CURRENT_RELEASE_PATHS = [
 const REGEX_EXPECTATION_PATHS = [
   {
     relativePath: '../test/documentation-regression.test.js',
-    previous: /1\\\.0\\\.2/,
-    current: /1\\\.0\\\.3/,
+    previous: /assert\.match\(packageAgents, \/1\\\.0\\\.3\//,
+    current: /assert\.match\(packageAgents, \/1\\\.1\\\.0\//,
   },
 ];
 const HISTORICAL_CONTEXT_PATHS = new Set([
   '../../../../README.md',
   '../../../../AGENTS.md',
   '../templates/AGENTS.md',
+  '../test/runtime-version.test.js',
+]);
+const DYNAMIC_VERSION_PATHS = new Set([
+  '../bin/lazytrae.js',
+  '../src/index.js',
+  '../src/commands/doctor.js',
+  '../src/commands/init.js',
+  '../src/commands/load-check.js',
+  '../src/commands/lsp.js',
+  '../src/commands/sync.js',
+  '../src/commands/uninstall.js',
 ]);
 
 function initializeVersion(server) {
@@ -105,7 +116,11 @@ test(`v${RELEASE_VERSION} package release identities are consistent`, () => {
     if (!HISTORICAL_CONTEXT_PATHS.has(relativePath)) {
       assert.doesNotMatch(contents, new RegExp(previousReleaseVersion.replaceAll('.', '\\.')), `${relativePath} retained the previous current release`);
     }
-    assert.match(contents, new RegExp(RELEASE_VERSION.replaceAll('.', '\\.')), `${relativePath} omitted v${RELEASE_VERSION}`);
+    if (DYNAMIC_VERSION_PATHS.has(relativePath)) {
+      assert.match(contents, /CURRENT_VERSION/, `${relativePath} omitted the authoritative version import`);
+    } else {
+      assert.match(contents, new RegExp(RELEASE_VERSION.replaceAll('.', '\\.')), `${relativePath} omitted v${RELEASE_VERSION}`);
+    }
   }
 
   for (const { relativePath, previous, current } of REGEX_EXPECTATION_PATHS) {
