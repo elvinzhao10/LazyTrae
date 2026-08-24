@@ -1,8 +1,11 @@
 # LazyTrae v1.1.0 — native host readiness boundaries
 
 **Release date:** 2026-08-19
-**Status:** Documentation release. It records package and host evidence
-boundaries; it does not publish, install, upload, or claim a marketplace route.
+**Status:** Source-and-documentation branch at
+[`release/v1.1.0`](https://github.com/elvinzhao10/LazyTrae/tree/release/v1.1.0).
+It is not a GitHub Release or marketplace publication. It records package and
+host evidence boundaries; durable onboarding may install its pinned source, but
+package checks never claim a live host route.
 
 ## What changed
 

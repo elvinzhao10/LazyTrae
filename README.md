@@ -8,11 +8,16 @@ readiness, runs completion gates, and launches a local stdio MCP server.
 
 ## Current release boundary (v1.1.0)
 
-v1.1.0 documents three independent native hosts. LazyTrae may generate local
-assets, profile a selected Work context, or collect a bounded host probe; the
-host alone owns discovery, registration, session lifetime, connector launch,
-and credentials. A package result never promotes **package readiness** to
-**host readiness**.
+v1.1.0 is available as the source branch
+[`release/v1.1.0`](https://github.com/elvinzhao10/LazyTrae/tree/release/v1.1.0).
+It is not a GitHub Release, marketplace publication, or host-readiness claim.
+Use the durable lifecycle route to install its pinned source, verify package
+readiness, and then observe the selected host in a fresh session. LazyTrae may
+generate local assets, profile a selected Work context, or collect a bounded
+host probe; the host alone owns discovery, registration, session lifetime,
+connector launch, and credentials. A package result never promotes **package
+readiness** to **host readiness**. See [V1.1.0_EXPLAINER.md](V1.1.0_EXPLAINER.md)
+for the complete route.
 
 - **Trae IDE:** `.trae/` assets and an optional bounded probe are package
   evidence, not IDE discovery or a live MCP connection.
