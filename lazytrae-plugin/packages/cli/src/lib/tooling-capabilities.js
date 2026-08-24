@@ -15,9 +15,9 @@ const CAPABILITIES = {
     label: 'ast-grep',
     hostCommand: 'sg',
     packageName: '@ast-grep/cli',
-    packageVersion: '0.44.1',
-    minimumVersion: [0, 44, 0],
-    ownedPath: ['node_modules', '.bin', 'sg'],
+    packageVersion: '0.45.0',
+    minimumVersion: [0, 45, 0],
+    ownedPath: ['node_modules', '.bin', 'ast-grep'],
   },
 };
 

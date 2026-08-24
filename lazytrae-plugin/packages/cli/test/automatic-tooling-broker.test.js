@@ -124,18 +124,30 @@ function waitFor(file) {
   });
 }
 
-test('automatic structural search uses ast-grep 0.44 stream JSON output', () => {
+test('automatic structural search uses ast-grep 0.45 JSON output without deprecated-command diagnostics', () => {
   const root = repository('lazytrae-broker-structural-');
   const toolpack = path.join(root, 'empty-toolpack');
+  const bin = path.join(root, 'bin');
   try {
+    fs.mkdirSync(bin);
+    fs.writeFileSync(path.join(bin, 'npm'), `#!/bin/sh
+mkdir -p node_modules/.bin
+printf '%s\\n' '#!/bin/sh' 'if [ "$1" = "--version" ]; then printf "ast-grep 0.45.0\\n"; else printf "{\\"text\\":\\"TODO\\"}\\n"; fi' > node_modules/.bin/ast-grep
+chmod +x node_modules/.bin/ast-grep
+`);
+    fs.chmodSync(path.join(bin, 'npm'), 0o755);
     fs.writeFileSync(path.join(root, 'needle.js'), 'const TODO = 1;\n');
     spawnSync('git', ['add', '.'], { cwd: root });
     spawnSync('git', ['commit', '-qm', 'structural-fixture'], { cwd: root });
-    const result = runCli(['tooling', 'capability', 'run', 'structural_search', '--query', 'TODO', '--toolpack', toolpack], { cwd: root });
+    const result = runCli(['tooling', 'capability', 'run', 'structural_search', '--query', 'TODO', '--toolpack', toolpack], {
+      cwd: root,
+      env: { ...process.env, PATH: `${bin}${path.delimiter}${path.dirname(process.execPath)}:/usr/bin:/bin` },
+    });
     assert.equal(result.status, 0, result.stderr);
     const output = JSON.parse(result.stdout);
     assert.equal(output.provider, 'ast_grep');
     assert.match(output.result, /TODO/);
+    assert.doesNotMatch(output.result, /deprecated/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
