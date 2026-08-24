@@ -16,7 +16,7 @@ readiness, and then observe the selected host in a fresh session. LazyTrae may
 generate local assets, profile a selected Work context, or collect a bounded
 host probe; the host alone owns discovery, registration, session lifetime,
 connector launch, and credentials. A package result never promotes **package
-readiness** to **host readiness**. See [V1.1.0_EXPLAINER.md](V1.1.0_EXPLAINER.md)
+readiness** to **host readiness**. See the [v1.1.0 supported route](docs/v1.1.0-supported-route.md)
 for the complete route.
 
 - **Trae IDE:** `.trae/` assets and an optional bounded probe are package
