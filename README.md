@@ -8,11 +8,10 @@ readiness, runs completion gates, and launches a local stdio MCP server.
 
 ## Current release boundary (v1.1.0)
 
-v1.1.0 is available as the source branch
-[`release/v1.1.0`](https://github.com/elvinzhao10/LazyTrae/tree/release/v1.1.0).
-It is not a GitHub Release, marketplace publication, or host-readiness claim.
-Use the durable lifecycle route to install its pinned source, verify package
-readiness, and then observe the selected host in a fresh session. LazyTrae may
+v1.1.0 is available as the [v1.1.0 GitHub Release](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.1.0).
+It is not a marketplace publication or host-readiness claim. Use the durable
+lifecycle route to install its pinned source, verify package readiness, and
+then observe the selected host in a fresh session. LazyTrae may
 generate local assets, profile a selected Work context, or collect a bounded
 host probe; the host alone owns discovery, registration, session lifetime,
 connector launch, and credentials. A package result never promotes **package
@@ -31,7 +30,8 @@ for the complete route.
   session and worktree.
 
 Current writers emit v2 readiness records. Historical v1 records remain
-read-only compatibility evidence. No current route publishes to a marketplace, installs a marketplace package, uploads project data, or invents a native host command.
+read-only compatibility evidence. No current route publishes to a marketplace,
+installs a marketplace package, uploads project data, or invents a native host command.
 
 It is verified on macOS only. Package checks establish copied assets and local
 contracts; the selected Trae surface remains the authority for discovery,
