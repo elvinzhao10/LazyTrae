@@ -47,7 +47,7 @@ function commandFor(scenario, gate, behavior = 'pass', actor = 'primary') {
   return { command: process.execPath, args: [scenario.recorder, scenario.log, gate, behavior, actor], actor };
 }
 
-function runScenario(scenario, override = {}, planOverride = {}) {
+function runScenario(scenario, override = {}, planOverride = {}, spawnOptions = {}) {
   const input = {
     taskCategory: 'quick',
     changedPaths: ['src/format-label.js'],
@@ -74,7 +74,7 @@ function runScenario(scenario, override = {}, planOverride = {}) {
     '--risk-input', inputPath,
     '--gate-plan', planPath,
     '--json',
-  ], { encoding: 'utf8', timeout: 10000 });
+  ], { encoding: 'utf8', timeout: 10000, ...spawnOptions });
   const report = result.stdout.trim() ? JSON.parse(result.stdout) : null;
   return { result, report };
 }
@@ -181,4 +181,28 @@ test('Given an actually dirty worktree, when shipped verification runs, then com
   assert.equal(report.policy.level, 'comprehensive');
   assert.ok(report.policy.reasonCodes.includes('dirty-tree'));
   assert.equal(report.gate_outcomes.some(({ gate_id: gate }) => gate === 'security-review'), true);
+});
+
+test('Given a dirty worktree and a PATH-spoofed clean Git probe, when shipped verification runs, then comprehensive gates execute', (t) => {
+  const scenario = makeScenario();
+  t.after(() => fs.rmSync(scenario.root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(scenario.controls, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(scenario.root, 'tracked.txt'), 'dirty\n');
+
+  const fakeBin = path.join(scenario.controls, 'fake-bin');
+  const fakeGit = path.join(fakeBin, 'git');
+  fs.mkdirSync(fakeBin);
+  fs.writeFileSync(fakeGit, '#!/bin/sh\nprintf ""\nexit 0\n');
+  fs.chmodSync(fakeGit, 0o755);
+
+  const { result, report } = runScenario(scenario, { dirtyTree: false }, {}, {
+    env: { ...process.env, PATH: `${fakeBin}${path.delimiter}${process.env.PATH || ''}` },
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(report.policy.level, 'comprehensive');
+  assert.ok(report.policy.reasonCodes.includes('dirty-tree'));
+  assert.deepEqual([...new Set(report.gate_outcomes.map(({ gate_id: gate }) => gate))], ALL_GATES);
+  assert.equal(report.actor_count, 2);
+  assert.equal(fs.readFileSync(scenario.log, 'utf8').trim().split('\n').length, report.cost.gate_invocations);
 });

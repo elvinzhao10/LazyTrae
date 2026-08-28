@@ -4,6 +4,21 @@ const path = require('path');
 const { detectRepoRoot, formatCompletionStatus, getCompletionStatus } = require('../lib/completion-gates');
 const { runVerificationGates } = require('../lib/verification-gate-runner');
 
+function trustedGitExecutable() {
+  const candidates = process.platform === 'darwin'
+    ? ['/usr/bin/git', '/opt/homebrew/bin/git', '/usr/local/bin/git']
+    : process.platform === 'linux'
+      ? ['/usr/bin/git', '/bin/git']
+      : [];
+  return candidates.find(candidate => {
+    try {
+      return fs.statSync(candidate).isFile();
+    } catch {
+      return false;
+    }
+  }) || null;
+}
+
 function optionValue(args, name) {
   const indexes = args.flatMap((value, index) => value === name ? [index] : []);
   if (indexes.length !== 1 || !args[indexes[0] + 1] || args[indexes[0] + 1].startsWith('--')) {
@@ -13,7 +28,9 @@ function optionValue(args, name) {
 }
 
 function gitTreeDirty(root) {
-  const result = spawnSync('git', ['status', '--porcelain=v1', '--untracked-files=no'], {
+  const git = trustedGitExecutable();
+  if (!git) return true;
+  const result = spawnSync(git, ['status', '--porcelain=v1', '--untracked-files=no'], {
     cwd: root,
     encoding: 'utf8',
     timeout: 5000,
