@@ -13,6 +13,7 @@ const RISK_FLAGS = [
 ];
 
 const LEVELS = ['direct', 'affected', 'comprehensive'];
+const ASSERTION_ID = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,159}$/;
 const GATES = {
   direct: ['targeted-tests', 'final-assertions'],
   affected: ['targeted-tests', 'dependency-tests', 'contract-tests', 'final-assertions'],
@@ -83,7 +84,9 @@ function parseInput(input) {
     isObject(outcome)
     && typeof outcome.gateId === 'string'
     && ['passed', 'failed', 'flaky'].includes(outcome.outcome)
-    && (outcome.assertionId === undefined || typeof outcome.assertionId === 'string')
+    && (outcome.assertionId === undefined || (
+      typeof outcome.assertionId === 'string' && ASSERTION_ID.test(outcome.assertionId)
+    ))
     && (outcome.stale === undefined || typeof outcome.stale === 'boolean')
   ));
   if (!outcomesValid) reasons.push('invalid-input');
@@ -141,6 +144,10 @@ function selectVerificationPolicy(untrustedInput) {
     }
     if (outcome.outcome === 'failed') {
       reasonCodes.push('prior-gate-failure');
+      level = 'comprehensive';
+    }
+    if (outcome.outcome === 'flaky' && outcome.assertionId === undefined) {
+      reasonCodes.push('unidentified-flake');
       level = 'comprehensive';
     }
     if (outcome.outcome === 'flaky' && outcome.assertionId) {

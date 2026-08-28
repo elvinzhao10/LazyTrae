@@ -107,6 +107,20 @@ test('Given one flake, when policy is selected, then it does not escalate until 
   assert.ok(selected.reasonCodes.includes('single-flake-retry'));
 });
 
+test('Given flaky outcomes without assertion identity, when policy is selected, then ADV-9-001 fails closed', () => {
+  // Given / When
+  const selected = selectVerificationPolicy({
+    ...BASE,
+    priorOutcomes: [
+      { gateId: 'targeted', outcome: 'flaky' },
+      { gateId: 'targeted', outcome: 'flaky' },
+    ],
+  });
+  // Then
+  assert.equal(selected.level, 'comprehensive');
+  assert.ok(selected.reasonCodes.includes('unidentified-flake'));
+});
+
 test('Given malformed or misleading outcomes, when policy is selected, then policy fails closed', () => {
   // Given
   const table = [
