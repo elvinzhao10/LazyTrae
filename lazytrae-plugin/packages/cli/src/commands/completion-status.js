@@ -10,9 +10,10 @@ function run(args) {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae completion-status [options]
 
-Print whether active LazyTrae completion gates are ready or blocked.
+Print the computed fail-closed completion assessment.
 
 Options:
+  --json       Emit the assessment as JSON
   --help, -h   Show this help message
 `);
     return;
@@ -20,6 +21,11 @@ Options:
 
   const repoRoot = detectRepoRoot();
   const result = getCompletionStatus(repoRoot);
+  if (args.includes('--json')) {
+    console.log(JSON.stringify(result, null, 2));
+    process.exitCode = result.status === 'ready' ? 0 : 1;
+    return;
+  }
   const lines = [formatCompletionStatus(result)];
 
   const loopState = loadLoop(repoRoot);
@@ -27,7 +33,7 @@ Options:
   if (adaptive) lines.push('', adaptive);
 
   console.log(lines.join('\n'));
-  process.exit(result.status === 'ready' ? 0 : 1);
+  process.exitCode = result.status === 'ready' ? 0 : 1;
 }
 
 module.exports = { run };
