@@ -146,6 +146,9 @@ function inspectHostProfile(repoRoot, host, options = {}) {
   const probeReport = inspectProbe(repoRoot, route);
   const evidenceFingerprint = canonicalDigest({ manifestSha256, route, packages, generated, config, probe: probeReport.material, session: sessionMaterial });
   const observationReport = inspectObservation(repoRoot, route, evidenceFingerprint, probeReport);
+  const publishedEvidenceFingerprint = observationReport.material.status === 'missing'
+    ? evidenceFingerprint
+    : canonicalDigest({ adapter: evidenceFingerprint, observation: observationReport.material });
   const capabilityMatrix = buildCapabilityMatrix(repoRoot, route.host, {
     client: options.capabilityClient,
     execution: options.capabilityExecution,
@@ -153,11 +156,6 @@ function inspectHostProfile(repoRoot, host, options = {}) {
     receiptPath: options.capabilityReceiptPath,
     sessionId: options.capabilitySessionId,
     now: options.capabilityNow,
-  });
-  const hostFingerprint = canonicalDigest({
-    evidenceFingerprint,
-    observation: observationReport.material,
-    capabilityMatrix: capabilityMatrix.matrix_sha256,
   });
   const observation = observationReport.valid ? observationReport.value : null;
   const probe = probeReport.valid ? pendingEvidence('observed', 'bounded fingerprinted host probe') : pendingEvidence();
@@ -182,14 +180,13 @@ function inspectHostProfile(repoRoot, host, options = {}) {
     && [probe, registration, session, mcp, observed].every(item => item.status === 'observed')
     ? 'observed' : 'pending';
   const context = HOST_CONTEXTS[route.host];
-  return {
+  const profile = {
     host: route.host,
     host_label: context.host_label,
     client_context: context.client_context,
     execution_context: context.execution_context,
     contract_version: '2.0.0',
-    evidence_fingerprint: evidenceFingerprint,
-    host_fingerprint: hostFingerprint,
+    evidence_fingerprint: publishedEvidenceFingerprint,
     capability_matrix: capabilityMatrix,
     package_assets: packageAssets,
     generated_assets: generatedAssets,
@@ -206,6 +203,7 @@ function inspectHostProfile(repoRoot, host, options = {}) {
     package_readiness: packageReadiness,
     host_readiness: hostReadiness,
   };
+  return { ...profile, host_fingerprint: canonicalDigest(profile) };
 }
 
 function inspectHostProfiles(repoRoot, options = {}) {

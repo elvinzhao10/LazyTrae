@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const { canonicalDigest } = require('../src/lib/host-adapter-fingerprint');
 const { runCli } = require('./test-helpers');
 
 function fixture() {
@@ -113,4 +114,35 @@ test('all status lifecycle profiles expose byte-stable adapter host identifiers'
   const profiles = JSON.parse(result.stdout).profiles;
   assert.deepEqual(profiles.map(item => item.host), ['trae-cli', 'trae-ide', 'trae-work']);
   assert.deepEqual(profiles.map(item => item.capability_matrix.host), ['trae-cli', 'trae-ide', 'trae-work']);
+});
+
+test('status validation binds a rehashed promoted matrix to the enclosing host fingerprint', t => {
+  const root = fixture();
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const generated = runCli(['status', '--host', 'ide', '--json'], { cwd: root });
+  assert.ok([0, 1].includes(generated.status), generated.stderr);
+  const report = JSON.parse(generated.stdout);
+  const validPath = path.join(root, 'valid-status.json');
+  fs.writeFileSync(validPath, `${JSON.stringify(report)}\n`);
+
+  const valid = runCli(['status', '--validate', validPath], { cwd: root });
+  assert.equal(valid.status, 0, valid.stderr);
+
+  const forged = structuredClone(report);
+  const promoted = forged.profiles[0].capability_matrix.capabilities[0];
+  promoted.status = 'host-observed';
+  promoted.evidence.observed_at = '2026-08-27T11:55:00Z';
+  promoted.evidence.expires_at = '2026-08-27T12:05:00Z';
+  promoted.evidence.session_id = 'session:forged';
+  promoted.evidence.build_version = '9.9.9';
+  promoted.evidence.build_sha256 = 'f'.repeat(64);
+  const matrix = forged.profiles[0].capability_matrix;
+  const { matrix_sha256: ignored, ...matrixMaterial } = matrix;
+  matrix.matrix_sha256 = canonicalDigest(matrixMaterial);
+  const forgedPath = path.join(root, 'forged-status.json');
+  fs.writeFileSync(forgedPath, `${JSON.stringify(forged)}\n`);
+
+  const rejected = runCli(['status', '--validate', forgedPath], { cwd: root });
+  assert.notEqual(rejected.status, 0);
+  assert.deepEqual(JSON.parse(rejected.stderr), { error: 'STATUS_HOST_FINGERPRINT_STALE' });
 });

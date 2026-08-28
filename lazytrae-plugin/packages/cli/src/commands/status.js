@@ -23,9 +23,9 @@ function detectRepoRoot() {
   }
 }
 
-function statusInvalid() {
+function statusInvalid(code = 'STATUS_INVALID') {
   const error = new Error('machine status does not match the v2 contract');
-  error.code = 'STATUS_INVALID';
+  error.code = code;
   return error;
 }
 
@@ -74,6 +74,8 @@ function validateStatusReport(report) {
       || !['pending', 'observed'].includes(profile.probe.status)
       || !['pending', 'observed'].includes(profile.discovery.status)
       || !['pending', 'observed'].includes(profile.host_readiness)) throw statusInvalid();
+    const { host_fingerprint: hostFingerprint, ...profileMaterial } = profile;
+    if (hostFingerprint !== canonicalDigest(profileMaterial)) throw statusInvalid('STATUS_HOST_FINGERPRINT_STALE');
   }
   return report;
 }
@@ -101,8 +103,9 @@ function run(args) {
       const report = validateStatusReport(JSON.parse(fs.readFileSync(args[1], 'utf8')));
       process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
       return 0;
-    } catch (_) {
-      process.stderr.write(`${JSON.stringify({ error: 'STATUS_INVALID' })}\n`);
+    } catch (error) {
+      const code = error?.code === 'STATUS_HOST_FINGERPRINT_STALE' ? error.code : 'STATUS_INVALID';
+      process.stderr.write(`${JSON.stringify({ error: code })}\n`);
       return 1;
     }
   }
