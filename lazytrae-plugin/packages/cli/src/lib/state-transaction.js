@@ -220,6 +220,8 @@ function runTransaction(repoRoot, runId, prepare) {
     if (!prepared || !Array.isArray(prepared.members) || prepared.members.length === 0) {
       throw new Error('Transaction must contain at least one member.');
     }
+    const targets = prepared.members.map(member => assertSafeRepoWritePath(repoRoot, member.path));
+    if (new Set(targets).size !== targets.length) throw new Error('Duplicate transaction target.');
     const journals = path.join(transactionRoot(repoRoot), 'journals');
     assertSafeRepoWritePath(repoRoot, journals);
     fs.mkdirSync(journals, { recursive: true });
@@ -228,7 +230,7 @@ function runTransaction(repoRoot, runId, prepare) {
     fs.mkdirSync(txDir);
     syncDirectory(journals);
     const members = prepared.members.map((member, index) => {
-      const target = assertSafeRepoWritePath(repoRoot, member.path);
+      const target = targets[index];
       const relative = path.relative(path.resolve(repoRoot), target);
       const content = Buffer.isBuffer(member.content) ? member.content : Buffer.from(member.content);
       const stage = `member-${index}`;

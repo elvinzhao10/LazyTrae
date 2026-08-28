@@ -7,6 +7,7 @@ const path = require('node:path');
 const test = require('node:test');
 
 const STORE = path.resolve(__dirname, '../src/lib/loop-store.js');
+const TRANSACTION = path.resolve(__dirname, '../src/lib/state-transaction.js');
 const CLI = path.resolve(__dirname, '../src/index.js');
 const {
   appendEvent,
@@ -51,6 +52,17 @@ fs.renameSync = function patchedRename(source, target) {
 };
 const { loadLoop, saveLoop } = require(storePath);
 saveLoop(root, loadLoop(root));
+`;
+
+const DUPLICATE_TARGET_CHILD = String.raw`
+const path = require('node:path');
+const [transactionPath, root] = process.argv.slice(1);
+const { runTransaction } = require(transactionPath);
+const target = path.join(root, 'duplicate-target.txt');
+runTransaction(root, 'duplicate-target', () => ({ members: [
+  { path: target, content: 'first\n' },
+  { path: target, content: 'second\n' },
+] }));
 `;
 
 function fixture(t, prefix = 'lazytrae-transaction-') {
@@ -100,6 +112,25 @@ function lockPath(root) {
   const key = crypto.createHash('sha256').update('run-transaction').digest('hex').slice(0, 32);
   return path.join(root, '.lazytrae', 'state', 'transactions', 'locks', `${key}.lock`);
 }
+
+test('duplicate transaction targets reject before an injected install crash or partial write', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-duplicate-target-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const target = path.join(root, 'duplicate-target.txt');
+  fs.writeFileSync(target, 'old\n');
+
+  const rejected = spawnSync(process.execPath, ['-e', DUPLICATE_TARGET_CHILD, TRANSACTION, root], {
+    encoding: 'utf8',
+    env: { ...process.env, LAZYTRAE_TRANSACTION_CRASH_AT: 'install:1' },
+  });
+
+  assert.equal(rejected.status, 1, rejected.stderr);
+  assert.match(rejected.stderr, /duplicate transaction target/i);
+  assert.equal(fs.readFileSync(target, 'utf8'), 'old\n');
+  assert.equal(fs.existsSync(path.join(root, '.lazytrae', 'state', 'transactions', 'journals')), false);
+  require(TRANSACTION).recoverTransactions(root);
+  assert.equal(fs.readFileSync(target, 'utf8'), 'old\n');
+});
 
 test('SIGKILL before durable lock publication cannot strand the next writer', t => {
   const { root } = fixture(t, 'lazytrae-lock-publication-kill-');
