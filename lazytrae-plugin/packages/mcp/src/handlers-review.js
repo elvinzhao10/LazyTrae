@@ -2,6 +2,7 @@
 
 const path = require('path');
 const { appendText, assertSafeWrite, readJSON, writeJSON, iso, withFileLock, getActiveWork } = require('./state-access');
+const { redactText } = require('./redaction');
 
 function handleAddBlocker(root, args) {
   const bp = path.join(root, '.lazytrae', 'state', 'boulder.json');
@@ -62,7 +63,7 @@ function handleRequestReview(root, args) {
     '## Notes', '', '_Review requested at ' + ts + '_', '',
   ].join('\n');
 
-  appendText(evidencePath, entry);
+  appendText(evidencePath, redactText(entry));
 
   return {
     review_requested: true, review_type: reviewType,

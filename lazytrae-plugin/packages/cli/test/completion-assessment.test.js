@@ -101,9 +101,21 @@ test('current evidence is ready and identity, review, criteria, and bytes mutati
     ['missing review', 'blocked', 'REVIEW_MISSING', f => fs.unlinkSync(path.join(f.root, '.lazytrae/reviews/review.json'))],
     ['missing evidence', 'blocked', 'EVIDENCE_MISSING', f => fs.unlinkSync(path.join(f.root, '.lazytrae/evidence/criterion-1.json'))],
     ['review digest drift', 'blocked', 'REVIEW_TAMPERED', f => write(f.root, '.lazytrae/evidence/criterion-1.json', { ...f.evidence, review: { ...f.evidence.review, source_sha256: '0'.repeat(64) } })],
+    ['residual-risk review', 'blocked', 'RESIDUAL_RISK_NON_AUTHORITATIVE', f => write(f.root, '.lazytrae/reviews/review.json', {
+      kind: 'residual-risk', scope: 'criterion-1', revision: f.authority.repo_head, authoritative_for_completion: false,
+    })],
     ['unapproved review', 'blocked', 'REVIEW_UNAPPROVED', f => write(f.root, '.lazytrae/reviews/review.json', { verdict: 'needs-fix', verifier: { identity: 'verifier-1' } })],
     ['artifact tampering', 'blocked', 'ARTIFACT_TAMPERED', f => write(f.root, '.lazytrae/evidence/artifact.txt', 'tampered\n')],
     ['nonzero command', 'blocked', 'COMMAND_FAILED', f => write(f.root, '.lazytrae/evidence/criterion-1.json', { ...f.evidence, exit_code: 9 })],
+    ['valid residual-risk receipt', 'blocked', 'RESIDUAL_RISK_NON_AUTHORITATIVE', f => write(f.root, '.lazytrae/evidence/criterion-1.json', {
+      kind: 'residual-risk', scope: 'criterion-1', revision: f.authority.repo_head, authoritative_for_completion: false,
+    })],
+    ['forged residual-risk authority', 'blocked', 'RESIDUAL_RISK_MALFORMED', f => write(f.root, '.lazytrae/evidence/criterion-1.json', {
+      kind: 'residual-risk', scope: 'criterion-1', revision: f.authority.repo_head, authoritative_for_completion: true,
+    })],
+    ['stale residual-risk receipt', 'blocked', 'RESIDUAL_RISK_MALFORMED', f => write(f.root, '.lazytrae/evidence/criterion-1.json', {
+      kind: 'residual-risk', scope: 'criterion-1', revision: 'stale-revision', authoritative_for_completion: false,
+    })],
     ['dirty worktree', 'blocked', 'WORKTREE_DIRTY', f => write(f.root, 'untracked.txt', 'dirty\n')],
   ];
   const ready = fixture();

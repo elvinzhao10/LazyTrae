@@ -49,6 +49,11 @@ function criterionResult(root, authority, criterion) {
   const evidenceRecord = read(root, criterion.evidence_path);
   if (evidenceRecord.kind === 'missing') return ['blocked', 'EVIDENCE_MISSING'];
   const evidence = json(evidenceRecord);
+  if (evidence && evidence.kind === 'residual-risk') {
+    const validResidual = Object.keys(evidence).length === 4 && evidence.scope === criterion.criterion_id
+      && evidence.revision === authority.repo_head && evidence.authoritative_for_completion === false;
+    return ['blocked', validResidual ? 'RESIDUAL_RISK_NON_AUTHORITATIVE' : 'RESIDUAL_RISK_MALFORMED'];
+  }
   if (!evidence || evidence.schema_version !== 'lazyseries.completion-evidence.v1') return ['blocked', 'EVIDENCE_MALFORMED'];
   if (evidence.repo_head !== authority.repo_head) return ['stale', 'EVIDENCE_REPO_HEAD_STALE'];
   if (evidence.package_version !== authority.package_version) return ['stale', 'EVIDENCE_PACKAGE_VERSION_STALE'];
@@ -61,6 +66,11 @@ function criterionResult(root, authority, criterion) {
   const reviewRecord = read(root, criterion.review_path);
   if (reviewRecord.kind === 'missing') return ['blocked', 'REVIEW_MISSING'];
   const review = json(reviewRecord);
+  if (review && review.kind === 'residual-risk') {
+    const validResidual = Object.keys(review).length === 4 && review.scope === criterion.criterion_id
+      && review.revision === authority.repo_head && review.authoritative_for_completion === false;
+    return ['blocked', validResidual ? 'RESIDUAL_RISK_NON_AUTHORITATIVE' : 'RESIDUAL_RISK_MALFORMED'];
+  }
   if (!review || !review.verifier || typeof review.verifier.identity !== 'string') return ['blocked', 'REVIEW_MALFORMED'];
   if (review.verdict !== 'approved') return ['blocked', 'REVIEW_UNAPPROVED'];
   if (!evidence.executor || !evidence.verifier || typeof evidence.executor.identity !== 'string' || evidence.verifier.identity !== review.verifier.identity) return ['blocked', 'REVIEW_IDENTITY_MISMATCH'];

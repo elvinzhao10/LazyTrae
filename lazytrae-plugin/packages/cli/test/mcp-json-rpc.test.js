@@ -59,10 +59,11 @@ test('MCP returns JSON-RPC errors for malformed input without blocking later val
     'null',
     JSON.stringify({ jsonrpc: '2.0', id: 3 }),
     JSON.stringify({ jsonrpc: '2.0', id: 4, method: 'rpc.reserved' }),
+    JSON.stringify({ jsonrpc: '2.0', id: 'bad-arguments', method: 'tools/call', params: { name: 'lazytrae.docs_lookup', arguments: { query: [] } } }),
     JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} }),
     JSON.stringify({ jsonrpc: '2.0', id: 5, method: 'initialize' }),
     JSON.stringify({ jsonrpc: '2.0', id: 6, method: 'tools/list' }),
-  ], 6);
+  ], 7);
 
   // Then: invalid inputs have protocol errors, the notification is silent, and later valid requests succeed.
   assert.deepEqual(responses[0], {
@@ -85,10 +86,13 @@ test('MCP returns JSON-RPC errors for malformed input without blocking later val
     id: null,
     error: { code: -32600, message: 'Invalid Request' },
   });
-  assert.equal(responses[4].id, 5);
-  assert.equal(responses[4].error, undefined);
-  assert.equal(responses[4].result.serverInfo.name, 'lazytrae-mcp');
-  assert.equal(responses[5].id, 6);
+  assert.deepEqual(responses[4], {
+    jsonrpc: '2.0', id: 'bad-arguments', error: { code: -32602, message: 'Invalid tools/call parameters' },
+  });
+  assert.equal(responses[5].id, 5);
   assert.equal(responses[5].error, undefined);
-  assert.equal(responses[5].result.tools.length, 15);
+  assert.equal(responses[5].result.serverInfo.name, 'lazytrae-mcp');
+  assert.equal(responses[6].id, 6);
+  assert.equal(responses[6].error, undefined);
+  assert.equal(responses[6].result.tools.length, 15);
 });

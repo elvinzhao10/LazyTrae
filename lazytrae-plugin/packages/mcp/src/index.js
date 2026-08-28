@@ -31,6 +31,23 @@ function isRequest(value) {
   return !Object.hasOwn(value, 'id') || value.id === null || typeof value.id === 'string' || typeof value.id === 'number';
 }
 
+function matchesSchema(value, schema) {
+  if (schema.enum && !schema.enum.includes(value)) return false;
+  if (schema.type === 'string') return typeof value === 'string';
+  if (schema.type === 'integer') return Number.isSafeInteger(value);
+  if (schema.type === 'boolean') return typeof value === 'boolean';
+  if (schema.type === 'array') return Array.isArray(value) && value.every(item => matchesSchema(item, schema.items || {}));
+  if (schema.type !== 'object') return true;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  if ((schema.required || []).some(key => !Object.hasOwn(value, key))) return false;
+  for (const [key, item] of Object.entries(value)) {
+    const property = schema.properties && schema.properties[key];
+    if (property && !matchesSchema(item, property)) return false;
+    if (!property && schema.additionalProperties && !matchesSchema(item, schema.additionalProperties)) return false;
+  }
+  return true;
+}
+
 // ── Request handler ──
 
 function handleRequest(req, repoRoot) {
@@ -57,12 +74,19 @@ function handleRequest(req, repoRoot) {
     }
 
     if (method === 'tools/call') {
-      const { name, arguments: args } = params || {};
+      if (!params || typeof params !== 'object' || Array.isArray(params) || typeof params.name !== 'string') {
+        return sendError(id, -32602, 'Invalid tools/call parameters');
+      }
+      const { name, arguments: args = {} } = params;
       const handler = HANDLERS[name];
       if (!handler) {
         return sendError(id, -32601, 'Unknown tool: ' + name);
       }
-      const result = handler(repoRoot, args || {});
+      const tool = TOOLS.find(candidate => candidate.name === name);
+      if (!tool || !matchesSchema(args, tool.inputSchema)) {
+        return sendError(id, -32602, 'Invalid tools/call parameters');
+      }
+      const result = handler(repoRoot, args);
       return send(id, {
         content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       });
@@ -73,8 +97,8 @@ function handleRequest(req, repoRoot) {
     }
 
     sendError(id, -32601, 'Method not found: ' + method);
-  } catch (e) {
-    sendError(id, -32603, 'Internal error: ' + e.message);
+  } catch (_) {
+    sendError(id, -32603, 'Internal error');
   }
 }
 
@@ -117,4 +141,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { main, handleRequest, TOOLS, HANDLERS };
+module.exports = { main, handleRequest, matchesSchema, TOOLS, HANDLERS };

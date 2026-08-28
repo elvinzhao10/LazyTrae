@@ -2,6 +2,7 @@
 
 const path = require('path');
 const { appendText, assertSafeWrite, readJSON, writeJSON, iso, withFileLock } = require('./state-access');
+const { redactText } = require('./redaction');
 const { validateEvidencePaths } = require('../lib/completion-gates');
 const { recordCriterionOutcome } = require('../lib/runtime-freshness');
 
@@ -74,6 +75,7 @@ function handleRecordEvidence(root, args) {
   if (args.notes) lines.push('', '### Notes', '', args.notes);
 
   lines.push('');
+  const serialized = redactText(lines.join('\n'));
   if (args.task_namespace && args.criterion_id && args.worker_id && args.evidence_name) {
     const outcome = recordCriterionOutcome(path.join(evidenceDir, 'runtime'), {
       task_namespace: args.task_namespace,
@@ -83,11 +85,11 @@ function handleRecordEvidence(root, args) {
       status: args.verdict === 'pass' ? 'passed' : 'failed',
       flake_assertion: args.flake_assertion,
       capacity: args.capacity,
-      bytes: lines.join('\n'),
+      bytes: serialized,
     });
     return { gate_type: gateType, ...outcome };
   }
-  appendText(filePath, lines.join('\n'));
+  appendText(filePath, serialized);
 
   return {
     recorded: true, gate_type: gateType, file: fileName,
