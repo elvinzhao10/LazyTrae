@@ -118,6 +118,7 @@ function run(args) {
   let category = null;
   let prompt = '';
   let useLoop = false;
+  let runtimeFreshness = null;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--agent' && i + 1 < args.length) {
@@ -131,6 +132,10 @@ function run(args) {
         useLoop = true;
         i++;
       }
+    } else if (args[i] === '--runtime-context' && i + 1 < args.length) {
+      const contextPath = path.resolve(args[i + 1]);
+      runtimeFreshness = JSON.parse(fs.readFileSync(contextPath, 'utf8'));
+      i++;
     } else if (!args[i].startsWith('--')) {
       prompt = args[i];
     }
@@ -150,7 +155,7 @@ function run(args) {
 
   const repoRoot = detectRepoRoot();
   if (!useLoop) {
-    const adaptive = processAdaptivePrompt({ repoRoot, prompt });
+    const adaptive = processAdaptivePrompt({ repoRoot, prompt, context: { runtimeFreshness } });
     process.stdout.write(formatAdaptiveDirective(adaptive.directive));
     if (adaptive.warning) process.stderr.write(`[LazyTrae run warning] ${adaptive.warning}\n`);
     if (adaptive.directive.dispatch !== 'presented-to-host') return;

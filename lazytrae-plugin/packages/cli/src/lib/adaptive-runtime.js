@@ -9,6 +9,7 @@ const {
 const { computeRevisionFingerprint } = require('./adaptive-revision');
 const { writeAdaptiveSnapshot } = require('./adaptive-snapshot');
 const { runtimeFingerprints } = require('./adaptive-host-fingerprint');
+const { resumeContinuation } = require('./runtime-freshness');
 const {
   appendEvent,
   canonicalEventPath,
@@ -117,6 +118,22 @@ function processAdaptivePrompt({ repoRoot, prompt, context = {} }) {
   if (typeof prompt !== 'string' || prompt.trim().length === 0) {
     return { directive: malformedAdaptiveDirective(), warning: null };
   }
+  let freshness = null;
+  if (context.runtimeFreshness) {
+    try {
+      freshness = resumeContinuation(context.runtimeFreshness);
+    } catch (error) {
+      freshness = { status: 'blocked', completion: 'blocked', reason: 'malformed-runtime-context' };
+    }
+    if (freshness.status !== 'resumed') {
+      const blocked = freshness.status === 'stale' ? 'stale-context' : 'capacity';
+      const directive = malformedAdaptiveDirective();
+      directive.dispatch = `blocked:${blocked}`;
+      directive.persistence = `skipped:${blocked}`;
+      directive.continuation = freshness;
+      return { directive, warning: null };
+    }
+  }
   const initial = safeLoop(repoRoot);
   const revisionFingerprint = computeRevisionFingerprint(repoRoot);
   let host;
@@ -172,7 +189,7 @@ function processAdaptivePrompt({ repoRoot, prompt, context = {} }) {
     hostExecution: 'not-observed',
     persistence: persisted.persistence,
     requestDigest: decision.snapshot.requestDigest,
-    continuation: { status: continuationStatus },
+    continuation: freshness || { status: continuationStatus },
   };
   return { directive, snapshot: decision.snapshot, warning: persisted.warning };
 }
