@@ -250,22 +250,22 @@ test('sync rejects a dangling .trae mcp template target before it can create its
   }
 });
 
-test('loop JSON writes reject a predictable dangling atomic temporary symlink', () => {
-  const fixture = makeLoopFixture('lazytrae-loop-temp-symlink-');
-  const statePath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
-  const tempPath = `${statePath}.${process.pid}.tmp`;
-  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-loop.json`);
+test('loop transaction writes reject a symlinked transaction root', () => {
+  const fixture = makeLoopFixture('lazytrae-loop-transaction-symlink-');
+  const transactionRoot = path.join(fixture, '.lazytrae', 'state', 'transactions');
+  const outside = path.join(os.tmpdir(), `${path.basename(fixture)}-outside-transactions`);
   try {
-    fs.writeFileSync(outside, 'outside loop sentinel\n');
-    fs.symlinkSync(outside, tempPath);
+    fs.mkdirSync(outside);
+    fs.writeFileSync(path.join(outside, 'sentinel'), 'outside loop sentinel\n');
+    fs.symlinkSync(outside, transactionRoot);
 
     assert.throws(() => saveLoop(fixture, defaultLoop()));
 
-    assert.equal(fs.readFileSync(outside, 'utf-8'), 'outside loop sentinel\n');
-    assert.equal(fs.lstatSync(statePath).isSymbolicLink(), false);
+    assert.equal(fs.readFileSync(path.join(outside, 'sentinel'), 'utf-8'), 'outside loop sentinel\n');
+    assert.equal(fs.readdirSync(outside).length, 1);
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
-    fs.rmSync(outside, { force: true });
+    fs.rmSync(outside, { recursive: true, force: true });
   }
 });
 
