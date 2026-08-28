@@ -9,7 +9,7 @@ owns, and the evidence that constrains its behavior. Use the root
 
 ```mermaid
 flowchart TD
-    User["Trae IDE / Work / CLI"] --> CLI["lazytrae CLI"]
+    User["TraeCode / Work / CLI"] --> CLI["lazytrae CLI"]
     CLI --> Templates["canonical templates"]
     Templates --> Project[".trae + .lazytrae"]
     User --> Hooks["advisory hook events"]
@@ -60,7 +60,7 @@ settings and live integration remain outside package ownership.
 | [07b — MCP lifecycle](07b-mcp-lifecycle.md) | How does a declaration become a JSON-RPC process without becoming host proof? |
 | [08 — Safe removal](08-safe-removal.md) | Why does removal stop at package-owned paths? |
 | [09 — Test and release verification](09-test-and-release-verification.md) | What does each release gate prove? |
-| [10 — Host capability matrix](10-host-capability-matrix.md) | Where do Trae IDE, Work, and CLI intentionally diverge? |
+| [10 — Host capability matrix](10-host-capability-matrix.md) | Where do TraeCode, Work, and CLI intentionally diverge? |
 | [v1.1.0 migration guide](v1.1.0-migration-guide.md) | How do native host boundaries, v2 evidence, profiles, probes, and scoped offboard work? |
 
 The lookup tables in [reference](reference/) provide the concrete state

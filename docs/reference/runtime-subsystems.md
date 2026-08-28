@@ -16,7 +16,7 @@ flowchart TB
 
 ## Command families
 
-`src/index.js` is the router. `init.js`/`sync.js` install and update templates; `doctor.js`, `verify.js`, and `completion-status.js` report health/completion; `uninstall.js` removes owned assets; `mcp.js` launches the server; `hook.js` dispatches hook payloads. `run.js`/`handoff.js` manage run output, `loop.js` durable iteration, `team.js` structured team state, and `work.js` the bounded Trae Work skill route.
+`src/index.js` is the router. `init.js`/`sync.js` install and update templates; `doctor.js`, `verify.js`, and `completion-status.js` report health/completion; `uninstall.js` removes owned assets; `mcp.js` launches the server; `hook.js` dispatches hook payloads. `run.js`/`handoff.js` manage run output, `loop.js` durable iteration, `team.js` structured team state, and `work.js` the bounded TraeWork skill route.
 
 `setup.js` and `providers.js` expose configuration/provider lifecycle without raw credentials in project state. `tooling.js`, `lsp.js`, and `codegraph.js` expose local tooling. Each command performs narrow argument handling and delegates durable behavior to `src/lib/`.
 

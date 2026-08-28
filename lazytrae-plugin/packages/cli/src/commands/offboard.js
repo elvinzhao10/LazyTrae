@@ -32,7 +32,7 @@ function run(args) {
     const repoRoot = detectRepoRoot();
     const receipt = path.join(repoRoot, '.traecli', 'candidate-receipt.v1.json');
     if (!fs.existsSync(receipt)) {
-      console.log('Trae CLI candidate outputs: 0 removed, 0 preserved.');
+      console.log('TraeCode CLI candidate outputs: 0 removed, 0 preserved.');
       return 0;
     }
     const result = uninstallCandidate(repoRoot);
@@ -42,7 +42,7 @@ function run(args) {
         if (fs.existsSync(directory) && fs.readdirSync(directory).length === 0) fs.rmdirSync(directory);
       }
     }
-    console.log(`Trae CLI candidate outputs: ${result.removed.length} removed, ${result.preserved.length} preserved.`);
+    console.log(`TraeCode CLI candidate outputs: ${result.removed.length} removed, ${result.preserved.length} preserved.`);
     return result.preserved.length > 0 ? 1 : 0;
   }
   if (host === 'work') {

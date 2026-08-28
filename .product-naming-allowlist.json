@@ -1,0 +1,211 @@
+{
+  "formerDisplayNames": [
+    {
+      "path": "AGENT_ATTRIBUTION.md",
+      "text": "Trae IDE",
+      "count": 1,
+      "classification": "attribution",
+      "reason": "Verbatim implementation attribution identifies the original host session."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "text": "Trae IDE",
+      "count": 3,
+      "classification": "old-release-note",
+      "reason": "Published changelog entries preserve the product names used by those releases."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "text": "Trae Work",
+      "count": 3,
+      "classification": "old-release-note",
+      "reason": "Published changelog entries preserve the product names used by those releases."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "text": "Trae CLI",
+      "count": 4,
+      "classification": "old-release-note",
+      "reason": "Published changelog entries preserve the product names used by those releases."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "text": "LazyTrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "LazyTrae CLI is the repository-owned package identity, not a Trae host display name."
+    },
+    {
+      "path": "RELEASE_NOTES-v1.1.0.md",
+      "text": "Trae IDE",
+      "count": 1,
+      "classification": "old-release-note",
+      "reason": "Released v1.1.0 notes are immutable historical documentation."
+    },
+    {
+      "path": "RELEASE_NOTES-v1.1.0.md",
+      "text": "Trae Work",
+      "count": 1,
+      "classification": "old-release-note",
+      "reason": "Released v1.1.0 notes are immutable historical documentation."
+    },
+    {
+      "path": "RELEASE_NOTES-v1.1.0.md",
+      "text": "Trae CLI",
+      "count": 1,
+      "classification": "old-release-note",
+      "reason": "Released v1.1.0 notes are immutable historical documentation."
+    },
+    {
+      "path": "docs/v1.0.3-adaptive-harness-contract.md",
+      "text": "Trae IDE",
+      "count": 2,
+      "classification": "immutable-historical-fixture",
+      "reason": "The versioned v1.0.3 contract records its original release vocabulary."
+    },
+    {
+      "path": "docs/v1.0.3-adaptive-harness-contract.md",
+      "text": "Trae Work",
+      "count": 2,
+      "classification": "immutable-historical-fixture",
+      "reason": "The versioned v1.0.3 contract records its original release vocabulary."
+    },
+    {
+      "path": "docs/v1.0.3-adaptive-harness-contract.md",
+      "text": "Trae CLI",
+      "count": 2,
+      "classification": "immutable-historical-fixture",
+      "reason": "The versioned v1.0.3 contract records its original release vocabulary."
+    },
+    {
+      "path": "docs/v1.0.3-migration-guide.md",
+      "text": "Trae Work",
+      "count": 2,
+      "classification": "old-release-note",
+      "reason": "The versioned v1.0.3 migration guide preserves its original release terminology."
+    },
+    {
+      "path": "docs/v1.1.0-migration-guide.md",
+      "text": "Trae IDE",
+      "count": 2,
+      "classification": "old-release-note",
+      "reason": "The versioned v1.1.0 migration guide preserves its original release terminology."
+    },
+    {
+      "path": "docs/v1.1.0-migration-guide.md",
+      "text": "Trae Work",
+      "count": 2,
+      "classification": "old-release-note",
+      "reason": "The versioned v1.1.0 migration guide preserves its original release terminology."
+    },
+    {
+      "path": "docs/v1.1.0-migration-guide.md",
+      "text": "Trae CLI",
+      "count": 2,
+      "classification": "old-release-note",
+      "reason": "The versioned v1.1.0 migration guide preserves its original release terminology."
+    },
+    {
+      "path": "docs/v1.1.0-supported-route.md",
+      "text": "Trae CLI",
+      "count": 1,
+      "classification": "old-release-note",
+      "reason": "The versioned v1.1.0 route document preserves its original release terminology."
+    },
+    {
+      "path": "docs/README.md",
+      "text": "lazytrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "The lowercase lazytrae CLI label names this repository's executable package."
+    },
+    {
+      "path": "docs/reference/dependency-and-host-boundaries.md",
+      "text": "lazytrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "The lowercase lazytrae CLI label names this repository's executable package."
+    },
+    {
+      "path": "docs/reference/dependency-and-host-boundaries.md",
+      "text": "LazyTrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "LazyTrae CLI is the repository-owned package identity, not a Trae host display name."
+    },
+    {
+      "path": "lazytrae-plugin/packages/cli/README.md",
+      "text": "LazyTrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "LazyTrae CLI is the repository-owned package identity, not a Trae host display name."
+    },
+    {
+      "path": "lazytrae-plugin/packages/cli/package.json",
+      "text": "LazyTrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "The package description names the LazyTrae CLI deliverable."
+    },
+    {
+      "path": "lazytrae-plugin/packages/cli/src/AGENTS.md",
+      "text": "LazyTrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "The source guide names the LazyTrae CLI runtime."
+    },
+    {
+      "path": "lazytrae-plugin/packages/cli/src/commands/doctor.js",
+      "text": "LazyTrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "Doctor output distinguishes the repository-owned LazyTrae CLI from host products."
+    },
+    {
+      "path": "lazytrae-plugin/packages/cli/src/commands/handoff.js",
+      "text": "LazyTrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "Handoff metadata identifies the repository-owned LazyTrae CLI agent."
+    },
+    {
+      "path": "lazytrae-plugin/packages/cli/src/index.js",
+      "text": "LazyTrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "CLI help names the repository-owned LazyTrae CLI executable."
+    },
+    {
+      "path": "lazytrae-plugin/packages/cli/test/diagnostics-idempotency.test.js",
+      "text": "LazyTrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "The test asserts the repository-owned LazyTrae CLI diagnostic label."
+    },
+    {
+      "path": "lazytrae-plugin/packages/cli/test/diagnostics-idempotency.test.js",
+      "text": "lazytrae CLI",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "The test rejects a stale lowercase source-package diagnostic label."
+    },
+    {
+      "path": "lazytrae-plugin/packages/cli/test/mcp-initialize-receipt.test.js",
+      "text": "lazytrae cli",
+      "count": 1,
+      "classification": "source-identity",
+      "reason": "The temporary test path names the LazyTrae CLI caller fixture."
+    }
+  ],
+  "stableIdentityFiles": [
+    {
+      "path": "lazytrae-plugin/packages/cli/contracts/lazyseries-trae-host-status.v2.schema.json",
+      "ids": { "trae-cli": 3, "trae-ide": 3, "trae-work": 3 }
+    }
+  ],
+  "currentCliPages": [
+    "README.md",
+    "docs/10-host-capability-matrix.md",
+    "docs/reference/host-routes.md"
+  ]
+}

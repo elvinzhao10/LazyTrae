@@ -19,7 +19,7 @@
 | **Persistent compatibility** | An explicit `tooling enable` choice that writes a managed namespaced MCP selection. |
 | **Approval boundary** | Actions that require an operator decision, budget, or prompt, especially remote, metered, authenticated, destructive, or secret-related work. |
 | **Package-built capability** | Behavior implemented and shipped by LazyTrae, such as CLI commands, templates, safe writes, receipts, or the core MCP process. |
-| **Host-native capability** | Behavior owned by Trae IDE, Work, or CLI, such as discovery, session lifecycle, registration, connector launch, and credential storage. |
+| **Host-native capability** | Behavior owned by TraeCode, Work, or CLI, such as discovery, session lifecycle, registration, connector launch, and credential storage. |
 | **Base MCP declaration** | A package-shipped core/placeholder entry; it becomes a usable endpoint only when a host starts and connects it. |
 | **Tooling dependency** | A pinned local fallback placed only in a receipt-owned root, not a dependency added to the target project. |
 

@@ -2,8 +2,8 @@
 
 ![LazyTrae](lazytrae-banner.jpg)
 
-LazyTrae helps you use structured, evidence-based workflows in **Trae IDE**,
-**Trae Work**, and **Trae CLI**. It prepares local project assets and checks;
+LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
+**TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
 The current stable release is [v1.1.0](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.1.0).
@@ -47,10 +47,10 @@ Local files and checks never prove that a host has loaded the package.
 
 Pick one host route during onboarding:
 
-- **Trae IDE** uses project assets and an optional bounded probe.
-- **Trae Work** supports local desktop work; other client and execution
+- **TraeCode** uses project assets and an optional bounded probe.
+- **TraeWork** supports local desktop work; other client and execution
   profiles are descriptive only.
-- **Trae CLI** can generate a local candidate, but it stays inert until a
+- **TraeCode CLI** (`traecli`) can generate a local candidate, but it stays inert until a
   current probe confirms the selected runner.
 
 For manual Work or CLI setup, use `load-check --host work` or

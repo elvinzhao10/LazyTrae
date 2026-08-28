@@ -13,7 +13,7 @@ runtime records are preserved. `--soft` and `--purge-state` cannot be combined.
 
 Tooling roots use the same rule: an unmodified receipt-owned root can be
 removed, while a caller-owned CodeGraph `.codegraph/` index is preserved.
-Trae Work removal on macOS checks each listed `lazy-*` skill and preserves
+TraeWork removal on macOS checks each listed `lazy-*` skill and preserves
 edited, linked, or nonempty directories. Host MCP registrations are always a
 separate manual action. See [Safe removal](08-safe-removal.md).
 

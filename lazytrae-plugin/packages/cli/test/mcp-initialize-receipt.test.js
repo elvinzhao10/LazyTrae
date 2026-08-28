@@ -41,7 +41,7 @@ test('CLI-embedded MCP writes a receipt from a non-package-root cwd and load-che
   const fixture = makeFixture('lazytrae-cli-mcp-receipt-');
   const callerRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae cli caller with spaces '));
   try {
-    const result = await initialize(fixture, callerRoot, 'Trae IDE');
+    const result = await initialize(fixture, callerRoot, 'TraeCode');
     assert.equal(result.response.result.serverInfo.version, SERVER_VERSION);
     assert.equal(result.response.error, undefined);
     const receiptPath = path.join(fixture, '.lazytrae', 'state', RECEIPT_FILE);

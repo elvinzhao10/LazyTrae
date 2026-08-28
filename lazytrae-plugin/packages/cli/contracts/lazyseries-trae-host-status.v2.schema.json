@@ -17,7 +17,7 @@
         "required": ["host", "host_label", "client_context", "execution_context", "contract_version", "evidence_fingerprint", "host_fingerprint", "capability_matrix", "package_assets", "generated_assets", "config", "probe", "discovery", "registration", "session", "mcp", "observation", "support", "package_readiness", "host_readiness"],
         "properties": {
           "host": { "enum": ["trae-cli", "trae-ide", "trae-work"] },
-          "host_label": { "enum": ["TRAE CLI", "TRAE IDE", "TRAE Work"] },
+          "host_label": { "enum": ["TraeCode CLI", "TraeCode", "TraeWork"] },
           "client_context": { "enum": ["terminal", "desktop", "unspecified"] },
           "execution_context": { "enum": ["local", "unspecified"] },
           "contract_version": { "const": "2.0.0" },
@@ -40,15 +40,15 @@
         "allOf": [
           {
             "if": { "properties": { "host": { "const": "trae-cli" } }, "required": ["host"] },
-            "then": { "properties": { "host_label": { "const": "TRAE CLI" }, "client_context": { "const": "terminal" }, "execution_context": { "const": "local" } } }
+            "then": { "properties": { "host_label": { "const": "TraeCode CLI" }, "client_context": { "const": "terminal" }, "execution_context": { "const": "local" } } }
           },
           {
             "if": { "properties": { "host": { "const": "trae-ide" } }, "required": ["host"] },
-            "then": { "properties": { "host_label": { "const": "TRAE IDE" }, "client_context": { "const": "desktop" }, "execution_context": { "const": "local" } } }
+            "then": { "properties": { "host_label": { "const": "TraeCode" }, "client_context": { "const": "desktop" }, "execution_context": { "const": "local" } } }
           },
           {
             "if": { "properties": { "host": { "const": "trae-work" } }, "required": ["host"] },
-            "then": { "properties": { "host_label": { "const": "TRAE Work" }, "client_context": { "const": "unspecified" }, "execution_context": { "const": "unspecified" } } }
+            "then": { "properties": { "host_label": { "const": "TraeWork" }, "client_context": { "const": "unspecified" }, "execution_context": { "const": "unspecified" } } }
           }
         ]
       }

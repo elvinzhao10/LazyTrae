@@ -97,7 +97,7 @@ test('all three stable hosts emit only the four approved statuses with fingerpri
   }
 });
 
-test('fresh fingerprinted v2 probe promotes only executed and advertised Trae CLI features', t => {
+test('fresh fingerprinted v2 probe promotes only executed and advertised TraeCode CLI features', t => {
   const root = project();
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const probePath = probe(root, '2.4.0', [{ name: 'config-read', status: 'accessible' }]);
@@ -129,7 +129,7 @@ test('mocked current traecli version and help produce a validated executable mat
   const invocations = path.join(root, 'invocations');
   const binary = executable(root, [
     `printf '%s\\n' "$*" >> "${invocations}"`,
-    'if [ "$1" = "--version" ]; then printf "Trae CLI 2.4.0\\n"; else printf "Trae CLI help\\n  config show\\n"; fi',
+    'if [ "$1" = "--version" ]; then printf "TraeCode CLI 2.4.0\\n"; else printf "TraeCode CLI help\\n  config show\\n"; fi',
   ].join('\n'));
   const digest = sha256(fs.readFileSync(binary));
   const probed = runCli(['host-probe', '--host', 'cli', '--executable', binary, '--expected-sha256', digest, '--json'], { cwd: root });
@@ -155,7 +155,7 @@ test('mocked current traecli version and help produce a validated executable mat
 test('probe fixture cannot forge a config-read capability absent from actual help', t => {
   const root = project();
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
-  const binary = executable(root, 'if [ "$1" = "--version" ]; then printf "Trae CLI 2.4.0\\n"; else printf "Trae CLI help\\n"; fi');
+  const binary = executable(root, 'if [ "$1" = "--version" ]; then printf "TraeCode CLI 2.4.0\\n"; else printf "TraeCode CLI help\\n"; fi');
   const fixturePath = path.join(root, 'fixture.json');
   fs.writeFileSync(fixturePath, `${JSON.stringify({
     schema_version: 2, contract_version: '2.0.0', product: 'trae', host: 'cli',

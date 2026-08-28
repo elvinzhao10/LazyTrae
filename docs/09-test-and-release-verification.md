@@ -80,8 +80,8 @@ they do not prove a live host loaded the package or connected the core MCP.
 
 Adaptive tests are `package evidence`. They prove the contract, classifier,
 mapping, snapshot, and explanation modules behave per the shared contract
-against the shared fixture set. They do **not** prove that a live Trae IDE,
-Trae Work, or Trae CLI session observed adaptive selection, the explanation
+against the shared fixture set. They do **not** prove that a live TraeCode,
+TraeWork, or TraeCode CLI session observed adaptive selection, the explanation
 surface, failure escalation, or continuation. Live-host observation for W5.3
 and W5.4 is **PENDING** — see the known gaps in
 [`docs/v1.0.3-adaptive-harness-contract.md`](v1.0.3-adaptive-harness-contract.md).

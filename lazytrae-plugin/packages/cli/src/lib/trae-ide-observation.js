@@ -87,7 +87,7 @@ function parseFeatureObservations(values) {
     statuses.set(value.canonical_id, value.status);
   });
   const expected = new Set(FEATURES.map(feature => feature.canonicalId));
-  if (statuses.size !== expected.size || [...statuses.keys()].some(id => !expected.has(id))) fail('feature_observations must cover the canonical Trae IDE feature set exactly');
+  if (statuses.size !== expected.size || [...statuses.keys()].some(id => !expected.has(id))) fail('feature_observations must cover the canonical TraeCode feature set exactly');
   return statuses;
 }
 

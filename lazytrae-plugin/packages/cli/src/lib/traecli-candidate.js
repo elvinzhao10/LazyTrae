@@ -27,7 +27,7 @@ function generateCandidate(repoRoot) {
   return {
     schema_version: 1,
     status: 'pending',
-    detail: 'Trae CLI candidates are configuration-only until an exact probe fixture verifies a structured runner',
+    detail: 'TraeCode CLI candidates are configuration-only until an exact probe fixture verifies a structured runner',
     candidate_root: path.join(repoRoot, '.traecli', 'candidates', 'lazytrae'),
     receipt: result.receipt,
     written: result.written,

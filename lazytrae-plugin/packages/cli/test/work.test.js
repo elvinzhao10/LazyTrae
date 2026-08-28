@@ -58,7 +58,7 @@ test('work resolves its documented macOS skills directory only on macOS', () => 
   assert.throws(() => readSkillsDir([]), /only known on macOS/);
 });
 
-test('work install and status manage a global-style Trae Work skills directory', () => {
+test('work install and status manage a global-style TraeWork skills directory', () => {
   const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-skills-'));
   const skillCount = listSkills().length;
   try {
@@ -68,11 +68,11 @@ test('work install and status manage a global-style Trae Work skills directory',
     assert.match(install.stdout, /Settings → MCP/);
     assert.equal(fs.existsSync(path.join(skillsDir, 'lazy-ulw-plan', 'SKILL.md')), true);
     const sessionsSkill = fs.readFileSync(path.join(skillsDir, 'lazy-coding-agent-sessions', 'SKILL.md'), 'utf8');
-    assert.match(sessionsSkill, /Global Trae Work fallback/);
+    assert.match(sessionsSkill, /Global TraeWork fallback/);
     assert.doesNotMatch(sessionsSkill, /lazycodex\/plugins/);
     const migrationSkill = fs.readFileSync(path.join(skillsDir, 'lazy-migration-planner', 'SKILL.md'), 'utf8');
     assert.doesNotMatch(migrationSkill, /lazycodex|\bomo\b/i);
-    assert.match(migrationSkill, /Global Trae Work fallback/);
+    assert.match(migrationSkill, /Global TraeWork fallback/);
     assert.doesNotMatch(migrationSkill, /docs\/lazytrae-(architecture-plan|host-adaptation-map|parity-ledger)\.md/);
 
     const status = runCli(['work', 'status', '--skills-dir', skillsDir]);
@@ -129,7 +129,7 @@ test('work rejects incomplete and unknown commands', () => {
 
   const unknown = runCli(['work', 'unknown']);
   assert.equal(unknown.status, 1);
-  assert.match(unknown.stderr, /Unknown Trae Work command/);
+  assert.match(unknown.stderr, /Unknown TraeWork command/);
 });
 
 test('work install rejects unsafe destination SKILL.md links without touching targets', () => {
@@ -171,7 +171,7 @@ test('work install rejects unsafe destination SKILL.md links without touching ta
   }
 });
 
-test('init validates host before mutation and uses a custom Trae Work skills directory for its load check', () => {
+test('init validates host before mutation and uses a custom TraeWork skills directory for its load check', () => {
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-init-'));
   const skillsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-work-init-skills-'));
   fs.mkdirSync(path.join(fixture, '.git'));
@@ -185,12 +185,12 @@ test('init validates host before mutation and uses a custom Trae Work skills dir
     const initialized = runCli(['init', '--host', 'work', '--skills-dir', skillsDir], { cwd: fixture });
     assert.equal(initialized.status, 0, initialized.stderr);
     assert.match(initialized.stdout, /17 installed, 0 updated, 0 already current/);
-    assert.match(initialized.stdout, /PASS global Trae Work skills: 17\/17 current/);
+    assert.match(initialized.stdout, /PASS global TraeWork skills: 17\/17 current/);
     assert.equal(fs.existsSync(path.join(skillsDir, 'lazy-coding-agent-sessions', 'SKILL.md')), true);
 
     const directCheck = runCli(['load-check', '--host', 'work', '--skills-dir', skillsDir], { cwd: fixture });
     assert.equal(directCheck.status, 0, directCheck.stderr);
-    assert.match(directCheck.stdout, /PASS global Trae Work skills: 17\/17 current/);
+    assert.match(directCheck.stdout, /PASS global TraeWork skills: 17\/17 current/);
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
     fs.rmSync(skillsDir, { recursive: true, force: true });

@@ -126,9 +126,9 @@ function mcpDeclarationResult(repoRoot, host) {
 
 function printHostRegistrationStatus(host, repoRoot) {
   if (host === 'ide') {
-    console.log('IDE registration: NOT VERIFIED. Package files are ready; reopen Trae IDE to scan them.');
+    console.log('IDE registration: NOT VERIFIED. Package files are ready; reopen TraeCode to scan them.');
   } else if (host === 'cli') {
-    console.log('CLI MCP ROUTE: CONFIGURATION JSON ONLY. No public Trae CLI MCP registration command is assumed; use the selected build\'s MCP settings flow.');
+    console.log('CLI MCP ROUTE: CONFIGURATION JSON ONLY. No public TraeCode CLI MCP registration command is assumed; use the selected build\'s MCP settings flow.');
   } else {
     console.log('WORK MCP ROUTE: OBSERVED PRERELEASE. After approval, paste the complete configuration into Settings → MCP; this is not a documented universal host contract.');
   }
@@ -192,7 +192,7 @@ configuration only; it does not claim that a host has registered or loaded them.
   const hookCount = ARTIFACT_CONTRACT.hooks.length;
   console.log(`${hookPermissions.length ? 'FAIL' : 'PASS'} hook executability: ${hookCount - hookPermissions.length}/${hookCount}${hookPermissions.length ? ` (not executable: ${hookPermissions.join(', ')})` : ''}`);
   console.log(host === 'work'
-    ? 'SKIP LazyTrae MCP declaration: Trae Work requires manual Settings → MCP registration'
+    ? 'SKIP LazyTrae MCP declaration: TraeWork requires manual Settings → MCP registration'
     : `${mcpError ? 'FAIL' : 'PASS'} LazyTrae MCP declaration: ${mcpResult.detail}`);
   const readiness = readinessReport(repoRoot);
   console.log(formatReadinessSummary(readiness));
@@ -205,7 +205,7 @@ configuration only; it does not claim that a host has registered or loaded them.
     const states = work.listSkills().map(name => work.skillState(workSkillsDir, name));
     const current = states.filter(state => state === 'current').length;
     workSkillsFailed = current !== states.length;
-    console.log(`${workSkillsFailed ? 'FAIL' : 'PASS'} global Trae Work skills: ${current}/${states.length} current`);
+    console.log(`${workSkillsFailed ? 'FAIL' : 'PASS'} global TraeWork skills: ${current}/${states.length} current`);
   }
   const hostProfile = inspectHostProfile(repoRoot, host, { workSkillsDir });
   console.log(`Host adapter profile: package=${hostProfile.package_readiness}; generated=${hostProfile.generated_assets.status}; config=${hostProfile.config.status}; probe=${hostProfile.probe.status}; registration=${hostProfile.registration.status}; session=${hostProfile.session.status}; mcp=${hostProfile.mcp.status}; observation=${hostProfile.observation.status}; support=${hostProfile.support}; host=${hostProfile.host_readiness}`);

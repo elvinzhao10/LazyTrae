@@ -19,9 +19,9 @@ function fixture() {
   return root;
 }
 
-function executable(root, version, help = 'Trae CLI help') {
+function executable(root, version, help = 'TraeCode CLI help') {
   const target = path.join(root, `traecli-${version}`);
-  fs.writeFileSync(target, `#!/bin/sh\nif [ "$1" = "--version" ]; then printf '%s\\n' 'Trae CLI ${version}'; else printf '%b\\n' '${help}'; fi\n`, { mode: 0o755 });
+  fs.writeFileSync(target, `#!/bin/sh\nif [ "$1" = "--version" ]; then printf '%s\\n' 'TraeCode CLI ${version}'; else printf '%b\\n' '${help}'; fi\n`, { mode: 0o755 });
   return target;
 }
 
@@ -49,16 +49,16 @@ test('status obtains missing current old stale conflict and malformed results fr
   const root = fixture();
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const missing = statuses(status(root, 'cli'));
-  const v2Probe = createProbe(root, '2.4.0', 'Trae CLI help\\n  config show');
+  const v2Probe = createProbe(root, '2.4.0', 'TraeCode CLI help\\n  config show');
   const now = new Date(fs.statSync(v2Probe).mtimeMs + 60_000).toISOString();
   const current = statuses(status(root, 'cli', ['--capability-probe', v2Probe, '--session-id', 'session:current', '--now', now]));
-  const v1Probe = createProbe(root, '1.9.0', 'Trae CLI help');
+  const v1Probe = createProbe(root, '1.9.0', 'TraeCode CLI help');
   const v1Now = new Date(fs.statSync(v1Probe).mtimeMs + 60_000).toISOString();
   const old = statuses(status(root, 'cli', ['--capability-probe', v1Probe, '--session-id', 'session:current', '--now', v1Now]));
 
   fs.utimesSync(v2Probe, new Date(Date.parse(now) - 16 * 60_000), new Date(Date.parse(now) - 16 * 60_000));
   const stale = statuses(status(root, 'cli', ['--capability-probe', v2Probe, '--session-id', 'session:current', '--now', now]));
-  const conflictProbe = createProbe(root, '2.4.0', 'Trae CLI help');
+  const conflictProbe = createProbe(root, '2.4.0', 'TraeCode CLI help');
   const conflict = JSON.parse(fs.readFileSync(conflictProbe, 'utf8'));
   conflict.capabilities = [
     { name: 'config-yaml', status: 'accessible' },

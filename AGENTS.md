@@ -4,8 +4,7 @@
 > **Agent:** use this guide to install, verify, and safely remove LazyTrae.
 > For everyday workflow use, see the [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme).
 
-LazyTrae packages local routes for **Trae IDE**, **Trae Work**, and **Trae
-CLI**. The release-owned local launcher supplies the portable installer,
+LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. The release-owned local launcher supplies the portable installer,
 verification gate, and local MCP server. Package behavior is verified on
 macOS only; host behavior keeps the evidence labels below. The current
 documentation release is `1.1.0`.
@@ -40,8 +39,8 @@ caller workspace files.
 When the user types `onboard`:
 
 1. Scan the complete current message and detect the host from the open app. If
-   it is not unambiguous, ask one focused question: **Trae IDE**, **Trae Work**,
-   or **Trae CLI**. Do not run setup while the host is ambiguous.
+   it is not unambiguous, ask one focused question: **TraeCode**, **TraeWork**,
+   or **TraeCode CLI**. Do not run setup while the host is ambiguous.
 2. Run `lifecycle status` through the durable `launcher.js`. If absent, use the
    verified source entrypoint to run `lifecycle onboard`; if blocked, stop and
    report the exact issue without editing lifecycle state.
@@ -53,14 +52,14 @@ When the user types `onboard`:
    `doctor`. These inspect or write the selected project only. Do not enable
    optional providers or change credentials, dependencies, lockfiles, or host
    settings.
-5. For Trae Work, copying Skills to the host directory is a host-managed
+5. For TraeWork, copying Skills to the host directory is a host-managed
    mutation. Run `node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" init --host work` only after the
    approval gate below; the package check before approval must remain read-only.
 6. Report **package readiness** separately. It covers local files, the
    generated declaration, and local contracts; it never proves host discovery,
    hook execution, a running session, or an MCP connection.
 7. Before any host-managed mutation (Work Skills copy, a Settings → MCP entry,
-   or Trae CLI registration), ask for explicit approval naming the exact host
+   or TraeCode CLI registration), ask for explicit approval naming the exact host
    action. Never automate marketplace, account, model, credential, or app
    setting changes.
 8. After approval, give exactly **one** concrete GUI/host action and then wait.
@@ -82,12 +81,12 @@ Availability labels are evidence boundaries: the release-owned launcher and
 generated configuration are the **documented package route**; IDE/Work behavior
 seen in the supplied macOS reports is an **observed prerelease route**; and a
 current host stays **HOST READINESS: PENDING** until it is actually observed.
-The supplied QA could not access Trae CLI, so its live-host route is explicitly
+The supplied QA could not access TraeCode CLI, so its live-host route is explicitly
 unverified even though the package can generate its local configuration.
 
 ## v1.1 native-host boundary
 
-Trae IDE, Trae Work, and Trae CLI are three independent hosts. A generated
+TraeCode, TraeWork, and TraeCode CLI are three independent hosts. A generated
 file, a successful package check, or an accepted profile never promotes
 **package readiness** to **host readiness**. The host owns discovery,
 registration, session lifetime, connector launch, and credentials; LazyTrae
@@ -118,16 +117,16 @@ for any host.
 
 | Host | Skills and project assets | MCP step and expected observation |
 | --- | --- | --- |
-| **Trae IDE** | Documented package route: project `.trae/` skills, commands, rules, agents, hooks, and `.lazytrae/` state. | Auto-discovery is an observed prerelease route. `.trae/mcp.json` uses the absolute release launcher. Reopen once after approval, then observe one Skill/command and the core MCP. |
-| **Trae Work** | `node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" init --host work` is approval-gated and copies 17 Skills to the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the paste-ready JSON printed by `load-check --host work` in **Settings → MCP**. It is not a documented universal host contract. |
-| **Trae CLI** | Documented package route: local project configuration plus verification gates. | No public universal MCP registration command is assumed. Use the paste-ready JSON from `load-check --host cli` with the selected build's documented/manual MCP settings flow, then start a new session and observe the core MCP. |
+| **TraeCode** | Documented package route: project `.trae/` skills, commands, rules, agents, hooks, and `.lazytrae/` state. | Auto-discovery is an observed prerelease route. `.trae/mcp.json` uses the absolute release launcher. Reopen once after approval, then observe one Skill/command and the core MCP. |
+| **TraeWork** | `node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" init --host work` is approval-gated and copies 17 Skills to the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the paste-ready JSON printed by `load-check --host work` in **Settings → MCP**. It is not a documented universal host contract. |
+| **TraeCode CLI** | Documented package route: local project configuration plus verification gates. | No public universal MCP registration command is assumed. Use the paste-ready JSON from `load-check --host cli` with the selected build's documented/manual MCP settings flow, then start a new session and observe the core MCP. |
 
 For either manual MCP route, copy only the JSON between
 `LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. Do not translate it to
 an undocumented CLI command. Pasting the JSON, reloading, and testing are three
 separate approval-gated actions.
 
-Trae Work does not auto-load the project MCP file. Linux and Windows Work
+TraeWork does not auto-load the project MCP file. Linux and Windows Work
 locations and behavior are unverified; ask the host for its directory before
 using `--skills-dir`. A declaration or load-check is package evidence until the
 selected host visibly connects it.
@@ -167,9 +166,9 @@ removed. Run `lifecycle offboard` first without `--yes` and present its exact
 receipt-owned product-root plan. Only after confirmation may it be repeated
 with `--yes`. Preserve modified or
 unknown assets, and report package removal separately from observed host
-removal. Remove host MCP registrations manually: Trae Work through **Settings
-→ MCP**, Trae CLI through the selected build's documented MCP settings flow,
-and Trae IDE through its project MCP UI. Do not assume a universal CLI command.
+removal. Remove host MCP registrations manually: TraeWork through **Settings
+→ MCP**, TraeCode CLI through the selected build's documented MCP settings flow,
+and TraeCode through its project MCP UI. Do not assume a universal CLI command.
 `lifecycle recover-bootstrap-lock` remains limited to an explicitly verified
 lifecycle-owned sibling bootstrap lock or product `staging/`/`locks/` artifact,
 and requires `--yes` after that verification; the caller workspace is always

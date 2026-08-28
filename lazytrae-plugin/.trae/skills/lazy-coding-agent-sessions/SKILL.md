@@ -7,7 +7,7 @@ description: "Find, read, list, search, inspect, or reconstruct coding-agent ses
 
 Find and inspect coding-agent sessions across Trae and other platforms before answering from memory. Use LazyTrae's session tracking state as the primary store; fall back to platform-native transcript files when available.
 
-## Global Trae Work fallback
+## Global TraeWork fallback
 
 This installed skill is self-contained. It does not require a helper script or reference bundle. Use the local paths listed below when they are available; for an unlisted platform, ask the user for its documented transcript location before searching.
 

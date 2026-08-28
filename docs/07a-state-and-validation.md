@@ -27,7 +27,7 @@ stateDiagram-v2
 
 ## Read state at the correct boundary
 
-State establishes what the package recorded and validated. It does not establish that Trae IDE, Work, or CLI loaded a skill, ran a hook, or connected MCP. Package readiness and state integrity are local facts; host integration remains a separate user observation.
+State establishes what the package recorded and validated. It does not establish that TraeCode, Work, or CLI loaded a skill, ran a hook, or connected MCP. Package readiness and state integrity are local facts; host integration remains a separate user observation.
 
 ## Artifact lifecycle at field level
 

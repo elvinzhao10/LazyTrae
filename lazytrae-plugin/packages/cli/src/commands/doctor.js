@@ -86,7 +86,7 @@ Options:
     addResult('MCP runtime', 'PASS', 'MCP runtime is provided by the release-owned LazyTrae CLI and launched on demand; source-package checks are not part of this consumer project.');
   }
 
-  addResult('MCP server running', 'WARN', `Started on demand by Trae IDE, Trae Work, or Trae CLI via ${localCommand(repoRoot)} mcp`);
+  addResult('MCP server running', 'WARN', `Started on demand by TraeCode, TraeWork, or TraeCode CLI via ${localCommand(repoRoot)} mcp`);
   const gitStatus = inspectGitMetadata(repoRoot);
   addResult('Git metadata', gitStatus.status, gitStatus.detail);
 

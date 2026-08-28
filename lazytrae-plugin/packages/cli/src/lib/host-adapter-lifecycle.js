@@ -13,9 +13,9 @@ const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 const MANIFEST_PATH = path.join(PACKAGE_ROOT, 'host-adapter-manifest.v2.json');
 const HOST_IDS = Object.freeze({ cli: 'trae-cli', ide: 'trae-ide', work: 'trae-work' });
 const HOST_CONTEXTS = Object.freeze({
-  'trae-cli': Object.freeze({ host_label: 'TRAE CLI', client_context: 'terminal', execution_context: 'local' }),
-  'trae-ide': Object.freeze({ host_label: 'TRAE IDE', client_context: 'desktop', execution_context: 'local' }),
-  'trae-work': Object.freeze({ host_label: 'TRAE Work', client_context: 'unspecified', execution_context: 'unspecified' }),
+  'trae-cli': Object.freeze({ host_label: 'TraeCode CLI', client_context: 'terminal', execution_context: 'local' }),
+  'trae-ide': Object.freeze({ host_label: 'TraeCode', client_context: 'desktop', execution_context: 'local' }),
+  'trae-work': Object.freeze({ host_label: 'TraeWork', client_context: 'unspecified', execution_context: 'unspecified' }),
 });
 
 function readManifest() {

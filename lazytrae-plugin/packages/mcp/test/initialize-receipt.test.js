@@ -61,7 +61,7 @@ test('concurrent initialize calls from an unrelated spaced cwd leave one bounded
     const responses = await Promise.all(Array.from({ length: 8 }, (_, index) => runInitialize(
       projectRoot,
       callerRoot,
-      `Trae IDE\nclient-${index}/secret`,
+      `TraeCode\nclient-${index}/secret`,
     )));
     for (const result of responses) {
       assert.deepEqual(result.response.result.serverInfo, { name: 'lazytrae-mcp', version: SERVER_VERSION });
@@ -76,7 +76,7 @@ test('concurrent initialize calls from an unrelated spaced cwd leave one bounded
     assert.equal(observation.receipt.protocol_version, PROTOCOL_VERSION);
     assert.equal(observation.receipt.server_version, SERVER_VERSION);
     assert.equal(Number.isInteger(observation.receipt.pid), true);
-    assert.match(observation.receipt.client_label, /^Trae IDE client-\d+_secret$/);
+    assert.match(observation.receipt.client_label, /^TraeCode client-\d+_secret$/);
     assert.equal(fs.readFileSync(localConfigPath, 'utf8'), localConfig);
     assert.equal(fs.statSync(target).isFile(), true);
     assert.deepEqual(
@@ -84,7 +84,7 @@ test('concurrent initialize calls from an unrelated spaced cwd leave one bounded
       [],
     );
 
-    const repeated = await runInitialize(projectRoot, callerRoot, 'Trae IDE repeated');
+    const repeated = await runInitialize(projectRoot, callerRoot, 'TraeCode repeated');
     assert.equal(repeated.response.result.serverInfo.version, SERVER_VERSION);
     assert.equal(inspectInitializeReceipt(projectRoot).state, 'valid');
   } finally {
@@ -101,7 +101,7 @@ test('receipt write failure keeps initialize protocol-valid and preserves the ta
   fs.writeFileSync(outside, 'caller-owned\n');
   fs.symlinkSync(outside, target);
   try {
-    const result = await runInitialize(projectRoot, callerRoot, 'Trae IDE');
+    const result = await runInitialize(projectRoot, callerRoot, 'TraeCode');
     assert.equal(result.response.result.serverInfo.version, SERVER_VERSION);
     assert.equal(result.response.error, undefined);
     assert.match(result.stderr, /initialize receipt write skipped/);
@@ -121,7 +121,7 @@ test('receipt write failure preserves a non-regular FIFO target', async () => {
   const target = path.join(projectRoot, '.lazytrae', 'state', RECEIPT_FILE);
   execFileSync('mkfifo', [target]);
   try {
-    const result = await runInitialize(projectRoot, callerRoot, 'Trae IDE');
+    const result = await runInitialize(projectRoot, callerRoot, 'TraeCode');
     assert.equal(result.response.result.serverInfo.version, SERVER_VERSION);
     assert.equal(result.response.error, undefined);
     assert.match(result.stderr, /initialize receipt write skipped/);

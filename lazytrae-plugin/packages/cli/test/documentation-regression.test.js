@@ -57,8 +57,8 @@ function assertDurableLifecycleGuidance(content, documentationPath) {
 }
 
 function assertTraeCliRemovalGuidance(content, documentationPath) {
-  assert.doesNotMatch(content, /trae-cli\s+mcp\s+remove\s+lazytrae/i, `${documentationPath} must not advertise a universal Trae CLI MCP removal command`);
-  assert.match(content, /Trae CLI[\s\S]*selected build's\s+documented\/manual MCP settings flow/i, `${documentationPath} must direct Trae CLI removal through the selected build's documented/manual MCP settings flow`);
+  assert.doesNotMatch(content, /trae-cli\s+mcp\s+remove\s+lazytrae/i, `${documentationPath} must not advertise a universal TraeCode CLI MCP removal command`);
+  assert.match(content, /TraeCode CLI[\s\S]*selected build's\s+documented\/manual MCP settings flow/i, `${documentationPath} must direct TraeCode CLI removal through the selected build's documented/manual MCP settings flow`);
 }
 
 test('Given installed LazyTrae guidance, when its package boundary is checked, then readiness and offboarding remain explicit', () => {
@@ -95,7 +95,7 @@ test('Given public lifecycle documentation, when its installation contract is ch
   }
 });
 
-test('Given safe-removal guidance, when Trae CLI host removal is documented, then it uses the selected build settings flow', () => {
+test('Given safe-removal guidance, when TraeCode CLI host removal is documented, then it uses the selected build settings flow', () => {
   const safeRemovalPath = path.join(repositoryRoot, 'docs', '08-safe-removal.md');
   assertTraeCliRemovalGuidance(fs.readFileSync(safeRemovalPath, 'utf8'), safeRemovalPath);
 });
@@ -113,16 +113,16 @@ test('Given v1.1 host-readiness documentation, when current release boundaries a
   for (const relativePath of currentPaths) {
     const content = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
     assert.match(content, /1\.1\.0/, `${relativePath} must identify the current v1.1.0 release`);
-    assert.match(content, /Trae IDE[\s\S]*Trae Work[\s\S]*Trae CLI/, `${relativePath} must keep three independent host sections`);
+    assert.match(content, /TraeCode[\s\S]*TraeWork[\s\S]*TraeCode CLI/, `${relativePath} must keep three independent host sections`);
     assert.match(content, /package readiness[\s\S]{0,300}host readiness|host readiness[\s\S]{0,300}package readiness/i, `${relativePath} must separate package and host readiness`);
     assert.doesNotMatch(content, /(?:^|\n)(?![^\n]*(?:\bno\b|\bnot\b|\bnever\b|\bwithout\b|\binert\b))[^\n]*(?:marketplace\s+(?:publish|install)|cloud\s+upload|package[- ]ready[^\n]{0,80}host[- ]ready)/im, `${relativePath} must not make an unsupported promotion or distribution claim`);
   }
 
   const routes = fs.readFileSync(path.join(repositoryRoot, 'docs', 'reference', 'host-routes.md'), 'utf8');
-  assert.match(routes, /\.traecli[\s\S]{0,180}(?:inert|configuration-only)[\s\S]{0,180}(?:not|never)[\s\S]{0,120}discover/i, 'Trae CLI generation must remain inert rather than discovery evidence');
+  assert.match(routes, /\.traecli[\s\S]{0,180}(?:inert|configuration-only)[\s\S]{0,180}(?:not|never)[\s\S]{0,120}discover/i, 'TraeCode CLI generation must remain inert rather than discovery evidence');
   assert.match(routes, /host-probe[\s\S]{0,240}(?:bounded|credential-free)[\s\S]{0,240}pending/i, 'host probes must remain bounded and non-promoting');
   assert.match(routes, /--client[\s\S]{0,120}--execution/i, 'Work client and execution contexts must be selected separately');
-  assert.doesNotMatch(routes, /(?:trae-cli\s+mcp\s+(?:add|remove|install)|universal\s+CLI)/i, 'routes must not invent a universal Trae CLI command');
+  assert.doesNotMatch(routes, /(?:trae-cli\s+mcp\s+(?:add|remove|install)|universal\s+CLI)/i, 'routes must not invent a universal TraeCode CLI command');
 
   const evaluation = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-evaluation.md'), 'utf8');
   assert.match(evaluation, /(?:v2[\s\S]{0,180}(?:current|active)[\s\S]{0,180}writer|(?:current|active)[\s\S]{0,180}writer[\s\S]{0,180}v2)/i, 'current readiness writers must be documented as v2');

@@ -31,7 +31,7 @@ Report bugs in LazyTrae itself (not in the project you're working on) in a struc
 4. **Steps to reproduce:** Exact, numbered steps. Assume the reader knows nothing.
 5. **Environment:**
    - Operating system and version
-   - Trae IDE version
+   - TraeCode version
    - LazyTrae version (from `package.json` or `AGENTS.md`)
    - Node.js version (if applicable)
 6. **Impact:** How severe is this? What does it prevent you from doing?
@@ -76,7 +76,7 @@ Critical / High / Medium / Low
 
 ## Environment
 - OS: <OS and version>
-- Trae IDE: <version>
+- TraeCode: <version>
 - LazyTrae: <version>
 - Node.js: <version (if applicable)>
 

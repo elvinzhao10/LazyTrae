@@ -20,7 +20,7 @@ Skills and commands describe how an agent should approach planning, debugging, r
 
 ## Installation is not host proof
 
-The CLI copies canonical templates into `.trae/` and `.lazytrae/`, merging managed blocks and refusing protected destinations where required. This proves the project layout only. Trae IDE, Work, or CLI must separately discover the assets, run hooks, and connect MCP.
+The CLI copies canonical templates into `.trae/` and `.lazytrae/`, merging managed blocks and refusing protected destinations where required. This proves the project layout only. TraeCode, Work, or CLI must separately discover the assets, run hooks, and connect MCP.
 
 ## Execution is not proof
 

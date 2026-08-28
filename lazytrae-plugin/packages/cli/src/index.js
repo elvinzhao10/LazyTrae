@@ -67,9 +67,9 @@ Commands:
   hook        Dispatch a LazyTrae hook event
   mcp         Start the LazyTrae MCP server (stdio JSON-RPC)
   loop        Long-horizon execution loop status and control
-  run         Present explicit model routing for the supported Trae IDE route
+  run         Present explicit model routing for the supported TraeCode route
   team        Team mode / parallel-work coordination
-  work        Install or inspect global Trae Work skills
+  work        Install or inspect global TraeWork skills
   tooling     Manage a package-owned local tooling root
   setup       Inspect provider setup without consuming credentials
   providers   Inspect, configure, or safely test providers
@@ -80,7 +80,7 @@ Commands:
   host-capabilities
               Report fingerprint-bound host capability evidence
   traecli-candidate
-              Generate inert Trae CLI assets or invoke a probe-proven structured runner
+              Generate inert TraeCode CLI assets or invoke a probe-proven structured runner
   lifecycle   Manage the durable verified package bundle
 
 Aliases: i, d, s, rm, v, h, l, r, t

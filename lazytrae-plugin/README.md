@@ -13,8 +13,8 @@ the bootstrap checkout may be deleted. A moved same-version tag requires
 offboard/re-onboard rather than receipt edits. Package readiness never implies
 a live host: **HOST READINESS: PENDING** without current observation.
 
-This is the self-contained distributable package for LazyTrae on Trae IDE,
-Trae Work, and Trae CLI. It includes the project configuration, companion CLI,
+This is the self-contained distributable package for LazyTrae on TraeCode,
+TraeWork, and TraeCode CLI. It includes the project configuration, companion CLI,
 and local MCP server needed for its package lifecycle.
 
 The package contains Trae configuration, the `lazytrae` CLI, and the local
@@ -30,7 +30,7 @@ discovery or an MCP connection.
 This package is part of the LazyTrae learning project. It is
 primarily inspired by LazyCodex; [NOTICE](../NOTICE) records the LazyCodex and
 OmO upstream attribution. It is an independent implementation and does not
-require LazyCodex or OmO at runtime. For Trae Work, the release-owned
+require LazyCodex or OmO at runtime. For TraeWork, the release-owned
 launcher's `init --host work` invokes the bounded Work skill installation; use
 the same launcher with `work status` to inspect the copied package assets.
 
@@ -70,8 +70,8 @@ install.
 
 The onboarding protocol detects or asks for the host, runs safe package checks,
 and reports **package readiness** separately from **host readiness**. Before
-copying Trae Work Skills, adding a Settings → MCP connector, or registering
-Trae CLI, it asks for approval. It then gives one exact host action and waits;
+copying TraeWork Skills, adding a Settings → MCP connector, or registering
+TraeCode CLI, it asks for approval. It then gives one exact host action and waits;
 after the user responds it inspects the app with Computer Use. Reload/new
 session is a separate action. Host readiness requires one real Skill/command
 and the expected `lazytrae` core MCP connection; local checks alone leave it
@@ -87,7 +87,7 @@ absolute local launcher with `load-check --host work`; for CLI, use
 `LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. Paste it into Work's
 **Settings → MCP** or the selected CLI build's documented/manual MCP settings
 flow after approval. No public universal MCP registration command is assumed.
-The supplied QA could not access Trae CLI, so its live-host route remains
+The supplied QA could not access TraeCode CLI, so its live-host route remains
 explicitly unverified.
 
 Automatic local tooling is temporary and receipt-owned: `rg`, `sg`, and the

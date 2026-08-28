@@ -10,9 +10,9 @@ const { runCli } = require('./test-helpers');
 const PACKAGE_ROOT = path.resolve(__dirname, '..');
 const REPOSITORY_ROOT = path.resolve(PACKAGE_ROOT, '..', '..', '..');
 const EXPECTED_HOSTS = Object.freeze([
-  Object.freeze(['trae-cli', 'TRAE CLI', 'terminal', 'local']),
-  Object.freeze(['trae-ide', 'TRAE IDE', 'desktop', 'local']),
-  Object.freeze(['trae-work', 'TRAE Work', 'unspecified', 'unspecified']),
+  Object.freeze(['trae-cli', 'TraeCode CLI', 'terminal', 'local']),
+  Object.freeze(['trae-ide', 'TraeCode', 'desktop', 'local']),
+  Object.freeze(['trae-work', 'TraeWork', 'unspecified', 'unspecified']),
 ]);
 
 test('authoritative package versions advance while historical v1.0.3 receipts stay unchanged', () => {
@@ -77,7 +77,7 @@ test('public status publishes the authoritative v1.1 three-host boundary', () =>
   }
 });
 
-test('inert Trae CLI generation never counts as host discovery', () => {
+test('inert TraeCode CLI generation never counts as host discovery', () => {
   // Given: an initialized CLI candidate with generated .traecli assets.
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-v110-inert-'));
   fs.mkdirSync(path.join(root, '.git'));
@@ -136,7 +136,7 @@ test('public status validation rejects a complete contradictory host profile wit
     assert.equal(generated.status, 0, `${generated.stdout}\n${generated.stderr}`);
     const report = JSON.parse(generated.stdout);
     Object.assign(report.profiles[0], {
-      host_label: 'TRAE Work',
+      host_label: 'TraeWork',
       client_context: 'unspecified',
       execution_context: 'unspecified',
     });

@@ -7,9 +7,9 @@ const { canonicalDigest } = require('../lib/host-adapter-fingerprint');
 const { CURRENT_VERSION, MACHINE_STATUS_CONTRACT_VERSION } = require('../lib/version');
 
 const HOST_IDENTITIES = Object.freeze({
-  'trae-cli': Object.freeze(['TRAE CLI', 'terminal', 'local']),
-  'trae-ide': Object.freeze(['TRAE IDE', 'desktop', 'local']),
-  'trae-work': Object.freeze(['TRAE Work', 'unspecified', 'unspecified']),
+  'trae-cli': Object.freeze(['TraeCode CLI', 'terminal', 'local']),
+  'trae-ide': Object.freeze(['TraeCode', 'desktop', 'local']),
+  'trae-work': Object.freeze(['TraeWork', 'unspecified', 'unspecified']),
 });
 const EXPECTED_HOSTS = Object.freeze(Object.keys(HOST_IDENTITIES));
 

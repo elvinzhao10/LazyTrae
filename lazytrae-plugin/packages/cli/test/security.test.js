@@ -94,7 +94,7 @@ test('run command never executes a PATH-spoofed open-source trae-agent', (t) => 
   assert.equal(result.status, 0);
   assert.equal(fs.existsSync(marker), false);
   assert.equal(fs.existsSync(argsFile), false);
-  assert.match(result.stdout, /project-local Trae IDE route/);
+  assert.match(result.stdout, /project-local TraeCode route/);
 });
 
 test('MCP dependency graph rejects symlinks that resolve outside the repo', (t) => {

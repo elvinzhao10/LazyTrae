@@ -40,7 +40,7 @@ Options:
   --host <id>  Run the final load check for ide, work, or cli
   --ide-probe <path>  Verified host-probe JSON authorizing the IDE Hook schema
   --global-hooks <path>  Explicit absolute global Hook config path; never guessed
-  --skills-dir <path>  Override Trae Work's global skills directory with --host work
+  --skills-dir <path>  Override TraeWork's global skills directory with --host work
 `);
     return;
   }
@@ -150,7 +150,7 @@ Options:
       process.exitCode = 1;
     } else if (mcpUpdate.status === 'unavailable_existing' || mcpUpdate.status === 'unavailable_absent') {
       const manualHostAction = host === 'work'
-        ? 'Trae Work requires manual Settings → MCP registration'
+        ? 'TraeWork requires manual Settings → MCP registration'
         : 'complete MCP registration manually with your host';
       const declarationState = mcpUpdate.status === 'unavailable_existing'
         ? 'existing declaration preserved'
@@ -287,7 +287,7 @@ Options:
 
   if (!process.exitCode && host === 'cli') {
     const candidate = generateCandidate(repoRoot);
-    summary.created.push(`${candidate.written.length} Trae CLI candidate asset(s)`);
+    summary.created.push(`${candidate.written.length} TraeCode CLI candidate asset(s)`);
   }
 
   // Print summary
