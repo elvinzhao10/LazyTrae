@@ -12,6 +12,15 @@ const formerIde = ['Trae', 'IDE'].join(' ');
 const formerCli = ['Trae', 'CLI'].join(' ');
 const renamedStableId = ['traecode', 'ide'].join('-');
 const misspelledWorkBuddy = ['Work', 'buddy'].join('');
+const v120CurrentDocs = [
+  'docs/v1.2.0-migration-guide.md',
+  'docs/v1.2.0-supported-route.md',
+];
+const formerCurrentNames = [
+  ['Trae', 'IDE'].join(' '),
+  ['Trae', 'Work'].join(' '),
+  ['Trae', 'CLI'].join(' '),
+];
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'product-naming-'));
@@ -60,4 +69,14 @@ test('semantic naming checker accepts current names and rejects protected regres
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, expected);
   });
+});
+
+test('v1.2.0 current docs use current product names', () => {
+  const repositoryRoot = path.resolve(__dirname, '../../../..');
+  for (const relativePath of v120CurrentDocs) {
+    const content = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
+    for (const formerName of formerCurrentNames) {
+      assert.doesNotMatch(content, new RegExp(`\\b${formerName.replace(' ', '\\s+')}\\b`), `${relativePath} retains ${formerName}`);
+    }
+  }
 });
