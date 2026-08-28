@@ -31,6 +31,44 @@ test('MCP source and fallback evidence writers redact secret-bearing input', () 
   }
 });
 
+test('MCP evidence persistence redacts structured credential fields without removing safe nested fields', () => {
+  // Given: JSON-shaped evidence with direct, header, and nested credential values.
+  const fixture = makeCompletionFixture('lazytrae-mcp-structured-redaction-', false);
+  const directToken = `token-${'C'.repeat(24)}`;
+  const basicValue = `basic-${'D'.repeat(24)}`;
+  const bearerValue = `bearer-${'E'.repeat(24)}`;
+  const structuredEvidence = JSON.stringify({
+    safe: 'observable-safe-field',
+    token: directToken,
+    headers: {
+      authorization: `Basic ${basicValue}`,
+      'proxy-authorization': `Bearer ${bearerValue}`,
+    },
+    nested: { label: 'observable-nested-field', credential: { token: bearerValue } },
+  });
+  try {
+    // When: the public evidence handlers persist the untrusted structured text.
+    for (const handler of [source.handleRecordEvidence, fallback.handleRecordEvidence]) {
+      handler(fixture, {
+        gate_type: 'manual_qa',
+        verdict: 'pass',
+        outputs: [structuredEvidence, `{"token":"${directToken}", malformed`],
+      });
+    }
+
+    // Then: stored evidence exposes safe fields but no direct or nested credential value.
+    const stored = fs.readFileSync(path.join(fixture, '.lazytrae', 'evidence', 'verifier.md'), 'utf8');
+    for (const value of [directToken, basicValue, bearerValue]) {
+      assert.equal(stored.includes(value), false);
+    }
+    assert.match(stored, /\[REDACTED\]/);
+    assert.match(stored, /observable-safe-field/);
+    assert.match(stored, /observable-nested-field/);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
 test('MCP source and fallback review writers redact secret-bearing input', () => {
   // Given: review context carrying a fixture credential.
   const fixture = makeCompletionFixture('lazytrae-review-secret-redaction-', false);
