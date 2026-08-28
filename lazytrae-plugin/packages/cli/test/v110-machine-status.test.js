@@ -39,8 +39,8 @@ test('authoritative package versions advance while historical v1.0.3 receipts st
     return value.version ?? value.packages?.['']?.version;
   });
 
-  // Then: current authorities are v1.1.0 and historical evidence remains v1.0.3.
-  assert.deepEqual(versions, Array(currentFiles.length).fill('1.1.0'));
+  // Then: current authorities are v1.2.0 and historical evidence remains v1.0.3.
+  assert.deepEqual(versions, Array(currentFiles.length).fill('1.2.0'));
   assert.equal(historical.manifest.version, '1.0.3');
   assert.match(historical.release.id, /^1\.0\.3-/);
   assert.equal(path.relative(REPOSITORY_ROOT, PACKAGE_ROOT), path.join('lazytrae-plugin', 'packages', 'cli'));
@@ -62,7 +62,7 @@ test('public status publishes the authoritative v1.1 three-host boundary', () =>
     assert.equal(report.schema_version, 2);
     assert.equal(report.contract_version, '2.0.0');
     assert.equal(report.product, 'LazyTrae');
-    assert.equal(report.version, '1.1.0');
+    assert.equal(report.version, '1.2.0');
     assert.deepEqual(report.profiles.map(profile => [
       profile.host, profile.host_label, profile.client_context, profile.execution_context,
     ]), EXPECTED_HOSTS);

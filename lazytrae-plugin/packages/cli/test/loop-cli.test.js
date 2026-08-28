@@ -11,7 +11,7 @@ const {
   runCli,
 } = require('./test-helpers');
 
-test('loop CLI completes a goal only after evidence and canonical quality gate sections pass', () => {
+test('loop CLI completes its goal without forging canonical completion authority', () => {
   const fixture = makeLoopFixture('lazytrae-loop-happy-');
   assert.equal(runCli(['loop', 'create-goals', '--brief', '.lazytrae/evidence/brief.md', '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: fixture }).status, 0);
   assert.equal(runCli(['loop', 'complete-goals'], { cwd: fixture }).status, 0);
@@ -38,8 +38,9 @@ test('loop CLI completes a goal only after evidence and canonical quality gate s
   assert.equal(state.goals[0].status, 'complete');
   assert.equal(state.goals[0].successCriteria[0].status, 'pass');
   const completion = runCli(['completion-status'], { cwd: fixture });
-  assert.equal(completion.status, 0);
-  assert.match(completion.stdout, /^ready/m);
+  assert.equal(completion.status, 1);
+  assert.match(completion.stdout, /^uninitialized/m);
+  assert.match(completion.stdout, /AUTHORITY_ABSENT/);
   const events = fs.readFileSync(path.join(fixture, '.lazytrae', 'logs', 'loop-events.ndjson'), 'utf-8');
   assert.match(events, /create_goals/);
   assert.match(events, /complete_goals/);

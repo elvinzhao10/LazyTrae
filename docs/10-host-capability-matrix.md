@@ -1,6 +1,6 @@
 # Host capability matrix
 
-**Current documentation release: v1.1.0.** This is a boundary matrix, not a
+**Current documentation release: v1.2.0.** This is a boundary matrix, not a
 claim that a package result has made any host ready.
 
 LazyTrae deliberately aligns policy and package safety across Trae surfaces while keeping host adapters distinct. The same project assets may be present on two surfaces without both hosts exposing the same discovery or registration behavior.

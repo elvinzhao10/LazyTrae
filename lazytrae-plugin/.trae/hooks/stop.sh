@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.1.0 — Stop hook
+# LazyTrae v1.2.0 — Stop hook
 # Emits continuation reminder if active work is incomplete.
 # Provide start-work continuation and executor evidence verification.
 # Always exits 0 — never blocks a session.
@@ -49,9 +49,9 @@ if [ -f "$BOULDER" ]; then
 try{
   const d=require('$BOULDER');
   const wid=d.active_work_id;
-  if(!wid){process.stdout.write('');return;}
+  if(!wid){process.exit(0);}
   const w=d.works[wid];
-  if(!w){process.stdout.write('');return;}
+  if(!w){process.exit(0);}
   const pending=w.tasks.filter(t=>t.status==='pending'||t.status==='in_progress');
   if(pending.length>0){
     process.stdout.write(pending[0].description+'|'+pending.length+'|'+w.plan_name);

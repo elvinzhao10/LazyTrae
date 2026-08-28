@@ -152,18 +152,21 @@ test('malformed root markers and linked Hook targets refuse before host configur
   assert.deepEqual(fs.readdirSync(linked).sort(), ['.git', '.trae']);
 });
 
-test('Notification is advisory and cannot satisfy a blocked completion gate', (t) => {
-  // Given: a real initialized project whose canonical work gate is blocked.
+test('Notification is advisory and cannot create canonical completion authority', (t) => {
+  // Given: a real initialized project without canonical completion authority.
   const project = makeCompletionFixture('lazytrae-notification-advisory-', false);
   t.after(() => fs.rmSync(project, { recursive: true, force: true }));
   const before = run(project, ['completion-status']);
-  assert.match(before.stdout, /^blocked/m);
+  assert.match(before.stdout, /^uninitialized/m);
+  assert.match(before.stdout, /AUTHORITY_ABSENT/);
 
   // When: Notification claims success through the real hook dispatcher.
   const notification = run(project, ['hook', 'notification'], '{"status":"success","message":"done"}\n');
 
-  // Then: dispatch remains nonblocking while the hard completion gate stays blocked.
+  // Then: dispatch remains nonblocking while canonical authority remains absent.
   assert.equal(notification.status, 0, notification.stderr || notification.stdout);
   assert.match(notification.stdout, /advisory status only/);
-  assert.match(run(project, ['completion-status']).stdout, /^blocked/m);
+  const after = run(project, ['completion-status']);
+  assert.match(after.stdout, /^uninitialized/m);
+  assert.match(after.stdout, /AUTHORITY_ABSENT/);
 });

@@ -73,7 +73,7 @@ test('Given installed LazyTrae guidance, when its package boundary is checked, t
   assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI README must describe the self-contained CLI artifact');
 });
 
-test('Given public lifecycle documentation, when its installation contract is checked, then it uses the durable launcher and v1.0.3 evidence boundaries', () => {
+test('Given public lifecycle documentation, when its installation contract is checked, then it uses the durable launcher and preserved historical boundaries', () => {
   const paths = [
     'README.md',
     'AGENTS.md',
@@ -81,7 +81,6 @@ test('Given public lifecycle documentation, when its installation contract is ch
     'docs/10-host-capability-matrix.md',
     'docs/reference/host-routes.md',
     'docs/v1.0.3-migration-guide.md',
-    'RELEASE_NOTES-v1.0.3.md',
     'CHANGELOG.md',
     'lazytrae-plugin/README.md',
     'lazytrae-plugin/packages/cli/templates/AGENTS.md',
@@ -100,7 +99,7 @@ test('Given safe-removal guidance, when TraeCode CLI host removal is documented,
   assertTraeCliRemovalGuidance(fs.readFileSync(safeRemovalPath, 'utf8'), safeRemovalPath);
 });
 
-test('Given v1.1 host-readiness documentation, when current release boundaries are checked, then native hosts, v2 evidence, and inert generation stay explicit', () => {
+test('Given v1.2 host-readiness documentation, when current release boundaries are checked, then native hosts, v2 evidence, and inert generation stay explicit', () => {
   const currentPaths = [
     'README.md',
     'AGENTS.md',
@@ -112,7 +111,7 @@ test('Given v1.1 host-readiness documentation, when current release boundaries a
 
   for (const relativePath of currentPaths) {
     const content = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
-    assert.match(content, /1\.1\.0/, `${relativePath} must identify the current v1.1.0 release`);
+    assert.match(content, /1\.2\.0/, `${relativePath} must identify the current v1.2.0 release`);
     assert.match(content, /TraeCode[\s\S]*TraeWork[\s\S]*TraeCode CLI/, `${relativePath} must keep three independent host sections`);
     assert.match(content, /package readiness[\s\S]{0,300}host readiness|host readiness[\s\S]{0,300}package readiness/i, `${relativePath} must separate package and host readiness`);
     assert.doesNotMatch(content, /(?:^|\n)(?![^\n]*(?:\bno\b|\bnot\b|\bnever\b|\bwithout\b|\binert\b))[^\n]*(?:marketplace\s+(?:publish|install)|cloud\s+upload|package[- ]ready[^\n]{0,80}host[- ]ready)/im, `${relativePath} must not make an unsupported promotion or distribution claim`);
@@ -129,10 +128,10 @@ test('Given v1.1 host-readiness documentation, when current release boundaries a
   assert.match(evaluation, /v1[\s\S]{0,180}(?:historical|read-only|immutable)/i, 'v1 evidence must remain historical only');
 });
 
-test('Given current v1.1 documentation references, when a linked Markdown or JSON artifact is resolved, then missing targets are rejected', () => {
+test('Given current v1.2 documentation references, when a linked Markdown or JSON artifact is resolved, then missing targets are rejected', () => {
   const requiredReferences = [
-    'docs/v1.1.0-migration-guide.md',
-    'RELEASE_NOTES-v1.1.0.md',
+    'docs/v1.2.0-migration-guide.md',
+    'RELEASE_NOTES-v1.2.0.md',
     'lazytrae-plugin/packages/cli/contracts/lazyseries-capability-readiness.v2.json',
   ];
   const assertReferenceExists = (relativePath) => {
@@ -150,7 +149,7 @@ test('Given current v1.1 documentation references, when a linked Markdown or JSO
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {
   const packageAgents = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'AGENTS.md'), 'utf8');
 
-  assert.match(packageAgents, /1\.1\.0/, 'CLI maintainer guidance must name the packaged baseline');
+  assert.match(packageAgents, /1\.2\.0/, 'CLI maintainer guidance must name the packaged baseline');
   assert.match(packageAgents, /broad Node test suite/i, 'CLI maintainer guidance must describe the current suite');
   assert.doesNotMatch(packageAgents, /v0\.13|250 LOC|Currently thin/i, 'CLI maintainer guidance must not retain stale constraints');
   assert.match(packageAgents, /node --test test\/documentation-regression\.test\.js/, 'CLI maintainer guidance must name a focused documentation check');

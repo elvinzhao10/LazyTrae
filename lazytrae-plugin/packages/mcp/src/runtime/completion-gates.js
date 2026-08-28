@@ -40,7 +40,8 @@ function validateEvidencePaths(repoRoot, evidencePaths) {
 
 function getCompletionStatus(repoRoot = detectRepoRoot()) {
   const assessed = assessCompletion(repoRoot, {
-    authorityPath: '.lazytrae/state/completion-authority.json', packageVersion: PACKAGE_VERSION,
+    authorityPath: '.lazytrae/state/completion-authority.json',
+    packageVersion: PACKAGE_VERSION,
     remediationCommand: `${localCommand(repoRoot)} completion-status`,
   });
   return {

@@ -97,8 +97,11 @@ function handleRequest(req, repoRoot) {
     }
 
     sendError(id, -32601, 'Method not found: ' + method);
-  } catch (_) {
-    sendError(id, -32603, 'Internal error');
+  } catch (error) {
+    const message = error instanceof Error && error.message.startsWith('EVIDENCE_NAME_COLLISION:')
+      ? error.message
+      : 'Internal error';
+    sendError(id, -32603, message);
   }
 }
 
@@ -133,7 +136,7 @@ function main() {
     process.exit(0);
   });
 
-  process.stderr.write('LazyTrae MCP server v1.1.0 started\n');
+  process.stderr.write('LazyTrae MCP server v1.2.0 started\n');
 }
 
 // Run directly if executed as a script
