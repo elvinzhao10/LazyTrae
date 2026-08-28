@@ -2,21 +2,12 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { assertSafeRepoWritePath } = require('./path-boundary');
-
 const HASH = /^[a-f0-9]{64}$/;
 const WAIT_BUFFER = new Int32Array(new SharedArrayBuffer(4));
+function sha256(value) { return crypto.createHash('sha256').update(value).digest('hex'); }
+function fileHash(filePath) { return fs.existsSync(filePath) ? sha256(fs.readFileSync(filePath)) : null; }
 
-function sha256(value) {
-  return crypto.createHash('sha256').update(value).digest('hex');
-}
-
-function fileHash(filePath) {
-  return fs.existsSync(filePath) ? sha256(fs.readFileSync(filePath)) : null;
-}
-
-function transactionRoot(repoRoot) {
-  return path.join(repoRoot, '.lazytrae', 'state', 'transactions');
-}
+function transactionRoot(repoRoot) { return path.join(repoRoot, '.lazytrae', 'state', 'transactions'); }
 
 function syncDirectory(directory) {
   let descriptor;
@@ -51,24 +42,47 @@ function replaceJournal(repoRoot, txDir, journal) {
   syncDirectory(txDir);
 }
 
-function crashAt(boundary) {
-  if (process.env.LAZYTRAE_TRANSACTION_CRASH_AT === boundary) process.exit(86);
-}
+function crashAt(boundary) { if (process.env.LAZYTRAE_TRANSACTION_CRASH_AT === boundary) process.exit(86); }
 
 function runKey(runId) {
-  if (typeof runId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(runId)) {
-    throw new Error('Transaction run_id must be a safe path segment.');
-  }
+  if (typeof runId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(runId)) throw new Error('Transaction run_id must be a safe path segment.');
   return sha256(runId).slice(0, 32);
 }
 
 function processAlive(pid) {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (error) {
-    return error.code === 'EPERM';
+  try { process.kill(pid, 0); return true; }
+  catch (error) { return error.code === 'EPERM'; }
+}
+
+function readLockOwner(lockDir) {
+  try { return JSON.parse(fs.readFileSync(path.join(lockDir, 'owner.json'), 'utf8')); }
+  catch { return null; }
+}
+
+function cleanLockCandidates(locks, key) {
+  const prefix = `${key}.lock.candidate-`;
+  for (const entry of fs.readdirSync(locks).filter(name => name.startsWith(prefix))) {
+    const pid = Number(entry.slice(prefix.length).split('-')[0]);
+    if (Number.isSafeInteger(pid) && !processAlive(pid)) fs.rmSync(path.join(locks, entry), { recursive: true, force: true });
   }
+}
+
+function reapStaleLock(lockDir, key) {
+  let stat;
+  try { stat = fs.statSync(lockDir); } catch (error) {
+    if (error.code === 'ENOENT') return true;
+    throw error;
+  }
+  const owner = readLockOwner(lockDir);
+  const validOwner = owner && owner.key === key && Number.isSafeInteger(owner.pid);
+  if (validOwner ? processAlive(owner.pid) : Date.now() - stat.mtimeMs < 250) return false;
+  const quarantine = `${lockDir}.stale-${process.pid}-${crypto.randomUUID()}`;
+  try { fs.renameSync(lockDir, quarantine); } catch (error) {
+    if (error.code === 'ENOENT') return true;
+    throw error;
+  }
+  fs.rmSync(quarantine, { recursive: true, force: true });
+  return true;
 }
 
 function withRunLock(repoRoot, key, callback) {
@@ -77,28 +91,35 @@ function withRunLock(repoRoot, key, callback) {
   fs.mkdirSync(locks, { recursive: true });
   const lockDir = path.join(locks, `${key}.lock`);
   const deadline = Date.now() + 10000;
+  let token;
+  cleanLockCandidates(locks, key);
   while (true) {
+    if (fs.existsSync(lockDir)) {
+      if (reapStaleLock(lockDir, key)) continue;
+      if (Date.now() >= deadline) throw new Error(`Timed out waiting for transaction lock ${key}.`);
+      Atomics.wait(WAIT_BUFFER, 0, 0, 10);
+      continue;
+    }
+    token = crypto.randomUUID();
+    const candidate = `${lockDir}.candidate-${process.pid}-${token}`;
     try {
-      fs.mkdirSync(lockDir);
-      durableWrite(repoRoot, path.join(lockDir, 'owner.json'), `${JSON.stringify({ pid: process.pid, key })}\n`);
+      fs.mkdirSync(candidate);
+      durableWrite(repoRoot, path.join(candidate, 'owner.json'), `${JSON.stringify({ pid: process.pid, key, token })}\n`);
+      syncDirectory(candidate);
+      fs.renameSync(candidate, lockDir);
       syncDirectory(locks);
       break;
     } catch (error) {
-      if (error.code !== 'EEXIST') throw error;
-      let owner = null;
-      try { owner = JSON.parse(fs.readFileSync(path.join(lockDir, 'owner.json'), 'utf8')); } catch {}
-      if (owner && owner.key === key && Number.isSafeInteger(owner.pid) && !processAlive(owner.pid)) {
-        fs.rmSync(lockDir, { recursive: true, force: true });
-        continue;
-      }
-      if (Date.now() >= deadline) throw new Error(`Timed out waiting for transaction lock ${key}.`);
-      Atomics.wait(WAIT_BUFFER, 0, 0, 10);
+      fs.rmSync(candidate, { recursive: true, force: true });
+      if (!['EEXIST', 'ENOTEMPTY'].includes(error.code)) throw error;
     }
   }
   try {
     return callback();
   } finally {
-    fs.rmSync(lockDir, { recursive: true, force: true });
+    const owner = readLockOwner(lockDir);
+    if (!owner || owner.token !== token) throw new Error(`Lost transaction lock ownership for ${key}.`);
+    fs.rmSync(lockDir, { recursive: true });
     syncDirectory(locks);
   }
 }
@@ -125,8 +146,7 @@ function readJournal(txDir) {
 }
 
 function cleanupTransaction(txDir, journalsRoot) {
-  fs.rmSync(txDir, { recursive: true, force: true });
-  syncDirectory(journalsRoot);
+  fs.rmSync(txDir, { recursive: true, force: true }); syncDirectory(journalsRoot);
 }
 
 function recoverJournal(repoRoot, txDir, journal, injectFaults = false) {

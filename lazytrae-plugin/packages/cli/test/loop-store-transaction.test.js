@@ -35,6 +35,24 @@ if (action === 'save') {
 }
 `;
 
+const LOCK_GAP_CHILD = String.raw`
+const fs = require('node:fs');
+const [storePath, root] = process.argv.slice(1);
+const mkdirSync = fs.mkdirSync;
+const renameSync = fs.renameSync;
+fs.mkdirSync = function patchedMkdir(target, ...args) {
+  const result = mkdirSync.call(this, target, ...args);
+  if (String(target).endsWith('.lock')) process.kill(process.pid, 'SIGKILL');
+  return result;
+};
+fs.renameSync = function patchedRename(source, target) {
+  if (String(target).endsWith('.lock')) process.kill(process.pid, 'SIGKILL');
+  return renameSync.call(this, source, target);
+};
+const { loadLoop, saveLoop } = require(storePath);
+saveLoop(root, loadLoop(root));
+`;
+
 function fixture(t, prefix = 'lazytrae-transaction-') {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
@@ -77,6 +95,41 @@ function eventFiles(root) {
     path.join(root, '.lazytrae', 'loop', 'run-transaction', 'ledger.jsonl'),
   ];
 }
+
+function lockPath(root) {
+  const key = crypto.createHash('sha256').update('run-transaction').digest('hex').slice(0, 32);
+  return path.join(root, '.lazytrae', 'state', 'transactions', 'locks', `${key}.lock`);
+}
+
+test('SIGKILL before durable lock publication cannot strand the next writer', t => {
+  const { root } = fixture(t, 'lazytrae-lock-publication-kill-');
+  const killed = spawnSync(process.execPath, ['-e', LOCK_GAP_CHILD, STORE, root], { encoding: 'utf8' });
+  assert.equal(killed.signal, 'SIGKILL', killed.stderr);
+
+  const recovered = spawnSync(process.execPath, ['-e', CHILD, STORE, root, 'save', 'recovered'], {
+    encoding: 'utf8',
+    timeout: 3000,
+  });
+  assert.equal(recovered.status, 0, recovered.error?.message || recovered.stderr);
+  assert.equal(loadLoop(root).generation, 'recovered');
+  assert.deepEqual(fs.readdirSync(path.dirname(lockPath(root))), []);
+});
+
+test('an old corrupt lock owner is quarantined without a permanent timeout', t => {
+  const { root } = fixture(t, 'lazytrae-lock-corrupt-owner-');
+  const lock = lockPath(root);
+  fs.mkdirSync(lock);
+  fs.writeFileSync(path.join(lock, 'owner.json'), '{corrupt');
+  const old = new Date(Date.now() - 5000);
+  fs.utimesSync(lock, old, old);
+
+  const recovered = spawnSync(process.execPath, ['-e', CHILD, STORE, root, 'save', 'recovered'], {
+    encoding: 'utf8',
+    timeout: 3000,
+  });
+  assert.equal(recovered.status, 0, recovered.error?.message || recovered.stderr);
+  assert.equal(loadLoop(root).generation, 'recovered');
+});
 
 for (const boundary of ['stage:1', 'stage:2', 'journal', 'commit', 'install:1', 'install:2']) {
   test(`saveLoop recovery is all-old or all-new after crash at ${boundary}`, t => {
