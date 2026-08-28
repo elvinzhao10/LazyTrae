@@ -47,6 +47,13 @@ approves that host-managed change, then observe that the registration is gone:
   the registration is absent. No public universal TraeCode CLI MCP removal command
   is assumed.
 
+Removing TraeCode CLI itself is a separate platform package-removal action.
+Use only the normal removal flow documented by the installer or package
+manager that installed the selected build. LazyTrae does not define or imply a
+`trae`, `traecli`, or `TraeCode CLI` uninstall command. Project offboard,
+host-registration removal, CLI package removal, and optional LazyTrae state
+cleanup are four independently approved scopes.
+
 If you no longer need the companion command globally, remove it separately
 with `npm uninstall -g lazytrae-ai` only after explicit operator approval; then
 run `lazytrae --version` (or inspect your global package list) and observe the
