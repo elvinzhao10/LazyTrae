@@ -133,6 +133,14 @@ function ideMatrix() {
 }
 
 function workMatrix(client, execution) {
+  if (client === 'unspecified' && execution === 'unspecified') {
+    const ids = [
+      'client-desktop', 'client-web', 'client-mobile', 'execution-local', 'execution-cloud',
+      'skills', 'commands', 'mcp',
+    ];
+    const described = ids.map(id => capability(id, 'descriptor-only', canonicalDigest({ host: 'trae-work', client, execution, id })));
+    return [...described, ...WORK_FORBIDDEN.map(id => unavailable(id, `${client}/${execution}`, 'no native TraeWork claim'))];
+  }
   if (!WORK_PROFILES.has(`${client}/${execution}`)) throw new Error('unsupported TraeWork client/execution profile');
   const ids = [`client-${client}`, `execution-${execution}`, 'skills', 'commands', 'mcp'];
   const supported = ids.map(id => capability(id, 'descriptor-only', canonicalDigest({ host: 'trae-work', client, execution, id })));
@@ -179,8 +187,8 @@ function buildCapabilityMatrix(repoRoot, host, options = {}) {
   if (!HOSTS.has(stableHost)) throw new Error(`unsupported host capability matrix: ${host}`);
   const now = options.now || new Date().toISOString();
   if (Number.isNaN(Date.parse(now))) throw new Error('matrix time is malformed');
-  const client = stableHost === 'trae-cli' ? 'terminal' : stableHost === 'trae-ide' ? 'desktop' : options.client;
-  const execution = stableHost === 'trae-work' ? options.execution : 'local';
+  const client = stableHost === 'trae-cli' ? 'terminal' : stableHost === 'trae-ide' ? 'desktop' : options.client || 'unspecified';
+  const execution = stableHost === 'trae-work' ? options.execution || 'unspecified' : 'local';
   const initial = stableHost === 'trae-cli' ? cliMatrix(repoRoot, { ...options, now })
     : stableHost === 'trae-ide' ? ideMatrix() : workMatrix(client, execution);
   const descriptorSha256 = canonicalDigest({ host: stableHost, client, execution, capabilities: initial });

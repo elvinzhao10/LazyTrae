@@ -14,7 +14,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["host", "host_label", "client_context", "execution_context", "contract_version", "evidence_fingerprint", "host_fingerprint", "package_assets", "generated_assets", "config", "probe", "discovery", "registration", "session", "mcp", "observation", "support", "package_readiness", "host_readiness"],
+        "required": ["host", "host_label", "client_context", "execution_context", "contract_version", "evidence_fingerprint", "host_fingerprint", "capability_matrix", "package_assets", "generated_assets", "config", "probe", "discovery", "registration", "session", "mcp", "observation", "support", "package_readiness", "host_readiness"],
         "properties": {
           "host": { "enum": ["trae-cli", "trae-ide", "trae-work"] },
           "host_label": { "enum": ["TRAE CLI", "TRAE IDE", "TRAE Work"] },
@@ -23,6 +23,7 @@
           "contract_version": { "const": "2.0.0" },
           "evidence_fingerprint": { "$ref": "#/$defs/digest" },
           "host_fingerprint": { "$ref": "#/$defs/digest" },
+          "capability_matrix": { "$ref": "#/$defs/capability_matrix" },
           "package_assets": { "type": "object" },
           "generated_assets": { "type": "object" },
           "config": { "$ref": "#/$defs/evidence" },
@@ -55,6 +56,45 @@
   },
   "$defs": {
     "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-    "evidence": { "type": "object", "additionalProperties": false, "required": ["status", "detail"], "properties": { "status": { "enum": ["ready", "missing", "conflict", "pending", "observed"] }, "detail": { "type": "string" } } }
+    "evidence": { "type": "object", "additionalProperties": false, "required": ["status", "detail"], "properties": { "status": { "enum": ["ready", "missing", "conflict", "pending", "observed"] }, "detail": { "type": "string" } } },
+    "capability_matrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "contract_version", "host", "client", "execution", "descriptor_sha256", "capabilities", "matrix_sha256"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "contract_version": { "const": "1.2.0" },
+        "host": { "enum": ["trae-cli", "trae-ide", "trae-work"] },
+        "client": { "enum": ["terminal", "desktop", "web", "mobile", "unspecified"] },
+        "execution": { "enum": ["local", "cloud", "unspecified"] },
+        "descriptor_sha256": { "$ref": "#/$defs/digest" },
+        "matrix_sha256": { "$ref": "#/$defs/digest" },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["capability_id", "status", "evidence"],
+            "properties": {
+              "capability_id": { "type": "string" },
+              "status": { "enum": ["host-executed", "host-observed", "descriptor-only", "unavailable"] },
+              "evidence": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["fingerprint", "observed_at", "expires_at", "session_id", "build_version", "build_sha256"],
+                "properties": {
+                  "fingerprint": { "$ref": "#/$defs/digest" },
+                  "observed_at": { "type": ["string", "null"] },
+                  "expires_at": { "type": ["string", "null"] },
+                  "session_id": { "type": ["string", "null"] },
+                  "build_version": { "type": ["string", "null"] },
+                  "build_sha256": { "anyOf": [{ "$ref": "#/$defs/digest" }, { "type": "null" }] }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

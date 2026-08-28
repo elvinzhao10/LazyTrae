@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { checkProjectAssets } = require('./project-assets');
 const { checkCandidate } = require('./traecli-candidate');
+const { buildCapabilityMatrix } = require('./host-capability-matrix');
 const {
   canonicalDigest, fileMaterial, generatedMaterial, jsonMaterial, packageMaterial, sha256,
 } = require('./host-adapter-fingerprint');
@@ -145,7 +146,19 @@ function inspectHostProfile(repoRoot, host, options = {}) {
   const probeReport = inspectProbe(repoRoot, route);
   const evidenceFingerprint = canonicalDigest({ manifestSha256, route, packages, generated, config, probe: probeReport.material, session: sessionMaterial });
   const observationReport = inspectObservation(repoRoot, route, evidenceFingerprint, probeReport);
-  const hostFingerprint = canonicalDigest({ evidenceFingerprint, observation: observationReport.material });
+  const capabilityMatrix = buildCapabilityMatrix(repoRoot, route.host, {
+    client: options.capabilityClient,
+    execution: options.capabilityExecution,
+    probePath: options.capabilityProbePath,
+    receiptPath: options.capabilityReceiptPath,
+    sessionId: options.capabilitySessionId,
+    now: options.capabilityNow,
+  });
+  const hostFingerprint = canonicalDigest({
+    evidenceFingerprint,
+    observation: observationReport.material,
+    capabilityMatrix: capabilityMatrix.matrix_sha256,
+  });
   const observation = observationReport.valid ? observationReport.value : null;
   const probe = probeReport.valid ? pendingEvidence('observed', 'bounded fingerprinted host probe') : pendingEvidence();
   const sessionCurrent = observation && sessionState?.current_session_id === observation.session_id;
@@ -177,6 +190,7 @@ function inspectHostProfile(repoRoot, host, options = {}) {
     contract_version: '2.0.0',
     evidence_fingerprint: evidenceFingerprint,
     host_fingerprint: hostFingerprint,
+    capability_matrix: capabilityMatrix,
     package_assets: packageAssets,
     generated_assets: generatedAssets,
     config: pendingEvidence(configStatus, route.config_path || 'manual host configuration'),
