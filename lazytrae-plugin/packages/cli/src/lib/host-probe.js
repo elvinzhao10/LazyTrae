@@ -180,11 +180,16 @@ function probeHost({ host, executable, expectedSha256, fixturePath }) {
     });
   }
   const fixture = fixtureResult.fixture;
+  const capabilities = (fixture?.capabilities || [{ name: 'host-introspection', status: 'accessible' }])
+    .filter(capability => capability.name !== 'config-read');
+  if (host === 'cli' && /(?:^|\n)\s*config\s+(?:get|list|show)(?:\s|$)/i.test(outputs[1])) {
+    capabilities.push({ name: 'config-read', status: 'accessible' });
+  }
   return outcome(host, 'accessible', 'read-only host introspection completed', {
     region: fixture?.region || classifyRegion(combined),
     edition: fixture?.edition || classifyEdition(combined),
     binary: { path: resolved.executable, sha256: fingerprint, version: classifyVersion(combined) },
-    capabilities: fixture?.capabilities || [{ name: 'host-introspection', status: 'accessible' }],
+    capabilities,
     observed_argv: ALLOWED_ARGV,
   });
 }
