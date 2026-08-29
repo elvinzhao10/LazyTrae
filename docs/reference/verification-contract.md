@@ -13,6 +13,10 @@ ready. The public tests cover template parity, packaged MCP parity,
 init/load-check/doctor paths, tooling lifecycle, safe uninstall, Work skill
 handling, and JSON-RPC discipline.
 
+For a risk-plan invocation, `verify --json` returns a monotonic in-memory
+`elapsed_ms` total and an `elapsed_ms` measurement on each gate outcome. These
+fields describe only that invocation and are not persisted as telemetry.
+
 For release evidence only, an explicit-root learner-manifest comparison may
 check that LazyTrae and LazyBuddy have the same documentation paths and page
 titles while allowing host-specific prose. It is not a normal-CI, runtime, or

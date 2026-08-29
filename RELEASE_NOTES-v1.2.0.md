@@ -15,6 +15,11 @@ host readiness remain separate authorities.
   concurrency, and unavailable token/timing telemetry without inventing data.
 - Deterministic risk classification scales verification work while preserving
   the final completion and evidence gates.
+- Contributor verification now discovers only `*.test.js`, partitions source
+  and package coverage without overlap, defaults to bounded concurrency `2`
+  (maximum `4`), and keeps proven lock/process timing tests serial. Risk-gate
+  JSON reports include in-memory monotonic total and per-gate timing without
+  adding telemetry persistence.
 - Current TraeCode surfaces, adapters, status, receipts, and capability evidence
   are fingerprint-bound. TraeCode CLI remains configuration-only until observed.
 - Network redirects, local MCP transport, path boundaries, and sensitive output
@@ -29,9 +34,10 @@ The direct scenario completed 13 assertions in one invocation with 2,531 bytes
 of required evidence, zero reruns, and zero rework. The six-module scenario
 completed 57 assertions in one invocation with 9,403 evidence bytes, zero
 reruns, and zero rework. Both passed the same three gates: exact assertions,
-completion classification, and required evidence. Elapsed time and token totals
-are explicitly unavailable in the checked-in records, so no timing or token
-savings are claimed.
+completion classification, and required evidence. Validation elapsed time and
+token totals are explicitly unavailable in the checked-in records, so no timing
+or token savings are claimed. The fixtures use `validation_elapsed_ms` to keep
+that missing baseline measurement distinct from live verification report timing.
 
 ## Host capability matrix
 

@@ -106,6 +106,12 @@ test('Given direct, affected, and release inputs, when shipped verification runs
     assert.deepEqual([...new Set(report.gate_outcomes.map(({ gate_id: gate }) => gate))], expectedGates);
     assert.equal(report.actor_count, actorCount);
     assert.equal(report.passed, true);
+    assert.equal(Number.isFinite(report.elapsed_ms), true);
+    assert.equal(report.elapsed_ms >= 0, true);
+    assert.equal(report.gate_outcomes.every(({ elapsed_ms: elapsedMs }) => (
+      Number.isFinite(elapsedMs) && elapsedMs >= 0
+    )), true);
+    assert.equal(report.elapsed_ms >= report.gate_outcomes.reduce((total, gate) => total + gate.elapsed_ms, 0), true);
     assert.equal(fs.readFileSync(scenario.log, 'utf8').trim().split('\n').length, report.cost.gate_invocations);
   }
 });

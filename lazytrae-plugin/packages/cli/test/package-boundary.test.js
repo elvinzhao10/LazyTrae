@@ -60,7 +60,7 @@ test('package and source verification entry points are explicitly separate', () 
   assert.equal(packageManifest.scripts.test, 'npm run test:package');
   assert.match(packageManifest.scripts['test:package'], /work-profile\.test\.js/);
   assert.match(packageManifest.scripts['test:package'], /mcp-declaration-safety\.test\.js/);
-  assert.equal(packageManifest.scripts['test:source'], 'node ./tools/test-fixture-runner.js');
+  assert.match(packageManifest.scripts['test:source'], /^node \.\/tools\/test-fixture-runner\.js --exclude=/);
   assert.equal(packageManifest.scripts['test:all'], 'npm run test:source && npm run test:package');
   assert.equal(packageManifest.scripts['test:publication'],
     'node ./tools/test-fixture-runner.js publication/documentation-publication.js');

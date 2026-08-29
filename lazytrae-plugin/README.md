@@ -1,6 +1,6 @@
 # LazyTrae plugin
 
-## Durable v1.0.3 installation
+## Durable v1.2.0 installation
 
 **Node.js LTS 20 or newer** and **Git** are required. Run `lifecycle onboard`
 only from `https://github.com/elvinzhao10/LazyTrae.git`, then use
@@ -49,7 +49,7 @@ projects. Keep it self-contained and run the CLI test suite after changes.
 
 ## Install, verify, and remove
 
-Bootstrap v1.0.3 once from a verified official source checkout, then use the
+Bootstrap v1.2.0 once from a verified official source checkout, then use the
 durable launcher rather than treating that checkout as the installed runtime:
 
 ```bash
@@ -123,8 +123,17 @@ node src/index.js --help
 ```
 
 `npm test` runs the archive-contained package verification suite. `npm run
-test:source` runs the complete source-tree suite, and `npm run test:all` runs
-both so package contributors do not lose either coverage layer.
+test:source` runs every other discovered `*.test.js`; the two inventories are
+disjoint, and `npm run test:all` runs their complete non-overlapping union.
+The harness defaults to two workers, accepts `LAZYTRAE_TEST_CONCURRENCY=1`
+through `4`, and keeps the lock/process timing tests on its proven-safe serial
+path. Helper modules in `test/` are never discovered as tests.
+
+Risk-based `verify --json` reports an in-memory monotonic `elapsed_ms` total
+and an `elapsed_ms` value for every gate outcome. These timings are returned
+only in the report; they are not added to persisted telemetry. Checked-in
+efficiency baselines use `validation_elapsed_ms` so their validation metadata
+cannot be mistaken for a live verification-gate measurement.
 
 For contributors, keep source/template mirrors aligned, preserve receipt
 ownership boundaries, and run the CLI suite before changing package behavior.

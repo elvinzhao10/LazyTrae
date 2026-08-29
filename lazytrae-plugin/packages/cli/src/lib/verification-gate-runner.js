@@ -40,6 +40,7 @@ function invocationsFor(plan, gateId) {
 }
 
 function runInvocation(root, gateId, invocation, index, timeoutMs) {
+  const started = process.hrtime.bigint();
   const result = spawnSync(invocation.command, invocation.args, {
     cwd: root,
     encoding: 'utf8',
@@ -54,10 +55,12 @@ function runInvocation(root, gateId, invocation, index, timeoutMs) {
     outcome: result.status === 0 && !result.error ? 'passed' : 'failed',
     exit_code: Number.isInteger(result.status) ? result.status : null,
     timed_out: timedOut,
+    elapsed_ms: Number(process.hrtime.bigint() - started) / 1_000_000,
   };
 }
 
 function runVerificationGates(root, input, plan) {
+  const started = process.hrtime.bigint();
   const initialPolicy = selectVerificationPolicy(input);
   const timeoutMs = Number.isInteger(plan?.timeoutMs) && plan.timeoutMs > 0 && plan.timeoutMs <= 120000
     ? plan.timeoutMs
@@ -73,6 +76,7 @@ function runVerificationGates(root, input, plan) {
     completed.add(gateId);
     const invocations = invocationsFor(plan, gateId);
     if (invocations === null) {
+      const gateStarted = process.hrtime.bigint();
       gateOutcomes.push({
         gate_id: gateId,
         invocation: 1,
@@ -80,6 +84,7 @@ function runVerificationGates(root, input, plan) {
         outcome: 'failed',
         exit_code: null,
         timed_out: false,
+        elapsed_ms: Number(process.hrtime.bigint() - gateStarted) / 1_000_000,
       });
     } else {
       gateOutcomes.push(...invocations.map((invocation, index) => (
@@ -115,6 +120,7 @@ function runVerificationGates(root, input, plan) {
       )).length,
       full_suite_invocations: gateOutcomes.filter(({ gate_id: gate }) => gate === 'paired-full-suites').length,
     },
+    elapsed_ms: Number(process.hrtime.bigint() - started) / 1_000_000,
     passed,
   };
 }

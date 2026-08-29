@@ -126,5 +126,9 @@ runtime.
 
 Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md)
 for development checks, release expectations, and guidance for reporting
-sanitized reproduction details. Report vulnerabilities privately according to
-[SECURITY.md](SECURITY.md).
+sanitized reproduction details. From `lazytrae-plugin/packages/cli`, `npm run
+test:source` and `npm run test:package` cover disjoint sets of `*.test.js`
+files; `npm run test:all` runs their complete non-overlapping union. The harness
+uses two workers by default. Set `LAZYTRAE_TEST_CONCURRENCY=1` for a fully
+serial check or an integer up to `4` for a bounded local run. Report
+vulnerabilities privately according to [SECURITY.md](SECURITY.md).

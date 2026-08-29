@@ -21,8 +21,8 @@
     { "gate": "required-evidence", "outcome": "passed" }
   ],
   "cost": {
-    "elapsed_ms": null,
-    "elapsed_unavailable_reason": "host did not expose timing telemetry",
+    "validation_elapsed_ms": null,
+    "validation_elapsed_unavailable_reason": "host did not expose validation timing",
     "invocation_count": 1,
     "evidence_bytes": 2531,
     "reruns": 0,

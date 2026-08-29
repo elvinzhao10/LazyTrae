@@ -44,6 +44,8 @@ test('emits schema-valid direct baseline when fixture is complete', () => {
   assert.equal(output.outcome.quality_equivalent, true);
   assert.equal(output.outcome.assertions_passed, 13);
   assert.equal(output.cost.tokens.total, null);
+  assert.equal(output.cost.validation_elapsed_ms, null);
+  assert.equal(Object.hasOwn(output.cost, 'elapsed_ms'), false);
   assert.equal(output.route.actor_count, 1);
 });
 
