@@ -38,6 +38,7 @@ function makeScenario() {
     "const [log, gate, behavior, actor] = process.argv.slice(2);",
     "fs.appendFileSync(log, JSON.stringify({ gate, actor }) + '\\n');",
     "if (behavior === 'hang') setTimeout(() => {}, 60000);",
+    "else if (behavior === 'delayed-fail') setTimeout(() => process.exit(7), 100);",
     "else process.exit(behavior === 'fail' ? 7 : 0);",
   ].join('\n'));
   return { root, controls, recorder, log };
@@ -116,15 +117,15 @@ test('Given direct, affected, and release inputs, when shipped verification runs
   }
 });
 
-test('Given a selected gate fails or hangs, when shipped verification runs, then actual outcomes fail closed', (t) => {
-  for (const behavior of ['fail', 'hang']) {
+test('Given a selected gate fails, is delayed, or hangs, when shipped verification runs, then actual outcomes fail closed', (t) => {
+  for (const behavior of ['fail', 'delayed-fail', 'hang']) {
     const scenario = makeScenario();
     t.after(() => fs.rmSync(scenario.root, { recursive: true, force: true }));
     t.after(() => fs.rmSync(scenario.controls, { recursive: true, force: true }));
     const targeted = commandFor(scenario, 'targeted-tests', behavior);
 
     const { result, report } = runScenario(scenario, {}, {
-      timeoutMs: 50,
+      timeoutMs: 1000,
       gates: {
         'targeted-tests': [targeted],
         'final-assertions': [commandFor(scenario, 'final-assertions')],

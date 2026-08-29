@@ -1,0 +1,18 @@
+test_1h (test_parse_duration.TestParseDuration) ... ok
+test_250ms (test_parse_duration.TestParseDuration) ... ok
+test_2s (test_parse_duration.TestParseDuration) ... ok
+test_3m (test_parse_duration.TestParseDuration) ... ok
+test_outer_whitespace (test_parse_duration.TestParseDuration) ... ok
+test_reject_decimal_values (test_parse_duration.TestParseDuration) ... ok
+test_reject_empty_string (test_parse_duration.TestParseDuration) ... ok
+test_reject_internal_whitespace (test_parse_duration.TestParseDuration) ... ok
+test_reject_missing_units (test_parse_duration.TestParseDuration) ... ok
+test_reject_negative_values (test_parse_duration.TestParseDuration) ... ok
+test_reject_non_string_inputs (test_parse_duration.TestParseDuration) ... ok
+test_reject_unknown_units (test_parse_duration.TestParseDuration) ... ok
+test_zero_ms (test_parse_duration.TestParseDuration) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.000s
+
+OK

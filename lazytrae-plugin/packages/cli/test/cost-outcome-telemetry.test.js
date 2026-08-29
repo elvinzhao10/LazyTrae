@@ -14,17 +14,7 @@ const fixtureRoot = path.join(__dirname, 'fixtures', 'efficiency');
 const schema = JSON.parse(fs.readFileSync(path.join(packageRoot, 'contracts', 'lazyseries-cost-outcome.v1.schema.json'), 'utf8'));
 const validate = new Ajv2020({ strict: true }).compile(schema);
 
-function findEvalRoot(start) {
-  let current = start;
-  while (path.dirname(current) !== current) {
-    const candidate = path.join(current, 'evals');
-    if (fs.existsSync(candidate)) return candidate;
-    current = path.dirname(current);
-  }
-  throw new Error('evals directory not found');
-}
-
-const evalRoot = findEvalRoot(packageRoot);
+const evalRoot = path.join(fixtureRoot, 'evals');
 
 function invoke(projectRoot, scenario, runId, env = {}) {
   return spawnSync(process.execPath, [
