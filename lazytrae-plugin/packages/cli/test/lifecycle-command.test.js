@@ -259,7 +259,11 @@ let swapped = false;
 fs.openSync = (target, flags, mode) => {
   if (!swapped && target === process.env.BLOCKED_LOCK) {
     swapped = true;
-    fs.rmSync(process.env.PRODUCT_ROOT, { recursive: true });
+    const displacedProductRoot = path.join(
+      path.dirname(process.env.PRODUCT_ROOT),
+      '.' + path.basename(process.env.PRODUCT_ROOT) + '-before-swap-' + process.pid,
+    );
+    fs.renameSync(process.env.PRODUCT_ROOT, displacedProductRoot);
     const directories = ['releases', 'receipts', 'staging', 'locks', 'rollback'];
     for (const directory of directories) fs.mkdirSync(path.join(process.env.PRODUCT_ROOT, directory), { recursive: true });
     fs.writeFileSync(path.join(process.env.PRODUCT_ROOT, 'caller-owned.txt'), 'caller-owned\\n');
