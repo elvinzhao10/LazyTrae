@@ -10,7 +10,7 @@ const { assessCompletion } = require('../src/lib/completion-assessment');
 const { runCli } = require('./test-helpers');
 const EXPECTED_MUTATION_REASONS = require('../contracts/fixtures/v120/completion-assessment-reasons.json');
 
-const VERSION = '1.2.0';
+const VERSION = '1.2.1';
 const STATE = '.lazytrae/state/completion-authority.json';
 const FIXTURE_ROOTS = new Set();
 test.after(() => { for (const root of FIXTURE_ROOTS) fs.rmSync(root, { recursive: true, force: true }); });

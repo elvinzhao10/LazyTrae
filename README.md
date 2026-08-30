@@ -6,9 +6,9 @@ LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 **TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-The current stable release is [v1.2.0](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.2.0).
+The current stable release is [v1.2.1](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.2.1).
 
-## Efficiency improvements in v1.2.0
+## Efficiency improvements since v1.2.0
 
 - Verification is selected by deterministic risk: small, low-risk changes use
   targeted checks, while release, security, stale-evidence, and public-contract
@@ -19,6 +19,12 @@ The current stable release is [v1.2.0](https://github.com/elvinzhao10/LazyTrae/r
 - Redacted cost/outcome records make invocation count, reruns, rework, and
   evidence volume visible. Unavailable timing or token data remains explicit
   rather than being estimated.
+- Pull requests now run the publication, package, standalone MCP, product-name,
+  and workflow safety gates, while a weekly compatibility job checks the
+  supported Node.js range and dependency freshness without weakening release
+  verification.
+- Interrupting optional-provider startup now forwards SIGINT immediately and
+  waits for the child to exit, avoiding an unnecessary timeout delay.
 
 ## Recommended: install with AI help
 
@@ -26,7 +32,7 @@ You do not need to work through the technical setup alone. Open an AI coding
 assistant in your project and paste this:
 
 > Help me install LazyTrae from https://github.com/elvinzhao10/LazyTrae for
-> this project. Use the stable v1.2.0 route. Run safe package checks first,
+> this project. Use the stable v1.2.1 route. Run safe package checks first,
 > explain each step plainly, and ask me before changing host settings, adding
 > an MCP connector, or registering anything in Trae.
 
@@ -125,9 +131,9 @@ runtime.
 ## Learn more
 
 - [Install and verify a host](docs/03-install-and-host-verification.md)
-- [Supported v1.2.0 route](docs/v1.2.0-supported-route.md)
-- [Migration and safe removal](docs/v1.2.0-migration-guide.md)
-- [Release notes](RELEASE_NOTES-v1.2.0.md)
+- [Historical v1.2.0 supported route](docs/v1.2.0-supported-route.md)
+- [Historical v1.2.0 migration guide](docs/v1.2.0-migration-guide.md)
+- [v1.2.1 release notes](RELEASE_NOTES-v1.2.1.md)
 - [Documentation index](docs/README.md)
 
 ## License

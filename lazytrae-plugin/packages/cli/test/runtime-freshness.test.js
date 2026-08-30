@@ -7,9 +7,10 @@ const path = require('node:path');
 const test = require('node:test');
 const runtime = require('../src/lib/runtime-freshness');
 
+const STALE_PACKAGE_VERSION = '1.2.0';
 const digest = (character) => `sha256:${character.repeat(64)}`;
 const binding = () => ({
-  plan_hash: digest('1'), git_head: 'a'.repeat(40), package_version: '1.2.0',
+  plan_hash: digest('1'), git_head: 'a'.repeat(40), package_version: '1.2.1',
   task_namespace: 'task-10', capability_fingerprint: digest('2'), context_digest: digest('3'),
 });
 
@@ -27,7 +28,7 @@ test('current binding derives repository identity and rejects tracked dirty inpu
   const childProcess = require('node:child_process');
   childProcess.execFileSync('git', ['init', '-q', root]);
   fs.writeFileSync(path.join(root, 'plan.md'), 'bounded plan\n');
-  fs.writeFileSync(path.join(root, 'package.json'), '{"version":"1.2.0"}\n');
+  fs.writeFileSync(path.join(root, 'package.json'), '{"version":"1.2.1"}\n');
   childProcess.execFileSync('git', ['-C', root, 'add', 'plan.md', 'package.json']);
   childProcess.execFileSync('git', ['-C', root, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'fixture']);
   const current = runtime.createCurrentBinding({
@@ -35,7 +36,7 @@ test('current binding derives repository identity and rejects tracked dirty inpu
     task_namespace: 'task-10', capability_fingerprint: digest('2'), context: { session: 'fresh' },
   });
   assert.equal(current.git_head, childProcess.execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim());
-  assert.equal(current.package_version, '1.2.0');
+  assert.equal(current.package_version, '1.2.1');
   assert.match(current.plan_hash, /^sha256:[0-9a-f]{64}$/);
   fs.writeFileSync(path.join(root, 'plan.md'), 'dirty plan\n');
   assert.throws(() => runtime.createCurrentBinding({
@@ -47,7 +48,7 @@ test('current binding derives repository identity and rejects tracked dirty inpu
 test('every binding and stale compressed context rejects resume and requires a handoff', () => {
   for (const field of ['plan_hash', 'git_head', 'package_version', 'task_namespace', 'capability_fingerprint', 'context_digest']) {
     const current = binding();
-    current[field] = field === 'package_version' ? '1.2.1' : `${current[field]}-changed`;
+    current[field] = field === 'package_version' ? STALE_PACKAGE_VERSION : `${current[field]}-changed`;
     const result = runtime.resumeContinuation({ current, handoff: runtime.createHandoffSnapshot(binding(), { next_action: 'continue' }), capacity: { available: true } });
     assert.equal(result.status, 'stale', field);
     assert.equal(result.reason, `binding-mismatch:${field}`, field);

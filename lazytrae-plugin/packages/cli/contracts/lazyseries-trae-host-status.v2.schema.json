@@ -8,7 +8,7 @@
     "schema_version": { "const": 2 },
     "contract_version": { "const": "2.0.0" },
     "product": { "const": "LazyTrae" },
-    "version": { "const": "1.2.0" },
+    "version": { "const": "1.2.1" },
     "profiles": {
       "type": "array",
       "items": {

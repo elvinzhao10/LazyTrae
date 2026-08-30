@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 
-const RELEASE_VERSION = '1.2.0';
+const RELEASE_VERSION = '1.2.1';
 const REPOSITORY_ROOT = path.resolve(__dirname, '../../../..');
 
 const JSON_VERSION_PATHS = [
