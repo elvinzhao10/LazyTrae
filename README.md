@@ -6,8 +6,19 @@ LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 **TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-v1.2.0 is prepared for release but is not published yet. The current published
-release is [v1.1.0](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.1.0).
+The current stable release is [v1.2.0](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.2.0).
+
+## Efficiency improvements in v1.2.0
+
+- Verification is selected by deterministic risk: small, low-risk changes use
+  targeted checks, while release, security, stale-evidence, and public-contract
+  changes always escalate to the full gate.
+- Source and package test suites are disjoint, test discovery is standalone,
+  and Node test concurrency is bounded to keep verification efficient without
+  weakening final assertions.
+- Redacted cost/outcome records make invocation count, reruns, rework, and
+  evidence volume visible. Unavailable timing or token data remains explicit
+  rather than being estimated.
 
 ## Recommended: install with AI help
 
