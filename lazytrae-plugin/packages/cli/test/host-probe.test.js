@@ -29,11 +29,11 @@ function withTemporaryDirectory(callback) {
 
 test('host probe executes only version and help with a credential-free environment', () => {
   withTemporaryDirectory(root => {
-    // Given: an absolute, fingerprint-pinned closed-source Trae CLI-shaped executable.
+    // Given: an absolute, fingerprint-pinned closed-source TraeCode CLI-shaped executable.
     const invocationLog = path.join(root, 'invocations');
     const executable = writeExecutable(root, 'trae', [
       "printf '%s|%s|%s|%s\\n' \"$*\" \"${SECRET_TOKEN-}\" \"${HOME-}\" \"${PATH-}\" >> \"" + invocationLog + "\"",
-      "if [ \"$1\" = \"--version\" ]; then printf 'Trae CLI 2.4.0 region=global edition=enterprise\\n'; else printf 'Trae CLI help\\n'; fi",
+      "if [ \"$1\" = \"--version\" ]; then printf 'TraeCode CLI 2.4.0 region=global edition=enterprise\\n'; else printf 'TraeCode CLI help\\n'; fi",
     ].join('\n'));
 
     // When: the real CLI probe surface is invoked with the binary fingerprint.
@@ -64,7 +64,7 @@ test('host probe accepts the required closed-source traecli executable name', ()
     const invocationLog = path.join(root, 'traecli-invocations');
     const executable = writeExecutable(root, 'traecli', [
       'printf \'%s\\n\' "$*" >> "' + invocationLog + '"',
-      "if [ \"$1\" = \"--version\" ]; then printf 'Trae CLI 7.8.9 region=global edition=enterprise\\n'; else printf 'Trae CLI help\\n'; fi",
+      "if [ \"$1\" = \"--version\" ]; then printf 'TraeCode CLI 7.8.9 region=global edition=enterprise\\n'; else printf 'TraeCode CLI help\\n'; fi",
     ].join('\n'));
 
     // When: the real probe command receives the exact absolute traecli path and fingerprint.
@@ -108,7 +108,7 @@ test('host probe rejects relative and open-source trae-agent executables before 
 test('host probe preserves every typed capability outcome from a validated JSON fixture', () => {
   withTemporaryDirectory(root => {
     // Given: a safe binary and a fixture containing every supported typed outcome.
-    const executable = writeExecutable(root, 'trae', "if [ \"$1\" = \"--version\" ]; then printf 'Trae CLI 2.4.0\\n'; else printf 'Trae CLI help\\n'; fi");
+    const executable = writeExecutable(root, 'trae', "if [ \"$1\" = \"--version\" ]; then printf 'TraeCode CLI 2.4.0\\n'; else printf 'TraeCode CLI help\\n'; fi");
 
     // When: the fixture-backed probe runs.
     const result = runCli([
@@ -130,8 +130,8 @@ test('host probe preserves every typed capability outcome from a validated JSON 
 test('host probe recognizes IDE and Work identities without upgrading readiness', () => {
   withTemporaryDirectory(root => {
     // Given: absolute executables identifying the IDE and Work product surfaces.
-    const ide = writeExecutable(root, 'Trae', "printf 'Trae IDE 3.1.0 region=china edition=individual\\n'");
-    const work = writeExecutable(root, 'TraeWork', "printf 'Trae Work 5.0.0 region=global edition=enterprise\\n'");
+    const ide = writeExecutable(root, 'Trae', "printf 'TraeCode 3.1.0 region=china edition=individual\\n'");
+    const work = writeExecutable(root, 'TraeWork', "printf 'TraeWork 5.0.0 region=global edition=enterprise\\n'");
 
     // When: each selected host is introspected through the same safe command.
     const ideResult = runCli(['host-probe', '--host', 'ide', '--executable', ide, '--expected-sha256', digest(ide), '--json']);
@@ -157,7 +157,7 @@ test('host probe detects changed binaries and malformed fixtures before executio
     const executionMarker = path.join(root, 'executed');
     const executable = writeExecutable(root, 'trae', [
       'touch "' + executionMarker + '"',
-      "printf 'Trae CLI 2.4.0\\n'",
+      "printf 'TraeCode CLI 2.4.0\\n'",
     ].join('\n'));
     const malformedFixture = path.join(root, 'fixture.json');
     fs.writeFileSync(malformedFixture, '{bad json\n');
@@ -201,7 +201,7 @@ test('host probe bounds time and output and rejects script-level network attempt
     // Given: binaries that sleep, flood stdout, or contain an explicit network client invocation.
     const timeout = writeExecutable(root, 'trae-timeout', 'sleep 5');
     const flood = writeExecutable(root, 'trae-flood', [
-      "printf 'Trae CLI '",
+      "printf 'TraeCode CLI '",
       'i=0; while [ "$i" -lt 90000 ]; do printf x; i=$((i + 1)); done',
     ].join('\n'));
     const networkMarker = path.join(root, 'network-attempted');

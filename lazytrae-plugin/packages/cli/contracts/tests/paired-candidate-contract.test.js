@@ -27,9 +27,9 @@ function writeFile(root, relativePath, content, mode = 0o644) {
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'paired-candidate-contract.'));
   writeFile(root, 'LazyBuddy/bin/run', '#!/bin/sh\nexit 0\n', 0o755);
-  writeFile(root, 'LazyBuddy/lazybuddy-v1.1.0.tar.gz', 'buddy archive');
+  writeFile(root, 'LazyBuddy/lazybuddy-v1.2.0.tar.gz', 'buddy archive');
   writeFile(root, 'LazyTrae/bin/run', '#!/bin/sh\nexit 0\n', 0o755);
-  writeFile(root, 'LazyTrae/lazytrae-ai-v1.1.0.tgz', 'trae archive');
+  writeFile(root, 'LazyTrae/lazytrae-ai-v1.2.0.tgz', 'trae archive');
   writeFile(root, 'detached/build-metadata.json', '{"note":"untrusted metadata is inert"}\n');
   const inventory = buildInventory(root);
   const product = (productId, prefix, archive) => {
@@ -48,11 +48,11 @@ function fixture() {
   };
   const candidate = {
     schema_version: 'lazyseries.paired-candidate.v1',
-    release_version: '1.1.0',
+    release_version: '1.2.0',
     payload_stage: 'staged',
     products: [
-      product('lazybuddy', 'LazyBuddy', 'lazybuddy-v1.1.0.tar.gz'),
-      product('lazytrae', 'LazyTrae', 'lazytrae-ai-v1.1.0.tgz'),
+      product('lazybuddy', 'LazyBuddy', 'lazybuddy-v1.2.0.tar.gz'),
+      product('lazytrae', 'LazyTrae', 'lazytrae-ai-v1.2.0.tgz'),
     ],
     shared_contract_digests: [
       { name: 'lazyseries-capability-readiness.v2.json', sha256: '2'.repeat(64) },
@@ -63,7 +63,7 @@ function fixture() {
       sha256: inventory.find((entry) => entry.path === 'detached/build-metadata.json').sha256,
     },
     host_rows: HOSTS.map((host_id) => ({ host_id, status: 'pending' })),
-    onboarding_sibling: 'live-test-v1.1.0-<combined-digest>-onboarding',
+    onboarding_sibling: 'live-test-v1.2.0-<combined-digest>-onboarding',
   };
   candidate.combined_digest = computeCombinedDigest(candidate);
   const onboarding = {
@@ -191,7 +191,7 @@ test('refuses each required hostile candidate mutation', async (t) => {
   const cases = [
     ['missing payload stage', 'CANDIDATE_SCHEMA', ({ candidate }) => { delete candidate.payload_stage; }],
     ['missing source SHA', 'MISSING_SOURCE_SHA', ({ candidate }) => { delete candidate.products[0].source_sha; }],
-    ['wrong release', 'CANDIDATE_SCHEMA', ({ candidate }) => { candidate.release_version = '1.2.0'; candidate.combined_digest = computeCombinedDigest(candidate); }],
+    ['wrong release', 'CANDIDATE_SCHEMA', ({ candidate }) => { candidate.release_version = '1.1.0'; candidate.combined_digest = computeCombinedDigest(candidate); }],
     ['dirty source', 'DIRTY_SOURCE', ({ candidate }) => { candidate.products[0].source_clean = false; }],
     ['nonpending live row', 'NONPENDING_HOST_ROW', ({ candidate }) => { candidate.host_rows[2].status = 'passed'; }],
     ['duplicate host', 'HOST_INVENTORY', ({ candidate }) => { candidate.host_rows[5].host_id = 'trae-ide'; }],

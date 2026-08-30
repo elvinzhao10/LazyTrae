@@ -50,7 +50,7 @@ function assertManagedDeclaration(declaration, launcher, project) {
   assert.match(declaration._lazytrae.fingerprint, /^sha256:[a-f0-9]{64}$/);
 }
 
-test('permanent local launcher reports v1.1.0 and owns both package bins', () => {
+test('permanent local launcher reports v1.2.0 and owns both package bins', () => {
   // Given: the publishable package manifest and release-owned launcher.
   const manifest = require('../package.json');
 
@@ -60,7 +60,7 @@ test('permanent local launcher reports v1.1.0 and owns both package bins', () =>
   // Then: both binary aliases resolve to that launcher and it reports the current package version.
   assert.deepEqual(manifest.bin, { 'lazytrae-ai': 'bin/lazytrae.js', lazytrae: 'bin/lazytrae.js' });
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.stdout.trim(), '1.1.0');
+  assert.equal(result.stdout.trim(), '1.2.0');
 });
 
 test('local release launcher initializes a project from an unrelated cwd when paths contain spaces', () => {
@@ -89,7 +89,7 @@ test('local release launcher initializes a project from an unrelated cwd when pa
     assert.doesNotMatch(stopHook, /command -v lazytrae|&& lazytrae /);
     const mcp = initialize(declaration, caller, home);
     assert.equal(mcp.status, 0, mcp.stderr);
-    assert.equal(JSON.parse(mcp.stdout.trim()).result.serverInfo.version, '1.1.0');
+    assert.equal(JSON.parse(mcp.stdout.trim()).result.serverInfo.version, '1.2.0');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -112,7 +112,7 @@ test('release-owned launcher serves MCP initialize from outside the release with
 
     // Then: initialize reports the current release.
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(JSON.parse(result.stdout.trim()).result.serverInfo.version, '1.1.0');
+    assert.equal(JSON.parse(result.stdout.trim()).result.serverInfo.version, '1.2.0');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -145,7 +145,7 @@ test('work status prints a release-owned repair command when PATH contains only 
   }
 });
 
-test('completion status prints a release-owned verification command', () => {
+test('completion status prints a release-owned reassessment command', () => {
   // Given: a local project whose active task has not recorded completion evidence.
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-local-completion-'));
   const project = makeProject(root, 'project');
@@ -157,7 +157,8 @@ test('completion status prints a release-owned verification command', () => {
     works: {
       'work-1': {
         work_id: 'work-1',
-        tasks: [{ id: 'task-1', status: 'in_progress', evidence_paths: [] }],
+        plan_name: 'release-plan',
+        tasks: [{ id: 'task-1', description: 'verify release', status: 'in_progress', evidence_paths: [] }],
         blockers: [],
       },
     },
@@ -167,16 +168,16 @@ test('completion status prints a release-owned verification command', () => {
     const result = runLauncher(LOCAL_LAUNCHER, ['--root', project, 'completion-status'], { cwd: root, home });
 
     // Then: the next command is tied to this release and project, never a bare PATH command.
-    const expected = `node '${fs.realpathSync(LOCAL_LAUNCHER)}' --root '${fs.realpathSync(project)}' verify --must-pass`;
+    const expected = `node '${fs.realpathSync(LOCAL_LAUNCHER)}' --root '${fs.realpathSync(project)}' completion-status`;
     assert.equal(result.status, 1, result.stderr);
-    assert.equal(result.stdout.includes(`Next command: ${expected}`), true);
+    assert.equal(result.stdout.includes(`Next command: ${expected}`), true, result.stdout);
     assert.doesNotMatch(result.stdout, /Next command: lazytrae\b/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
 
-test('generated stop hook relays only release-owned completion remediation', () => {
+test('generated stop hook keeps a stale completion assessment advisory', () => {
   // Given: an initialized local project with an incomplete active task.
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-local-stop-remediation-'));
   const project = makeProject(root, 'project');
@@ -189,11 +190,12 @@ test('generated stop hook relays only release-owned completion remediation', () 
       schema_version: 2,
       active_work_id: 'work-1',
       works: {
-        'work-1': {
-          work_id: 'work-1',
-          tasks: [{ id: 'task-1', status: 'in_progress', evidence_paths: [] }],
-          blockers: [],
-        },
+      'work-1': {
+        work_id: 'work-1',
+        plan_name: 'release-plan',
+        tasks: [{ id: 'task-1', description: 'verify release', status: 'in_progress', evidence_paths: [] }],
+        blockers: [],
+      },
       },
     });
 
@@ -203,10 +205,10 @@ test('generated stop hook relays only release-owned completion remediation', () 
       encoding: 'utf8',
     });
 
-    // Then: the reminder relays the explicit release-owned verification command.
-    const expected = `node '${fs.realpathSync(LOCAL_LAUNCHER)}' --root '${fs.realpathSync(project)}' verify --must-pass`;
+    // Then: stale evidence remains an advisory continuation, not a blocking completion claim.
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(result.stdout.includes(`Next command: ${expected}`), true);
+    assert.match(result.stdout, /LazyTrae Continuation Reminder/);
+    assert.doesNotMatch(result.stdout, /LazyTrae Completion Gate Reminder/);
     assert.doesNotMatch(result.stdout, /Next command: lazytrae\b/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

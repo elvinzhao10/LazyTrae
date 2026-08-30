@@ -2,6 +2,7 @@ const crypto = require('node:crypto');
 const fs = require('fs');
 const path = require('path');
 const { assertSafeRepoWritePath } = require('./path-boundary');
+const { recoverTransactions, runTransaction } = require('./state-transaction');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -15,28 +16,6 @@ function detectRepoRoot() {
 function readJSON(filePath) {
   if (!fs.existsSync(filePath)) return null;
   return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-}
-
-function writeJSON(repoRoot, filePath, data) {
-  assertSafeRepoWritePath(repoRoot, filePath);
-  const dir = path.dirname(filePath);
-  fs.mkdirSync(dir, { recursive: true });
-  const temp = `${filePath}.${process.pid}.tmp`;
-  assertSafeRepoWritePath(repoRoot, temp);
-  let descriptor;
-  let created = false;
-  try {
-    descriptor = fs.openSync(temp, 'wx', 0o600);
-    created = true;
-    fs.writeFileSync(descriptor, JSON.stringify(data, null, 2) + '\n', 'utf-8');
-    fs.closeSync(descriptor);
-    descriptor = undefined;
-    assertSafeRepoWritePath(repoRoot, filePath);
-    fs.renameSync(temp, filePath);
-  } finally {
-    if (descriptor !== undefined) fs.closeSync(descriptor);
-    if (created) fs.rmSync(temp, { force: true });
-  }
 }
 
 function statePath(repoRoot) {
@@ -64,13 +43,8 @@ function loopArtifactPaths(loop) {
   };
 }
 
-function writeText(repoRoot, filePath, text) {
-  assertSafeRepoWritePath(repoRoot, filePath);
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, text, 'utf-8');
-}
-
 function loadLoop(repoRoot) {
+  recoverTransactions(repoRoot);
   return readJSON(statePath(repoRoot));
 }
 
@@ -121,8 +95,10 @@ function requireLoop(repoRoot) {
 function saveLoop(repoRoot, loop) {
   Object.assign(loop, loopArtifactPaths(loop));
   loop.updated_at = new Date().toISOString();
-  writeJSON(repoRoot, statePath(repoRoot), loop);
-  writeJSON(repoRoot, path.join(repoRoot, loop.goals_path), loop.goals);
+  runTransaction(repoRoot, loop.run_id, () => ({ members: [
+    { path: statePath(repoRoot), content: JSON.stringify(loop, null, 2) + '\n' },
+    { path: path.join(repoRoot, loop.goals_path), content: JSON.stringify(loop.goals, null, 2) + '\n' },
+  ] }));
 }
 
 function eventLines(filePath) {
@@ -131,18 +107,17 @@ function eventLines(filePath) {
   return text.length === 0 ? [] : text.split('\n').map(line => JSON.parse(line));
 }
 
-function appendUnique(repoRoot, filePath, entry) {
+function appendUniqueContent(repoRoot, filePath, entry) {
   assertSafeRepoWritePath(repoRoot, filePath);
-  const prior = eventLines(filePath).find(item => item.event_id === entry.event_id);
+  const entries = eventLines(filePath);
+  const prior = entries.find(item => item.event_id === entry.event_id);
   if (prior) {
     if (JSON.stringify(prior) !== JSON.stringify(entry)) {
       throw new Error(`Event id collision for ${entry.event_id}.`);
     }
-    return false;
+    return { content: fs.existsSync(filePath) ? fs.readFileSync(filePath) : Buffer.alloc(0), recorded: false };
   }
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.appendFileSync(filePath, `${JSON.stringify(entry)}\n`, 'utf8');
-  return true;
+  return { content: Buffer.from(`${entries.map(item => JSON.stringify(item)).join('\n')}${entries.length ? '\n' : ''}${JSON.stringify(entry)}\n`), recorded: true };
 }
 
 function appendEvent(repoRoot, loop, mutation, details = {}, options = {}) {
@@ -171,20 +146,30 @@ function appendEvent(repoRoot, loop, mutation, details = {}, options = {}) {
     active_goal_id: loop.active_goal_id || null,
     details,
   };
-  const canonicalPath = canonicalEventPath(repoRoot, loop);
-  const recorded = appendUnique(repoRoot, canonicalPath, canonical);
-  const filePath = logPath(repoRoot);
-  appendUnique(repoRoot, filePath, entry);
-  const artifacts = loopArtifactPaths(loop);
-  const ledgerFile = path.join(repoRoot, artifacts.ledger_path);
-  appendUnique(repoRoot, ledgerFile, entry);
-  return { outcome: recorded ? 'recorded' : 'duplicate', canonical, event: entry };
+  return runTransaction(repoRoot, loop.run_id, () => {
+    const canonicalPath = canonicalEventPath(repoRoot, loop);
+    const filePath = logPath(repoRoot);
+    const ledgerFile = path.join(repoRoot, loopArtifactPaths(loop).ledger_path);
+    const canonicalWrite = appendUniqueContent(repoRoot, canonicalPath, canonical);
+    const productWrite = appendUniqueContent(repoRoot, filePath, entry);
+    const ledgerWrite = appendUniqueContent(repoRoot, ledgerFile, entry);
+    return {
+      members: [
+        { path: canonicalPath, content: canonicalWrite.content },
+        { path: filePath, content: productWrite.content },
+        { path: ledgerFile, content: ledgerWrite.content },
+      ],
+      result: { outcome: canonicalWrite.recorded ? 'recorded' : 'duplicate', canonical, event: entry },
+    };
+  });
 }
 
 function persistBrief(repoRoot, loop, brief) {
   const artifacts = loopArtifactPaths(loop);
   Object.assign(loop, artifacts);
-  writeText(repoRoot, path.join(repoRoot, artifacts.brief_path), brief);
+  runTransaction(repoRoot, loop.run_id, () => ({ members: [
+    { path: path.join(repoRoot, artifacts.brief_path), content: brief },
+  ] }));
 }
 
 function parseArgs(args) {

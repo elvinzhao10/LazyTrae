@@ -9,7 +9,7 @@ owns, and the evidence that constrains its behavior. Use the root
 
 ```mermaid
 flowchart TD
-    User["Trae IDE / Work / CLI"] --> CLI["lazytrae CLI"]
+    User["TraeCode / Work / CLI"] --> CLI["lazytrae CLI"]
     CLI --> Templates["canonical templates"]
     Templates --> Project[".trae + .lazytrae"]
     User --> Hooks["advisory hook events"]
@@ -49,7 +49,7 @@ settings and live integration remain outside package ownership.
 | [01 — Execution model](01-mental-model.md) | Why are instructions, templates, execution, state, and proof distinct layers? |
 | [02 — Request decomposition](02-first-task.md) | How does an outcome become acceptance criteria and a proof surface? |
 | [03 — Package delivery](03-install-and-host-verification.md) | What does `init` copy, and what remains a host observation? |
-| [v1.1.0 supported route](v1.1.0-supported-route.md) | Which source branch, lifecycle commands, and host proof are current? |
+| [v1.2.0 supported route](v1.2.0-supported-route.md) | Which source branch, lifecycle commands, and host proof are current? |
 | [04 — Workflow playbooks](04-workflow-playbooks.md) | How do skills, commands, and agent roles encode proportional workflow policy? |
 | [05 — Evidence and completion](05-evidence-and-completion.md) | How are doctor, gates, statuses, and completion claims kept honest? |
 | [06 — Capabilities and approvals](06-capabilities-and-approvals.md) | How does local-first capability selection avoid persistent mutation? |
@@ -60,8 +60,8 @@ settings and live integration remain outside package ownership.
 | [07b — MCP lifecycle](07b-mcp-lifecycle.md) | How does a declaration become a JSON-RPC process without becoming host proof? |
 | [08 — Safe removal](08-safe-removal.md) | Why does removal stop at package-owned paths? |
 | [09 — Test and release verification](09-test-and-release-verification.md) | What does each release gate prove? |
-| [10 — Host capability matrix](10-host-capability-matrix.md) | Where do Trae IDE, Work, and CLI intentionally diverge? |
-| [v1.1.0 migration guide](v1.1.0-migration-guide.md) | How do native host boundaries, v2 evidence, profiles, probes, and scoped offboard work? |
+| [10 — Host capability matrix](10-host-capability-matrix.md) | Where do TraeCode, Work, and CLI intentionally diverge? |
+| [v1.2.0 migration guide](v1.2.0-migration-guide.md) | How do native host boundaries, v2 evidence, profiles, probes, and scoped offboard work? |
 
 The lookup tables in [reference](reference/) provide the concrete state
 artifacts, MCP inventory, verification vocabulary, and host routes used by

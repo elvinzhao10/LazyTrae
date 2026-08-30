@@ -120,7 +120,7 @@ Context7 and `grep_app` are disabled by default. `lazytrae tooling enable contex
 
 Open or link the durable `v1.0.3` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The setup guide
-asks for Trae IDE, Trae Work, or Trae CLI and uses the stable durable
+asks for TraeCode, TraeWork, or TraeCode CLI and uses the stable durable
 launcher, never PATH/global lookup:
 
 ```text
@@ -128,8 +128,8 @@ node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" <command>
 ```
 
 It runs only safe package checks and project-local setup first. **Package
-readiness** is reported separately from **host readiness**. Before a Trae Work
-Skills copy, Settings → MCP connector, or Trae CLI registration, ask for
+readiness** is reported separately from **host readiness**. Before a TraeWork
+Skills copy, Settings → MCP connector, or TraeCode CLI registration, ask for
 approval. Then give one exact host action and wait; after the user responds,
 inspect the app with Computer Use. A reload/new session is a separate action.
 Verify one real Skill/command and the expected `lazytrae` core MCP connection;
@@ -143,7 +143,7 @@ remains **HOST READINESS: PENDING** until observed. For Work, run `load-check
 `LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. After approval, paste
 it into Work's **Settings → MCP** or the selected CLI build's
 documented/manual MCP settings flow. No public universal MCP registration
-command is assumed. The supplied QA could not access Trae CLI, so its live-host
+command is assumed. The supplied QA could not access TraeCode CLI, so its live-host
 route remains explicitly unverified.
 
 This will:
@@ -153,11 +153,11 @@ This will:
 - Merge managed blocks into `AGENTS.md` without overwriting user content
 - Add `.gitignore` entries for runtime state
 
-For Trae Work, invoke the absolute release-owned launcher with `work install`
+For TraeWork, invoke the absolute release-owned launcher with `work install`
 after selecting the package. It copies the bundled `lazy-*` skills to
 `~/.trae-cn/skills/` on macOS. That built-in location is the only documented
 and tested host default; reload/discovery must still be confirmed manually.
-Trae Work has no global command registry, and MCP still must be registered
+TraeWork has no global command registry, and MCP still must be registered
 manually in **Settings → MCP** using the package's `mcp` entry. Linux and
 Windows locations are unverified; pass `--skills-dir` only after the host
 reports the directory.
@@ -173,17 +173,17 @@ verified `.trae/` assets only. `--purge-state` additionally removes only exact
 bundled runtime template files; it never recursively deletes a runtime
 directory. `--soft` and `--purge-state` cannot be combined.
 
-For Trae Work on macOS, invoke the same launcher with `work uninstall`; it
+For TraeWork on macOS, invoke the same launcher with `work uninstall`; it
 removes only manifest-listed `lazy-*` skills whose sole `SKILL.md` still
 exactly matches the bundled contents. It refuses symlinks and hard links, and
 preserves edited or nonempty skill directories. Linux and Windows locations
-and host behavior are unverified; pass a directory reported by Trae Work with
+and host behavior are unverified; pass a directory reported by TraeWork with
 `--skills-dir` only after manually confirming it. Remove the package MCP entry
 yourself in **Settings → MCP**.
 
-For Trae IDE, invoke the release-owned launcher with `uninstall --yes`, then
+For TraeCode, invoke the release-owned launcher with `uninstall --yes`, then
 remove or disable the local core server in the IDE's MCP settings if you added
-one separately. For Trae CLI, remove the server through the selected build's
+one separately. For TraeCode CLI, remove the server through the selected build's
 documented MCP settings flow; uninstalling project files never changes CLI
 registration. No global command is required; if one was installed separately,
 remove it through the package manager that installed it.

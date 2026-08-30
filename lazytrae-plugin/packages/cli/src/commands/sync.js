@@ -97,8 +97,8 @@ Options:
   else summary.skipped.push('receipt-owned host assets (no changes)');
   if (host === 'cli') {
     const candidate = generateCandidate(repoRoot);
-    if (candidate.written.length > 0) summary.updated.push(`${candidate.written.length} Trae CLI candidate asset(s)`);
-    else summary.skipped.push('Trae CLI candidate assets (no changes)');
+    if (candidate.written.length > 0) summary.updated.push(`${candidate.written.length} TraeCode CLI candidate asset(s)`);
+    else summary.skipped.push('TraeCode CLI candidate assets (no changes)');
   }
 
   // Update .trae/agents/

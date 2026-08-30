@@ -1,6 +1,6 @@
 {
   "name": "lazytrae-ai",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "LazyTrae CLI installer and doctor — Trae-native workflows with MCP support",
   "main": "src/index.js",
   "bin": {
@@ -10,7 +10,7 @@
   "scripts": {
     "test": "npm run test:package",
     "test:package": "node ./tools/test-fixture-runner.js test/packaged-self-verification.test.js test/work-profile.test.js test/work-profile-worktree.test.js test/work.test.js test/work-mcp-declaration.test.js test/mcp-declaration-safety.test.js",
-    "test:source": "node ./tools/test-fixture-runner.js",
+    "test:source": "node ./tools/test-fixture-runner.js --exclude=test/packaged-self-verification.test.js --exclude=test/work-profile.test.js --exclude=test/work-profile-worktree.test.js --exclude=test/work.test.js --exclude=test/work-mcp-declaration.test.js --exclude=test/mcp-declaration-safety.test.js",
     "test:all": "npm run test:source && npm run test:package",
     "test:publication": "node ./tools/test-fixture-runner.js publication/documentation-publication.js"
   },

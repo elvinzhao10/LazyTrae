@@ -59,7 +59,7 @@ function printRoutingGuidance(agent, category, prompt) {
   ╔══════════════════════════════════════════════════════════╗
   ║  Direct product CLI execution is disabled.              ║
   ║  Use the routing guidance below to run this task        ║
-  ║  manually in Trae IDE.                                  ║
+  ║  manually in TraeCode.                                  ║
   ╚══════════════════════════════════════════════════════════╝
 
   Task: ${prompt}
@@ -71,13 +71,13 @@ function printRoutingGuidance(agent, category, prompt) {
     Description: ${resolved.description || 'Standard execution'}
 
   How to apply:
-    1. Open Trae IDE in this project.
+    1. Open TraeCode in this project.
     2. Switch to ${effectiveMode === 'max' ? 'Max' : 'Auto'} mode.
     3. Select the "${agent}" agent (or run the task in the main session).
     4. Paste: ${prompt}
 
   No open-source trae-agent or PATH-discovered binary is used as a Trae product CLI.
-  Continue with the project-local Trae IDE route above.
+  Continue with the project-local TraeCode route above.
 
   Routing guidance is included in this command and .lazytrae/config.json
   `);
@@ -89,7 +89,7 @@ function printUsage() {
 Options:
   --agent <name>       Agent to use (e.g., atlas, oracle, explorer)
   --category <name>    Routing category: quick, deep, ultrabrain, visual-engineering, writing, review
-  --loop active        Present the active loop for continuation in Trae IDE
+  --loop active        Present the active loop for continuation in TraeCode
   --help, -h           Show this help message
 
 Categories:
@@ -118,6 +118,7 @@ function run(args) {
   let category = null;
   let prompt = '';
   let useLoop = false;
+  let runtimeFreshness = null;
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--agent' && i + 1 < args.length) {
@@ -131,6 +132,10 @@ function run(args) {
         useLoop = true;
         i++;
       }
+    } else if (args[i] === '--runtime-context' && i + 1 < args.length) {
+      const contextPath = path.resolve(args[i + 1]);
+      runtimeFreshness = JSON.parse(fs.readFileSync(contextPath, 'utf8'));
+      i++;
     } else if (!args[i].startsWith('--')) {
       prompt = args[i];
     }
@@ -150,7 +155,7 @@ function run(args) {
 
   const repoRoot = detectRepoRoot();
   if (!useLoop) {
-    const adaptive = processAdaptivePrompt({ repoRoot, prompt });
+    const adaptive = processAdaptivePrompt({ repoRoot, prompt, context: { runtimeFreshness } });
     process.stdout.write(formatAdaptiveDirective(adaptive.directive));
     if (adaptive.warning) process.stderr.write(`[LazyTrae run warning] ${adaptive.warning}\n`);
     if (adaptive.directive.dispatch !== 'presented-to-host') return;
@@ -163,7 +168,7 @@ function run(args) {
     }
 
     console.log('\nDirect product CLI execution is disabled.\n');
-    console.log('Use Trae IDE with the ulw-loop command to continue the active loop.');
+    console.log('Use TraeCode with the ulw-loop command to continue the active loop.');
     console.log('See .lazytrae/state/active-loop.json for current loop state.\n');
     process.exit(0);
     return;

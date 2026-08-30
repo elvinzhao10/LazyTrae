@@ -58,7 +58,7 @@ function assertNoUnsafeOnboardingClaims(content, source) {
   assert.doesNotMatch(content, /\btrae-cli\s+mcp\s+add-json\b/i, `${source} must not prescribe the undocumented add-json route`);
   assert.doesNotMatch(
     content,
-    /\bLazyTrae supports (?:Trae IDE|Trae Work|Trae CLI)\b/i,
+    /\bLazyTrae supports (?:TraeCode|TraeWork|TraeCode CLI)\b/i,
     `${source} must not make an unqualified Trae support claim`,
   );
   assert.doesNotMatch(
@@ -80,9 +80,9 @@ function assertLocalInitDeepGuidance(content, source) {
 test('onboarding documents all host routes without claiming host discovery', () => {
   const agents = readTemplate('AGENTS.md');
 
-  assert.match(agents, /Trae IDE/, 'IDE route must be documented');
-  assert.match(agents, /Trae Work/, 'Work route must be documented');
-  assert.match(agents, /Trae CLI/, 'CLI route must be documented');
+  assert.match(agents, /TraeCode/, 'IDE route must be documented');
+  assert.match(agents, /TraeWork/, 'Work route must be documented');
+  assert.match(agents, /TraeCode CLI/, 'CLI route must be documented');
   assert.match(agents, /__LAZYTRAE_LOCAL_COMMAND__/);
   assert.match(agents, /init --host ide\|cli/);
   assert.match(agents, /__LAZYTRAE_LOCAL_COMMAND__ init --host work/);
@@ -123,9 +123,9 @@ test('local-first onboarding protocol covers every stage and host readiness boun
   }
 
   const hostRoutes = fs.readFileSync(path.join(REPOSITORY_ROOT, 'docs', 'reference', 'host-routes.md'), 'utf8');
-  assert.match(hostRoutes, /Trae IDE[\s\S]*\.trae\/mcp\.json[\s\S]*generated[\s\S]*command: node/i);
-  assert.match(hostRoutes, /Trae Work[\s\S]*Skills copy\/import[\s\S]*manual/i);
-  assert.match(hostRoutes, /Trae CLI[\s\S]*load-check --host cli[\s\S]*documented\/manual/i);
+  assert.match(hostRoutes, /TraeCode[\s\S]*\.trae\/mcp\.json[\s\S]*generated[\s\S]*command: node/i);
+  assert.match(hostRoutes, /TraeWork[\s\S]*Skills copy\/import[\s\S]*manual/i);
+  assert.match(hostRoutes, /TraeCode CLI[\s\S]*load-check --host cli[\s\S]*documented\/manual/i);
   assert.doesNotMatch(hostRoutes, /trae-cli mcp add-json/i);
 
   const readme = fs.readFileSync(path.join(REPOSITORY_ROOT, 'README.md'), 'utf8');
@@ -174,7 +174,7 @@ test('unsafe copied onboarding claims are rejected by the documentation contract
     ['bare launcher', 'lazytrae load-check --host ide', /bare PATH launcher/],
     ['developer path', 'node /Users/alice/Desktop/LazyTrae/bin/lazytrae.js doctor', /developer-specific absolute path/],
     ['unsupported CLI command', 'trae-cli mcp add-json lazytrae {}', /undocumented add-json route/],
-    ['unqualified support', 'LazyTrae supports Trae Work.', /unqualified Trae support claim/],
+    ['unqualified support', 'LazyTrae supports TraeWork.', /unqualified Trae support claim/],
     ['copied files imply host readiness', 'Copied package files mean host readiness: ready.', /copied package evidence/],
   ];
 

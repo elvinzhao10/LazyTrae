@@ -1,6 +1,6 @@
 # Test and release verification
 
-**Current documentation release: v1.1.0.** Release checks must distinguish a
+**Current documentation release: v1.2.0.** Release checks must distinguish a
 local generator/profile/probe result from a native host observation.
 
 LazyTrae uses layered evidence. A release check is useful only when its scope is explicit: a unit test does not prove a packed artifact, a packed artifact does not prove a host connection, and host observation does not rewrite package ownership.
@@ -20,9 +20,27 @@ The CLI suite exercises templates, managed writes, fresh initialization, sync, d
 
 The cold offline packed-artifact check establishes that the **self-contained CLI tarball** contains the CLI, packaged MCP runtime, templates, notices, and production dependency closure. It is stronger than a source-tree smoke test, but still package evidence rather than host proof.
 
+From `lazytrae-plugin/packages/cli`, `npm run test:source` discovers only
+`*.test.js` files outside the explicit archive-contained package suite, while
+`npm run test:package` runs that package suite. Their inventories have no
+intersection, and `npm run test:all` is their complete union. Helper programs
+such as the JSON-RPC caller, MCP helper, fixture-cleanup preload, and shared test
+helpers are not test files and are never discovered as tests.
+
+The fixture harness uses two workers by default. Set
+`LAZYTRAE_TEST_CONCURRENCY` to an integer from `1` through `4`; malformed or
+out-of-range values fail before tests start. The bounded lock/process timing
+tests stay on the serial path even when the rest of the suite uses concurrency.
+
 ## Release evidence boundary
 
 `doctor` reports readiness and warnings. `verify --must-pass` adds completion gate status and exits unsuccessfully when either doctor or the gates are not ready. Trae hooks are advisory, so completion enforcement intentionally lives in these CLI/MCP paths rather than in host hook exit codes.
+
+The risk-based `verify --json` report includes a monotonic in-memory
+`elapsed_ms` total and an `elapsed_ms` value on every gate outcome. It does not
+persist those timings. Efficiency fixtures name their separate validation-time
+field `validation_elapsed_ms`, including an explicit unavailable reason when no
+measurement exists.
 
 Normal CI is self-contained: it does not require a sibling repository. Documentation and contract parity with LazyBuddy are release-only paired parity checks, run only when both absolute roots are explicitly supplied. That keeps the shared safety contract auditable without creating a runtime, installer, or CI dependency between packages.
 
@@ -80,8 +98,8 @@ they do not prove a live host loaded the package or connected the core MCP.
 
 Adaptive tests are `package evidence`. They prove the contract, classifier,
 mapping, snapshot, and explanation modules behave per the shared contract
-against the shared fixture set. They do **not** prove that a live Trae IDE,
-Trae Work, or Trae CLI session observed adaptive selection, the explanation
+against the shared fixture set. They do **not** prove that a live TraeCode,
+TraeWork, or TraeCode CLI session observed adaptive selection, the explanation
 surface, failure escalation, or continuation. Live-host observation for W5.3
 and W5.4 is **PENDING** — see the known gaps in
 [`docs/v1.0.3-adaptive-harness-contract.md`](v1.0.3-adaptive-harness-contract.md).

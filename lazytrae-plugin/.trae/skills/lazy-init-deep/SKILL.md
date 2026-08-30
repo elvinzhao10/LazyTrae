@@ -35,13 +35,13 @@ absolute project root; replace the final `mcp` argument with the requested
 command. Never call a bare `lazytrae` executable or search `PATH`:
 
 ```bash
-# Trae IDE
+# TraeCode
 node "<absolute-release-launcher-from-.trae/mcp.json>" --root "<absolute-project-root-from-.trae/mcp.json>" load-check --host ide
 
-# Trae Work
+# TraeWork
 node "<absolute-release-launcher-from-.trae/mcp.json>" --root "<absolute-project-root-from-.trae/mcp.json>" load-check --host work
 
-# Trae CLI
+# TraeCode CLI
 node "<absolute-release-launcher-from-.trae/mcp.json>" --root "<absolute-project-root-from-.trae/mcp.json>" load-check --host cli
 ```
 
@@ -49,12 +49,11 @@ This is package readiness only: it verifies skills, commands, agents, hooks,
 and the MCP declaration. It does not establish host discovery or a live MCP
 connection. Record the actual result in the final report. If project components
 are missing, use the same release-owned command with `init --host <host>`; use
-`sync` for an existing installation. For Trae Work, use `work install` if
+`sync` for an existing installation. For TraeWork, use `work install` if
 global skills are missing. Re-run the check before continuing. If the managed
 declaration is missing or modified, stop and report it; recover the command from
 the known permanent release and current project root, never from `PATH`. Do not
-claim the project is initialized while the package load check fails. The Trae
-Work MCP setting remains manual.
+claim the project is initialized while the package load check fails. The TraeWork MCP setting remains manual.
 
 ## Optional Integration Boundary
 

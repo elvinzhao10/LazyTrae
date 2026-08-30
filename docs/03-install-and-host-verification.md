@@ -1,6 +1,6 @@
 # Package delivery
 
-**Current documentation release: v1.1.0.** The package can create evidence;
+**Current documentation release: v1.2.0.** The package can create evidence;
 only the selected host can supply discovery and live-session evidence.
 
 This page explains the deployment boundary in code terms. The CLI contains canonical templates and a local MCP runtime; it does not contain Trae's settings database, session state, or live connector process table.
@@ -29,11 +29,11 @@ Platform defaults are package behavior, not host-support evidence:
 
 ## Host onboarding
 
-Open or link the durable `v1.1.0` release in the selected Trae host, give the agent
+Open or link the durable `v1.2.0` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
-or asks for Trae IDE, Trae Work, or Trae CLI, runs safe package checks, and
+or asks for TraeCode, TraeWork, or TraeCode CLI, runs safe package checks, and
 reports package readiness separately from host readiness. Before copying Work
-Skills, adding a Settings → MCP connector, or registering Trae CLI it asks for
+Skills, adding a Settings → MCP connector, or registering TraeCode CLI it asks for
 approval, gives one exact host action, and waits. After the response it
 inspects the app with Computer Use; reload/new-session is a separate action.
 If Computer Use is unavailable, a user-pasted verbatim status or screenshot is
@@ -52,7 +52,7 @@ CLI, use `load-check --host cli`. Copy only the JSON between
 into Work's **Settings → MCP** or the selected CLI build's documented/manual
 MCP settings flow. Pasting, reloading/new session, and testing are separate
 actions. The package result does not change **HOST READINESS: PENDING**.
-The supplied QA could not access Trae CLI; its live-host route is unverified.
+The supplied QA could not access TraeCode CLI; its live-host route is unverified.
 
 ## v1.1 independent native-host evidence
 
@@ -91,4 +91,4 @@ The first channel supports claims about project assets and local contracts. The 
 
 ## Delivery surfaces
 
-Trae IDE loads project assets, Trae Work uses its separate skills lifecycle and manual MCP route, and Trae CLI requires its own registration/new-session sequence. The detailed host adapters are in [Host capability matrix](10-host-capability-matrix.md) and [Host routes](reference/host-routes.md).
+TraeCode loads project assets, TraeWork uses its separate skills lifecycle and manual MCP route, and TraeCode CLI requires its own registration/new-session sequence. The detailed host adapters are in [Host capability matrix](10-host-capability-matrix.md) and [Host routes](reference/host-routes.md).

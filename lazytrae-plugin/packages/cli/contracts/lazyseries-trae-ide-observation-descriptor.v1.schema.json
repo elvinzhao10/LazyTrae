@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "LazySeries Trae IDE Observation Descriptor",
+  "title": "LazySeries TraeCode Observation Descriptor",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "contract_version", "record_type", "descriptor_id", "observation_id", "host", "session_id", "status", "observed_at", "expires_at", "remote_root_fingerprint", "model_endpoint_fingerprint", "invalidations", "source_receipt", "surface_records", "feature_descriptors"],

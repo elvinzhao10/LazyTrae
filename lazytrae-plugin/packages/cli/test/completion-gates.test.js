@@ -4,37 +4,37 @@ const path = require('node:path');
 const test = require('node:test');
 const { makeCompletionFixture, runCli } = require('./test-helpers');
 
-test('completion-status blocks active Boulder tasks without evidence', () => {
+test('completion-status is uninitialized without canonical authority', () => {
   const fixture = makeCompletionFixture('lazytrae-completion-blocked-', false);
 
   const result = runCli(['completion-status'], { cwd: fixture });
 
   assert.equal(result.status, 1);
-  assert.match(result.stdout, /^blocked/m);
-  assert.match(result.stdout, /boulder_task_evidence/);
-  assert.match(result.stdout, /task-1 is in_progress/);
+  assert.match(result.stdout, /^uninitialized/m);
+  assert.match(result.stdout, /AUTHORITY_ABSENT/);
 });
 
-test('completion-status is ready when active Boulder task has real evidence', () => {
+test('completion-status does not upgrade legacy path-only Boulder evidence', () => {
   const fixture = makeCompletionFixture('lazytrae-completion-ready-', true);
 
   const result = runCli(['completion-status'], { cwd: fixture });
 
-  assert.equal(result.status, 0);
-  assert.match(result.stdout, /^ready/m);
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /^uninitialized/m);
+  assert.match(result.stdout, /AUTHORITY_ABSENT/);
 });
 
-test('verify --must-pass fails incomplete fixtures and passes complete fixtures', () => {
+test('verify --must-pass fails incomplete and legacy path-only fixtures', () => {
   const incomplete = makeCompletionFixture('lazytrae-verify-must-pass-blocked-', false);
   const blocked = runCli(['verify', '--must-pass'], { cwd: incomplete });
   assert.equal(blocked.status, 1);
-  assert.match(blocked.stdout, /^blocked/m);
-  assert.match(blocked.stdout, /boulder_task_evidence/);
+  assert.match(blocked.stdout, /^uninitialized/m);
+  assert.match(blocked.stdout, /AUTHORITY_ABSENT/);
 
   const complete = makeCompletionFixture('lazytrae-verify-must-pass-ready-', true);
   const ready = runCli(['verify', '--must-pass'], { cwd: complete });
-  assert.equal(ready.status, 0);
-  assert.match(ready.stdout, /^ready/m);
+  assert.equal(ready.status, 1);
+  assert.match(ready.stdout, /^uninitialized/m);
 });
 
 test('verify --must-pass does not claim completion when doctor fails', () => {
@@ -94,17 +94,17 @@ test('MCP mark_task_done requires summary and existing evidence paths', () => {
   assert.deepEqual(persistedTask.evidence_paths, ['.lazytrae/evidence/task-1.md']);
 });
 
-test('handoff includes completion gate warning for incomplete fixtures', () => {
+test('handoff includes fail-closed completion warning without authority', () => {
   const fixture = makeCompletionFixture('lazytrae-handoff-blocked-', false);
 
   const json = runCli(['handoff', '--json'], { cwd: fixture });
   assert.equal(json.status, 0);
   const handoff = JSON.parse(json.stdout);
-  assert.equal(handoff.completionGate.status, 'blocked');
-  assert.match(handoff.completionGate.reasons[0].gate, /boulder_task_evidence/);
+  assert.equal(handoff.completionGate.status, 'uninitialized');
+  assert.match(handoff.completionGate.reasons[0].gate, /AUTHORITY_ABSENT/);
 
   const markdown = runCli(['handoff'], { cwd: fixture });
   assert.equal(markdown.status, 0);
   assert.match(markdown.stdout, /## Completion Gate/);
-  assert.match(markdown.stdout, /blocked/);
+  assert.match(markdown.stdout, /uninitialized/);
 });

@@ -26,7 +26,7 @@ function parseRunArgs(args) {
       json = true;
       continue;
     }
-    if (!VALUE_FLAGS.has(argument)) throw new Error(`unsupported Trae CLI candidate argument: ${argument}`);
+    if (!VALUE_FLAGS.has(argument)) throw new Error(`unsupported TraeCode CLI candidate argument: ${argument}`);
     const value = args[index + 1];
     if (!value || value.startsWith('--') || Object.hasOwn(values, argument)) throw new Error(`invalid ${argument} value`);
     values[argument] = value;
@@ -45,7 +45,7 @@ function parseRunArgs(args) {
 
 function print(report, json) {
   if (json) process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
-  else console.log(`Trae CLI candidate: ${report.status}\n${report.detail || ''}`);
+  else console.log(`TraeCode CLI candidate: ${report.status}\n${report.detail || ''}`);
 }
 
 function run(args) {

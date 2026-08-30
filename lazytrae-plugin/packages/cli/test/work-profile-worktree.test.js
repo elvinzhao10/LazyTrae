@@ -12,7 +12,7 @@ function writeExecutable(root, invocationLog) {
   fs.writeFileSync(target, [
     '#!/bin/sh',
     `printf '%s\\n' "$*" >> "${invocationLog}"`,
-    "printf 'Trae Work 5.0.0 region=global edition=enterprise\\n'",
+    "printf 'TraeWork 5.0.0 region=global edition=enterprise\\n'",
     '',
   ].join('\n'), { mode: 0o755 });
   return target;

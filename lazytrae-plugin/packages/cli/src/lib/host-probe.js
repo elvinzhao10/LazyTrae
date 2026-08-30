@@ -83,7 +83,7 @@ function resolveExecutable(executable, host) {
     return { kind: 'error', status: 'unsupported', detail: 'open-source trae-agent is not a Trae product CLI' };
   }
   if (host === 'cli' && !/^trae(?:-?cli)?(?:[.-].*)?(?:\.exe)?$/i.test(path.basename(resolved))) {
-    return { kind: 'error', status: 'unsupported', detail: 'binary name is not a closed-source Trae CLI identity' };
+    return { kind: 'error', status: 'unsupported', detail: 'binary name is not a closed-source TraeCode CLI identity' };
   }
   const prefix = fs.readFileSync(resolved).subarray(0, MAX_OUTPUT_BYTES).toString('utf8');
   if (prefix.startsWith('#!') && /(?:https?:\/\/|(?:^|[\s/])(curl|wget|nc|ssh)(?:\s|$))/m.test(prefix)) {
@@ -116,9 +116,9 @@ function runIntrospection(executable, argv) {
 
 function classifyIdentity(host, output) {
   if (/\btrae-agent\b|open[\s-]*source/i.test(output)) return false;
-  if (host === 'ide') return /^\s*trae\s+ide\b/im.test(output);
-  if (host === 'work') return /^\s*trae\s+work\b/im.test(output);
-  return /^\s*trae\s+cli\b/im.test(output);
+  if (host === 'ide') return /^\s*traecode\b/im.test(output);
+  if (host === 'work') return /^\s*traework\b/im.test(output);
+  return /^\s*traecode\s+cli\b/im.test(output);
 }
 
 function classifyRegion(output) {
@@ -134,7 +134,7 @@ function classifyEdition(output) {
 }
 
 function classifyVersion(output) {
-  const match = /\bTrae(?:\s+(?:CLI|IDE|Work))?\s+v?(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)/i.exec(output);
+  const match = /\b(?:TraeCode(?:\s+CLI)?|TraeWork)\s+v?(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)/i.exec(output);
   return match?.[1] || 'unknown';
 }
 
@@ -180,11 +180,16 @@ function probeHost({ host, executable, expectedSha256, fixturePath }) {
     });
   }
   const fixture = fixtureResult.fixture;
+  const capabilities = (fixture?.capabilities || [{ name: 'host-introspection', status: 'accessible' }])
+    .filter(capability => capability.name !== 'config-read');
+  if (host === 'cli' && /(?:^|\n)\s*config\s+(?:get|list|show)(?:\s|$)/i.test(outputs[1])) {
+    capabilities.push({ name: 'config-read', status: 'accessible' });
+  }
   return outcome(host, 'accessible', 'read-only host introspection completed', {
     region: fixture?.region || classifyRegion(combined),
     edition: fixture?.edition || classifyEdition(combined),
     binary: { path: resolved.executable, sha256: fingerprint, version: classifyVersion(combined) },
-    capabilities: fixture?.capabilities || [{ name: 'host-introspection', status: 'accessible' }],
+    capabilities,
     observed_argv: ALLOWED_ARGV,
   });
 }

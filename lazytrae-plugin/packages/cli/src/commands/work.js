@@ -24,10 +24,10 @@ const WORK_SKILLS_DIR_ENV = 'LAZYTRAE_WORK_SKILLS_DIR';
 function printHelp() {
   console.log(`Usage: lazytrae work <command> [options]
 
-Install and inspect LazyTrae's global Trae Work skills.
+Install and inspect LazyTrae's global TraeWork skills.
 
 Commands:
-  install     Copy every lazy-* skill into Trae Work's global skills directory
+  install     Copy every lazy-* skill into TraeWork's global skills directory
   status      Report whether the global skills are current
   uninstall   Remove only exact, unmodified LazyTrae skills
   profile     Emit one explicit client/execution descriptor
@@ -42,7 +42,7 @@ Options:
   --executable <path>  Absolute Work executable required with --worktree
   --expected-sha256    Pinned Work executable digest required with --worktree
 
-Trae Work has no global command registry. Use the installed skills by name or
+TraeWork has no global command registry. Use the installed skills by name or
 natural language. MCP registration is intentionally manual in Settings → MCP.
 `);
 }
@@ -59,7 +59,7 @@ function readSkillsDir(args) {
   if (process.env[WORK_SKILLS_DIR_ENV]) return path.resolve(process.env[WORK_SKILLS_DIR_ENV]);
 
   if (process.platform !== 'darwin') {
-    throw new Error('Trae Work global skills are only known on macOS. Pass --skills-dir with the directory reported by your Trae Work installation.');
+    throw new Error('TraeWork global skills are only known on macOS. Pass --skills-dir with the directory reported by your TraeWork installation.');
   }
   return path.join(os.homedir(), '.trae-cn', 'skills');
 }
@@ -84,7 +84,7 @@ function printMcpReminder() {
   console.log(MCP_JSON_BEGIN);
   console.log(formatHostMcpConfiguration(process.cwd()));
   console.log(MCP_JSON_END);
-  console.log('Global slash commands are not supported by Trae Work; use the installed skills or natural language.');
+  console.log('Global slash commands are not supported by TraeWork; use the installed skills or natural language.');
 }
 
 function install(skillsDir) {
@@ -94,9 +94,9 @@ function install(skillsDir) {
     source: path.join(TEMPLATES_DIR, 'skills', name, 'SKILL.md'),
   })));
 
-  console.log(`Trae Work global skills: ${result.installed} installed, ${result.updated} updated, ${result.unchanged} already current.`);
+  console.log(`TraeWork global skills: ${result.installed} installed, ${result.updated} updated, ${result.unchanged} already current.`);
   console.log(`Directory: ${skillsDir}`);
-  console.log('Restart or reload Trae Work to discover newly copied skills.');
+  console.log('Restart or reload TraeWork to discover newly copied skills.');
   printMcpReminder();
 }
 
@@ -117,7 +117,7 @@ function uninstall(skillsDir) {
     fs.rmdirSync(destinationDir);
     removed++;
   }
-  console.log(`Trae Work global skills: ${removed} removed, ${preserved} preserved.`);
+  console.log(`TraeWork global skills: ${removed} removed, ${preserved} preserved.`);
   console.log(`Directory: ${skillsDir}`);
   console.log('Remove the LazyTrae MCP server manually in Settings → MCP; host installation paths are never guessed.');
   return { removed, preserved };
@@ -139,7 +139,7 @@ function status(skillsDir) {
   const current = states.filter(entry => entry.state === 'current').length;
   const missing = states.filter(entry => entry.state === 'missing').length;
   const outdated = states.filter(entry => entry.state === 'outdated').length;
-  console.log(`Trae Work global skills: ${current}/${states.length} current, ${missing} missing, ${outdated} outdated.`);
+  console.log(`TraeWork global skills: ${current}/${states.length} current, ${missing} missing, ${outdated} outdated.`);
   console.log(`Directory: ${skillsDir}`);
   if (missing || outdated) {
     console.log(`WORK SKILLS ACTION: APPROVAL REQUIRED. Ask before running ${localCommand(process.cwd())} work install --skills-dir ${shellQuote(skillsDir)}.`);
@@ -172,7 +172,7 @@ function run(args) {
     return;
   }
   if (!['install', 'status', 'uninstall', 'profile', 'bundle'].includes(command)) {
-    throw new Error(`Unknown Trae Work command '${command}'. Run \`lazytrae work --help\`.`);
+    throw new Error(`Unknown TraeWork command '${command}'. Run \`lazytrae work --help\`.`);
   }
 
   if (command === 'profile') return profile(args.slice(1));

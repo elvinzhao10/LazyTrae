@@ -1,6 +1,6 @@
 # Host capability matrix
 
-**Current documentation release: v1.1.0.** This is a boundary matrix, not a
+**Current documentation release: v1.2.0.** This is a boundary matrix, not a
 claim that a package result has made any host ready.
 
 LazyTrae deliberately aligns policy and package safety across Trae surfaces while keeping host adapters distinct. The same project assets may be present on two surfaces without both hosts exposing the same discovery or registration behavior.
@@ -18,7 +18,7 @@ PENDING** until current observation.
 
 ## What each host needs
 
-| Capability | Trae IDE | Trae Work | Trae CLI | Package assertion |
+| Capability | TraeCode | TraeWork | TraeCode CLI | Package assertion |
 | --- | --- | --- | --- | --- |
 | Project assets | `.trae/` and `.lazytrae/` | Global Work skills plus project state | Local project configuration | Templates and managed copies are present. |
 | Skills/commands/agents | Project discovery | Global skill discovery; no global command registry | CLI/session discovery | Files are present; host must load them. |
@@ -33,7 +33,7 @@ The host adapter differs, but the safety model does not:
 - **Availability:** release configuration is the **documented package route**;
   supplied macOS IDE/Work results are an **observed prerelease route**; without
   a current Computer Use or user-supplied observation, **HOST READINESS:
-  PENDING**. No universal Trae CLI MCP command is assumed.
+  PENDING**. No universal TraeCode CLI MCP command is assumed.
 
 - **Host integration:** IDE, Work, and CLI each own discovery, registration, session lifetime, and event delivery.
 - **State/path:** project assets live in `.trae/` and `.lazytrae/`; the verified Work skills path is macOS `~/.trae-cn/skills/`; host settings and credentials remain user-owned.
@@ -43,9 +43,9 @@ The host adapter differs, but the safety model does not:
 
 | Independent host | LazyTrae-owned local output | Host-native boundary | Evidence mode |
 | --- | --- | --- | --- |
-| Trae IDE | `.trae/` assets and an optional bounded capability probe | Discovery, hooks, session and MCP connection remain IDE-owned. | Package evidence; probe is bounded and non-promoting. |
-| Trae Work | An explicit `--client` and `--execution` profile; only desktop/local can name a local worktree, executable, skills path, or `.skill` bundle. | Work owns skill loading, account context, connector and execution environment. Web/mobile/cloud profiles are descriptors only. | Profile evidence; no upload, login, credential, or cloud action. |
-| Trae CLI | `traecli-candidate generate` creates receipt-owned `.traecli/` candidates. | Candidate files are inert configuration, not discovery, registration, marketplace installation, or execution. A runner needs an exact probe-proven structured interface. | Generated evidence then bounded probe evidence; host readiness remains pending. |
+| TraeCode | `.trae/` assets and an optional bounded capability probe | Discovery, hooks, session and MCP connection remain IDE-owned. | Package evidence; probe is bounded and non-promoting. |
+| TraeWork | An explicit `--client` and `--execution` profile; only desktop/local can name a local worktree, executable, skills path, or `.skill` bundle. | Work owns skill loading, account context, connector and execution environment. Web/mobile/cloud profiles are descriptors only. | Profile evidence; no upload, login, credential, or cloud action. |
+| TraeCode CLI | `traecli-candidate generate` creates receipt-owned `.traecli/` candidates. | Candidate files are inert configuration, not discovery, registration, marketplace installation, or execution. A runner needs an exact probe-proven structured interface. | Generated evidence then bounded probe evidence; host readiness remains pending. |
 
 The current writers produce v2 readiness and host-adapter records. Historical
 v1 records are only read-only compatibility inputs. No route may promote
@@ -75,8 +75,8 @@ command is assumed. Paste, reload/new session, and live verification are
 separate one-action handoffs. The launcher is the **documented package route**;
 supplied macOS IDE/Work behavior is an **observed prerelease route**; without a
 current observation, **HOST READINESS: PENDING**. The supplied QA could not
-access Trae CLI, so its live-host route is explicitly unverified.
+access TraeCode CLI, so its live-host route is explicitly unverified.
 
 ## macOS-only scope
 
-The package evidence is verified on macOS only. It does not claim equivalent Trae Work paths, discovery, hook execution, or MCP connection on other operating systems. Those are observed per selected host session.
+The package evidence is verified on macOS only. It does not claim equivalent TraeWork paths, discovery, hook execution, or MCP connection on other operating systems. Those are observed per selected host session.

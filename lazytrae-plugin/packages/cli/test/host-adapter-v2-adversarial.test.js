@@ -116,7 +116,7 @@ test('public status probe and observation artifacts satisfy the exact v2 schemas
     const evidence = writeBoundEvidence(root);
     const status = JSON.parse(runCli(['status', '--host', 'cli', '--json'], { cwd: root }).stdout);
     const executable = path.join(root, 'trae-cli');
-    fs.writeFileSync(executable, '#!/bin/sh\nprintf "Trae CLI 1.2.3\\nregion: global\\nedition: enterprise\\n"\n');
+    fs.writeFileSync(executable, '#!/bin/sh\nprintf "TraeCode CLI 1.2.3\\nregion: global\\nedition: enterprise\\n"\n');
     fs.chmodSync(executable, 0o755);
     const digest = crypto.createHash('sha256').update(fs.readFileSync(executable)).digest('hex');
     const probeResult = runCli(['host-probe', '--host', 'cli', '--executable', executable, '--expected-sha256', digest, '--json'], { cwd: root });
@@ -143,7 +143,7 @@ test('public status probe and observation artifacts satisfy the exact v2 schemas
     const validateStatus = new Ajv2020({ strict: true }).compile(statusSchema);
     const contradictory = structuredClone(status);
     Object.assign(contradictory.profiles[0], {
-      host_label: 'TRAE Work', client_context: 'unspecified', execution_context: 'unspecified',
+      host_label: 'TraeWork', client_context: 'unspecified', execution_context: 'unspecified',
     });
     assert.equal(validateStatus(contradictory), false);
   } finally {

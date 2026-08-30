@@ -68,7 +68,7 @@ test('generates an inert receipt-owned candidate tree with canonical asset parit
   const root = projectFixture(t);
   const authority = fs.readFileSync(path.join(root, 'AGENTS.md'));
 
-  // When: the real CLI generates the Trae CLI candidate.
+  // When: the real CLI generates the TraeCode CLI candidate.
   const result = runCandidate(root, ['generate']);
 
   // Then: candidate assets are inspectable and inert while root authority is untouched.
@@ -111,15 +111,15 @@ test('preserves caller-modified candidate output and refuses to invoke stale ass
 });
 
 test('invokes only fixture-proven argv after an exact accessible probe', (t) => {
-  // Given: a generated candidate and a pinned fake Trae CLI with a structured-runner fixture.
+  // Given: a generated candidate and a pinned fake TraeCode CLI with a structured-runner fixture.
   const root = projectFixture(t);
   assert.equal(runCandidate(root, ['generate']).status, 0);
   const log = path.join(root, 'argv.log');
   const input = path.join(root, 'input.json');
   const executable = writeExecutable(root, [
     `printf '%s\\n' "$*" >> "${log}"`,
-    `if [ "$1" = "--version" ]; then printf 'Trae CLI 7.8.9 region=global edition=enterprise\\n'; exit 0; fi`,
-    `if [ "$1" = "--help" ]; then printf 'Trae CLI help\\n'; exit 0; fi`,
+    `if [ "$1" = "--version" ]; then printf 'TraeCode CLI 7.8.9 region=global edition=enterprise\\n'; exit 0; fi`,
+    `if [ "$1" = "--help" ]; then printf 'TraeCode CLI help\\n'; exit 0; fi`,
     `cat > "${input}"`,
     `printf '{"schema_version":1,"status":"success","session_id":"session-1","worktree":"%s"}\\n' "$PWD"`,
   ].join('\n'));
@@ -148,7 +148,7 @@ test('unverified, malformed, and wrong-boundary requests remain pending without 
   assert.equal(runCandidate(root, ['generate']).status, 0);
   const marker = path.join(root, 'invoked');
   const executable = writeExecutable(root, [
-    `if [ "$1" = "--version" ] || [ "$1" = "--help" ]; then printf 'Not Trae CLI\\n'; exit 0; fi`,
+    `if [ "$1" = "--version" ] || [ "$1" = "--help" ]; then printf 'Not TraeCode CLI\\n'; exit 0; fi`,
     `touch "${marker}"`,
   ].join('\n'));
   const fixture = writeFixture(root, {
@@ -180,8 +180,8 @@ test('bounds MCP execution and rejects malformed structured output', (t) => {
   const root = projectFixture(t);
   assert.equal(runCandidate(root, ['generate']).status, 0);
   const hanging = writeExecutable(root, [
-    `if [ "$1" = "--version" ]; then printf 'Trae CLI 7.8.9\\n'; exit 0; fi`,
-    `if [ "$1" = "--help" ]; then printf 'Trae CLI help\\n'; exit 0; fi`,
+    `if [ "$1" = "--version" ]; then printf 'TraeCode CLI 7.8.9\\n'; exit 0; fi`,
+    `if [ "$1" = "--help" ]; then printf 'TraeCode CLI help\\n'; exit 0; fi`,
     'sleep 2',
   ].join('\n'));
   const fixture = writeFixture(root, {
@@ -202,8 +202,8 @@ test('bounds MCP execution and rejects malformed structured output', (t) => {
 
   fs.writeFileSync(hanging, [
     '#!/bin/sh',
-    `if [ "$1" = "--version" ]; then printf 'Trae CLI 7.8.9\\n'; exit 0; fi`,
-    `if [ "$1" = "--help" ]; then printf 'Trae CLI help\\n'; exit 0; fi`,
+    `if [ "$1" = "--version" ]; then printf 'TraeCode CLI 7.8.9\\n'; exit 0; fi`,
+    `if [ "$1" = "--help" ]; then printf 'TraeCode CLI help\\n'; exit 0; fi`,
     `printf 'not-json\\n'`,
   ].join('\n'), { mode: 0o755 });
 
@@ -226,8 +226,8 @@ test('dirty projects and repeated ACP requests still use only the proven argv', 
   const log = path.join(root, 'repeat.log');
   const executable = writeExecutable(root, [
     `printf '%s\\n' "$*" >> "${log}"`,
-    `if [ "$1" = "--version" ]; then printf 'Trae CLI 7.8.9\\n'; exit 0; fi`,
-    `if [ "$1" = "--help" ]; then printf 'Trae CLI help\\n'; exit 0; fi`,
+    `if [ "$1" = "--version" ]; then printf 'TraeCode CLI 7.8.9\\n'; exit 0; fi`,
+    `if [ "$1" = "--help" ]; then printf 'TraeCode CLI help\\n'; exit 0; fi`,
     'cat >/dev/null',
     `printf '{"schema_version":1,"status":"success","session_id":"session-1","worktree":"%s"}\\n' "$PWD"`,
   ].join('\n'));

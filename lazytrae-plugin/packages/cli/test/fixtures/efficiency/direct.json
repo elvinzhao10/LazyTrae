@@ -1,0 +1,33 @@
+{
+  "contract_version": "lazyseries-efficiency-baseline.v1",
+  "product": "lazytrae",
+  "scenario": "direct",
+  "route": { "classification": "direct-path-complete", "actor_count": 1 },
+  "quality": {
+    "assertions_expected": 13,
+    "completion": "complete",
+    "assertion_output": "lazytrae-liveeval/results/lazytrae/raw/direct/test-output.txt",
+    "assertion_manifest": [
+      { "file": "lazytrae-liveeval/runs/direct-20260827T115134/tests/test_parse_duration.py", "count": 13, "sha256": "991f1d8bc4e5b79433ef27d3705be4866d2a2951c90d738b24a5628556fc7afd" }
+    ],
+    "required_evidence": [
+      { "file": "lazytrae-liveeval/results/lazytrae/raw/direct/test-output.txt", "bytes": 974, "sha256": "a9312d28e3f4dcf01579f268a31a7c42287240565bf568b940a558ec04536b6b" },
+      { "file": "lazytrae-liveeval/results/lazytrae/raw/direct/diff.txt", "bytes": 1557, "sha256": "2283c407161ec3409670ff34c75667c8f65f2a2f0f7d1c73f00eacc02bf95b8d" }
+    ]
+  },
+  "gate_outcomes": [
+    { "gate": "exact-test-assertions", "outcome": "passed" },
+    { "gate": "completion-classification", "outcome": "passed" },
+    { "gate": "required-evidence", "outcome": "passed" }
+  ],
+  "cost": {
+    "validation_elapsed_ms": null,
+    "validation_elapsed_unavailable_reason": "host did not expose validation timing",
+    "invocation_count": 1,
+    "evidence_bytes": 2531,
+    "reruns": 0,
+    "rework": 0,
+    "concurrency": 1,
+    "tokens": { "available": false, "total": null, "reason": "host did not expose token telemetry" }
+  }
+}

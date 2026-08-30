@@ -107,7 +107,7 @@ test('sync reports a preserved existing protected MCP declaration without changi
     const output = withRenameEperm(destinationPath, () => withProjectDirectory(fixture, () => captureConsole(() => sync([]))));
 
     assert.match(output, /protected destination; existing declaration preserved; complete MCP registration manually with your host/);
-    assert.doesNotMatch(output, /Trae Work|Settings → MCP/);
+    assert.doesNotMatch(output, /TraeWork|Settings → MCP/);
     assert.equal(fs.readFileSync(destinationPath, 'utf8'), userDeclaration);
     assert.deepEqual(tempFilesFor(destinationPath), []);
   } finally {
@@ -123,7 +123,7 @@ test('sync reports an unwritten protected MCP declaration without claiming a hos
     const output = withRenameEperm(destinationPath, () => withProjectDirectory(fixture, () => captureConsole(() => sync([]))));
 
     assert.match(output, /protected destination; declaration was not written; complete MCP registration manually with your host/);
-    assert.doesNotMatch(output, /existing declaration preserved|Trae Work|Settings → MCP/);
+    assert.doesNotMatch(output, /existing declaration preserved|TraeWork|Settings → MCP/);
     assert.equal(fs.existsSync(destinationPath), false);
     assert.deepEqual(tempFilesFor(destinationPath), []);
   } finally {
@@ -140,7 +140,7 @@ function assertProtectedInitUsesGenericHostAction(host) {
       captureConsole(() => init(['--host', host]))));
 
     assert.match(output, /protected destination; declaration was not written; complete MCP registration manually with your host/);
-    assert.doesNotMatch(output, /Trae Work|Settings → MCP/);
+    assert.doesNotMatch(output, /TraeWork|Settings → MCP/);
     assert.equal(fs.existsSync(destinationPath), false);
     assert.deepEqual(tempFilesFor(destinationPath), []);
   } finally {
@@ -174,10 +174,10 @@ test('init distinguishes protected existing declarations for every host', () => 
       assert.equal(fs.readFileSync(destinationPath, 'utf8'), userDeclaration);
       assert.deepEqual(tempFilesFor(destinationPath), []);
       if (host === 'work') {
-        assert.match(output, /Trae Work requires manual Settings → MCP registration/);
+        assert.match(output, /TraeWork requires manual Settings → MCP registration/);
       } else {
         assert.match(output, /complete MCP registration manually with your host/);
-        assert.doesNotMatch(output, /Trae Work|Settings → MCP/);
+        assert.doesNotMatch(output, /TraeWork|Settings → MCP/);
       }
     } finally {
       process.exitCode = previousExitCode;
@@ -196,8 +196,8 @@ test('Work init reports an unwritten protected MCP declaration and keeps package
     const output = withRenameEperm(destinationPath, () => withProjectDirectory(project, () =>
       captureConsole(() => init(['--host', 'work', '--skills-dir', skillsDir]))));
 
-    assert.match(output, /protected destination; declaration was not written; Trae Work requires manual Settings → MCP registration/);
-    assert.match(output, /SKIP LazyTrae MCP declaration: Trae Work requires manual Settings → MCP registration/);
+    assert.match(output, /protected destination; declaration was not written; TraeWork requires manual Settings → MCP registration/);
+    assert.match(output, /SKIP LazyTrae MCP declaration: TraeWork requires manual Settings → MCP registration/);
     assert.match(output, /Package readiness passed/);
     assert.equal(fs.existsSync(destinationPath), false);
     assert.deepEqual(tempFilesFor(destinationPath), []);
@@ -219,7 +219,7 @@ test('Work load-check passes package readiness without a project MCP declaration
     const result = runCli(['load-check', '--host', 'work', '--skills-dir', skillsDir], { cwd: fixture });
 
     assert.equal(result.status, 0, result.stdout);
-    assert.match(result.stdout, /SKIP LazyTrae MCP declaration: Trae Work requires manual Settings → MCP registration/);
+    assert.match(result.stdout, /SKIP LazyTrae MCP declaration: TraeWork requires manual Settings → MCP registration/);
     assert.match(result.stdout, /Package readiness passed/);
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });

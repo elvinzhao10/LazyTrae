@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.1.0 — PostToolUse hook
+# LazyTrae v1.2.0 — PostToolUse hook
 # Records changed files, runs comment-checker, captures verification output.
 # Always exits 0 — never blocks a session.
 

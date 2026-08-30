@@ -36,7 +36,7 @@ function validateSchema(value) {
 }
 
 test('emits a typed sanitized descriptor without mutating its source fixture', () => {
-  // Given: a real Trae IDE snapshot containing credentials and credential-bearing URLs.
+  // Given: a real TraeCode snapshot containing credentials and credential-bearing URLs.
   const input = fixture();
   const before = fs.readFileSync(fixturePath);
   const mode = fs.statSync(fixturePath).mode;
@@ -87,7 +87,7 @@ test('invalidates changed remote roots and model endpoints', () => {
   assert.deepEqual(descriptor.invalidations, ['model-endpoint-changed', 'remote-root-changed']);
 });
 
-test('emits sanitized typed records for every named Trae IDE surface', () => {
+test('emits sanitized typed records for every named TraeCode surface', () => {
   // Given: native observations for MCP, model, Plan/Spec, tasks, subagents, retries, Diff history, and Remote SSH identity.
   const input = fixture();
 

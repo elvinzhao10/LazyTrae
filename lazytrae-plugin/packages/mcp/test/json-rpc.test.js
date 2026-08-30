@@ -113,24 +113,32 @@ test('stdio MCP serves protocol errors, reads state, and writes receipt evidence
       JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }),
       JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }),
       JSON.stringify({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'missing.tool', arguments: {} } }),
+      JSON.stringify({ jsonrpc: '2.0', id: 'malformed-params', method: 'tools/call', params: [] }),
+      JSON.stringify({ jsonrpc: '2.0', id: 'malformed-arguments', method: 'tools/call', params: { name: 'lazytrae.docs_lookup', arguments: [] } }),
+      JSON.stringify({ jsonrpc: '2.0', id: 'wrong-typed-arguments', method: 'tools/call', params: { name: 'lazytrae.docs_lookup', arguments: { query: [] } } }),
       JSON.stringify({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'lazytrae.get_boulder_status', arguments: {} } }),
       JSON.stringify({ jsonrpc: '2.0', id: 5, method: 'tools/call', params: {
         name: 'lazytrae.record_evidence',
         arguments: { gate_type: 'manual_qa', verdict: 'pass', notes: 'isolated stdio test' },
       } }),
-    ], 6);
+    ], 9);
 
     // Then: the protocol remains usable and the handler writes only inside .lazytrae.
     assert.deepEqual(responses[0], {
       jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' },
     });
-    assert.equal(responses[1].result.serverInfo.version, '1.1.0');
+    assert.equal(responses[1].result.serverInfo.version, '1.2.0');
     assert.deepEqual(responses[2].result.tools.map(tool => tool.name), EXPECTED_TOOL_NAMES);
     assert.deepEqual(responses[3], {
       jsonrpc: '2.0', id: 3, error: { code: -32601, message: 'Unknown tool: missing.tool' },
     });
-    assert.match(responses[4].result.content[0].text, /"work_count": 0/);
-    assert.match(responses[5].result.content[0].text, /"recorded": true/);
+    for (const [index, id] of [[4, 'malformed-params'], [5, 'malformed-arguments'], [6, 'wrong-typed-arguments']]) {
+      assert.deepEqual(responses[index], {
+        jsonrpc: '2.0', id, error: { code: -32602, message: 'Invalid tools/call parameters' },
+      });
+    }
+    assert.match(responses[7].result.content[0].text, /"work_count": 0/);
+    assert.match(responses[8].result.content[0].text, /"recorded": true/);
     assert.match(
       fs.readFileSync(path.join(projectRoot, '.lazytrae', 'evidence', 'verifier.md'), 'utf8'),
       /isolated stdio test/,

@@ -1,0 +1,38 @@
+{
+  "contract_version": "lazyseries-efficiency-baseline.v1",
+  "product": "lazytrae",
+  "scenario": "six-module",
+  "route": { "classification": "six-module-complete", "actor_count": 1 },
+  "quality": {
+    "assertions_expected": 57,
+    "completion": "complete",
+    "assertion_output": "lazytrae-liveeval/results/lazytrae/raw/parallel-default/test-output.txt",
+    "assertion_manifest": [
+      { "file": "lazytrae-liveeval/runs/parallel-20260827T115248/tests/test_chunk_items.py", "count": 9, "sha256": "c691a8f9ce7c3e73fec3448f399a7748eced5e1e0091ce563feb99923cab90ff" },
+      { "file": "lazytrae-liveeval/runs/parallel-20260827T115248/tests/test_normalize_email.py", "count": 9, "sha256": "fcfa26bdc9b6e4e7c7e6c737c1f02fa2645ed07a4244572bd6411368960fe957" },
+      { "file": "lazytrae-liveeval/runs/parallel-20260827T115248/tests/test_parse_size.py", "count": 12, "sha256": "fdde33e4a919773e4d3438c27a943b26c1eaa39a13120b921caf1493d1d0c85b" },
+      { "file": "lazytrae-liveeval/runs/parallel-20260827T115248/tests/test_redact_token.py", "count": 6, "sha256": "b629d2bc348f00071a641482011bff5bbf1b2738025134d294641f8a12126518" },
+      { "file": "lazytrae-liveeval/runs/parallel-20260827T115248/tests/test_retry_delay.py", "count": 12, "sha256": "bd5e4ece61565f1f431bed41254575777cee0ea94ed24003e327532c4f1e630f" },
+      { "file": "lazytrae-liveeval/runs/parallel-20260827T115248/tests/test_slugify.py", "count": 9, "sha256": "1b411a5b2ed2562b17329a5321e329d9db5e787e65420688c313f69d20ce93cd" }
+    ],
+    "required_evidence": [
+      { "file": "lazytrae-liveeval/results/lazytrae/raw/parallel-default/test-output.txt", "bytes": 3606, "sha256": "5d97408a5a672e2db5f814b38e02b9f7ec08a1b0db9091f1c093d91550afa2c2" },
+      { "file": "lazytrae-liveeval/results/lazytrae/raw/parallel-default/diff.txt", "bytes": 5797, "sha256": "90a1ff5433b1d06dcc09b43c3c106c5e898118a30e716ec38da3fb1c1f8ab08b" }
+    ]
+  },
+  "gate_outcomes": [
+    { "gate": "exact-test-assertions", "outcome": "passed" },
+    { "gate": "completion-classification", "outcome": "passed" },
+    { "gate": "required-evidence", "outcome": "passed" }
+  ],
+  "cost": {
+    "validation_elapsed_ms": null,
+    "validation_elapsed_unavailable_reason": "host did not expose validation timing",
+    "invocation_count": 1,
+    "evidence_bytes": 9403,
+    "reruns": 0,
+    "rework": 0,
+    "concurrency": 1,
+    "tokens": { "available": false, "total": null, "reason": "host did not expose token telemetry" }
+  }
+}

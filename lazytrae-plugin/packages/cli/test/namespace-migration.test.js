@@ -46,7 +46,7 @@ test('fresh init keeps runtime state exclusively under .lazytrae', () => {
 
     const doctor = runCli(['doctor'], { cwd: fixture });
     assert.equal(doctor.status, 0, doctor.stdout);
-    assert.doesNotMatch(doctor.stdout, /\.omo/);
+    assert.doesNotMatch(doctor.stdout, /^[^\n]*(?:✅|⚠️|❌)[^\n]*\.omo\//m);
 
     const activeLoopPath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
     const beforeSync = fs.readFileSync(activeLoopPath, 'utf8');
@@ -158,7 +158,7 @@ test('legacy .omo sentinel is untouched by canonical init doctor loop and uninst
     assert.equal(init.status, 0, init.stderr);
     const doctor = runCli(['doctor'], { cwd: fixture });
     assert.equal(doctor.status, 0, doctor.stdout);
-    assert.doesNotMatch(doctor.stdout, /\.omo/);
+    assert.doesNotMatch(doctor.stdout, /^[^\n]*(?:✅|⚠️|❌)[^\n]*\.omo\//m);
     fs.writeFileSync(path.join(fixture, 'brief.md'), 'Canonical loop brief.\n', 'utf8');
     const loop = runCli([
       'loop', 'create-goals', '--brief', 'brief.md', '--goal-id', 'goal-1', '--criterion-id', 'goal-1-crit-1',

@@ -1,0 +1,187 @@
+diff --git a/utility_pack/chunk_items.py b/utility_pack/chunk_items.py
+index e837513..b4408fc 100644
+--- a/utility_pack/chunk_items.py
++++ b/utility_pack/chunk_items.py
+@@ -1,2 +1,11 @@
+ def chunk_items(items: list, size: int) -> list[list]:
+-    raise NotImplementedError
+\ No newline at end of file
++    if not isinstance(items, list):
++        raise TypeError("items must be a list")
++
++    if not isinstance(size, int) or isinstance(size, bool):
++        raise TypeError("size must be an integer")
++
++    if size <= 0:
++        raise ValueError("size must be a positive integer")
++
++    return [items[i : i + size] for i in range(0, len(items), size)]
+\ No newline at end of file
+diff --git a/utility_pack/normalize_email.py b/utility_pack/normalize_email.py
+index c2bca5e..99d3938 100644
+--- a/utility_pack/normalize_email.py
++++ b/utility_pack/normalize_email.py
+@@ -1,2 +1,26 @@
++import re
++
++
+ def normalize_email(value: str) -> str:
+-    raise NotImplementedError
+\ No newline at end of file
++    if not isinstance(value, str):
++        raise TypeError("expected a string")
++
++    # Strip outer whitespace
++    stripped = value.strip()
++
++    # Require exactly one @
++    if stripped.count("@") != 1:
++        raise ValueError("email must contain exactly one '@'")
++
++    local, domain = stripped.split("@")
++
++    if not local:
++        raise ValueError("empty local part")
++    if not domain:
++        raise ValueError("empty domain")
++
++    # Reject internal whitespace
++    if re.search(r"\s", stripped):
++        raise ValueError("internal whitespace not allowed")
++
++    return f"{local.lower()}@{domain.lower()}"
+\ No newline at end of file
+diff --git a/utility_pack/parse_size.py b/utility_pack/parse_size.py
+index 8b488ca..9de66ef 100644
+--- a/utility_pack/parse_size.py
++++ b/utility_pack/parse_size.py
+@@ -1,2 +1,44 @@
++import re
++
++
+ def parse_size(value: str) -> int:
+-    raise NotImplementedError
+\ No newline at end of file
++    if not isinstance(value, str):
++        raise TypeError("expected a string")
++
++    stripped = value.strip()
++
++    if not stripped:
++        raise ValueError("empty string")
++
++    # Check for internal whitespace
++    if re.search(r"\s", stripped):
++        raise ValueError("internal whitespace not allowed")
++
++    # Match pattern: optional negative sign, digits, optional decimal, unit
++    # Units: B, KB, MB, GB (case-insensitive)
++    match = re.match(r"^(-?\d+)(\.\d+)?\s*(B|KB|MB|GB)$", stripped, re.IGNORECASE)
++    if not match:
++        raise ValueError("invalid size format")
++
++    num_str = match.group(1)
++    decimal_str = match.group(2)
++    unit = match.group(3).upper()
++
++    # Reject negative values
++    if num_str.startswith("-"):
++        raise ValueError("negative values not allowed")
++
++    # Reject decimal values
++    if decimal_str:
++        raise ValueError("decimal values not allowed")
++
++    amount = int(num_str)
++
++    multipliers = {
++        "B": 1,
++        "KB": 1024,
++        "MB": 1024**2,
++        "GB": 1024**3,
++    }
++
++    return amount * multipliers[unit]
+\ No newline at end of file
+diff --git a/utility_pack/redact_token.py b/utility_pack/redact_token.py
+index 9656aac..5e2cbc4 100644
+--- a/utility_pack/redact_token.py
++++ b/utility_pack/redact_token.py
+@@ -1,2 +1,17 @@
++import re
++
++
+ def redact_token(value: str) -> str:
+-    raise NotImplementedError
+\ No newline at end of file
++    if not isinstance(value, str):
++        raise TypeError("expected a string")
++
++    # sk- followed by at least 20 ASCII letters or digits
++    value = re.sub(r"sk-[A-Za-z0-9]{20,}", "[REDACTED]", value)
++
++    # ghp_ followed by at least 20 ASCII letters or digits
++    value = re.sub(r"ghp_[A-Za-z0-9]{20,}", "[REDACTED]", value)
++
++    # Bearer followed by at least 20 characters from letters, digits, ., _, /, +, =, or -
++    value = re.sub(r"Bearer [A-Za-z0-9._/+= -]{20,}", "[REDACTED]", value)
++
++    return value
+\ No newline at end of file
+diff --git a/utility_pack/retry_delay.py b/utility_pack/retry_delay.py
+index 06e07c8..dd57ded 100644
+--- a/utility_pack/retry_delay.py
++++ b/utility_pack/retry_delay.py
+@@ -1,2 +1,17 @@
+ def retry_delay(attempt: int, base: float = 0.25, cap: float = 8.0) -> float:
+-    raise NotImplementedError
+\ No newline at end of file
++    if isinstance(attempt, bool) or not isinstance(attempt, int):
++        raise TypeError("attempt must be a nonnegative integer")
++
++    if attempt < 0:
++        raise ValueError("attempt must be a nonnegative integer")
++
++    if not isinstance(base, (int, float)) or base <= 0:
++        raise ValueError("base must be a positive finite number")
++
++    if not isinstance(cap, (int, float)) or cap <= 0:
++        raise ValueError("cap must be a positive finite number")
++
++    if base > cap:
++        raise ValueError("base must not be greater than cap")
++
++    return min(base * 2**attempt, cap)
+\ No newline at end of file
+diff --git a/utility_pack/slugify.py b/utility_pack/slugify.py
+index 492aaad..7ac7c0a 100644
+--- a/utility_pack/slugify.py
++++ b/utility_pack/slugify.py
+@@ -1,2 +1,24 @@
++import re
++import unicodedata
++
++
+ def slugify(value: str) -> str:
+-    raise NotImplementedError
+\ No newline at end of file
++    if not isinstance(value, str):
++        raise TypeError("expected a string")
++
++    # Normalize Unicode with NFKD
++    normalized = unicodedata.normalize("NFKD", value)
++
++    # Remove non-ASCII code points after normalization
++    ascii_bytes = normalized.encode("ascii", "ignore").decode("ascii")
++
++    # Convert to lowercase
++    lower = ascii_bytes.lower()
++
++    # Replace each run of non-alphanumeric characters with one hyphen
++    slug = re.sub(r"[^a-z0-9]+", "-", lower)
++
++    # Remove leading and trailing hyphens
++    slug = slug.strip("-")
++
++    return slug
+\ No newline at end of file

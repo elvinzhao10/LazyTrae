@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { checkProjectAssets } = require('./project-assets');
 const { checkCandidate } = require('./traecli-candidate');
+const { buildCapabilityMatrix } = require('./host-capability-matrix');
 const {
   canonicalDigest, fileMaterial, generatedMaterial, jsonMaterial, packageMaterial, sha256,
 } = require('./host-adapter-fingerprint');
@@ -12,9 +13,9 @@ const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
 const MANIFEST_PATH = path.join(PACKAGE_ROOT, 'host-adapter-manifest.v2.json');
 const HOST_IDS = Object.freeze({ cli: 'trae-cli', ide: 'trae-ide', work: 'trae-work' });
 const HOST_CONTEXTS = Object.freeze({
-  'trae-cli': Object.freeze({ host_label: 'TRAE CLI', client_context: 'terminal', execution_context: 'local' }),
-  'trae-ide': Object.freeze({ host_label: 'TRAE IDE', client_context: 'desktop', execution_context: 'local' }),
-  'trae-work': Object.freeze({ host_label: 'TRAE Work', client_context: 'unspecified', execution_context: 'unspecified' }),
+  'trae-cli': Object.freeze({ host_label: 'TraeCode CLI', client_context: 'terminal', execution_context: 'local' }),
+  'trae-ide': Object.freeze({ host_label: 'TraeCode', client_context: 'desktop', execution_context: 'local' }),
+  'trae-work': Object.freeze({ host_label: 'TraeWork', client_context: 'unspecified', execution_context: 'unspecified' }),
 });
 
 function readManifest() {
@@ -145,7 +146,17 @@ function inspectHostProfile(repoRoot, host, options = {}) {
   const probeReport = inspectProbe(repoRoot, route);
   const evidenceFingerprint = canonicalDigest({ manifestSha256, route, packages, generated, config, probe: probeReport.material, session: sessionMaterial });
   const observationReport = inspectObservation(repoRoot, route, evidenceFingerprint, probeReport);
-  const hostFingerprint = canonicalDigest({ evidenceFingerprint, observation: observationReport.material });
+  const publishedEvidenceFingerprint = observationReport.material.status === 'missing'
+    ? evidenceFingerprint
+    : canonicalDigest({ adapter: evidenceFingerprint, observation: observationReport.material });
+  const capabilityMatrix = buildCapabilityMatrix(repoRoot, route.host, {
+    client: options.capabilityClient,
+    execution: options.capabilityExecution,
+    probePath: options.capabilityProbePath,
+    receiptPath: options.capabilityReceiptPath,
+    sessionId: options.capabilitySessionId,
+    now: options.capabilityNow,
+  });
   const observation = observationReport.valid ? observationReport.value : null;
   const probe = probeReport.valid ? pendingEvidence('observed', 'bounded fingerprinted host probe') : pendingEvidence();
   const sessionCurrent = observation && sessionState?.current_session_id === observation.session_id;
@@ -169,14 +180,14 @@ function inspectHostProfile(repoRoot, host, options = {}) {
     && [probe, registration, session, mcp, observed].every(item => item.status === 'observed')
     ? 'observed' : 'pending';
   const context = HOST_CONTEXTS[route.host];
-  return {
+  const profile = {
     host: route.host,
     host_label: context.host_label,
     client_context: context.client_context,
     execution_context: context.execution_context,
     contract_version: '2.0.0',
-    evidence_fingerprint: evidenceFingerprint,
-    host_fingerprint: hostFingerprint,
+    evidence_fingerprint: publishedEvidenceFingerprint,
+    capability_matrix: capabilityMatrix,
     package_assets: packageAssets,
     generated_assets: generatedAssets,
     config: pendingEvidence(configStatus, route.config_path || 'manual host configuration'),
@@ -192,6 +203,7 @@ function inspectHostProfile(repoRoot, host, options = {}) {
     package_readiness: packageReadiness,
     host_readiness: hostReadiness,
   };
+  return { ...profile, host_fingerprint: canonicalDigest(profile) };
 }
 
 function inspectHostProfiles(repoRoot, options = {}) {

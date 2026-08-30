@@ -29,11 +29,11 @@ function verifiedHookProbe(probePath) {
 
 function readReceipt(repoRoot) {
   const target = safeDestination(repoRoot, RECEIPT_PATH);
-  const file = safeFile(target, 'TRAE IDE configuration receipt');
+  const file = safeFile(target, 'TraeCode configuration receipt');
   if (!file) return { target, entries: {} };
   const receipt = JSON.parse(file.bytes.toString('utf8'));
   if (receipt?.schema_version !== 1 || !receipt.entries || typeof receipt.entries !== 'object'
-    || Array.isArray(receipt.entries)) throw new Error('TRAE IDE configuration receipt is malformed');
+    || Array.isArray(receipt.entries)) throw new Error('TraeCode configuration receipt is malformed');
   return { target, entries: receipt.entries };
 }
 

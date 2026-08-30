@@ -7,9 +7,11 @@ const test = require('node:test');
 
 const CLI_ROOT = path.resolve(__dirname, '..');
 const WORKFLOW_PATH = path.resolve(CLI_ROOT, '..', '..', '..', '.github', 'workflows', 'ci.yml');
+const RELEASE_WORKFLOW_PATH = path.resolve(CLI_ROOT, '..', '..', '..', '.github', 'workflows', 'release.yml');
 const REQUIRED_COMMANDS = [
   'npm ci --ignore-scripts',
-  'npm test',
+  'npm run test:all',
+  'npm test --prefix ../mcp',
   'npm run test:publication',
   'npm pack --dry-run --json',
 ];
@@ -52,14 +54,26 @@ test('publication-readiness workflow is macOS-only, package-local, and non-publi
   validateWorkflow(contents);
 });
 
+test('release workflow runs the full CLI and standalone MCP runtime suites', () => {
+  const contents = fs.readFileSync(RELEASE_WORKFLOW_PATH, 'utf8');
+  parseYaml(contents);
+  for (const command of ['npm run test:all', 'npm test --prefix ../mcp']) {
+    assert.match(contents, new RegExp(`^\\s*(?:-\\s+)?run:\\s*${command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'm'), `release workflow must run ${command}`);
+  }
+});
+
 test('workflow regression rejects omitted verification and prohibited publication or capability actions', () => {
   const contents = fs.readFileSync(WORKFLOW_PATH, 'utf8');
 
   assert.throws(() => validateWorkflow('jobs: [invalid'), /Psych::SyntaxError/);
   assert.throws(() => validateWorkflow(contents.replace(
-    '      - name: Package and operational checks\n        run: npm test\n',
+    '      - name: Full CLI verification\n        run: npm run test:all\n',
     '',
-  )), /workflow must run npm test/);
+  )), /workflow must run npm run test:all/);
+  assert.throws(() => validateWorkflow(contents.replace(
+    '      - name: Standalone MCP runtime tests\n        run: npm test --prefix ..\/mcp\n',
+    '',
+  )), /workflow must run npm test --prefix \.\.\/mcp/);
   assert.throws(() => validateWorkflow(contents.replace(
     '      - name: Publication documentation checks\n        run: npm run test:publication\n',
     '',

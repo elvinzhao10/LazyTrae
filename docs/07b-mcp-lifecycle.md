@@ -6,7 +6,7 @@ An MCP declaration is static configuration. A connected MCP tool is a running st
 sequenceDiagram
     participant Template as templates/mcp.json
     participant CLI as lazytrae init / mcp
-    participant Host as Trae IDE, Work, or CLI
+    participant Host as TraeCode, Work, or CLI
     participant Server as packages/mcp/src/index.js
     participant State as .lazytrae state
     Template->>CLI: managed declaration content
@@ -19,7 +19,7 @@ sequenceDiagram
 
 ## Declaration is not connection
 
-`packages/cli/templates/mcp.json` is copied or merged by `init` into a project declaration when the destination is writable under policy. It names one executable core server and seven disabled placeholders. Trae Work still requires manual MCP registration; Trae CLI requires its own registration command. A declaration in either location proves configuration content, not a launched connection.
+`packages/cli/templates/mcp.json` is copied or merged by `init` into a project declaration when the destination is writable under policy. It names one executable core server and seven disabled placeholders. TraeWork still requires manual MCP registration; TraeCode CLI requires its own registration command. A declaration in either location proves configuration content, not a launched connection.
 
 ## Core server and optional declarations
 

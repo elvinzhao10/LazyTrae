@@ -1,6 +1,6 @@
 # LazyTrae verification evidence
 
-**Current documentation release: v1.1.0.** Historical v1.0.3 evidence below
+**Current documentation release: v1.2.0.** Historical v1.0.3 evidence below
 is retained as historical release evidence; it is not a current writer or a
 host-readiness claim.
 
@@ -78,9 +78,9 @@ indexes, or remove a host MCP registration.
 
 | Surface | Package evidence | User observation still required |
 | --- | --- | --- |
-| Trae IDE | Project files and MCP declaration are generated and checked; an optional probe is bounded. | Reopen the project and observe discovery and MCP connection. |
-| Trae Work | The `--client` and `--execution` profile is explicit; only desktop/local can use local skills, a worktree, executable, and bounded probe. | Reload Work, confirm skill discovery, then use its manual MCP setting after approval. Web/mobile/cloud profiles are descriptors only. |
-| Trae CLI | `.traecli/` candidates are generated receipt-owned configuration. | A candidate remains inert until an exact probe proves a structured runner for the current session/worktree; use the selected build's documented/manual settings flow separately. |
+| TraeCode | Project files and MCP declaration are generated and checked; an optional probe is bounded. | Reopen the project and observe discovery and MCP connection. |
+| TraeWork | The `--client` and `--execution` profile is explicit; only desktop/local can use local skills, a worktree, executable, and bounded probe. | Reload Work, confirm skill discovery, then use its manual MCP setting after approval. Web/mobile/cloud profiles are descriptors only. |
+| TraeCode CLI | `.traecli/` candidates are generated receipt-owned configuration. | A candidate remains inert until an exact probe proves a structured runner for the current session/worktree; use the selected build's documented/manual settings flow separately. |
 
 The active readiness and host-adapter writers emit v2 records. v1 receipts are
 read-only compatibility inputs. The generator, profile, and probe are separate
@@ -125,18 +125,17 @@ or exercised the server.
 
 ## Host-specific exclusions
 
-- **Host integration:** Trae IDE, Work, and CLI need their documented reopen,
+- **Host integration:** TraeCode, Work, and CLI need their documented reopen,
   reload, registration, or new-session observation.
 - **State/path:** project assets use `.trae/` and `.lazytrae/`; the verified
-  Trae Work skills location is macOS `~/.trae-cn/skills/`.
+  TraeWork skills location is macOS `~/.trae-cn/skills/`.
 - **Inventory:** eight MCP declarations contain one executable core server and
   seven disabled placeholders; filesystem and Playwright are not base-enabled.
 
 ## Known unverified host behavior
 
 Live host discovery, hook execution, marketplace behaviour, and MCP connection
-remain unverified until observed in the selected host. Linux and Windows Trae
-Work locations are not asserted.
+remain unverified until observed in the selected host. Linux and Windows TraeWork locations are not asserted.
 
 ## macOS verification scope
 
@@ -166,7 +165,7 @@ claim of API, installer, or runtime compatibility.
 | Reference capability family | LazyTrae realization | Deliberate difference or limitation |
 | --- | --- | --- |
 | Project memory | InitDeep templates, managed project instructions, durable plans, loop state, and schemas. | Project assets are copied into `.trae` and `.lazytrae`; host discovery is observed separately. |
-| Planning and durable execution | Plan, start-work, loop, evidence, completion gates, and package-local state validation. | Workflows are adapted to Trae IDE, Work, and CLI surfaces rather than Codex command semantics. |
+| Planning and durable execution | Plan, start-work, loop, evidence, completion gates, and package-local state validation. | Workflows are adapted to TraeCode, Work, and CLI surfaces rather than Codex command semantics. |
 | Specialized roles and review | Packaged skills, commands, agents, hooks, and independent verification guidance. | A role definition is not proof that a selected Trae host loaded or invoked it. |
 | Hooks and lifecycle | Canonical hook templates, managed project copies, and protected-write reporting. | Hooks are advisory until a host session loads them; protected host files are preserved and may require manual registration. |
 | Local development tooling | Local-first ripgrep, ast-grep, LSP, repository-native verification, and explicit CodeGraph lifecycle. | Context7, grep_app, filesystem, and Playwright remain optional capability paths with explicit approval boundaries. |

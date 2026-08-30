@@ -31,8 +31,10 @@ jobs:
           cache: npm
           cache-dependency-path: lazytrae-plugin/packages/cli/package-lock.json
       - run: npm ci --ignore-scripts
-      - name: Package and operational checks
-        run: npm test
+      - name: Full CLI verification
+        run: npm run test:all
+      - name: Standalone MCP runtime tests
+        run: npm test --prefix ../mcp
       - name: Publication documentation checks
         run: npm run test:publication
       - run: npm pack --dry-run --json

@@ -7,7 +7,7 @@ description: "Migration planning for adapting LazyTrae workflows to other host p
 
 Migration planning skill for adapting LazyTrae workflows to other host platforms.
 
-## Global Trae Work fallback
+## Global TraeWork fallback
 
 This installed skill is self-contained. It does not require repository documentation or a parity ledger. Build the comparison from the current project's available LazyTrae components and the target platform's official documentation.
 

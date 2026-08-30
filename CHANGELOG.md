@@ -3,6 +3,28 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-08-28
+
+### Changed
+
+- Required fresh revision-bound completion evidence, atomic recoverable state,
+  task-owned execution leases, bounded cost telemetry, and deterministic
+  risk-scaled verification.
+- Preserved local-first onboarding and the separation between package
+  readiness and observed host readiness.
+- Bound TraeCode host adapters and status to current capability fingerprints;
+  adopted current TraeCode and TraeCode CLI product names.
+- Hardened network, MCP, filesystem, dirty-tree, and lifecycle ownership
+  boundaries while preserving user-modified and unrelated state.
+- Updated current package, tooling, MCP, lifecycle, candidate, template, and
+  documentation release authorities to v1.2.0; historical artifacts and
+  independent contract versions remain unchanged.
+
+### Verification
+
+- Added release-version classification, immutable-history checks, offline
+  package installation, and synchronized paired-product parity gates.
+
 ## [1.1.0] - 2026-08-19
 
 ### Changed

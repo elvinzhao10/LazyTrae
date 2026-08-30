@@ -2,11 +2,12 @@
 
 ![LazyTrae](lazytrae-banner.jpg)
 
-LazyTrae helps you use structured, evidence-based workflows in **Trae IDE**,
-**Trae Work**, and **Trae CLI**. It prepares local project assets and checks;
+LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
+**TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-The current stable release is [v1.1.0](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.1.0).
+v1.2.0 is prepared for release but is not published yet. The current published
+release is [v1.1.0](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.1.0).
 
 ## Recommended: install with AI help
 
@@ -14,7 +15,7 @@ You do not need to work through the technical setup alone. Open an AI coding
 assistant in your project and paste this:
 
 > Help me install LazyTrae from https://github.com/elvinzhao10/LazyTrae for
-> this project. Use the stable v1.1.0 route. Run safe package checks first,
+> this project. Use the stable v1.2.0 route. Run safe package checks first,
 > explain each step plainly, and ask me before changing host settings, adding
 > an MCP connector, or registering anything in Trae.
 
@@ -47,10 +48,10 @@ Local files and checks never prove that a host has loaded the package.
 
 Pick one host route during onboarding:
 
-- **Trae IDE** uses project assets and an optional bounded probe.
-- **Trae Work** supports local desktop work; other client and execution
+- **TraeCode** uses project assets and an optional bounded probe.
+- **TraeWork** supports local desktop work; other client and execution
   profiles are descriptive only.
-- **Trae CLI** can generate a local candidate, but it stays inert until a
+- **TraeCode CLI** (`traecli`) can generate a local candidate, but it stays inert until a
   current probe confirms the selected runner.
 
 For manual Work or CLI setup, use `load-check --host work` or
@@ -113,9 +114,9 @@ runtime.
 ## Learn more
 
 - [Install and verify a host](docs/03-install-and-host-verification.md)
-- [Supported v1.1.0 route](docs/v1.1.0-supported-route.md)
-- [Migration and safe removal](docs/v1.1.0-migration-guide.md)
-- [Release notes](RELEASE_NOTES-v1.1.0.md)
+- [Supported v1.2.0 route](docs/v1.2.0-supported-route.md)
+- [Migration and safe removal](docs/v1.2.0-migration-guide.md)
+- [Release notes](RELEASE_NOTES-v1.2.0.md)
 - [Documentation index](docs/README.md)
 
 ## License
@@ -126,5 +127,9 @@ runtime.
 
 Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md)
 for development checks, release expectations, and guidance for reporting
-sanitized reproduction details. Report vulnerabilities privately according to
-[SECURITY.md](SECURITY.md).
+sanitized reproduction details. From `lazytrae-plugin/packages/cli`, `npm run
+test:source` and `npm run test:package` cover disjoint sets of `*.test.js`
+files; `npm run test:all` runs their complete non-overlapping union. The harness
+uses two workers by default. Set `LAZYTRAE_TEST_CONCURRENCY=1` for a fully
+serial check or an integer up to `4` for a bounded local run. Report
+vulnerabilities privately according to [SECURITY.md](SECURITY.md).

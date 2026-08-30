@@ -119,7 +119,7 @@ test('the active readiness writer emits v2 only', (t) => {
   // When: the active producer reports capability readiness.
   const records = readinessReport(root);
 
-  // Then: every emitted record is package-scoped v2 for the Trae CLI surface.
+  // Then: every emitted record is package-scoped v2 for the TraeCode CLI surface.
   assert.ok(records.length > 0);
   assert.ok(records.every(record => record.schema_version === 2));
   assert.ok(records.every(record => record.contract_version === '2.0.0'));

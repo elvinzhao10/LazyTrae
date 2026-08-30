@@ -43,8 +43,11 @@ jobs:
       - name: Validate release tag and package version
         run: test "$RELEASE_TAG" = "v$(node -p 'require("./package.json").version')"
 
-      - name: Run package and operational checks
-        run: npm test
+      - name: Run full CLI verification
+        run: npm run test:all
+
+      - name: Run standalone MCP runtime tests
+        run: npm test --prefix ../mcp
 
       - name: Run publication documentation checks
         run: npm run test:publication

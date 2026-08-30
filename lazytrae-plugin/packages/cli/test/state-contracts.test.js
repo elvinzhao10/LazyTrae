@@ -251,7 +251,7 @@ test('dependency-free validation keeps JSON and version failures blocking', () =
   } else {
     assert.match(clean.warnings.join('; '), /Structural validation unchecked/);
   }
-  assert.equal(runCli(['verify', '--must-pass'], { cwd: fixture }).status, 0);
+  assert.equal(runCli(['doctor'], { cwd: fixture }).status, 0);
 
   fs.writeFileSync(statePath, '{\n');
   const malformedState = validateStateFile(fixture, 'boulder.json', 'boulder.schema.json');
@@ -278,7 +278,7 @@ test('dependency-free validation keeps JSON and version failures blocking', () =
   assert.equal(wrongVersion.valid, false);
   assert.match(wrongVersion.errors.join('; '), /Invalid schema_version in boulder\.json/);
 
-  const verify = runCli(['verify', '--must-pass'], { cwd: fixture });
-  assert.equal(verify.status, 1, verify.stdout);
-  assert.match(verify.stdout, /Invalid schema_version in boulder\.json/);
+  const doctor = runCli(['doctor'], { cwd: fixture });
+  assert.equal(doctor.status, 1, doctor.stdout);
+  assert.match(doctor.stdout, /Invalid schema_version in boulder\.json/);
 });

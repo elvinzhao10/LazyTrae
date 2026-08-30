@@ -1,6 +1,6 @@
 # Host routes
 
-**Current documentation release: v1.1.0.** Select exactly one independent
+**Current documentation release: v1.2.0.** Select exactly one independent
 host route; package outputs never prove that the selected host discovered or
 executed them.
 
@@ -19,7 +19,7 @@ macOS, `${XDG_DATA_HOME:-~/.local/share}/lazyseries` on Linux, and
 for scoped offboard and re-onboard rather than editing receipts. These package
 operations never prove a host: **HOST READINESS: PENDING** until observation.
 
-Open or link the durable `v1.1.0` documentation release in the host, give the agent
+Open or link the durable `v1.2.0` documentation release in the host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for the host, runs safe package checks, and reports package readiness
 before any host-managed mutation.
@@ -37,25 +37,25 @@ Use three availability labels. The release launcher and generated artifacts
 are the **documented package route**. The supplied macOS IDE/Work findings are
 an **observed prerelease route**, not a universal host contract. A selected
 session remains **HOST READINESS: PENDING** until observed.
-The supplied QA could not access Trae CLI, so its live-host route is explicitly
+The supplied QA could not access TraeCode CLI, so its live-host route is explicitly
 unverified; use only the selected build's documented/manual configuration.
 
 | Host | Package artifact (safe local work) | One-action handoff and expected observation |
 | --- | --- | --- |
-| **Trae IDE** | Documented package route: `init --host ide` copies project assets. `.trae/mcp.json` is generated with `command: node`, the absolute release launcher, and the project root. | Auto-discovery is an observed prerelease route. After approval, reopen the project and verify one Skill/command plus the core MCP. |
-| **Trae Work** | Approval-gated Skills copy/import uses the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the JSON printed by `load-check --host work` in **Settings → MCP**. Paste only after approval, reload later, then observe one Skill plus the core MCP. |
-| **Trae CLI** | Documented package route: `init --host cli` writes local project and verification assets. | No public universal MCP registration command is assumed. Use the JSON from `load-check --host cli` with the selected build's documented/manual settings flow, start a new session later, then observe one command plus the core MCP. |
+| **TraeCode** | Documented package route: `init --host ide` copies project assets. `.trae/mcp.json` is generated with `command: node`, the absolute release launcher, and the project root. | Auto-discovery is an observed prerelease route. After approval, reopen the project and verify one Skill/command plus the core MCP. |
+| **TraeWork** | Approval-gated Skills copy/import uses the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the JSON printed by `load-check --host work` in **Settings → MCP**. Paste only after approval, reload later, then observe one Skill plus the core MCP. |
+| **TraeCode CLI** | Documented package route: `init --host cli` writes local project and verification assets. | No public universal MCP registration command is assumed. Use the JSON from `load-check --host cli` with the selected build's documented/manual settings flow, start a new session later, then observe one command plus the core MCP. |
 
 ## v1.1 generator, profile, and probe limits
 
 `traecli-candidate generate` creates receipt-owned `.traecli/` candidate
 assets. The generator is inert and configuration-only: it does not discover a
-Trae CLI host, register an MCP, execute a candidate, publish to a marketplace,
+TraeCode CLI host, register an MCP, execute a candidate, publish to a marketplace,
 or install anything. A candidate run remains pending unless an exact,
 fingerprinted probe fixture proves the selected structured runner, current
 session, and current worktree.
 
-For Trae Work, select `--client desktop|web|mobile` separately from
+For TraeWork, select `--client desktop|web|mobile` separately from
 `--execution local|cloud`. Only `--client desktop --execution local` can use a
 local skills directory, local Git worktree, host executable, and bounded
 fingerprinted probe. The other combinations emit descriptors only. They do not
@@ -84,9 +84,8 @@ node "<install-root>/LazyTrae/launcher.js" --root "<project-root>" <command>
 Run only `init --host ide|cli`, `sync`, `load-check --host <host>`, and
 `doctor` before approval. These inspect or write the selected project and do
 not enable optional providers, alter credentials, or mutate host settings. For
-Trae Work, `init --host work` is itself host-managed because it copies Skills;
-ask first. The generated project declaration is the Trae IDE artifact; Trae
-Work still requires a manual connector.
+TraeWork, `init --host work` is itself host-managed because it copies Skills;
+ask first. The generated project declaration is the TraeCode artifact; TraeWork still requires a manual connector.
 
 For Work and CLI, copy only the JSON printed between
 `LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. The relevant commands
