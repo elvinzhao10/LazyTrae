@@ -39,7 +39,7 @@ test('classifier rejects a current 1.1 claim even when migration wording is pres
 });
 
 for (const [name, relativePath, transform, failure] of [
-  ['current 1.1 drift', 'README.md', text => text.replace('v1.2.0', 'v1.1.0'), 'CURRENT_VERSION_DRIFT_TEXT'],
+  ['current 1.1 drift', 'README.md', text => `${text}\nCurrent supported release is v1.1.0.\n`, 'CURRENT_VERSION_DRIFT_TEXT'],
   ['missing release-note section', 'RELEASE_NOTES-v1.2.0.md', text => text.replace('## Rollback', '## Recovery'), 'MISSING_RELEASE_NOTE_SECTION'],
   ['package/runtime mismatch', 'lazytrae-plugin/packages/cli/package.json', text => text.replace('"version": "1.2.0"', '"version": "1.1.0"'), 'CURRENT_VERSION_DRIFT'],
   ['changed historical fixture', 'RELEASE_NOTES-v1.1.0.md', text => `${text}\nchanged\n`, 'CHANGED_HISTORICAL_FIXTURE'],
