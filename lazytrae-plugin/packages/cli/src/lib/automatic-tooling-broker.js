@@ -48,14 +48,15 @@ function searchArguments(capability, query, workspace) {
   return ['run', '--json=stream', '--pattern', query, workspace];
 }
 
-function runSearch(command, capability, query, workspace, timeout) {
+function runSearch(command, capability, query, workspace, timeout, spawnProvider = spawn) {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, searchArguments(capability, query, workspace), { cwd: workspace, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
+    let child;
     let output = '';
     let failure;
     let settled = false;
     let stdinCloseActive = false;
     const killTree = () => {
+      if (!child) return;
       if (process.platform !== 'win32' && child.pid) { try { process.kill(-child.pid, 'SIGKILL'); return; } catch (_) {} }
       child.kill('SIGKILL');
     };
@@ -77,6 +78,10 @@ function runSearch(command, capability, query, workspace, timeout) {
       output += chunk;
       if (output.length > 1024 * 1024) { failure = new Error('AUTOMATIC_TOOLING_PROVIDER_UNAVAILABLE'); killTree(); }
     };
+    process.once('SIGINT', cancel);
+    process.once('SIGTERM', cancel);
+    process.stdin.once('close', stdinClosed);
+    child = spawnProvider(command, searchArguments(capability, query, workspace), { cwd: workspace, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
     child.stdout.on('data', append);
     child.stderr.on('data', append);
     child.on('error', () => finish(new Error('AUTOMATIC_TOOLING_PROVIDER_UNAVAILABLE')));
@@ -85,9 +90,6 @@ function runSearch(command, capability, query, workspace, timeout) {
       else if (code === 0 || (capability === 'local_search' && code === 1)) finish(null, output);
       else finish(new Error('AUTOMATIC_TOOLING_PROVIDER_UNAVAILABLE'));
     });
-    process.once('SIGINT', cancel);
-    process.once('SIGTERM', cancel);
-    process.stdin.once('close', stdinClosed);
   });
 }
 
@@ -181,4 +183,4 @@ async function runCapability(args, workspace) {
   }
 }
 
-module.exports = { parseArgs, runCapability };
+module.exports = { parseArgs, runCapability, runSearch };
