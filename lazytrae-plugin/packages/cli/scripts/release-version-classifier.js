@@ -4,10 +4,11 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RELEASE_VERSION = '1.2.0';
-const PREVIOUS_VERSION = '1.1.0';
+const RELEASE_VERSION = '1.2.1';
+const PREVIOUS_VERSION = '1.2.0';
 const HISTORICAL_DIGESTS = {
   'RELEASE_NOTES-v1.1.0.md': '1b0a39ed74b5caec056391e9ed083b5716d9b0110bf05b63127c26639725c5a7',
+  'RELEASE_NOTES-v1.2.0.md': 'b7de8ba88255068cb9f987783f6210af0d96f747d69c792d8313bac6f3f2a41e',
 };
 const VERSION_JSON_PATHS = [
   ['lazytrae-plugin/packages/cli/package.json', ['version']],
@@ -56,21 +57,24 @@ function walk(root, directory = root) {
 }
 
 function previousVersionClassification(relativePath, line) {
-  if (relativePath === 'RELEASE_NOTES-v1.1.0.md' || relativePath.startsWith('docs/v1.1.0-')) return 'historical-release-document';
+  if (relativePath === 'RELEASE_NOTES-v1.2.0.md' || relativePath.startsWith('docs/v1.2.0-')) return 'historical-release-document';
   if (relativePath === 'CHANGELOG.md') return 'historical-release-history';
-  if (relativePath === 'RELEASE_NOTES-v1.2.0.md') return 'documented-migration-boundary';
+  if (relativePath === 'RELEASE_NOTES-v1.2.1.md') return 'documented-migration-boundary';
   if (relativePath === '.product-naming-allowlist.json') return 'historical-naming-allowlist';
   if (relativePath.includes('/contracts/fixtures/') || relativePath.includes('/test/fixtures/')) return 'historical-or-adversarial-fixture';
+  if (relativePath.includes('paired-candidate-contract.v1') || relativePath.endsWith('validate-paired-candidate.js')) return 'schema-independent-contract-version';
+  if (relativePath.endsWith('contracts/tests/paired-candidate-contract.test.js') || relativePath.endsWith('contracts/tests/completion-cost-contract.test.js')) return 'schema-independent-contract-test';
   if (relativePath.includes('lazyseries-trae-ide-observation-descriptor.v1') || relativePath.includes('lazyseries-trae-host-status.v2')) return 'schema-independent-contract-version';
   if (relativePath.endsWith('trae-ide-observation.js') || relativePath.endsWith('host-capability-matrix.js') || relativePath.endsWith('commands/status.js')) return 'schema-independent-runtime-contract-version';
   if (relativePath.endsWith('host-capability-matrix.test.js') || relativePath.endsWith('host-capability-status-integration.test.js')) return 'schema-independent-contract-test';
   if (relativePath.includes('automatic-tooling-contract.v1') || relativePath.includes('v1.0.3-')) return 'schema-independent-contract-history';
   if (relativePath.endsWith('release-version-classifier.js')) return 'classifier-input';
   if (relativePath.endsWith('v120-release-version-classification.test.js')) return 'adversarial-test-input';
+  if (relativePath.endsWith('documentation-regression.test.js') || relativePath.endsWith('product-naming.test.js')) return 'historical-test-input';
   if (relativePath.endsWith('automatic-tooling-contract.test.js')) return 'schema-independent-contract-test';
-  if (/(?:^|\/)(?:test|tests)\//.test(relativePath) && /(previous|historical|fixture|wrong|from|upgrade|mutable|prior)/i.test(line)) return 'historical-test-input';
+  if (/(?:^|\/)(?:test|tests)\//.test(relativePath) && /(previous|historical|fixture|wrong|from|upgrade|mutable|prior|stale)/i.test(line)) return 'historical-test-input';
   if (/\bcurrent\b.*\b(?:release|version)\b/i.test(line)) return 'current-version-drift';
-  if (/(upgrade|migrat|rollback|previous|historical|prior|old release|from v?1\.1\.0|tag\/v1\.1\.0|release notes)/i.test(line)) return 'historical-migration-reference';
+  if (/(upgrade|migrat|rollback|previous|historical|prior|old release|since v?1\.2\.0|from v?1\.2\.0|tag\/v1\.2\.0|release notes)/i.test(line)) return 'historical-migration-reference';
   return null;
 }
 

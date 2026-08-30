@@ -1,6 +1,6 @@
 # Safe removal
 
-**Current documentation release: v1.2.0.** Removal never turns a generated
+**Current documentation release: v1.2.1.** Removal never turns a generated
 artifact into a claim about a host installation or registration.
 
 Removal follows ownership, not a broad directory delete. LazyTrae removes only

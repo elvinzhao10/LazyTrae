@@ -3,6 +3,29 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-08-30
+
+### Fixed
+
+- Forwarded SIGINT during optional-provider startup and waited for the child
+  process to exit, preventing an interrupted startup from lingering until its
+  timeout.
+
+### Changed
+
+- Summarized measured v1.2.0 efficiency evidence in the README.
+- Expanded pull-request release safety checks and added weekly supported-Node
+  compatibility and dependency-freshness coverage.
+- Updated current package, runtime, template, and documentation authorities to
+  v1.2.1 while retaining v1.2.0 release history and migration evidence.
+- Preserved local-first onboarding and the boundary between package readiness
+  and observed host readiness.
+
+### Verification
+
+- Release classification pins the historical v1.2.0 release-note digest and
+  verifies current package, publication, standalone MCP, and full-suite gates.
+
 ## [1.2.0] - 2026-08-28
 
 ### Changed
@@ -207,6 +230,7 @@ runtime replacement uses scoped offboard/re-onboard. Package success leaves
   lifecycle.
 
 [1.0.3]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.2...v1.0.3
+[1.2.1]: https://github.com/elvinzhao10/LazyTrae/compare/v1.2.0...v1.2.1
 [1.1.0]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.3...v1.1.0
 [1.0.2]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.0...v1.0.1

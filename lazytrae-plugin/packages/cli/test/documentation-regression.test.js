@@ -111,7 +111,7 @@ test('Given v1.2 host-readiness documentation, when current release boundaries a
 
   for (const relativePath of currentPaths) {
     const content = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
-    assert.match(content, /1\.2\.0/, `${relativePath} must identify the current v1.2.0 release`);
+    assert.match(content, /1\.2\.1/, `${relativePath} must identify the current v1.2.1 release`);
     assert.match(content, /TraeCode[\s\S]*TraeWork[\s\S]*TraeCode CLI/, `${relativePath} must keep three independent host sections`);
     assert.match(content, /package readiness[\s\S]{0,300}host readiness|host readiness[\s\S]{0,300}package readiness/i, `${relativePath} must separate package and host readiness`);
     assert.doesNotMatch(content, /(?:^|\n)(?![^\n]*(?:\bno\b|\bnot\b|\bnever\b|\bwithout\b|\binert\b))[^\n]*(?:marketplace\s+(?:publish|install)|cloud\s+upload|package[- ]ready[^\n]{0,80}host[- ]ready)/im, `${relativePath} must not make an unsupported promotion or distribution claim`);
@@ -149,7 +149,7 @@ test('Given current v1.2 documentation references, when a linked Markdown or JSO
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {
   const packageAgents = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'AGENTS.md'), 'utf8');
 
-  assert.match(packageAgents, /1\.2\.0/, 'CLI maintainer guidance must name the packaged baseline');
+  assert.match(packageAgents, /1\.2\.1/, 'CLI maintainer guidance must name the packaged baseline');
   assert.match(packageAgents, /broad Node test suite/i, 'CLI maintainer guidance must describe the current suite');
   assert.doesNotMatch(packageAgents, /v0\.13|250 LOC|Currently thin/i, 'CLI maintainer guidance must not retain stale constraints');
   assert.match(packageAgents, /node --test test\/documentation-regression\.test\.js/, 'CLI maintainer guidance must name a focused documentation check');

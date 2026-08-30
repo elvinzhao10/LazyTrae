@@ -1,6 +1,6 @@
 # Test and release verification
 
-**Current documentation release: v1.2.0.** Release checks must distinguish a
+**Current documentation release: v1.2.1.** Release checks must distinguish a
 local generator/profile/probe result from a native host observation.
 
 LazyTrae uses layered evidence. A release check is useful only when its scope is explicit: a unit test does not prove a packed artifact, a packed artifact does not prove a host connection, and host observation does not rewrite package ownership.

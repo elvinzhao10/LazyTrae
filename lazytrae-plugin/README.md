@@ -1,6 +1,6 @@
 # LazyTrae plugin
 
-## Durable v1.2.0 installation
+## Durable v1.2.1 installation
 
 **Node.js LTS 20 or newer** and **Git** are required. Run `lifecycle onboard`
 only from `https://github.com/elvinzhao10/LazyTrae.git`, then use
@@ -49,7 +49,7 @@ projects. Keep it self-contained and run the CLI test suite after changes.
 
 ## Install, verify, and remove
 
-Bootstrap v1.2.0 once from a verified official source checkout, then use the
+Bootstrap v1.2.1 once from a verified official source checkout, then use the
 durable launcher rather than treating that checkout as the installed runtime:
 
 ```bash

@@ -1,6 +1,6 @@
 # Package delivery
 
-**Current documentation release: v1.2.0.** The package can create evidence;
+**Current documentation release: v1.2.1.** The package can create evidence;
 only the selected host can supply discovery and live-session evidence.
 
 This page explains the deployment boundary in code terms. The CLI contains canonical templates and a local MCP runtime; it does not contain Trae's settings database, session state, or live connector process table.
@@ -29,7 +29,7 @@ Platform defaults are package behavior, not host-support evidence:
 
 ## Host onboarding
 
-Open or link the durable `v1.2.0` release in the selected Trae host, give the agent
+Open or link the durable `v1.2.1` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for TraeCode, TraeWork, or TraeCode CLI, runs safe package checks, and
 reports package readiness separately from host readiness. Before copying Work

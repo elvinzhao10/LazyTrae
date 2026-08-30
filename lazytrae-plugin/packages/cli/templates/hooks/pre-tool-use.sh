@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.2.0 — PreToolUse hook
+# LazyTrae v1.2.1 — PreToolUse hook
 # Warns on write-before-read and destructive git commands.
 # Provide git-bash MCP guidance and ulw-loop goal-budget protection.
 # Always exits 0 — never blocks a session.
