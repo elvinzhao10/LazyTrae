@@ -89,14 +89,33 @@ async function stopCodeGraphBridge(child) {
   await waitForChildExit(child);
 }
 
-function processIsAlive(pid) {
+function processIsAlive(pid, platform = process.platform, procRoot = '/proc') {
   try {
     process.kill(pid, 0);
+    if (platform === 'linux') {
+      try {
+        const stat = fs.readFileSync(path.join(procRoot, String(pid), 'stat'), 'utf8');
+        const closingParenthesis = stat.lastIndexOf(')');
+        if (closingParenthesis !== -1 && stat[closingParenthesis + 2] === 'Z') return false;
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return false;
+      }
+    }
     return true;
   } catch (_) {
     return false;
   }
 }
+
+test('CodeGraph cleanup treats a Linux zombie as terminated', (t) => {
+  const procRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-codegraph-proc-'));
+  t.after(() => fs.rmSync(procRoot, { recursive: true, force: true }));
+  const pid = process.pid;
+  const processDirectory = path.join(procRoot, String(pid));
+  fs.mkdirSync(processDirectory);
+  fs.writeFileSync(path.join(processDirectory, 'stat'), `${pid} (node) Z 0 0 0 0 0 0 0 0 0 0 0\n`);
+  assert.equal(processIsAlive(pid, 'linux', procRoot), false);
+});
 
 function startCodeGraph(target, toolingRoot, pidPath) {
   const child = spawn(process.execPath, [path.join(__dirname, '..', 'src', 'index.js'), 'codegraph', '--target', target, '--tooling-root', toolingRoot], {

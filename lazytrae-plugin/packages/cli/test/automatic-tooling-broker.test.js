@@ -110,9 +110,40 @@ test('automatic capability run cleans the owned toolpack after a bounded timeout
   }
 });
 
-function alive(pid) {
-  try { process.kill(pid, 0); return true; } catch (_) { return false; }
+function alive(pid, platform = process.platform, procRoot = '/proc') {
+  try {
+    process.kill(pid, 0);
+    if (platform === 'linux') {
+      try {
+        const stat = fs.readFileSync(path.join(procRoot, String(pid), 'stat'), 'utf8');
+        const closingParenthesis = stat.lastIndexOf(')');
+        if (closingParenthesis !== -1 && stat[closingParenthesis + 2] === 'Z') return false;
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return false;
+      }
+    }
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
+
+test('automatic SIGINT liveness treats a Linux zombie provider PID as stopped', (t) => {
+  const procRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-broker-proc-'));
+  t.after(() => fs.rmSync(procRoot, { recursive: true, force: true }));
+  const processDirectory = path.join(procRoot, String(process.pid));
+  fs.mkdirSync(processDirectory);
+  fs.writeFileSync(path.join(processDirectory, 'stat'), `${process.pid} (sleep) Z 0 0 0 0 0 0 0 0 0 0 0\n`);
+  assert.equal(alive(process.pid, 'linux', procRoot), false);
+});
+
+function exitStatus(code, signal) {
+  return code === null && signal === 'SIGINT' ? 130 : code;
+}
+
+test('automatic capability SIGINT normalizes the child signal to POSIX status 130', () => {
+  assert.equal(exitStatus(null, 'SIGINT'), 130);
+});
 
 function waitFor(file) {
   return new Promise((resolve, reject) => {
@@ -192,9 +223,9 @@ test('automatic capability SIGINT kills a provider tree without waiting for its 
     const child = spawn(process.execPath, [CLI, 'tooling', 'capability', 'run', 'local_search', '--query', 'TODO', '--toolpack', toolpack], { cwd: root, env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` } });
     await waitFor(pidFile);
     child.kill('SIGINT');
-    const [code] = await new Promise(resolve => child.once('close', (exitCode) => resolve([exitCode])));
+    const [code, signal] = await new Promise(resolve => child.once('close', (exitCode, exitSignal) => resolve([exitCode, exitSignal])));
     const pid = Number(fs.readFileSync(pidFile, 'utf8'));
-    assert.equal(code, 130);
+    assert.equal(exitStatus(code, signal), 130);
     assert.ok(Date.now() - started < 2000, 'SIGINT waited for the default timeout');
     assert.equal(alive(pid), false, `grandchild ${pid} survived SIGINT`);
     assert.equal(fs.existsSync(toolpack), false);
