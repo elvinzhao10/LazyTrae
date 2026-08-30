@@ -17,6 +17,10 @@ function fixture(t) {
   return project;
 }
 
+function globalHooksFixtureRoot() {
+  return fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'lazytrae-global-hooks-'));
+}
+
 function probe(t) {
   const probePath = path.join(fixture(t), 'verified-ide-probe.json');
   fs.writeFileSync(probePath, `${JSON.stringify({
@@ -57,11 +61,25 @@ test('unknown IDE hook schema writes no hook configuration', (t) => {
   assert.equal(fs.existsSync(path.join(project, '.trae', 'hooks.json')), false);
 });
 
+test('verified IDE fixture uses the runtime temporary directory for global hooks', (t) => {
+  const temporaryRoot = fixture(t);
+  const originalTmpdir = os.tmpdir;
+  let globalRoot;
+  os.tmpdir = () => temporaryRoot;
+  try {
+    globalRoot = globalHooksFixtureRoot();
+    assert.equal(path.dirname(globalRoot), fs.realpathSync(temporaryRoot));
+  } finally {
+    os.tmpdir = originalTmpdir;
+    if (globalRoot) fs.rmSync(globalRoot, { recursive: true, force: true });
+  }
+});
+
 test('verified IDE generation preserves user configuration and emits both Skill destinations', (t) => {
   // Given: explicit project/global user configuration, root prose, and a schema-verifying probe.
   const project = fixture(t);
   const verifiedProbe = probe(t);
-  const globalRoot = fs.mkdtempSync('/private/tmp/lazytrae-global-hooks-');
+  const globalRoot = globalHooksFixtureRoot();
   t.after(() => fs.rmSync(globalRoot, { recursive: true, force: true }));
   const globalHooks = path.join(globalRoot, 'hooks.json');
   fs.mkdirSync(path.join(project, '.trae'), { recursive: true });

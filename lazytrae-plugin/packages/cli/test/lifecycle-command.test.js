@@ -118,6 +118,14 @@ function runLifecycle(fixture, subcommand, extra = []) {
   });
 }
 
+function runCliWithPreload(preload, args, options = {}) {
+  return childProcess.spawnSync(process.execPath, ['--require', preload, CLI, ...args], {
+    cwd: options.cwd || REPO_ROOT,
+    encoding: 'utf8',
+    env: options.env,
+  });
+}
+
 async function waitForPath(target, timeoutMs = 5_000) {
   const started = Date.now();
   while (!fs.existsSync(target)) {
@@ -266,7 +274,7 @@ fs.openSync = (target, flags, mode) => {
 `);
 
   // When: the real lifecycle CLI reaches a missing-Git failure after the caller swap.
-  const result = runCli([
+  const result = runCliWithPreload(hook, [
     'lifecycle', 'onboard', '--source', OFFICIAL,
     '--install-root', installRoot, '--project', project, '--json',
   ], {
@@ -274,7 +282,6 @@ fs.openSync = (target, flags, mode) => {
     env: {
       ...process.env,
       BLOCKED_LOCK: path.join(installRoot, '.LazyTrae.bootstrap.lock'),
-      NODE_OPTIONS: `--require=${JSON.stringify(hook)}`,
       PATH: emptyPath,
       PRODUCT_ROOT: productRoot,
       SNAPSHOT_PATH: snapshotPath,
