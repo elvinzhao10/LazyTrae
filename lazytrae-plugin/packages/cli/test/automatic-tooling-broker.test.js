@@ -145,6 +145,32 @@ test('automatic capability SIGINT normalizes the child signal to POSIX status 13
   assert.equal(exitStatus(null, 'SIGINT'), 130);
 });
 
+test('automatic capability handles SIGINT delivered during provider startup', () => {
+  const broker = path.join(__dirname, '..', 'src', 'lib', 'automatic-tooling-broker.js');
+  const probe = `
+const { EventEmitter } = require('node:events');
+const { runSearch } = require(${JSON.stringify(broker)});
+const child = new EventEmitter();
+child.pid = 0;
+child.stdout = new EventEmitter();
+child.stderr = new EventEmitter();
+const kills = [];
+child.kill = signal => { kills.push(signal); setImmediate(() => child.emit('close', null, signal)); return true; };
+const deadline = setTimeout(() => process.exit(99), 1000);
+runSearch('synthetic-provider', 'local_search', 'TODO', process.cwd(), 1000, () => {
+  process.kill(process.pid, 'SIGINT');
+  return child;
+}).then(
+  () => process.exit(98),
+  error => { clearTimeout(deadline); process.stdout.write(JSON.stringify({ message: error.message, kills })); process.exit(error.message === 'AUTOMATIC_TOOLING_CANCELLED' && kills.includes('SIGKILL') ? 0 : 97); },
+);
+`;
+  const result = spawnSync(process.execPath, ['-e', probe], { encoding: 'utf8', timeout: 2000 });
+  assert.equal(result.signal, null, result.stderr);
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(JSON.parse(result.stdout), { message: 'AUTOMATIC_TOOLING_CANCELLED', kills: ['SIGKILL'] });
+});
+
 function waitFor(file) {
   return new Promise((resolve, reject) => {
     const deadline = Date.now() + 2000;
