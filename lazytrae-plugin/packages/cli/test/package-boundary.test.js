@@ -162,7 +162,7 @@ test('package health passes but publication fails without repository learner doc
     assert.equal(packageHealth.status, 0, `${packageHealth.stdout}\n${packageHealth.stderr}`);
     assert.match(`${packageHealth.stdout}\n${packageHealth.stderr}`, /fail 0/);
     assert.match(packageHealth.stdout, /installed LazyTrae operations do not require repository docs/);
-    assert.match(packageHealth.stdout, /publication-readiness workflow is macOS-only/);
+    assert.match(packageHealth.stdout, /pull-request workflow has pinned Linux CLI, MCP, and exact-package gates/);
     assert.match(packageHealth.stdout, /operational CLI and MCP sources use LazyTrae-native names/);
     assert.equal(publicationHealth.error, undefined, publicationHealth.error?.message);
     assert.notEqual(publicationHealth.status, 0, 'publication health unexpectedly accepted poisoned learner docs');

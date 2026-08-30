@@ -12,12 +12,12 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   cli:
-    runs-on: macos-latest
-    timeout-minutes: 45
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: lazytrae-plugin/packages/cli
@@ -31,11 +31,78 @@ jobs:
           cache: npm
           cache-dependency-path: lazytrae-plugin/packages/cli/package-lock.json
       - run: npm ci --ignore-scripts
-      - name: Full CLI verification
-        run: npm run test:all
-      - name: Standalone MCP runtime tests
-        run: npm test --prefix ../mcp
-      - name: Publication documentation checks
-        run: npm run test:publication
-      - run: npm pack --dry-run --json
-        name: Verify publishable package contents
+      - run: npm run test:all
+      - run: npm run test:publication
+
+  cli-current-lts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: lazytrae-plugin/packages/cli
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: lazytrae-plugin/packages/cli/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm run test:all
+      - run: npm run test:publication
+
+  mcp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: lazytrae-plugin/packages/mcp
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: lazytrae-plugin/packages/mcp/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm test
+
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: lazytrae-plugin/packages/cli
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: lazytrae-plugin/packages/cli/package-lock.json
+      - run: npm ci --ignore-scripts
+      - name: Inspect and smoke the exact package archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          temporary_root="$(mktemp -d)"
+          cleanup() {
+            rm -rf "$temporary_root"
+          }
+          trap cleanup EXIT
+          pack_json="$(npm pack --json --pack-destination "$temporary_root")"
+          archive_name="$(node -e "const [entry] = JSON.parse(process.argv[1]); if (!entry?.filename) process.exit(1); process.stdout.write(entry.filename)" "$pack_json")"
+          tarball="$temporary_root/$archive_name"
+          test -f "$tarball"
+          for member in package/package.json package/bin/lazytrae.js package/src/index.js package/LICENSE package/NOTICE package/README.md; do
+            tar -tzf "$tarball" | grep -Fx "$member"
+          done
+          consumer_root="$temporary_root/consumer"
+          npm install --prefix "$consumer_root" --ignore-scripts --no-audit --no-fund --offline --package-lock=false "$tarball"
+          "$consumer_root/node_modules/.bin/lazytrae" --help | grep -F 'lazytrae'
