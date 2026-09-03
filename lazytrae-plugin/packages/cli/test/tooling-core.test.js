@@ -174,12 +174,14 @@ test('tooling install replaces incompatible host providers with pinned owned fal
     const installed = runCliWithHost(['tooling', 'install', '--tooling-root', toolingRoot], root, bin);
     const detected = runCliWithHost(['tooling', 'detect', '--tooling-root', toolingRoot], root, bin);
     const receipt = JSON.parse(fs.readFileSync(path.join(toolingRoot, 'lazytrae-tooling-receipt.json'), 'utf8'));
+    const manifest = JSON.parse(fs.readFileSync(path.join(toolingRoot, 'package.json'), 'utf8'));
 
     assert.equal(installed.status, 0, installed.stderr);
     assert.equal(detected.status, 0, detected.stderr);
     assert.match(detected.stdout, /ripgrep: owned \(ready\)/);
     assert.match(detected.stdout, /ast-grep: owned \(ready\)/);
     assert.deepEqual(receipt.provisioned_capabilities, ['ripgrep', 'ast-grep']);
+    assert.equal(manifest.optionalDependencies['@ast-grep/cli'], '0.45.2');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
