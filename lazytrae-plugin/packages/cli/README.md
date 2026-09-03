@@ -75,7 +75,7 @@ The optional LSP bridge is separate from the local core MCP server; that server
 retains its 15-tool contract. It detects an existing project or host provider
 before provisioning a package-owned fallback. Only JavaScript/TypeScript
 (`typescript-language-server@5.3.0` with `typescript@6.0.3`) and Python
-(`basedpyright@1.39.9`) are supported. TypeScript requires Node 20 or later.
+(`basedpyright@1.39.10`) are supported. TypeScript requires Node 20 or later.
 The bridge exposes only advertised read-only definitions, references, symbols,
 hover, and diagnostics operations. It rejects rename requests and uses an
 explicit receipt-owned tooling root, so it never changes the target project's
