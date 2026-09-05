@@ -15,6 +15,38 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  cli-supported-floor:
+    name: CLI supported floor (Node 18)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: lazytrae-plugin/packages/cli
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "18.0.0"
+      - run: node scripts/verify-supported-floor.mjs --surface cli --expected-runtime 18.0.0 --exercise package,install,cli
+
+  onboarding-lsp-floor:
+    name: Onboarding/LSP floor (Node 20)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: lazytrae-plugin/packages/cli
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "20.0.0"
+      - run: node scripts/verify-supported-floor.mjs --surface onboarding-lsp --expected-runtime 20.0.0 --exercise onboarding,lsp-provider
+
   cli:
     runs-on: ubuntu-latest
     timeout-minutes: 15

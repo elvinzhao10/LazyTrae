@@ -49,10 +49,25 @@ function assertJob(block, { nodeVersion, lockfile, commands }) {
   }
 }
 
+function assertFloorJob(block, { nodeVersion, command }) {
+  assert.match(block, /^    runs-on: ubuntu-latest$/m);
+  assert.match(block, /^    timeout-minutes: 10$/m);
+  assert.match(block, new RegExp(`^          node-version: "${nodeVersion}"$`, 'm'));
+  assert.match(block, new RegExp(`^      - run: ${command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'm'), `floor job must run ${command}`);
+}
+
 function validateWorkflow(contents) {
   parseYaml(contents);
   assert.match(contents, /^  cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}$/m);
-  assert.equal(contents.match(PINNED_ACTION)?.length, 8, 'every checkout/setup action must use a full SHA pin');
+  assert.equal(contents.match(PINNED_ACTION)?.length, 12, 'every checkout/setup action must use a full SHA pin');
+  assertFloorJob(jobBlock(contents, 'cli-supported-floor'), {
+    nodeVersion: '18.0.0',
+    command: 'node scripts/verify-supported-floor.mjs --surface cli --expected-runtime 18.0.0 --exercise package,install,cli',
+  });
+  assertFloorJob(jobBlock(contents, 'onboarding-lsp-floor'), {
+    nodeVersion: '20.0.0',
+    command: 'node scripts/verify-supported-floor.mjs --surface onboarding-lsp --expected-runtime 20.0.0 --exercise onboarding,lsp-provider',
+  });
   assertJob(jobBlock(contents, 'cli'), {
     nodeVersion: 22,
     lockfile: 'lazytrae-plugin/packages/cli/package-lock.json',
@@ -102,6 +117,7 @@ test('workflow regression rejects missing gates, unpinned actions, and dry-run p
 
   assert.throws(() => validateWorkflow('jobs: [invalid'), /Psych::SyntaxError/);
   assert.throws(() => validateWorkflow(contents.replace('      - run: npm run test:all\n', '')), /job must run npm run test:all/);
+  assert.throws(() => validateWorkflow(contents.replace('      - run: node scripts/verify-supported-floor.mjs --surface cli --expected-runtime 18.0.0 --exercise package,install,cli\n', '')), /floor job must run/);
   assert.throws(() => validateWorkflow(contents.replace('      - run: npm test\n', '')), /job must run npm test/);
   assert.throws(() => validateWorkflow(contents.replace('npm pack --json --pack-destination', 'npm pack --dry-run --json --pack-destination')), /npm pack --dry-run/);
   assert.throws(() => validateWorkflow(contents.replace('package/bin/lazytrae.js ', '')), /for member in/);
