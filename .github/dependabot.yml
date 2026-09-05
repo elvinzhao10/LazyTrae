@@ -52,4 +52,7 @@ updates:
     directory: /lazytrae-plugin/packages/cli/tooling/lsp/typescript
     schedule:
       interval: monthly
+    ignore:
+      - dependency-name: typescript-language-server
+        update-types: ["version-update:semver-major"]
     labels: [dependencies]
