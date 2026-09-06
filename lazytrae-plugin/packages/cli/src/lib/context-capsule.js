@@ -1,5 +1,7 @@
 'use strict';
 
+const { redactText } = require('../mcp/redaction');
+
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 function object(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
@@ -7,12 +9,16 @@ function object(value) {
 
 function strings(value, limit = 16) {
   return Array.isArray(value)
-    ? value.map(text).filter(Boolean).slice(0, limit)
+    ? value.map(freeText).filter(Boolean).slice(0, limit)
     : [];
 }
 
 function text(value) {
   return typeof value === 'string' && value.length > 0 ? value.slice(0, 512) : null;
+}
+
+function freeText(value) {
+  return typeof value === 'string' && value.length > 0 ? redactText(value).slice(0, 512) : null;
 }
 
 function validDigest(value) {
@@ -57,14 +63,14 @@ function acceptedBoundaries(loop) {
     ? loop.checkpoints.map(object).filter((checkpoint) => checkpoint?.status === 'complete')
       .slice(-8).map((checkpoint) => ({
         id: text(checkpoint.id),
-        summary: text(checkpoint.summary),
+        summary: freeText(checkpoint.summary),
         evidence_paths: strings(checkpoint.evidence_paths),
       }))
     : [];
 }
 
 function blockerReasons(value) {
-  return Array.isArray(value) ? strings(value.map((item) => text(object(item)?.reason))) : [];
+  return Array.isArray(value) ? strings(value.map((item) => object(item)?.reason)) : [];
 }
 
 function sameIdentity(left, right) {
@@ -110,14 +116,14 @@ function deriveContextCapsule(nativeState, expectedIdentity = null) {
     capsule: {
       version: 1,
       identity,
-      objective: text(work.objective || work.plan_name),
-      task: { id: identity.task_id, description: text(task.description), status: task.status },
-      plan: { path: text(work.active_plan), section: text(task.plan_section) },
+      objective: freeText(work.objective || work.plan_name),
+      task: { id: identity.task_id, description: freeText(task.description), status: task.status },
+      plan: { path: freeText(work.active_plan), section: freeText(task.plan_section) },
       owned_paths: strings(task.owned_paths),
       criteria: strings(task.criteria),
       commands: strings(task.commands),
-      manual_qa_surface: text(task.manual_qa_surface),
-      evidence_destination: text(task.evidence_destination),
+      manual_qa_surface: freeText(task.manual_qa_surface),
+      evidence_destination: freeText(task.evidence_destination),
       authority_constraints: strings(task.authority_constraints),
       adversarial_requirements: strings(task.adversarial_requirements),
       accepted_boundaries: boundaries,
