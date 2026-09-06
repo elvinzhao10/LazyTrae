@@ -61,7 +61,8 @@ test('production telemetry persists validated measured cost outcomes without bas
   assert.equal(store.current_run.agent_invocations, 5);
   assert.equal(store.current_run.tokens.input_tokens, 10);
   assert.equal(store.completed.length, 2);
-  assert.deepEqual(Object.keys(telemetry), ['recordCostOutcome']);
+  assert.deepEqual(store.completed.map(({ run_id: runId }) => runId), ['affected-1', 'comprehensive-1']);
+  assert.deepEqual(store.current_run.gate_outcomes, [{ gate_id: 'runtime-check', outcome: 'passed' }]);
 });
 
 test('retains only latest twenty completed records', (t) => {

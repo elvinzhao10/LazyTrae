@@ -232,13 +232,21 @@ function checkpoint(repoRoot, args) {
   const { flags } = parseArgs(args);
   const loop = requireLoop(repoRoot);
   const before = JSON.stringify(loop);
-  const activeGoal = loop.goals.find((goal) => goal.id === loop.active_goal_id) || loop.goals[0];
+  const activeGoal = loop.active_goal_id == null
+    ? loop.goals[0]
+    : loop.goals.find((goal) => goal.id === loop.active_goal_id);
+  if (!activeGoal) {
+    const reason = loop.active_goal_id == null
+      ? 'no goal is available'
+      : `active_goal_id ${loop.active_goal_id} does not match any goal`;
+    throw new Error(`Cannot checkpoint: ${reason}.`);
+  }
   const result = validateQualityGate(repoRoot, flags['--quality-gate-json'], { goal: activeGoal });
   if (JSON.stringify(loop) !== before) throw new Error('Internal checkpoint validation mutated state.');
   const unresolved = loop.goals.flatMap(goal => goal.successCriteria.filter(item => item.status !== 'pass'));
   if (unresolved.length > 0) throw new Error(`Cannot checkpoint: unresolved criteria ${unresolved.map(item => item.id).join(', ')}`);
   const now = new Date().toISOString();
-  const checkpointGoalId = loop.active_goal_id || loop.goals[0]?.id || 'N/A';
+  const checkpointGoalId = activeGoal.id;
   for (const goal of loop.goals) {
     if (goal.status !== 'review_blocked' && goal.status !== 'blocked') {
       goal.status = 'complete';
