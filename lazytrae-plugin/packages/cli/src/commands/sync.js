@@ -1,10 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const {
-  chmodRepoFile, copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
-} = require('../lib/templates');
+const { copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile } = require('../lib/templates');
 const { localLauncherContext, materializeGuidance } = require('../lib/local-launcher');
-const { updateMcpDeclaration } = require('../lib/mcp-declaration');
+const { preflightMcpDeclaration, updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { RECEIPT_PATH, checkProjectAssets, installProjectAssets } = require('../lib/project-assets');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
@@ -65,6 +63,13 @@ Options:
     globalHooksPath,
     templatePath: path.join(templatesDir, 'hooks.json'),
   });
+  preflightMcpDeclaration(
+    repoRoot,
+    path.join(templatesDir, 'mcp.json'),
+    path.join(repoRoot, '.trae', 'mcp.json'),
+  );
+  const configPath = path.join(repoRoot, '.lazytrae', 'config.json');
+  if (fs.existsSync(configPath)) JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
   if (args.includes('--check')) {
     const result = checkProjectAssets(repoRoot);
@@ -95,49 +100,13 @@ Options:
   if (assetsResult.written.length > 0) summary.updated.push(`${assetsResult.written.length} receipt-owned host asset files`);
   else if (!assetReceiptExisted) summary.updated.push(`${RECEIPT_PATH} (adopted exact legacy assets)`);
   else summary.skipped.push('receipt-owned host assets (no changes)');
+  if (assetsResult.preserved.length > 0) {
+    summary.skipped.push(`preserved ${assetsResult.preserved.length} caller-modified managed asset files`);
+  }
   if (host === 'cli') {
     const candidate = generateCandidate(repoRoot);
     if (candidate.written.length > 0) summary.updated.push(`${candidate.written.length} TraeCode CLI candidate asset(s)`);
     else summary.skipped.push('TraeCode CLI candidate assets (no changes)');
-  }
-
-  // Update .trae/agents/
-  const agentsResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'agents'),
-    path.join(repoRoot, '.trae', 'agents'),
-    { overwrite: false },
-  );
-  if (agentsResult.updated > 0) summary.updated.push(`${agentsResult.updated} agent files`);
-  else summary.skipped.push('agents (no changes)');
-
-  // Update .trae/skills/
-  const skillsResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'skills'),
-    path.join(repoRoot, '.trae', 'skills'),
-    { overwrite: false },
-  );
-  if (skillsResult.updated > 0) summary.updated.push(`${skillsResult.updated} skill files`);
-  else summary.skipped.push('skills (no changes)');
-
-  // Update .trae/commands/
-  const commandsResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'commands'),
-    path.join(repoRoot, '.trae', 'commands'),
-    { overwrite: false },
-  );
-  if (commandsResult.updated > 0) summary.updated.push(`${commandsResult.updated} command files`);
-  else summary.skipped.push('commands (no changes)');
-
-  // Update .trae/rules/
-  const rulesResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'rules'),
-    path.join(repoRoot, '.trae', 'rules'),
-    { overwrite: false },
-  );
-  if (rulesResult.created + rulesResult.updated > 0) {
-    summary.updated.push(`${rulesResult.created + rulesResult.updated} rule files`);
-  } else {
-    summary.skipped.push('rules (no changes)');
   }
 
   try {
@@ -174,31 +143,11 @@ Options:
   else if (mcpUpdate.status === 'unavailable_absent') summary.skipped.push('.trae/mcp.json (protected destination; declaration was not written; complete MCP registration manually with your host)');
   else summary.skipped.push('.trae/mcp.json (no changes)');
 
-  const hooksResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'hooks'),
-    path.join(repoRoot, '.trae', 'hooks'),
-    { overwrite: false },
-  );
-  if (hooksResult.created + hooksResult.updated > 0) {
-    summary.updated.push(`${hooksResult.created + hooksResult.updated} hook scripts`);
-  } else {
-    summary.skipped.push('hooks (no changes)');
-  }
-  const userPromptHook = path.join(repoRoot, '.trae', 'hooks', 'user-prompt-submit.sh');
-  chmodRepoFile(repoRoot, userPromptHook, 0o755);
-
-  // Update .lazytrae/schemas/
-  const schemasResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'schemas'),
-    path.join(repoRoot, '.lazytrae', 'schemas')
-  );
-  if (schemasResult.updated > 0) summary.updated.push(`${schemasResult.updated} schema files`);
-  else summary.skipped.push('schemas (no changes)');
-
   // Update .lazytrae/evidence/ (only if missing, never overwrite)
   const evidenceResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'evidence'),
-    path.join(repoRoot, '.lazytrae', 'evidence')
+    path.join(repoRoot, '.lazytrae', 'evidence'),
+    { overwrite: false },
   );
   if (evidenceResult.created > 0) summary.updated.push(`${evidenceResult.created} evidence files (created)`);
   else summary.skipped.push('evidence (no changes)');
@@ -248,7 +197,6 @@ Options:
   }
 
   // Schema version migration
-  const configPath = path.join(repoRoot, '.lazytrae', 'config.json');
   if (fs.existsSync(configPath)) {
     const templateConfig = JSON.parse(
       fs.readFileSync(path.join(templatesDir, 'config.json'), 'utf-8')

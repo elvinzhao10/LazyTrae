@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { formatCompletionStatus, getCompletionStatus } = require('../lib/completion-gates');
+const { deriveContextCapsule } = require('../lib/context-capsule');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -46,6 +47,7 @@ Options:
     ? fs.readdirSync(evidenceDir).filter(f => f.endsWith('.md'))
     : [];
   const completionGate = getCompletionStatus(repoRoot);
+  const context = deriveContextCapsule({ boulder, loop, sessions });
 
   // Determine active work
   let activeWork = null;
@@ -77,9 +79,11 @@ Options:
     },
     evidenceProduced: evidenceFiles.map(f => `.lazytrae/evidence/${f}`),
     completionGate,
+    contextCapsule: context.capsule,
+    contextStatus: context.status,
     remainingGaps: [],
     blockers: [],
-    nextPrompt: '',
+    nextPrompt: context.capsule ? JSON.stringify(context.capsule) : '',
   };
 
   if (activeWork) {
