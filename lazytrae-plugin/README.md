@@ -102,6 +102,15 @@ proprietary Trae execution. `init` and `sync` preflight managed conflicts and
 transactionally promote only receipt-owned assets, preserving caller state,
 evidence, modified, unknown, and linked bytes.
 
+The shipped execution templates keep onboarding and review handoffs compact:
+they record read-only pre-task provenance, validate the planned safe argv checks
+once, and reference the task delta and evidence instead of copying full plans.
+Completion recovery requires the exact task/revision/criterion-bound terminal
+report; runtime criteria include a real transition. The five review lanes stay
+mandatory, but only failed, missing, stale, or input-affected lanes rerun.
+Context capsule free text is redacted, and a stale active goal cannot produce a
+checkpoint.
+
 Remove only receipt-owned package assets through the durable launcher. Start
 with the non-mutating lifecycle plan, then confirm only the exact product root:
 

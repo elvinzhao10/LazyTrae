@@ -119,6 +119,19 @@ execution is not inferred. Lifecycle promotion preflights managed conflicts,
 uses the receipt-owned transactional writer, and preserves caller state,
 evidence, modified, unknown, and linked bytes.
 
+The v1.2.2 execution contract keeps worker dispatches and review reports
+compact: a fixed contract carries the task-specific delta, validated plan argv,
+and artifact references rather than duplicated plan prose. It captures
+pre-task status and owned-path provenance read-only. Terminal recovery accepts
+only a complete active task/revision/criterion-bound report; runtime criteria
+need an entrypoint and a real before/after transition. Review retains PASS lanes
+and reruns only failed, missing, stale, or input-affected lanes, but all five
+goal/QA/code/security/context lanes must be current PASS.
+
+Free-text capsule projections are redacted before presentation while structural
+identity stays exact. Loop checkpointing refuses a stale `active_goal_id` before
+mutating state; it never silently applies a report to a fallback goal.
+
 ## 5. Maintainer checks
 
 When the snapshot changes, update the runtime validator, contract fixture

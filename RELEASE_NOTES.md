@@ -1,4 +1,4 @@
-# LazyTrae v1.2.2 — native context and transaction-safe lifecycle
+# LazyTrae v1.2.2 — compact execution evidence, redacted context, and transaction-safe lifecycle
 
 **Release date:** 2026-09-05
 
@@ -19,6 +19,20 @@ Package readiness and host readiness remain separate authorities.
   receipt-owned transactional promotion path. Caller state, evidence, modified,
   unknown, and linked bytes remain preserved; an interruption publishes no
   partial receipt and a clean rerun can proceed.
+- Execution and review handoffs now carry a fixed short contract plus the
+  task-specific delta and artifact references, rather than repeating full plan
+  prose. Before work, the contract records read-only status and owned-path
+  provenance; safe plan checks are exact argv vectors, validated once.
+- A completion report is accepted only when its task, execution revision,
+  criteria, and artifact references match the active goal. Runtime criteria
+  additionally require an entrypoint and a real before/after transition.
+  Review preserves passing lanes and reruns only lanes that failed, are
+  missing/stale, or received affected input; all five current lanes still need
+  PASS before completion.
+- Secret-bearing free text is redacted from emitted context capsules while
+  structural identity remains exact. A checkpoint with a stale
+  `active_goal_id` now fails before state mutation instead of falling back to
+  another goal.
 
 ## Measured efficiency
 
@@ -27,6 +41,10 @@ capsule is 1,076 bytes: 6,151 bytes, or **85.11% smaller**. This is an explicit
 before/after packet measurement only. It does not claim token reduction, fewer
 workers, faster host execution, or behavior inside an unobserved proprietary
 host.
+
+The compact execution report removes repeated plan and role prose by reference;
+it does not make an unmeasured token, latency, worker-count, or host-execution
+claim.
 
 ## Host capability matrix
 
@@ -42,7 +60,9 @@ Upgrade through the durable release-owned lifecycle launcher. Inventory managed,
 modified, unknown, linked, and caller-owned assets before promotion. Replace
 only receipt-owned managed content; preserve user changes, state, evidence,
 credentials, host settings, schema/contract history, and manual registrations.
-Package checks never promote host readiness.
+Package checks never promote host readiness. Onboarding and review templates
+retain the same boundary while recording only read-only pre-task provenance,
+validated safe checks, compact terminal reports, and artifact paths.
 
 ## Known risks
 
@@ -54,6 +74,11 @@ Package checks never promote host readiness.
 - Same-version ref movement, a changed Node runtime, or a changed host
   fingerprint invalidates prior lifecycle evidence and requires the documented
   confirmation or scoped re-onboarding path.
+- A terminal result missing its active task/revision/criterion identity, a
+  runtime transition, or a current five-lane review is not recoverable as
+  completion evidence.
+- This is still a pre-publication package: no tag, GitHub release, marketplace
+  entry, or host registration is created by these notes.
 
 ## Rollback
 

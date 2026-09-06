@@ -41,6 +41,12 @@ observed evidence; without either, **HOST READINESS: PENDING**.
 Verify one real Skill/command and the expected `lazytrae` core MCP connection;
 local checks alone leave host readiness pending.
 
+The installed onboarding guidance keeps its execution handoff compact: it
+records only read-only pre-task provenance, validated safe argv checks, the
+task-specific delta, and evidence references. It does not paste a full plan or
+role description into every dispatch, and it does not convert package records
+into host-execution evidence.
+
 The release launcher and generated configuration are the **documented package
 route**. The supplied macOS IDE/Work results are an **observed prerelease
 route**, not general host support. CLI setup is JSON/manual because LazyTrae

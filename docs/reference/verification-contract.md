@@ -41,6 +41,16 @@ gate is separate. `lazytrae.mark_task_done` also requires existing non-empty
 evidence paths before it changes a task status. It does not itself execute
 tests or establish a host connection.
 
+For a loop goal that opts into the v1.2.2 execution contract, completion adds
+an identity-bound terminal report: exact task id, execution revision, every
+criterion, and existing artifact references. Runtime criteria carry a real
+entrypoint plus a changed before/after state. Pre-task status/ownership capture
+is read-only, and planned checks are validated safe argv once; shell control
+operators, mutating/dependency/remote commands, and approval-gated actions are
+rejected. A stale active goal prevents checkpoint mutation. Review keeps all
+five lanes required but reruns only results that are failed, missing, stale, or
+input-affected. Context free text is redacted before presentation.
+
 This boundary keeps claims specific: say “package readiness passed,” “the host
 connection was observed,” or “the feature was manually verified,” rather than
 collapsing those into one assertion. See [Mental model](../01-mental-model.md)

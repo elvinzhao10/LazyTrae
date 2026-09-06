@@ -22,6 +22,14 @@ form a bounded capsule only when its full identity matches. It does not turn a
 host presentation into execution evidence: `presented-to-host` remains
 `not-observed` until a selected Trae session is actually observed.
 
+Before execution, planned checks must be exact safe argv that were validated
+once. The validator rejects shell control operators, mutating Git and
+dependency commands, remote actions, and approval-gated commands; this is a
+local safety filter, not authority to execute any other command. Capsule
+projection redacts secret-bearing free-text fields before handoff while keeping
+the required identity fields exact. A stale `active_goal_id` is a checkpoint
+error, not a reason to substitute another goal.
+
 CodeGraph and Playwright require approval. Authenticated browser work, forms,
 external writes, purchases, destructive actions, and secret reads require an
 operator decision. Metered services also require an explicit bounded budget.

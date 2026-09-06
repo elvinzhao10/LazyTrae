@@ -19,10 +19,11 @@ Version v1.2.2 is prepared for publication; it is not a stable release until the
 - Redacted cost/outcome records make invocation count, reruns, rework, and
   evidence volume visible. Unavailable timing or token data remains explicit
   rather than being estimated.
-- Pull requests now run the publication, package, standalone MCP, product-name,
-  and workflow safety gates, while a weekly compatibility job checks the
-  supported Node.js range and dependency freshness without weakening release
-  verification.
+- Pull requests run the publication, package, standalone MCP, and workflow
+  safety gates. The product-name checker is an explicit local/release
+  validation, not a separately invoked PR-CI workflow. A weekly compatibility
+  job checks the supported Node.js range and dependency freshness without
+  weakening release verification.
 - Interrupting optional-provider startup now forwards SIGINT immediately and
   waits for the child to exit, avoiding an unnecessary timeout delay.
 
@@ -116,6 +117,17 @@ Host presentation stays advisory: LazyTrae records `presented-to-host` and
 `not-observed` rather than claiming a Trae UI executed it. `init` and `sync`
 preflight managed conflicts, promote receipt-owned assets transactionally, and
 preserve caller state, evidence, modified, unknown, and linked files.
+
+Execution onboarding and review templates now send a compact fixed contract
+plus only the task delta and artifact paths. They first capture read-only
+status/ownership provenance and validate each safe plan check as argv once;
+shell operators, mutating/dependency/remote commands, and approval-gated
+actions are rejected. A recoverable result must match the active task,
+execution revision, and every criterion; runtime criteria also prove a real
+entrypoint transition. Passing review lanes are preserved, while only failed,
+missing, stale, or input-affected lanes rerun; all five lanes still require
+PASS. Context capsules redact secret-bearing free text, and a stale active goal
+is rejected before checkpoint state can change.
 
 ## Package inventory
 

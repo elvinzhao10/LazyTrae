@@ -16,6 +16,14 @@ All notable public changes to LazyTrae are documented here. Versions follow
 - Init and sync preflight managed MCP/config conflicts, use transactional
   receipt-owned promotion, and preserve caller state, evidence, modified,
   unknown, and linked paths across success and interruption.
+- Added compact execution/report templates: read-only status and owned-path
+  provenance, once-validated safe argv checks, task-delta/artifact references,
+  identity-bound terminal results, and runtime before/after transitions.
+- Retained all five completion lanes while rerunning only failed, missing,
+  stale, or input-affected lanes; stale active-goal checkpoints now reject
+  before state mutation.
+- Redacted secret-bearing free text from projected context capsules without
+  altering their structural identity.
 - Retained local-first onboarding and the boundary between package readiness
   and observed host readiness.
 - Updated current package, runtime, generated templates, documentation, and
@@ -30,7 +38,8 @@ All notable public changes to LazyTrae are documented here. Versions follow
   proprietary-host execution claim.
 - Release validation covers version/template parity, documentation checks,
   deterministic packed artifacts, installed CLI lifecycle/adaptive smoke paths,
-  and caller-file preservation.
+  caller-file preservation, compact execution contracts, stale-goal rejection,
+  and context redaction.
 
 ## [1.2.1] - 2026-08-30
 

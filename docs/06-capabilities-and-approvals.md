@@ -54,6 +54,12 @@ approval. Authenticated browser work, forms, external writes, purchases,
 destructive actions, and secret reads always prompt. A status command is
 read-only; it neither grants approval nor enables a service.
 
+The same distinction applies to a planned verification command in the v1.2.2
+execution record. Only exact argv that pass the one-time safe-check validation
+may be recorded as a plan check. Shell composition, mutating Git or dependency
+commands, remote actions, and approval-gated actions are rejected rather than
+being smuggled into a compact execution report.
+
 CodeGraph is warranted only for explicit architecture/dependency work on a
 prepared large repository. Its doctor recommends it at 500 supported source
 files or 100,000 supported source lines, but does not download, start, or index

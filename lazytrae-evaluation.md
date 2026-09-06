@@ -52,6 +52,16 @@ before/after packet bytes, not tokens, workers, host performance, or
 proprietary execution. Manual routing remains `presented-to-host` with
 `host_execution: not-observed` until a real Trae session is observed.
 
+The final execution path uses a compact fixed contract plus task delta and
+artifact references instead of replaying plans. It records read-only pre-task
+status/ownership provenance and validates planned checks as safe argv exactly
+once. Completion recovery requires a complete task/revision/criterion-bound
+terminal report, with an entrypoint and real before/after transition for a
+runtime criterion. The five review lanes rerun selectively only for failed,
+missing, stale, or input-affected results, while every lane still must PASS.
+Capsule free text is redacted before presentation, and a stale active goal
+causes checkpoint rejection without state mutation.
+
 CodeGraph supports explicit architecture and dependency work after
 `lazytrae tooling codegraph-init` and a receipt-owned tooling root. Its project
 index remains caller-owned. Context7, `grep_app`, filesystem, and Playwright

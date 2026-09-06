@@ -52,6 +52,14 @@ preserved caller files on lifecycle paths, a deterministic archive checksum,
 and `presented-to-host` / `not-observed` host semantics. It does not claim a
 proprietary host executed the presentation.
 
+The final execution-contract checks additionally cover compact task/report
+payloads, read-only pre-task provenance, safe argv rejection, task/revision/
+criterion-bound result recovery, runtime transitions, selective five-lane
+reruns, redacted context projection, and stale-active-goal rejection. The
+product-name checker is a local/release validation alongside these checks; the
+current PR workflow invokes the CLI/package/publication/MCP suites, not a
+separate product-name-checker step.
+
 ## v1.1 host-boundary release checks
 
 The release documentation contract checks all three independent host sections,

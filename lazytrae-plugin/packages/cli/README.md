@@ -152,6 +152,24 @@ documented/manual MCP settings flow. No public universal MCP registration
 command is assumed. The supplied QA could not access TraeCode CLI, so its live-host
 route remains explicitly unverified.
 
+## Compact execution evidence
+
+The installed workflow templates use a short fixed execution contract plus a
+task-specific delta and artifact references. Before work, capture
+`git status --short` and owned-path state read-only; convert plan checks to
+safe argv and validate each one time. Shell operators, mutating Git or
+dependency commands, remote actions, and approval-gated commands are not safe
+plan checks.
+
+For a completion report, the active task id, execution revision, every
+criterion, and each artifact reference must match. A criterion marked runtime
+also records an entrypoint and a real before/after state transition. A lost
+conversational result is recoverable only from that complete report. Review
+retains unaffected PASS results, reruns only failed/missing/stale/input-affected
+lanes, and still requires current PASS from goal, QA, code, security, and
+context lanes. Context projections redact secret-bearing free text; a stale
+`active_goal_id` is rejected before checkpoint mutation.
+
 This will:
 - Detect repo root (finds `.git`)
 - Create directory structure: `.trae/`, `.lazytrae/`

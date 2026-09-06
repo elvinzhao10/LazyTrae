@@ -30,6 +30,23 @@ The CLI is the control plane. Templates create managed project assets, schemas
 constrain state, and the MCP server offers a separate JSON-RPC surface. Host
 settings and live integration remain outside package ownership.
 
+## v1.2.2 execution-report boundary
+
+Current onboarding and review templates do not repeat a full plan into every
+dispatch. They carry a fixed short contract plus a task-specific delta and
+artifact references. The contract captures read-only pre-task status and
+owned-path provenance, validates safe plan checks as argv exactly once, and
+binds a terminal report to the active task, execution revision, criteria, and
+artifact references. Runtime criteria include a real entrypoint/before/after
+transition.
+
+The five review lanes remain goal, QA, code, security, and context. Existing
+PASS lanes are retained; only failed, missing, stale, or input-affected lanes
+rerun, and all five must be current PASS before completion. Capsule projection
+redacts secret-bearing free text while retaining structural identity. A stale
+`active_goal_id` is rejected before a loop checkpoint mutates state. These are
+local package contracts, not a claim that a host executed a presentation.
+
 ## Read the implementation in this order
 
 1. [00 — Architecture tour](00-learning-path.md) identifies the package
