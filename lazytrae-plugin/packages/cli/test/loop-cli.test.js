@@ -2,13 +2,16 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
+const { executionRevision } = require('../src/lib/harness-execution-context');
 const {
   BAD_QUALITY_GATE_PATH,
   OLD_QUALITY_GATE_PATH,
   QUALITY_GATE_PATH,
   makeLoopFixture,
+  makeCanonicalQualityGate,
   readLoopState,
   runCli,
+  writeCanonicalQualityGate,
 } = require('./test-helpers');
 
 test('loop CLI completes its goal without forging canonical completion authority', () => {
@@ -73,6 +76,7 @@ test('loop checkpoint retains the active goal as checkpoint provenance', () => {
   const goal = structuredClone(state.goals[0]);
   goal.id = 'goal-2';
   goal.successCriteria[0].id = 'goal-2-criterion';
+  goal.executionRevision = executionRevision(goal);
   state.goals.push(goal);
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2) + '\n');
 
@@ -83,6 +87,7 @@ test('loop checkpoint retains the active goal as checkpoint provenance', () => {
   readyForCheckpoint.goals[1].successCriteria[0].status = 'pass';
   readyForCheckpoint.active_goal_id = 'goal-2';
   fs.writeFileSync(statePath, JSON.stringify(readyForCheckpoint, null, 2) + '\n');
+  writeCanonicalQualityGate(fixture, QUALITY_GATE_PATH, makeCanonicalQualityGate(readyForCheckpoint.goals[1]));
 
   assert.equal(runCli(['loop', 'checkpoint', '--quality-gate-json', QUALITY_GATE_PATH], { cwd: fixture }).status, 0);
   assert.equal(readLoopState(fixture).checkpoints.at(-1).goal_id, 'goal-2');

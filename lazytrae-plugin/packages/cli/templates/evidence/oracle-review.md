@@ -11,6 +11,13 @@
 - **Date**: `<ISO 8601 date>`
 - **Review type**: Post-implementation gate review
 
+### Execution Receipt
+
+- **Contract**: `1`
+- **Task / revision**: `<task-id>` / `<sha256>`
+- **Criterion terminal report**: `<artifact path>`
+- **Shared plan and diff**: `<artifact paths; do not paste contents>`
+
 ### Five Evidence Gates Checklist
 
 | # | Gate | Status | Evidence |

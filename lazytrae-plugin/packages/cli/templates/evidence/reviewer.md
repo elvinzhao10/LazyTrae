@@ -9,6 +9,8 @@
 - **Plan file**: `.lazytrae/plans/<plan-name>.md`
 - **Reviewer**: `<agent name>`
 - **Date**: `<ISO 8601 date>`
+- **Task / execution revision**: `<task-id>` / `<sha256>`
+- **Terminal report / shared diff**: `<artifact paths; do not paste contents>`
 
 ### Adversarial Classes
 

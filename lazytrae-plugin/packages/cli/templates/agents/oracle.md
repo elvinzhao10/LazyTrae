@@ -67,7 +67,7 @@ Use only capabilities exposed by the active Trae host. Ask the capability detect
 - Guidance: This is the strongest reasoning role. Oracle is the final judgment before completion. Needs deep analytical capability.
 
 ## Handoff Format
-Produce a verdict:
+Produce a compact verdict. Reference the shared plan, diff, terminal report, and evidence artifacts by path instead of repeating their contents:
 ```
 ## Oracle Review
 
@@ -81,6 +81,8 @@ Produce a verdict:
 3. Manual-QA: [PASS/FAIL] — [evidence]
 4. Adversarial QA: [PASS/FAIL] — [evidence]
 5. Cleanup: [PASS/FAIL] — [evidence]
+
+**Review Lanes**: goal, qa, code, security, context — each current PASS with its artifact reference and whether it was rerun.
 
 If ITERATE — **Issues** (max 3):
 1. [Specific issue + what needs to change]

@@ -4,6 +4,7 @@ const { applySteering } = require('./loop-steering');
 const { validateQualityGate } = require('./loop-quality');
 const { appendEvent, defaultLoop, loadLoop, parseArgs, persistBrief, requireLoop, saveLoop } = require('./loop-store');
 const { requireRepoFile, resolveRepoPath } = require('./path-boundary');
+const { executionRevision } = require('./harness-execution-context');
 
 function goalCounts(loop) {
   const count = status => loop.goals.filter(goal => goal.status === status).length;
@@ -66,7 +67,7 @@ function createGoals(repoRoot, args) {
   const existingLoop = loadLoop(repoRoot);
   const loop = existingLoop && typeof existingLoop.run_id === 'string' ? existingLoop : defaultLoop();
   Object.assign(loop, { loop_state: 'active', started_at: loop.started_at || now, active_goal_id: goalId });
-  loop.goals = [{
+  const goal = {
     id: goalId,
     title: brief.trim().split('\n')[0].slice(0, 80) || goalId,
     objective: brief.trim(),
@@ -79,11 +80,17 @@ function createGoals(repoRoot, args) {
       essential: true,
       capturedEvidence: null,
       status: 'pending',
+      runtime: false,
     }],
     attempt: 0,
     createdAt: now,
     updatedAt: now,
-  }];
+    ownedPaths: [],
+    planCommands: [],
+    executionContractVersion: 1,
+  };
+  goal.executionRevision = executionRevision(goal);
+  loop.goals = [goal];
   persistBrief(repoRoot, loop, brief);
   saveLoop(repoRoot, loop);
   appendEvent(repoRoot, loop, 'create_goals', { goal_id: goalId, criterion_id: criterionId });
@@ -225,7 +232,8 @@ function checkpoint(repoRoot, args) {
   const { flags } = parseArgs(args);
   const loop = requireLoop(repoRoot);
   const before = JSON.stringify(loop);
-  const result = validateQualityGate(repoRoot, flags['--quality-gate-json']);
+  const activeGoal = loop.goals.find((goal) => goal.id === loop.active_goal_id) || loop.goals[0];
+  const result = validateQualityGate(repoRoot, flags['--quality-gate-json'], { goal: activeGoal });
   if (JSON.stringify(loop) !== before) throw new Error('Internal checkpoint validation mutated state.');
   const unresolved = loop.goals.flatMap(goal => goal.successCriteria.filter(item => item.status !== 'pass'));
   if (unresolved.length > 0) throw new Error(`Cannot checkpoint: unresolved criteria ${unresolved.map(item => item.id).join(', ')}`);

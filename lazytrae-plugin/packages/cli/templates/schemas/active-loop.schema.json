@@ -533,6 +533,7 @@
         "userModel": { "$ref": "#/definitions/UlwLoopSuccessCriterionUserModel" },
         "expectedEvidence": { "type": "string", "description": "What evidence is expected to pass this criterion." },
         "essential": { "type": "boolean", "description": "Whether this criterion is essential for completion." },
+        "runtime": { "type": "boolean", "description": "Whether this criterion requires a real entrypoint and state-transition receipt." },
         "capturedEvidence": {
           "oneOf": [
             { "type": "null" },
@@ -579,6 +580,17 @@
         "blockerOccurrenceCount": { "type": "integer", "minimum": 0 },
         "requiredExternalDecision": { "type": "string", "description": "External decision required from user." },
         "nonRetriable": { "type": "boolean", "description": "Whether this failure/block is non-retriable." },
+        "executionContractVersion": { "type": "integer", "const": 1 },
+        "executionRevision": { "$ref": "#/definitions/AdaptiveSha256Digest" },
+        "ownedPaths": { "type": "array", "items": { "type": "string" } },
+        "planCommands": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        },
         "steeringEvidence": { "type": "string", "description": "Evidence for the steering mutation." },
         "steeringRationale": { "type": "string", "description": "Rationale for the steering mutation." }
       }

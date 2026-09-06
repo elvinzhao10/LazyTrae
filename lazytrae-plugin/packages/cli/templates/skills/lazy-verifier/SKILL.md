@@ -28,7 +28,8 @@ Verify that implementation work is complete and correct before claiming done. Th
 1. Re-read the plan file before claiming completion.
 2. Confirm every checkbox is accounted for.
 3. Verify every acceptance criterion is met.
-4. Record the confirmation.
+4. For runtime criteria, require a real entrypoint invocation and an observed before/after state transition. Static inspection or success prose is not runtime evidence.
+5. Record the confirmation.
 
 ### Gate 2: Automated Verification
 
@@ -37,6 +38,7 @@ Verify that implementation work is complete and correct before claiming done. Th
 3. Run typecheck. Zero new errors.
 4. Run build (if applicable). Build must succeed.
 5. Record test output, lint results, build logs.
+6. Run each safe plan command only after its argv validation record shows exactly one validation pass; do not repeat unchanged checks within a task.
 
 ### Gate 3: Manual-QA
 

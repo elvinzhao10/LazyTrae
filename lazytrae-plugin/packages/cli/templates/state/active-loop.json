@@ -45,7 +45,8 @@
     "steering_source": ["user_prompt_submit", "finding", "cli"],
     "manual_qa_surfaces": ["cli", "http", "tmux", "browser", "gui", "data"],
     "manual_qa_artifact_kinds": ["cli-transcript", "log", "screenshot", "image", "http-dump", "data-diff"],
-    "reviewer_verdicts": ["APPROVE", "ITERATE", "REJECT"]
+    "reviewer_verdicts": ["APPROVE", "ITERATE", "REJECT"],
+    "execution_contract_version": 1
   },
   "_schema": "See .lazytrae/schemas/active-loop.schema.json for validation rules."
 }
