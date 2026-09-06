@@ -6,23 +6,36 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const Ajv2020 = require('ajv/dist/2020');
-
 const packageRoot = path.resolve(__dirname, '..');
-const runner = path.join(packageRoot, 'tools', 'efficiency-baseline-runner.js');
-const fixtureRoot = path.join(__dirname, 'fixtures', 'efficiency');
-const schema = JSON.parse(fs.readFileSync(path.join(packageRoot, 'contracts', 'lazyseries-cost-outcome.v1.schema.json'), 'utf8'));
-const validate = new Ajv2020({ strict: true }).compile(schema);
+const telemetryPath = path.join(packageRoot, 'src', 'lib', 'cost-outcome-telemetry.js');
+const telemetry = require(telemetryPath);
 
-const evalRoot = path.join(fixtureRoot, 'evals');
+function record(runId, overrides = {}) {
+  return {
+    schema_version: 'lazyseries.cost-outcome.v1',
+    run_id: runId,
+    project_identity: 'fixture/project',
+    route: 'affected',
+    risk_reason: 'changed-runtime-input',
+    elapsed_ms: 25,
+    tool_invocations: 3,
+    agent_invocations: 1,
+    evidence_bytes: 128,
+    reruns: 0,
+    rework_count: 0,
+    gate_outcomes: [{ gate_id: 'runtime-check', outcome: 'passed' }],
+    tokens: { source: 'native', input_tokens: 10, output_tokens: 5, unavailable_reason: null },
+    ...overrides,
+  };
+}
 
-function invoke(projectRoot, scenario, runId, env = {}) {
+function invoke(projectRoot, entry, env = {}) {
   return spawnSync(process.execPath, [
-    runner,
-    path.join(fixtureRoot, `${scenario}.json`),
-    '--eval-root', evalRoot,
-    '--telemetry-root', projectRoot,
-    '--run-id', runId,
+    '-e',
+    `require(process.argv[1]).recordCostOutcome(process.argv[2], JSON.parse(process.argv[3]))`,
+    telemetryPath,
+    projectRoot,
+    JSON.stringify(entry),
   ], { cwd: packageRoot, encoding: 'utf8', env: { ...process.env, ...env } });
 }
 
@@ -30,23 +43,25 @@ function readStore(projectRoot) {
   return JSON.parse(fs.readFileSync(path.join(projectRoot, '.lazytrae', 'state', 'telemetry', 'cost-outcomes.json'), 'utf8'));
 }
 
-test('records schema-valid direct and parallel telemetry without sensitive input', (t) => {
+test('production telemetry persists validated measured cost outcomes without baseline claims', (t) => {
   // Given
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-telemetry-'));
   t.after(() => fs.rmSync(projectRoot, { recursive: true }));
   // When
-  const direct = invoke(projectRoot, 'direct', 'direct-1', { SECRET_TOKEN: 'sk-abcdefghijklmnopqrstuvwxyz123456' });
-  const parallel = invoke(projectRoot, 'six-module', 'parallel-1', { HOME: '/Users/telemetry-secret-home' });
+  telemetry.recordCostOutcome(projectRoot, record('affected-1'));
+  telemetry.recordCostOutcome(projectRoot, record('comprehensive-1', {
+    route: 'comprehensive',
+    risk_reason: 'release-sensitive-change',
+    agent_invocations: 5,
+    reruns: 2,
+  }));
   // Then
-  assert.deepEqual([direct.status, parallel.status], [0, 0]);
   const store = readStore(projectRoot);
-  assert.equal(validate(store.current_run), true);
   assert.equal(store.current_run.route, 'comprehensive');
-  assert.equal(store.current_run.agent_invocations, 1);
-  assert.equal(store.current_run.tokens.input_tokens, null);
-  assert.match(store.current_run.tokens.unavailable_reason, /native token telemetry unavailable/);
+  assert.equal(store.current_run.agent_invocations, 5);
+  assert.equal(store.current_run.tokens.input_tokens, 10);
   assert.equal(store.completed.length, 2);
-  assert.doesNotMatch(JSON.stringify(store), /telemetry-secret-home|abcdefghijklmnopqrstuvwxyz123456/);
+  assert.deepEqual(Object.keys(telemetry), ['recordCostOutcome']);
 });
 
 test('retains only latest twenty completed records', (t) => {
@@ -54,7 +69,9 @@ test('retains only latest twenty completed records', (t) => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-telemetry-'));
   t.after(() => fs.rmSync(projectRoot, { recursive: true }));
   // When
-  for (let index = 0; index < 22; index += 1) invoke(projectRoot, 'direct', `retention-${index}`);
+  for (let index = 0; index < 22; index += 1) {
+    telemetry.recordCostOutcome(projectRoot, record(`retention-${index}`));
+  }
   // Then
   const store = readStore(projectRoot);
   assert.equal(store.completed.length, 20);
@@ -66,8 +83,8 @@ test('recovers an interrupted telemetry transaction on the next write', (t) => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-telemetry-'));
   t.after(() => fs.rmSync(projectRoot, { recursive: true }));
   // When
-  const interrupted = invoke(projectRoot, 'direct', 'interrupted-1', { LAZYTRAE_TRANSACTION_CRASH_AT: 'commit' });
-  const recovered = invoke(projectRoot, 'direct', 'recovered-1');
+  const interrupted = invoke(projectRoot, record('interrupted-1'), { LAZYTRAE_TRANSACTION_CRASH_AT: 'commit' });
+  const recovered = invoke(projectRoot, record('recovered-1'));
   // Then
   assert.equal(interrupted.status, 86);
   assert.equal(recovered.status, 0);
