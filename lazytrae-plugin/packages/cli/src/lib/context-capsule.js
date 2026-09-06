@@ -1,7 +1,7 @@
 'use strict';
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
-const ACTIVE_TASK_STATES = new Set(['in_progress', 'pending', 'blocked']);
+const CURRENT_TASK_STATES = new Set(['in_progress', 'blocked']);
 
 function object(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
@@ -29,7 +29,9 @@ function activeWork(boulder) {
 }
 
 function activeTask(work) {
-  return work.tasks.map(object).find((task) => task && ACTIVE_TASK_STATES.has(task.status)) || null;
+  const tasks = work.tasks.map(object).filter(Boolean);
+  return tasks.find((task) => CURRENT_TASK_STATES.has(task.status))
+    || tasks.find((task) => task.status === 'pending') || null;
 }
 
 function identityFor(work, task, loop) {
@@ -67,7 +69,17 @@ function blockerReasons(value) {
 }
 
 function sameIdentity(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
+  const candidate = object(right);
+  const revision = object(candidate?.revision_fingerprint);
+  return Boolean(candidate)
+    && left.work_id === candidate.work_id
+    && left.run_id === candidate.run_id
+    && left.task_id === candidate.task_id
+    && left.request_digest === candidate.request_digest
+    && left.revision_fingerprint.status === revision?.status
+    && left.revision_fingerprint.digest === revision?.digest
+    && left.scope_fingerprint === candidate.scope_fingerprint
+    && left.plan_revision === candidate.plan_revision;
 }
 
 function deriveContextCapsule(nativeState, expectedIdentity = null) {

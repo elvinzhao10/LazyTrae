@@ -97,6 +97,49 @@ test('native context capsule is bounded, complete, and contains accepted boundar
   assert.ok(packetBytes < rawBytes, `${packetBytes} must be smaller than ${rawBytes}`);
 });
 
+test('native context capsule selects current active work before queued pending work', () => {
+  // Given: a queued future task appears before an in-progress or blocked current task.
+  for (const currentStatus of ['in_progress', 'blocked']) {
+    const state = nativeState();
+    state.boulder.works['work-1'].tasks[1].status = currentStatus;
+    state.boulder.works['work-1'].tasks.unshift({
+      id: 'task-future', description: 'Queued follow-up', status: 'pending',
+    });
+
+    // When: current context is derived from native task order.
+    const result = deriveContextCapsule(state);
+
+    // Then: the active task is selected instead of the earlier queue entry.
+    assert.equal(result.capsule.identity.task_id, 'task-2', currentStatus);
+  }
+});
+
+test('post-compaction identity comparison ignores object key order', () => {
+  // Given: the same required identity fields arrive in a different serialization order.
+  const state = nativeState();
+  const current = deriveContextCapsule(state);
+  const identity = current.capsule.identity;
+  const reordered = {
+    plan_revision: identity.plan_revision,
+    scope_fingerprint: identity.scope_fingerprint,
+    revision_fingerprint: {
+      digest: identity.revision_fingerprint.digest,
+      status: identity.revision_fingerprint.status,
+    },
+    request_digest: identity.request_digest,
+    task_id: identity.task_id,
+    run_id: identity.run_id,
+    work_id: identity.work_id,
+  };
+
+  // When: post-compaction reuse compares the reordered identity.
+  const result = deriveContextCapsule(state, reordered);
+
+  // Then: semantic equality resumes rather than reporting stale context.
+  assert.equal(result.status, 'resumed');
+  assert.equal(result.capsule.identity.task_id, 'task-2');
+});
+
 test('post-compaction reuse rejects every stale identity and malformed native state', () => {
   // Given: one current capsule identity.
   const state = nativeState();
