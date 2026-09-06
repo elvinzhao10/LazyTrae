@@ -103,6 +103,22 @@ Package qualification and a persisted directive do not prove host execution.
 The emitted directive records `hostExecution: "not-observed"`; host readiness
 remains pending until the selected Trae surface is observed separately.
 
+## 4.1 v1.2.2 native context and advisory presentation
+
+The current context adapter reads LazyTrae-native current task, loop, and
+session state. It emits a bounded capsule only when work, run, task, request,
+revision, scope, and plan identity agree; incomplete or mismatched state has no
+reusable capsule. The representative explicit packet shrinks from 7,227 bytes
+to 1,076 bytes (85.11%). That is not a token, worker, or proprietary-host
+performance claim.
+
+`handoff --json`, `hook session-start`, and `hook recover-context` may present
+that capsule to a host. Their native host evidence remains
+`dispatch: presented-to-host` and `host_execution: not-observed`; host UI
+execution is not inferred. Lifecycle promotion preflights managed conflicts,
+uses the receipt-owned transactional writer, and preserves caller state,
+evidence, modified, unknown, and linked bytes.
+
 ## 5. Maintainer checks
 
 When the snapshot changes, update the runtime validator, contract fixture

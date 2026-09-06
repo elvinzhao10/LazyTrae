@@ -5,6 +5,10 @@ installation manual: each page names the executable boundary, the data it
 owns, and the evidence that constrains its behavior. Use the root
 [README](../README.md) for host directions.
 
+The current documentation release is [v1.2.2](../RELEASE_NOTES.md). Its
+adaptive context guidance keeps native selection separate from advisory,
+unobserved host presentation.
+
 ## System at a glance
 
 ```mermaid

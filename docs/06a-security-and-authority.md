@@ -1,6 +1,6 @@
 # Security and authority
 
-**Current documentation release: v1.2.1.** A host generator, profile, or probe
+**Current documentation release: v1.2.2.** A host generator, profile, or probe
 is local evidence, not authority over a native host.
 
 LazyTrae can inspect local project information, but a package check does not
@@ -16,6 +16,11 @@ a read-only LSP bridge. It does not edit dependencies, lockfiles,
 different, explicit compatibility choice: it writes a managed namespaced MCP
 selection. Onboarding, InitDeep, doctor, and automatic routing do not enable
 it.
+
+The v1.2.2 adaptive route reads native task, loop, and session state and can
+form a bounded capsule only when its full identity matches. It does not turn a
+host presentation into execution evidence: `presented-to-host` remains
+`not-observed` until a selected Trae session is actually observed.
 
 CodeGraph and Playwright require approval. Authenticated browser work, forms,
 external writes, purchases, destructive actions, and secret reads require an

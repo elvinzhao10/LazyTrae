@@ -13,13 +13,13 @@ function withFixture(prefix, callback) {
   }
 }
 
-test('load-check reports v1.2.1 package readiness separately from unverified IDE registration', () => {
+test('load-check reports v1.2.2 package readiness separately from unverified IDE registration', () => {
   withFixture('lazytrae-load-check-ready-', fixture => {
     const result = runCli(['load-check', '--host', 'ide'], { cwd: fixture });
 
     assert.equal(result.status, 0, result.stdout);
-    assert.match(result.stdout, /LazyTrae Tool Load Check — v1\.2\.1 Package Readiness/);
-    assert.match(result.stdout, /PASS Machine status v2: version=1\.2\.1/);
+    assert.match(result.stdout, /LazyTrae Tool Load Check — v1\.2\.2 Package Readiness/);
+    assert.match(result.stdout, /PASS Machine status v2: version=1\.2\.2/);
     assert.doesNotMatch(result.stdout, /v0\.17/);
     assert.doesNotMatch(result.stdout, /v0\.16/);
     assert.match(result.stdout, /PENDING hooks\.json event mappings: 0\/6/);
@@ -30,11 +30,11 @@ test('load-check reports v1.2.1 package readiness separately from unverified IDE
   });
 });
 
-test('load-check help identifies the v1.2.1 package readiness check', () => {
+test('load-check help identifies the v1.2.2 package readiness check', () => {
   const result = runCli(['load-check', '--help']);
 
   assert.equal(result.status, 0, result.stdout);
-  assert.match(result.stdout, /Check v1\.2\.1 package readiness after initialization\./);
+  assert.match(result.stdout, /Check v1\.2\.2 package readiness after initialization\./);
   assert.doesNotMatch(result.stdout, /v0\.17/);
 });
 

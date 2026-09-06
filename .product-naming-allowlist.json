@@ -36,27 +36,6 @@
       "reason": "LazyTrae CLI is the repository-owned package identity, not a Trae host display name."
     },
     {
-      "path": "RELEASE_NOTES-v1.1.0.md",
-      "text": "Trae IDE",
-      "count": 1,
-      "classification": "old-release-note",
-      "reason": "Released v1.1.0 notes are immutable historical documentation."
-    },
-    {
-      "path": "RELEASE_NOTES-v1.1.0.md",
-      "text": "Trae Work",
-      "count": 1,
-      "classification": "old-release-note",
-      "reason": "Released v1.1.0 notes are immutable historical documentation."
-    },
-    {
-      "path": "RELEASE_NOTES-v1.1.0.md",
-      "text": "Trae CLI",
-      "count": 1,
-      "classification": "old-release-note",
-      "reason": "Released v1.1.0 notes are immutable historical documentation."
-    },
-    {
       "path": "docs/v1.0.3-adaptive-harness-contract.md",
       "text": "Trae IDE",
       "count": 2,

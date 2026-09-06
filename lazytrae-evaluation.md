@@ -1,6 +1,6 @@
 # LazyTrae verification evidence
 
-**Current documentation release: v1.2.1.** Historical v1.0.3 evidence below
+**Current documentation release: v1.2.2.** Historical v1.0.3 evidence below
 is retained as historical release evidence; it is not a current writer or a
 host-readiness claim.
 
@@ -44,6 +44,14 @@ native check until the task selects it. Automatic selection is temporary and
 does not modify project MCP configuration, project tooling state, dependencies,
 lockfiles, or host settings.
 
+The v1.2.2 adaptive context path reads native task, loop, and session state
+only. A complete identity emits a bounded current-task capsule; mismatched or
+incomplete state fails closed. The representative capsule is 1,076 bytes from
+a 7,227-byte native preimage (85.11% smaller). This measures only explicit
+before/after packet bytes, not tokens, workers, host performance, or
+proprietary execution. Manual routing remains `presented-to-host` with
+`host_execution: not-observed` until a real Trae session is observed.
+
 CodeGraph supports explicit architecture and dependency work after
 `lazytrae tooling codegraph-init` and a receipt-owned tooling root. Its project
 index remains caller-owned. Context7, `grep_app`, filesystem, and Playwright
@@ -73,6 +81,11 @@ modified or unknown files and normal runtime records remain preserved. Toolpacks
 and policy artifacts are removed only through their exact receipt lifecycle.
 Project uninstall does not guess host paths, delete caller-owned CodeGraph
 indexes, or remove a host MCP registration.
+
+Init and sync use receipt-owned transactional promotion. They preflight managed
+MCP/config conflicts and preserve caller state, evidence, modified, unknown,
+and linked paths; an injected interruption leaves no partial receipt and a
+clean rerun can continue.
 
 ## Host observation required
 

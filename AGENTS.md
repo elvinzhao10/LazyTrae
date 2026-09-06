@@ -7,7 +7,7 @@
 LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. The release-owned local launcher supplies the portable installer,
 verification gate, and local MCP server. Package behavior is verified on
 macOS only; host behavior keeps the evidence labels below. The current
-documentation release is `1.2.1`.
+documentation release is `1.2.2`.
 
 ## Durable onboarding (start here)
 
@@ -44,7 +44,7 @@ When the user types `onboard`:
 2. Run `lifecycle status` through the durable `launcher.js`. If absent, use the
    verified source entrypoint to run `lifecycle onboard`; if blocked, stop and
    report the exact issue without editing lifecycle state.
-3. When migrating from v1.2.0 to v1.2.1, inventory managed versus modified/unknown
+3. When migrating to v1.2.2, inventory managed versus modified/unknown
    assets first. Replace only managed assets, preserve user changes, and
    record any conflict.
 4. Run only safe package checks and project-local setup through the local
@@ -173,7 +173,7 @@ and TraeCode through its project MCP UI. Do not assume a universal CLI command.
 lifecycle-owned sibling bootstrap lock or product `staging/`/`locks/` artifact,
 and requires `--yes` after that verification; the caller workspace is always
 preserved.
-For an upgrade rollback, remove only the exact receipt-owned v1.2.1 generated
+For an upgrade rollback, remove only the exact receipt-owned v1.2.2 generated
 assets after approval; do not restore an earlier release over user-modified
 files. Historical v1.0.3 release evidence is immutable and is not removal
 authority.
@@ -192,5 +192,21 @@ use `rg`, `sg`, or a read-only LSP bridge for a selected task, but onboarding,
 offboarding, InitDeep, and doctor never enable optional providers. CodeGraph,
 Context7, `grep_app`, filesystem, and Playwright require an explicit lifecycle
 and approval; they never become proof of host readiness.
+
+## v1.2.2 adaptive context boundary
+
+Automatic selection reads only native current task/loop/session state and keeps
+host handling advisory. A complete native identity may produce a bounded
+current-task capsule for `handoff --json`, `hook session-start`, or `hook
+recover-context`; incomplete or mismatched identity produces no reusable
+context. The representative packet is 1,076 bytes from a 7,227-byte native
+preimage (85.11% smaller), not a cross-host token or worker claim. Any host
+presentation remains `dispatch: presented-to-host` with
+`host_execution: not-observed`; proprietary Trae execution is not claimed.
+
+`init` and `sync` promote receipt-owned assets transactionally. They preflight
+managed MCP/config conflicts and preserve caller state, evidence, modified,
+unknown, and linked bytes; an interruption publishes no partial receipt and a
+clean rerun may proceed.
 
 <!-- lazytrae:managed:end:onboarding -->

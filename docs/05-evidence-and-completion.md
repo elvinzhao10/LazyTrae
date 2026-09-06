@@ -34,6 +34,10 @@ the package or that the feature works. `load-check` and `doctor` describe local
 package readiness and health only; the selected host still needs the observation
 in [Host routes](reference/host-routes.md).
 
+The same boundary applies to v1.2.2 adaptive handoffs: a native current-task
+capsule can be presented to a host, but the resulting record remains
+`presented-to-host` / `not-observed` until a real host session is observed.
+
 ## Enforced completion paths
 
 Use `lazytrae verify --must-pass` when the task needs the CLI hard gate. The

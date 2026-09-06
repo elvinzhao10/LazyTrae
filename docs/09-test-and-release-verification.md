@@ -1,6 +1,6 @@
 # Test and release verification
 
-**Current documentation release: v1.2.1.** Release checks must distinguish a
+**Current documentation release: v1.2.2.** Release checks must distinguish a
 local generator/profile/probe result from a native host observation.
 
 LazyTrae uses layered evidence. A release check is useful only when its scope is explicit: a unit test does not prove a packed artifact, a packed artifact does not prove a host connection, and host observation does not rewrite package ownership.
@@ -45,6 +45,12 @@ measurement exists.
 Normal CI is self-contained: it does not require a sibling repository. Documentation and contract parity with LazyBuddy are release-only paired parity checks, run only when both absolute roots are explicitly supplied. That keeps the shared safety contract auditable without creating a runtime, installer, or CI dependency between packages.
 
 The final host layer is intentionally manual. A selected Trae host must show asset discovery, any relevant hook behavior, and MCP connection before those facts are claimed. Current package evidence is verified on macOS only.
+
+For v1.2.2, archive QA also invokes installed `init`, `status`, `sync`, and
+adaptive/handoff surfaces. It confirms a complete native context capsule,
+preserved caller files on lifecycle paths, a deterministic archive checksum,
+and `presented-to-host` / `not-observed` host semantics. It does not claim a
+proprietary host executed the presentation.
 
 ## v1.1 host-boundary release checks
 

@@ -6,6 +6,11 @@ tooling. It does not change project dependencies, lockfiles, `.trae/mcp.json`,
 or host MCP settings. This differs from explicitly enabling persistent
 compatibility.
 
+The v1.2.2 adaptive route likewise selects from native current task, loop, and
+session state. It may present a bounded capsule to a host only as advisory
+input; `presented-to-host` and `not-observed` never describe proprietary host
+execution.
+
 ## Choose the least invasive capability
 
 | Need | Appropriate route | Important boundary |

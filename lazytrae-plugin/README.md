@@ -1,6 +1,6 @@
 # LazyTrae plugin
 
-## Durable v1.2.1 installation
+## Durable v1.2.2 installation
 
 **Node.js LTS 20 or newer** and **Git** are required. Run `lifecycle onboard`
 only from `https://github.com/elvinzhao10/LazyTrae.git`, then use
@@ -49,7 +49,7 @@ projects. Keep it self-contained and run the CLI test suite after changes.
 
 ## Install, verify, and remove
 
-Bootstrap v1.2.1 once from a verified official source checkout, then use the
+Bootstrap v1.2.2 once from a verified official source checkout, then use the
 durable launcher rather than treating that checkout as the installed runtime:
 
 ```bash
@@ -94,6 +94,13 @@ Automatic local tooling is temporary and receipt-owned: `rg`, `sg`, and the
 read-only LSP bridge may be selected for a task without changing host or
 project configuration. CodeGraph and remote providers remain explicit optional
 lifecycles; onboarding, doctor, and InitDeep do not enable them.
+
+Adaptive selection reads native current task/loop/session state and produces a
+capsule only for a complete matching identity. Host presentation remains
+advisory (`presented-to-host` / `not-observed`), so the package does not claim
+proprietary Trae execution. `init` and `sync` preflight managed conflicts and
+transactionally promote only receipt-owned assets, preserving caller state,
+evidence, modified, unknown, and linked bytes.
 
 Remove only receipt-owned package assets through the durable launcher. Start
 with the non-mutating lifecycle plan, then confirm only the exact product root:
