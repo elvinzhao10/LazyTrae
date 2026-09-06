@@ -1,8 +1,6 @@
 'use strict';
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
-const CURRENT_TASK_STATES = new Set(['in_progress', 'blocked']);
-
 function object(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
 }
@@ -30,7 +28,8 @@ function activeWork(boulder) {
 
 function activeTask(work) {
   const tasks = work.tasks.map(object).filter(Boolean);
-  return tasks.find((task) => CURRENT_TASK_STATES.has(task.status))
+  return tasks.find((task) => task.status === 'in_progress')
+    || tasks.find((task) => task.status === 'blocked')
     || tasks.find((task) => task.status === 'pending') || null;
 }
 

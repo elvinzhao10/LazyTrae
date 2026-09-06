@@ -114,6 +114,20 @@ test('native context capsule selects current active work before queued pending w
   }
 });
 
+test('native context capsule selects in-progress work before an older blocked task', () => {
+  // Given: an older blocked task precedes the current in-progress task.
+  const state = nativeState();
+  state.boulder.works['work-1'].tasks.unshift({
+    id: 'task-blocked-old', description: 'Blocked earlier work', status: 'blocked',
+  });
+
+  // When: current context is derived from native task order.
+  const result = deriveContextCapsule(state);
+
+  // Then: in-progress work wins the explicit active-state precedence.
+  assert.equal(result.capsule.identity.task_id, 'task-2');
+});
+
 test('post-compaction identity comparison ignores object key order', () => {
   // Given: the same required identity fields arrive in a different serialization order.
   const state = nativeState();
