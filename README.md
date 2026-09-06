@@ -6,7 +6,7 @@ LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 **TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-The current stable release is [v1.2.2](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.2.2).
+Version v1.2.2 is prepared for publication; it is not a stable release until the tag and release artifact are published.
 
 ## Efficiency improvements since v1.2.0
 
@@ -32,7 +32,7 @@ You do not need to work through the technical setup alone. Open an AI coding
 assistant in your project and paste this:
 
 > Help me install LazyTrae from https://github.com/elvinzhao10/LazyTrae for
-> this project. Use the stable v1.2.2 route. Run safe package checks first,
+> this project. Use the prepared v1.2.2 package route. Run safe package checks first,
 > explain each step plainly, and ask me before changing host settings, adding
 > an MCP connector, or registering anything in Trae.
 
