@@ -61,6 +61,7 @@ test('packaged handoff JSON and Markdown redact every caller-controlled free-tex
             criteria: ['api_key=criteria-secret'],
             commands: ['API_KEY=environment-secret node --test'],
             authority: '-----BEGIN PRIVATE KEY-----\nprivate-key-secret\n-----END PRIVATE KEY-----',
+            'password=key-name-secret': 'unknown task metadata',
           }],
           blockers: [{ task_id: 'task-1', reason: 'client_secret=blocker-secret' }],
         },
@@ -85,11 +86,12 @@ test('packaged handoff JSON and Markdown redact every caller-controlled free-tex
     assert.equal(markdown.status, 0, markdown.stderr);
     const report = JSON.parse(json.stdout);
     assert.equal(report.currentState.currentTask.id, 'task-1');
+    assert.deepEqual(Object.keys(report.currentState.currentTask), ['id', 'description', 'status']);
     assert.match(markdown.stdout, /task-1/);
     assert.match(markdown.stdout, /next_action/);
     for (const output of [json.stdout, markdown.stdout]) {
       assert.match(output, /\[REDACTED\]/);
-      assert.doesNotMatch(output, /objective-secret|plan-secret|bearer-secret|criteria-secret|environment-secret|private-key-secret|blocker-secret/);
+      assert.doesNotMatch(output, /objective-secret|plan-secret|bearer-secret|criteria-secret|environment-secret|private-key-secret|blocker-secret|key-name-secret/);
     }
   } finally {
     fs.rmSync(project, { recursive: true, force: true });

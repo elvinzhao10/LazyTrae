@@ -31,6 +31,7 @@ function nativeState() {
               id: 'task-2', description: 'Implement the bounded change', status: 'in_progress',
               owned_paths: ['src/feature.js'], criteria: ['focused tests pass'], plan_section: 'Todo 2',
               commands: ['node --test test/feature.test.js'], manual_qa_surface: 'cli',
+              'api_key=unknown-key-secret': 'untrusted metadata',
             },
           ],
           blockers: [],
@@ -193,6 +194,10 @@ test('handoff CLI emits the bounded capsule through the native session adapter',
   assert.equal(result.status, 0);
   assert.equal(handoff.contextStatus, 'current');
   assert.equal(handoff.contextCapsule.identity.task_id, 'task-2');
+  assert.deepEqual(handoff.currentState.currentTask, {
+    id: 'task-2', description: 'Implement the bounded change', status: 'in_progress',
+  });
+  assert.doesNotMatch(result.stdout, /unknown-key-secret/);
   assert.deepEqual(JSON.parse(handoff.nextPrompt), handoff.contextCapsule);
   assert.equal(Object.hasOwn(handoff.contextCapsule, 'hostExecution'), false);
 });

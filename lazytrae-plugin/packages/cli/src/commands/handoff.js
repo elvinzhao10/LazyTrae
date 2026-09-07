@@ -23,6 +23,15 @@ function safeReadJSON(filePath) {
   }
 }
 
+function projectTask(task) {
+  if (!task) return null;
+  return {
+    id: redactText(typeof task.id === 'string' ? task.id : ''),
+    description: redactText(typeof task.description === 'string' ? task.description : ''),
+    status: redactText(typeof task.status === 'string' ? task.status : ''),
+  };
+}
+
 function run(args) {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: lazytrae handoff [options]
@@ -73,7 +82,7 @@ Options:
         ? `${activeWork.tasks.filter(t => t.status === 'complete').length}/${activeWork.tasks.length}`
         : 'N/A',
       currentTask: activeWork
-        ? (activeWork.tasks.find(t => t.status === 'in_progress') || null)
+        ? projectTask(activeWork.tasks.find(t => t.status === 'in_progress'))
         : null,
       activeLoop,
       loopIteration: loop ? `${loop.iteration || 0}/${loop.max_iterations || 500}` : 'N/A',
