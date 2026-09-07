@@ -6,6 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { spawnSync } = require('node:child_process');
+const { executionRevision } = require('../src/lib/harness-execution-context');
 
 const CLI = path.join(__dirname, '..', 'bin', 'lazytrae.js');
 const ALL_GATES = [
@@ -48,7 +49,7 @@ function commandFor(scenario, gate, behavior = 'pass', actor = 'primary') {
   return { command: process.execPath, args: [scenario.recorder, scenario.log, gate, behavior, actor], actor };
 }
 
-function runScenario(scenario, override = {}, planOverride = {}, spawnOptions = {}) {
+function runScenario(scenario, override = {}, planOverride = {}, spawnOptions = {}, trustedPlanOverride = null) {
   const input = {
     taskCategory: 'quick',
     changedPaths: ['src/format-label.js'],
@@ -67,7 +68,21 @@ function runScenario(scenario, override = {}, planOverride = {}, spawnOptions = 
   const inputPath = path.join(scenario.controls, 'input.json');
   const planPath = path.join(scenario.controls, 'plan.json');
   fs.writeFileSync(inputPath, JSON.stringify(input));
-  fs.writeFileSync(planPath, JSON.stringify({ timeoutMs: 1000, gates, ...planOverride }));
+  const plan = { timeoutMs: 1000, gates, ...planOverride };
+  fs.writeFileSync(planPath, JSON.stringify(plan));
+  const planCommands = trustedPlanOverride || Object.values(plan.gates).flat().map(({ command, args }) => (
+    [command === process.execPath ? 'node' : command, ...args]
+  ));
+  const goal = {
+    id: 'goal-1', objective: 'Verify the current task.', successCriteria: [],
+    ownedPaths: [], planCommands,
+  };
+  goal.executionRevision = executionRevision(goal);
+  fs.mkdirSync(path.join(scenario.root, '.lazytrae', 'state'), { recursive: true });
+  fs.writeFileSync(path.join(scenario.root, '.lazytrae', 'state', 'active-loop.json'), JSON.stringify({
+    active_goal_id: goal.id,
+    goals: [goal],
+  }));
   const result = spawnSync(process.execPath, [
     CLI,
     '--root', scenario.root,
@@ -79,6 +94,47 @@ function runScenario(scenario, override = {}, planOverride = {}, spawnOptions = 
   const report = result.stdout.trim() ? JSON.parse(result.stdout) : null;
   return { result, report };
 }
+
+test('Given an untrusted gate plan, when it requests shell or interpreter evaluation, then the public CLI rejects it without execution', (t) => {
+  for (const hostile of [
+    { command: '/bin/sh', args: ['-c', 'printf pwned > gate-plan-side-effect'] },
+    { command: process.execPath, args: ['-e', "require('node:fs').writeFileSync('gate-plan-side-effect','pwned')"] },
+  ]) {
+    const scenario = makeScenario();
+    t.after(() => fs.rmSync(scenario.root, { recursive: true, force: true }));
+    t.after(() => fs.rmSync(scenario.controls, { recursive: true, force: true }));
+
+    const { result } = runScenario(scenario, {}, {
+      gates: {
+        'targeted-tests': [hostile],
+        'final-assertions': [commandFor(scenario, 'final-assertions')],
+      },
+    });
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /trusted plan|not permitted|interpreter evaluation/i);
+    assert.equal(fs.existsSync(path.join(scenario.root, 'gate-plan-side-effect')), false);
+    assert.equal(fs.existsSync(scenario.log), false);
+  }
+});
+
+test('Given a safe but unbound gate command, when public verification runs, then stored-plan provenance rejects it', (t) => {
+  const scenario = makeScenario();
+  t.after(() => fs.rmSync(scenario.root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(scenario.controls, { recursive: true, force: true }));
+  const unbound = commandFor(scenario, 'targeted-tests');
+
+  const { result } = runScenario(scenario, {}, {
+    gates: {
+      'targeted-tests': [unbound],
+      'final-assertions': [commandFor(scenario, 'final-assertions')],
+    },
+  }, {}, [['node', scenario.recorder, scenario.log, 'different-gate', 'pass', 'primary']]);
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /not bound to the trusted plan/i);
+  assert.equal(fs.existsSync(scenario.log), false);
+});
 
 test('Given the shipped CLI, when verification help is requested, then the established entrypoint remains available', () => {
   // Given / When

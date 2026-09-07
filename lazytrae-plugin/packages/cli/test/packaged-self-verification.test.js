@@ -38,3 +38,42 @@ test('package self-verification uses only the extracted CLI runtime', () => {
     fs.rmSync(project, { recursive: true, force: true });
   }
 });
+
+test('packaged handoff JSON redacts every caller-controlled free-text field', () => {
+  // Given: initialized package state containing representative secret forms in every handoff projection.
+  const project = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-packaged-handoff-redaction-'));
+  fs.mkdirSync(path.join(project, '.git'));
+  try {
+    assert.equal(runCli(['--root', project, 'init', '--host', 'ide']).status, 0);
+    const stateRoot = path.join(project, '.lazytrae', 'state');
+    fs.writeFileSync(path.join(stateRoot, 'boulder.json'), JSON.stringify({
+      active_work_id: 'work-1',
+      works: {
+        'work-1': {
+          active_plan: 'token=plan-secret',
+          tasks: [{
+            id: 'task-1',
+            status: 'in_progress',
+            description: 'Authorization: Bearer bearer-secret',
+            criteria: ['api_key=criteria-secret'],
+            commands: ['API_KEY=environment-secret node --test'],
+            authority: '-----BEGIN PRIVATE KEY-----\nprivate-key-secret\n-----END PRIVATE KEY-----',
+          }],
+          blockers: [{ task_id: 'task-1', reason: 'client_secret=blocker-secret' }],
+        },
+      },
+    }));
+
+    // When: the packaged public CLI serializes the handoff report.
+    const result = runCli(['--root', project, 'handoff', '--json']);
+
+    // Then: structural report data remains, while none of the source secrets cross stdout.
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.currentState.currentTask.id, 'task-1');
+    assert.match(result.stdout, /\[REDACTED\]/);
+    assert.doesNotMatch(result.stdout, /plan-secret|bearer-secret|criteria-secret|environment-secret|private-key-secret|blocker-secret/);
+  } finally {
+    fs.rmSync(project, { recursive: true, force: true });
+  }
+});

@@ -6,8 +6,10 @@ const LANES = Object.freeze(['goal', 'qa', 'code', 'security', 'context']);
 const PRIOR = new Set(['PASS', 'FAIL', 'MISSING', 'STALE']);
 const OWNERSHIP = new Set(['absent', 'unmodified', 'modified', 'untracked']);
 const FORBIDDEN_EXECUTABLES = new Set(['rm', 'sudo', 'curl', 'wget', 'ssh', 'scp']);
+const FORBIDDEN_INTERPRETERS = new Set(['bash', 'cmd', 'dash', 'fish', 'perl', 'powershell', 'pwsh', 'python', 'python3', 'ruby', 'sh', 'zsh']);
 const FORBIDDEN_GIT = new Set(['push', 'reset', 'clean', 'checkout', 'restore', 'commit', 'rebase', 'merge', 'tag']);
 const FORBIDDEN_NPM = new Set(['install', 'publish', 'uninstall', 'update']);
+const NODE_EVALUATION = new Set(['-e', '--eval', '-p', '--print']);
 const SAFE_TOKEN = /^[^;&|<>`$\r\n]+$/;
 
 function executionRevision(goal) {
@@ -84,9 +86,24 @@ function parseCommandValidation(input, expectedCommands) {
 function validateSafeArgv(argv, field) {
   if (!Array.isArray(argv) || argv.length === 0 || argv.some((token) => typeof token !== 'string' || !SAFE_TOKEN.test(token))) fail(field, 'must be non-shell argv without control operators.');
   if (FORBIDDEN_EXECUTABLES.has(argv[0])) fail(field, 'contains a mutation or remote command.');
-  if (argv[0] === 'git' && FORBIDDEN_GIT.has(argv[1])) fail(field, 'contains a mutating Git command.');
+  if (FORBIDDEN_INTERPRETERS.has(argv[0])) fail(field, 'contains a shell or interpreter command.');
+  if (argv[0] === 'node' && argv.slice(1).some((token) => NODE_EVALUATION.has(token) || token.startsWith('--eval='))) fail(field, 'contains interpreter evaluation.');
+  if (argv[0] === 'git' && FORBIDDEN_GIT.has(gitSubcommand(argv))) fail(field, 'contains a mutating Git command.');
   if (['npm', 'pnpm', 'yarn'].includes(argv[0]) && FORBIDDEN_NPM.has(argv[1])) fail(field, 'contains a dependency or publication mutation.');
   if (approvalClasses(argv.join(' '), {}).length > 0) fail(field, 'requires approval and is not a safe plan check.');
+}
+
+function gitSubcommand(argv) {
+  const optionsWithValues = new Set(['-C', '-c', '--config-env', '--exec-path', '--git-dir', '--namespace', '--super-prefix', '--work-tree']);
+  for (let index = 1; index < argv.length; index += 1) {
+    const token = argv[index];
+    if (optionsWithValues.has(token)) {
+      index += 1;
+    } else if (!token.startsWith('-')) {
+      return token;
+    }
+  }
+  return null;
 }
 
 function parseTerminalReport(input, goal, revision, criterionIds, artifactIds) {
@@ -175,4 +192,4 @@ function fail(field, message) {
   throw new Error(`${field}: ${message}`);
 }
 
-module.exports = { LANES, executionRevision, validateExecutionContext };
+module.exports = { LANES, executionRevision, validateExecutionContext, validateSafeArgv };

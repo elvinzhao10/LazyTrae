@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { formatCompletionStatus, getCompletionStatus } = require('../lib/completion-gates');
 const { deriveContextCapsule } = require('../lib/context-capsule');
+const { redactText } = require('../mcp/redaction');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -106,7 +107,9 @@ Options:
   }
 
   if (asJson) {
-    console.log(JSON.stringify(handoff, null, 2));
+    console.log(JSON.stringify(handoff, (_key, value) => (
+      typeof value === 'string' ? redactText(value) : value
+    ), 2));
     return;
   }
 

@@ -1,7 +1,9 @@
 'use strict';
 
 const { spawnSync } = require('node:child_process');
+const fs = require('node:fs');
 const path = require('node:path');
+const { validateSafeArgv } = require('./harness-execution-context');
 const { selectVerificationPolicy } = require('./verification-risk-policy');
 
 const COMPREHENSIVE_GATES = [
@@ -26,7 +28,22 @@ function validInvocation(value) {
     && (value.actor === undefined || ['primary', 'secondary'].includes(value.actor));
 }
 
-function invocationsFor(plan, gateId) {
+function trustedArgv(invocation) {
+  let executable;
+  try {
+    executable = fs.realpathSync(invocation.command);
+  } catch (_) {
+    throw new Error('gate plan executable is unavailable.');
+  }
+  if (executable !== fs.realpathSync(process.execPath)) {
+    throw new Error('gate plan executable is not permitted.');
+  }
+  const argv = ['node', ...invocation.args];
+  validateSafeArgv(argv, 'gate plan invocation');
+  return argv;
+}
+
+function invocationsFor(plan, gateId, trustedCommands) {
   const invocations = plan?.gates?.[gateId];
   if (!Array.isArray(invocations) || invocations.length === 0 || !invocations.every(validInvocation)) return null;
   if (gateId === 'paired-full-suites') {
@@ -35,6 +52,12 @@ function invocationsFor(plan, gateId) {
     if (actors[0] !== 'primary' || actors[1] !== 'secondary') return null;
   } else if (invocations.length !== 1 || (invocations[0].actor && invocations[0].actor !== 'primary')) {
     return null;
+  }
+  const trusted = new Set(trustedCommands.map((argv) => JSON.stringify(argv)));
+  for (const invocation of invocations) {
+    if (!trusted.has(JSON.stringify(trustedArgv(invocation)))) {
+      throw new Error('gate plan invocation is not bound to the trusted plan.');
+    }
   }
   return invocations;
 }
@@ -59,7 +82,7 @@ function runInvocation(root, gateId, invocation, index, timeoutMs) {
   };
 }
 
-function runVerificationGates(root, input, plan) {
+function runVerificationGates(root, input, plan, trustedCommands) {
   const started = process.hrtime.bigint();
   const initialPolicy = selectVerificationPolicy(input);
   const timeoutMs = Number.isInteger(plan?.timeoutMs) && plan.timeoutMs > 0 && plan.timeoutMs <= 120000
@@ -74,7 +97,7 @@ function runVerificationGates(root, input, plan) {
     const gateId = queued.shift();
     if (completed.has(gateId)) continue;
     completed.add(gateId);
-    const invocations = invocationsFor(plan, gateId);
+    const invocations = invocationsFor(plan, gateId, trustedCommands);
     if (invocations === null) {
       const gateStarted = process.hrtime.bigint();
       gateOutcomes.push({
