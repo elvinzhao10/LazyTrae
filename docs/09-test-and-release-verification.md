@@ -38,9 +38,10 @@ tests stay on the serial path even when the rest of the suite uses concurrency.
 
 The risk-based `verify --json` report includes a monotonic in-memory
 `elapsed_ms` total and an `elapsed_ms` value on every gate outcome. It does not
-persist those timings. Efficiency fixtures name their separate validation-time
-field `validation_elapsed_ms`, including an explicit unavailable reason when no
-measurement exists.
+persist those timings. Separately, validated cost/outcome telemetry persists
+completed records with its own `elapsed_ms`, invocation, evidence, rerun,
+rework, gate-outcome, and token-source fields; it does not establish a
+checked-in efficiency baseline.
 
 Normal CI is self-contained: it does not require a sibling repository. Documentation and contract parity with LazyBuddy are release-only paired parity checks, run only when both absolute roots are explicitly supplied. That keeps the shared safety contract auditable without creating a runtime, installer, or CI dependency between packages.
 

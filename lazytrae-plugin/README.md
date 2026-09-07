@@ -147,9 +147,10 @@ path. Helper modules in `test/` are never discovered as tests.
 
 Risk-based `verify --json` reports an in-memory monotonic `elapsed_ms` total
 and an `elapsed_ms` value for every gate outcome. These timings are returned
-only in the report; they are not added to persisted telemetry. Checked-in
-efficiency baselines use `validation_elapsed_ms` so their validation metadata
-cannot be mistaken for a live verification-gate measurement.
+only in the report; they are not added to persisted telemetry. Validated
+cost/outcome telemetry stores completed records with its own `elapsed_ms`,
+invocation, evidence, rerun, rework, gate-outcome, and token-source fields;
+it does not establish a checked-in efficiency baseline.
 
 For contributors, keep source/template mirrors aligned, preserve receipt
 ownership boundaries, and run the CLI suite before changing package behavior.
