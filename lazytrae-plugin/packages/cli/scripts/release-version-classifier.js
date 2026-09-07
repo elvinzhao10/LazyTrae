@@ -55,7 +55,6 @@ function walk(root, directory = root) {
 function previousVersionClassification(relativePath, line) {
   if (relativePath === 'RELEASE_NOTES.md' || relativePath.startsWith('docs/v1.2.0-')) return 'historical-release-document';
   if (relativePath === 'CHANGELOG.md') return 'historical-release-history';
-  if (relativePath === '.product-naming-allowlist.json') return 'historical-naming-allowlist';
   if (relativePath.includes('/contracts/fixtures/') || relativePath.includes('/test/fixtures/')) return 'historical-or-adversarial-fixture';
   if (relativePath.includes('paired-candidate-contract.v1') || relativePath.endsWith('validate-paired-candidate.js')) return 'schema-independent-contract-version';
   if (relativePath.endsWith('contracts/tests/paired-candidate-contract.test.js') || relativePath.endsWith('contracts/tests/completion-cost-contract.test.js')) return 'schema-independent-contract-test';
