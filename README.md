@@ -20,8 +20,8 @@ Version v1.2.2 is prepared for publication; it is not a stable release until the
   evidence volume visible. Unavailable timing or token data remains explicit
   rather than being estimated.
 - Pull requests run the publication, package, standalone MCP, and workflow
-  safety gates. The product-name checker is an explicit local/release
-  validation, not a separately invoked PR-CI workflow. A weekly compatibility
+  safety gates. Version and release-documentation consistency is covered by
+  the existing CLI source/package and publication suites. A weekly compatibility
   job checks the supported Node.js range and dependency freshness without
   weakening release verification.
 - Interrupting optional-provider startup now forwards SIGINT immediately and

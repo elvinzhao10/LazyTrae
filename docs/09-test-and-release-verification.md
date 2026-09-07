@@ -55,10 +55,9 @@ proprietary host executed the presentation.
 The final execution-contract checks additionally cover compact task/report
 payloads, read-only pre-task provenance, safe argv rejection, task/revision/
 criterion-bound result recovery, runtime transitions, selective five-lane
-reruns, redacted context projection, and stale-active-goal rejection. The
-product-name checker is a local/release validation alongside these checks; the
-current PR workflow invokes the CLI/package/publication/MCP suites, not a
-separate product-name-checker step.
+reruns, redacted context projection, and stale-active-goal rejection. These
+checks are covered by the current CLI source/package and publication suites;
+the PR workflow invokes those suites and the MCP checks.
 
 ## v1.1 host-boundary release checks
 
