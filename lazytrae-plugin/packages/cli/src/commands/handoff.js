@@ -114,7 +114,7 @@ Options:
   }
 
   // Output as markdown
-  console.log(`# Session Handoff
+  console.log(redactText(`# Session Handoff
 
 ## Handoff Summary
 
@@ -167,7 +167,7 @@ ${handoff.blockers.length > 0
 \`\`\`
 ${handoff.nextPrompt || '(paste the next prompt to continue)'}
 \`\`\`
-`);
+`));
 }
 
 module.exports = { run };

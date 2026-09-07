@@ -39,7 +39,7 @@ test('package self-verification uses only the extracted CLI runtime', () => {
   }
 });
 
-test('packaged handoff JSON redacts every caller-controlled free-text field', () => {
+test('packaged handoff JSON and Markdown redact every caller-controlled free-text field', () => {
   // Given: initialized package state containing representative secret forms in every handoff projection.
   const project = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-packaged-handoff-redaction-'));
   fs.mkdirSync(path.join(project, '.git'));
@@ -50,7 +50,10 @@ test('packaged handoff JSON redacts every caller-controlled free-text field', ()
       active_work_id: 'work-1',
       works: {
         'work-1': {
+          work_id: 'work-1',
+          objective: 'password=objective-secret',
           active_plan: 'token=plan-secret',
+          plan_revision: `sha256:${'a'.repeat(64)}`,
           tasks: [{
             id: 'task-1',
             status: 'in_progress',
@@ -63,16 +66,31 @@ test('packaged handoff JSON redacts every caller-controlled free-text field', ()
         },
       },
     }));
+    fs.writeFileSync(path.join(stateRoot, 'active-loop.json'), JSON.stringify({
+      run_id: 'run-1',
+      adaptive: {
+        requestDigest: `sha256:${'b'.repeat(64)}`,
+        revisionFingerprint: { status: 'available', digest: `sha256:${'c'.repeat(64)}` },
+        scopeFingerprint: `sha256:${'d'.repeat(64)}`,
+      },
+    }));
+    fs.writeFileSync(path.join(stateRoot, 'sessions.json'), JSON.stringify({ current_session_id: 'session-1' }));
 
-    // When: the packaged public CLI serializes the handoff report.
-    const result = runCli(['--root', project, 'handoff', '--json']);
+    // When: both packaged public renderers serialize the handoff report.
+    const json = runCli(['--root', project, 'handoff', '--json']);
+    const markdown = runCli(['--root', project, 'handoff']);
 
-    // Then: structural report data remains, while none of the source secrets cross stdout.
-    assert.equal(result.status, 0, result.stderr);
-    const report = JSON.parse(result.stdout);
+    // Then: structural report data remains, while none of the source secrets cross either stdout.
+    assert.equal(json.status, 0, json.stderr);
+    assert.equal(markdown.status, 0, markdown.stderr);
+    const report = JSON.parse(json.stdout);
     assert.equal(report.currentState.currentTask.id, 'task-1');
-    assert.match(result.stdout, /\[REDACTED\]/);
-    assert.doesNotMatch(result.stdout, /plan-secret|bearer-secret|criteria-secret|environment-secret|private-key-secret|blocker-secret/);
+    assert.match(markdown.stdout, /task-1/);
+    assert.match(markdown.stdout, /next_action/);
+    for (const output of [json.stdout, markdown.stdout]) {
+      assert.match(output, /\[REDACTED\]/);
+      assert.doesNotMatch(output, /objective-secret|plan-secret|bearer-secret|criteria-secret|environment-secret|private-key-secret|blocker-secret/);
+    }
   } finally {
     fs.rmSync(project, { recursive: true, force: true });
   }
