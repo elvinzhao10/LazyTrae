@@ -45,10 +45,20 @@ described in [Host routes](reference/host-routes.md).
 1. State the outcome, constraints, and the user-facing check.
 2. Inspect local code and documentation first. Use `rg` for exact search and
    `sg` for structural search when that is the question.
-3. Make the smallest change consistent with the result.
-4. Run focused project-native checks, then exercise the real interface.
-5. Record commands, output, changed files, manual checks, and review findings.
-6. Run the completion gate when it applies; only then report completion.
+3. Capture `git status --short` and each owned-path state read-only. Keep this
+   provenance, not caller file contents.
+4. Convert planned checks to exact safe argv and validate each one time. Shell
+   operators, mutating/dependency/remote commands, and approval-gated actions
+   are not safe plan checks.
+5. Dispatch the fixed compact contract plus only the task delta and artifact
+   references; reference the plan and prior evidence by path.
+6. Require a task/revision/criterion-bound terminal report. Each runtime
+   criterion needs a real entrypoint and before/after transition.
+7. Run focused project-native checks, then exercise the real interface. Retain
+   PASS review lanes and rerun only failed, missing, stale, or input-affected
+   lanes; all five lanes remain required.
+8. Record commands, output, changed files, manual checks, and review findings,
+   then run the completion gate when it applies.
 
 For an implementation that needs an explicit plan, use the five evidence gates:
 plan reread, automated verification, manual QA, adversarial QA, and cleanup.

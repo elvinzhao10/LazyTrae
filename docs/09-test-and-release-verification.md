@@ -1,6 +1,6 @@
 # Test and release verification
 
-**Current documentation release: v1.2.1.** Release checks must distinguish a
+**Current documentation release: v1.2.2.** Release checks must distinguish a
 local generator/profile/probe result from a native host observation.
 
 LazyTrae uses layered evidence. A release check is useful only when its scope is explicit: a unit test does not prove a packed artifact, a packed artifact does not prove a host connection, and host observation does not rewrite package ownership.
@@ -38,13 +38,27 @@ tests stay on the serial path even when the rest of the suite uses concurrency.
 
 The risk-based `verify --json` report includes a monotonic in-memory
 `elapsed_ms` total and an `elapsed_ms` value on every gate outcome. It does not
-persist those timings. Efficiency fixtures name their separate validation-time
-field `validation_elapsed_ms`, including an explicit unavailable reason when no
-measurement exists.
+persist those timings. Separately, validated cost/outcome telemetry persists
+completed records with its own `elapsed_ms`, invocation, evidence, rerun,
+rework, gate-outcome, and token-source fields; it does not establish a
+checked-in efficiency baseline.
 
 Normal CI is self-contained: it does not require a sibling repository. Documentation and contract parity with LazyBuddy are release-only paired parity checks, run only when both absolute roots are explicitly supplied. That keeps the shared safety contract auditable without creating a runtime, installer, or CI dependency between packages.
 
 The final host layer is intentionally manual. A selected Trae host must show asset discovery, any relevant hook behavior, and MCP connection before those facts are claimed. Current package evidence is verified on macOS only.
+
+For v1.2.2, archive QA also invokes installed `init`, `status`, `sync`, and
+adaptive/handoff surfaces. It confirms a complete native context capsule,
+preserved caller files on lifecycle paths, a deterministic archive checksum,
+and `presented-to-host` / `not-observed` host semantics. It does not claim a
+proprietary host executed the presentation.
+
+The final execution-contract checks additionally cover compact task/report
+payloads, read-only pre-task provenance, safe argv rejection, task/revision/
+criterion-bound result recovery, runtime transitions, selective five-lane
+reruns, redacted context projection, and stale-active-goal rejection. These
+checks are covered by the current CLI source/package and publication suites;
+the PR workflow invokes those suites and the MCP checks.
 
 ## v1.1 host-boundary release checks
 

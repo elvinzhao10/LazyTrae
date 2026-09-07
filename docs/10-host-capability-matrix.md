@@ -1,6 +1,6 @@
 # Host capability matrix
 
-**Current documentation release: v1.2.1.** This is a boundary matrix, not a
+**Current documentation release: v1.2.2.** This is a boundary matrix, not a
 claim that a package result has made any host ready.
 
 LazyTrae deliberately aligns policy and package safety across Trae surfaces while keeping host adapters distinct. The same project assets may be present on two surfaces without both hosts exposing the same discovery or registration behavior.
@@ -61,6 +61,7 @@ MCP, and observation evidence must be fingerprint-bound and current first.
 | Hook policy | Ships advisory scripts and mappings. | Delivers events and defines hook lifecycle semantics. | Hard completion belongs in CLI/MCP gates, not hook exit codes. |
 | Local MCP | Ships one core stdio server and disabled placeholders. | Starts, registers, and displays the connection. | A declaration is not a connection. |
 | Optional providers | Implements policy, receipts, and managed namespaced entries. | Stores credentials and applies connector/network policy. | Selection/receipt status is not provider authorization or connection. |
+| Adaptive context | Selects from native current state and emits a bounded capsule only for a full identity match. | May receive an advisory presentation; execution remains host-observed. | `presented-to-host` is not a claim that proprietary host execution occurred. |
 
 The complete dependency classification is in [Dependency and host boundary reference](reference/dependency-and-host-boundaries.md).
 

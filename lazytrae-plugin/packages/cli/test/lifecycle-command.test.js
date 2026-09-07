@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const { version: RELEASE_VERSION } = require('../package.json');
 const { CLI, runCli } = require('./test-helpers');
 
 const OFFICIAL = 'https://github.com/elvinzhao10/LazyTrae.git';
@@ -24,7 +25,7 @@ function writeRelease(root, selfTest = "process.stdout.write('self-test-ok\\n');
   fs.mkdirSync(path.join(cli, 'bin'), { recursive: true });
   fs.mkdirSync(path.join(cli, 'scripts'), { recursive: true });
   fs.mkdirSync(path.join(cli, 'contracts'), { recursive: true });
-  fs.writeFileSync(path.join(cli, 'package.json'), '{"name":"lazytrae-ai","version":"1.2.1"}\n');
+  fs.writeFileSync(path.join(cli, 'package.json'), '{"name":"lazytrae-ai","version":"1.2.2"}\n');
   fs.writeFileSync(path.join(cli, 'bin', 'lazytrae.js'), "process.stdout.write('durable-cli-ok\\n');\n");
   fs.writeFileSync(path.join(cli, 'scripts', 'lifecycle-self-test.js'), selfTest);
   for (const name of [
@@ -95,7 +96,7 @@ function lifecycleFixture(t) {
   git(source, ['add', '.']);
   git(source, ['commit', '-qm', 'fixture v1']);
   git(source, ['branch', '-M', 'main']);
-  git(source, ['tag', 'v1.2.1']);
+  git(source, ['tag', 'v1.2.2']);
   git(sandbox, ['clone', '--bare', source, remote]);
   const realGit = childProcess.spawnSync('which', ['git'], { encoding: 'utf8' }).stdout.trim();
   const shim = `#!/usr/bin/env node
@@ -608,7 +609,7 @@ test('packed lifecycle upgrades a copied v1 install, rolls back, prunes, and off
   const firstReceiptPath = path.join(
     productRoot,
     'receipts',
-    `lazytrae-1-2-1-${firstReport.commit_sha.slice(0, 12)}.json`,
+    `lazytrae-${RELEASE_VERSION.replaceAll('.', '-')}-${firstReport.commit_sha.slice(0, 12)}.json`,
   );
   const firstReceipt = JSON.parse(fs.readFileSync(firstReceiptPath, 'utf8'));
   firstReceipt.$schema = 'lazy-harness-lifecycle.v1.schema.json';

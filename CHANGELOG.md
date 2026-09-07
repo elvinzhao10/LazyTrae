@@ -3,6 +3,44 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.2] - 2026-09-05
+
+### Changed
+
+- Automatic selection now uses bounded native current task/loop/session context
+  only when its complete identity matches; incomplete or mismatched context is
+  not reused.
+- Handoff and hook presentation retain advisory host semantics
+  (`presented-to-host` / `not-observed`) rather than claiming proprietary Trae
+  execution.
+- Init and sync preflight managed MCP/config conflicts, use transactional
+  receipt-owned promotion, and preserve caller state, evidence, modified,
+  unknown, and linked paths across success and interruption.
+- Added compact execution/report templates: read-only status and owned-path
+  provenance, once-validated safe argv checks, task-delta/artifact references,
+  identity-bound terminal results, and runtime before/after transitions.
+- Retained all five completion lanes while rerunning only failed, missing,
+  stale, or input-affected lanes; stale active-goal checkpoints now reject
+  before state mutation.
+- Redacted secret-bearing free text from projected context capsules without
+  altering their structural identity.
+- Retained local-first onboarding and the boundary between package readiness
+  and observed host readiness.
+- Updated current package, runtime, generated templates, documentation, and
+  release guidance to v1.2.2. Historical release detail remains in this
+  changelog and Git history; the root `RELEASE_NOTES.md` is the single current
+  release note.
+
+### Verification
+
+- The explicit native context packet reduced from 7,227 to 1,076 bytes
+  (85.11%). This is packet-only evidence, not a token, worker, host-speed, or
+  proprietary-host execution claim.
+- Release validation covers version/template parity, documentation checks,
+  deterministic packed artifacts, installed CLI lifecycle/adaptive smoke paths,
+  caller-file preservation, compact execution contracts, stale-goal rejection,
+  and context redaction.
+
 ## [1.2.1] - 2026-08-30
 
 ### Fixed
@@ -230,6 +268,7 @@ runtime replacement uses scoped offboard/re-onboard. Package success leaves
   lifecycle.
 
 [1.0.3]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.2...v1.0.3
+[1.2.2]: https://github.com/elvinzhao10/LazyTrae/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/elvinzhao10/LazyTrae/compare/v1.2.0...v1.2.1
 [1.1.0]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.3...v1.1.0
 [1.0.2]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.1...v1.0.2

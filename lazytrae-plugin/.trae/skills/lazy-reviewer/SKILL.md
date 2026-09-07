@@ -19,7 +19,7 @@ Provide a comprehensive, multi-angle review of completed implementation work. Th
 - Background and business context.
 - Changed files (from `git diff --name-only`).
 - Full diff (from `git diff`).
-- Full file contents of changed files.
+- Artifact references for changed-file contents and the execution terminal report.
 - How to run/start the application.
 - Plan file with acceptance criteria.
 - Verification evidence from the verifier.
@@ -33,14 +33,14 @@ Collect all required inputs:
 2. **CONSTRAINTS**: Rules, requirements, limitations, tech stack restrictions.
 3. **BACKGROUND**: Why this work was needed. Business context, user stories.
 4. **CHANGED_FILES**: `git diff --name-only` against the appropriate base.
-5. **DIFF**: `git diff` against the appropriate base.
-6. **FILE_CONTENTS**: Full content of each changed file.
+5. **DIFF**: Capture `git diff` once as a shared artifact reference.
+6. **TASK_DELTA**: Task/revision/criteria, changed and owned paths, and only constraints that differ from this fixed reviewer contract.
 7. **RUN_COMMAND**: How to start/run the application.
 8. **VERIFICATION_EVIDENCE**: Evidence from the verifier (test results, Manual-QA artifacts).
 
 ### Phase 1: Launch Review Agents
 
-Launch ALL review agents in parallel. Each covers a complementary concern:
+Launch all review lanes required for the first pass. Each receives the fixed reviewer contract, task delta, and artifact references instead of repeated plan/diff prose:
 
 | # | Agent | Focus | Key Questions |
 |---|-------|-------|---------------|
@@ -51,6 +51,8 @@ Launch ALL review agents in parallel. Each covers a complementary concern:
 | 5 | Context Mining | Did we miss any context? | Git history, related issues/PRs, codebase cross-references, design docs, past decisions |
 
 ### Phase 2: Wait & Collect
+
+For a repeat review, rerun only a lane with prior FAIL, MISSING, STALE, or changed inputs. Preserve unaffected PASS receipts. The final report still contains all five lanes and cannot pass unless every current status is PASS.
 
 Wait for all review agents to complete. Track each agent's verdict independently:
 

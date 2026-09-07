@@ -1,6 +1,6 @@
 # Package delivery
 
-**Current documentation release: v1.2.1.** The package can create evidence;
+**Current documentation release: v1.2.2.** The package can create evidence;
 only the selected host can supply discovery and live-session evidence.
 
 This page explains the deployment boundary in code terms. The CLI contains canonical templates and a local MCP runtime; it does not contain Trae's settings database, session state, or live connector process table.
@@ -29,7 +29,7 @@ Platform defaults are package behavior, not host-support evidence:
 
 ## Host onboarding
 
-Open or link the durable `v1.2.1` release in the selected Trae host, give the agent
+Open or link the durable `v1.2.2` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for TraeCode, TraeWork, or TraeCode CLI, runs safe package checks, and
 reports package readiness separately from host readiness. Before copying Work
@@ -40,6 +40,12 @@ If Computer Use is unavailable, a user-pasted verbatim status or screenshot is
 observed evidence; without either, **HOST READINESS: PENDING**.
 Verify one real Skill/command and the expected `lazytrae` core MCP connection;
 local checks alone leave host readiness pending.
+
+The installed onboarding guidance keeps its execution handoff compact: it
+records only read-only pre-task provenance, validated safe argv checks, the
+task-specific delta, and evidence references. It does not paste a full plan or
+role description into every dispatch, and it does not convert package records
+into host-execution evidence.
 
 The release launcher and generated configuration are the **documented package
 route**. The supplied macOS IDE/Work results are an **observed prerelease
@@ -72,6 +78,11 @@ observation evidence agree; historical v1 receipts are read-only inputs.
 ## Template installation pipeline
 
 `packages/cli/src/commands/init.js` is the installer. It resolves the target project, copies or merges files from `packages/cli/templates/`, and then runs the selected host's load check. `sync.js` follows the same managed-content rules for later updates. The safe-write and managed-block helpers prevent an update from silently overwriting protected destinations.
+
+In v1.2.2, init and sync preflight managed MCP/config conflicts and use the
+receipt-owned transactional promotion path. Caller state, evidence, modified,
+unknown, and linked paths remain preserved; an interrupted promotion publishes
+no partial receipt and can be retried cleanly.
 
 The templates produce `.trae/` workflow assets and `.lazytrae/` schemas/state
 defaults. The executable companion and packaged MCP server are separate

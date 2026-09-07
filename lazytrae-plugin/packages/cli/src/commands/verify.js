@@ -2,6 +2,8 @@ const { spawnSync } = require('child_process');
 const fs = require('node:fs');
 const path = require('path');
 const { detectRepoRoot, formatCompletionStatus, getCompletionStatus } = require('../lib/completion-gates');
+const { executionRevision } = require('../lib/harness-execution-context');
+const { resolveRepoPath } = require('../lib/path-boundary');
 const { runVerificationGates } = require('../lib/verification-gate-runner');
 
 function trustedGitExecutable() {
@@ -38,6 +40,19 @@ function gitTreeDirty(root) {
   return result.status !== 0 || result.stdout.trim().length > 0;
 }
 
+function trustedPlanCommands(root) {
+  const state = resolveRepoPath(root, '.lazytrae/state/active-loop.json', { mustExist: true });
+  if (!state.ok) throw new Error(`trusted command plan is unavailable: ${state.error}.`);
+  const loop = JSON.parse(fs.readFileSync(state.path, 'utf8'));
+  const goal = typeof loop.active_goal_id === 'string' && Array.isArray(loop.goals)
+    ? loop.goals.find((candidate) => candidate.id === loop.active_goal_id)
+    : null;
+  if (!goal || !Array.isArray(goal.planCommands) || goal.executionRevision !== executionRevision(goal)) {
+    throw new Error('active goal does not provide a current trusted command plan.');
+  }
+  return goal.planCommands;
+}
+
 function runRiskVerification(args) {
   const root = detectRepoRoot();
   const parsedInput = JSON.parse(fs.readFileSync(optionValue(args, '--risk-input'), 'utf8'));
@@ -45,7 +60,7 @@ function runRiskVerification(args) {
   const input = parsedInput !== null && typeof parsedInput === 'object' && !Array.isArray(parsedInput)
     ? { ...parsedInput, dirtyTree: parsedInput.dirtyTree === true || gitTreeDirty(root) }
     : parsedInput;
-  const report = runVerificationGates(root, input, plan);
+  const report = runVerificationGates(root, input, plan, trustedPlanCommands(root));
   if (args.includes('--json')) process.stdout.write(`${JSON.stringify(report)}\n`);
   else process.stdout.write(`${report.passed ? 'passed' : 'failed'}: ${report.gate_outcomes.length} gate invocations\n`);
   return report.passed ? 0 : 1;

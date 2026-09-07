@@ -7,6 +7,7 @@ const {
   malformedAdaptiveDirective,
   processAdaptivePrompt,
 } = require('../lib/adaptive-runtime');
+const { deriveContextCapsule } = require('../lib/context-capsule');
 const { localCommand } = require('../lib/local-command');
 const { assertSafeRepoWritePath } = require('../lib/path-boundary');
 
@@ -70,6 +71,21 @@ function markContextRecovery(repoRoot) {
     encoding: 'utf-8',
   });
   if (result.stderr && result.stderr.trim()) process.stderr.write(result.stderr);
+}
+
+function currentContext(repoRoot) {
+  const read = (name) => {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(repoRoot, '.lazytrae', 'state', name), 'utf8'));
+    } catch (_) {
+      return null;
+    }
+  };
+  return deriveContextCapsule({
+    boulder: read('boulder.json'),
+    loop: read('active-loop.json'),
+    sessions: read('sessions.json'),
+  });
 }
 
 async function run(args) {
@@ -194,6 +210,10 @@ Examples:
     const stdout = result.stdout || '';
     if (stdout.trim()) {
       process.stdout.write(stdout);
+    }
+    if (['session-start', 'recover-context'].includes(eventName)) {
+      const context = currentContext(repoRoot);
+      if (context.capsule) process.stdout.write(`${JSON.stringify({ lazytraeContext: context.capsule })}\n`);
     }
 
     const stderr = result.stderr;

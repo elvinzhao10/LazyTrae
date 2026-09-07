@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { requireRepoFile } = require('./path-boundary');
+const { validateExecutionContext } = require('./harness-execution-context');
 
 const REQUIRED_SECTIONS = [
   'codeReview',
@@ -18,14 +19,14 @@ const ROLES = {
 const SURFACES = new Set(['cli', 'http', 'tmux', 'browser', 'gui', 'data']);
 const KINDS = new Set(['cli-transcript', 'log', 'screenshot', 'image', 'http-dump', 'data-diff']);
 
-function validateQualityGate(repoRoot, qualityGatePath) {
+function validateQualityGate(repoRoot, qualityGatePath, context = {}) {
   if (!qualityGatePath) throw new Error('Missing --quality-gate-json.');
   const absolute = requireRepoFile(repoRoot, qualityGatePath);
-  const gate = parseGate(JSON.parse(fs.readFileSync(absolute, 'utf-8')), repoRoot);
+  const gate = parseGate(JSON.parse(fs.readFileSync(absolute, 'utf-8')), repoRoot, context);
   return { gate, path: qualityGatePath };
 }
 
-function parseGate(input, repoRoot) {
+function parseGate(input, repoRoot, context) {
   const gate = section(input, 'qualityGate');
   const codeReview = section(gate.codeReview, 'codeReview');
   const manualQa = section(gate.manualQa, 'manualQa');
@@ -41,7 +42,7 @@ function parseGate(input, repoRoot) {
   const gateReportPath = textField(gateReview.reportPath, 'gateReview.reportPath');
   checkFile(repoRoot, codeReportPath, 'codeReview.reportPath');
   checkFile(repoRoot, gateReportPath, 'gateReview.reportPath');
-  return {
+  const parsed = {
     codeReview: {
       by: roleField(codeReview.by, ROLES.codeReview, 'codeReview.by'),
       recommendation: literal(codeReview.recommendation, 'APPROVE', 'codeReview.recommendation'),
@@ -80,6 +81,10 @@ function parseGate(input, repoRoot) {
       adversarialClassesCovered: stringArray(coverage.adversarialClassesCovered, 'criteriaCoverage.adversarialClassesCovered'),
     },
   };
+  if (context.goal?.executionContractVersion === 1) {
+    parsed.execution = validateExecutionContext(gate.execution, context.goal, new Set(artifactRefs.map(({ id }) => id)));
+  }
+  return parsed;
 }
 
 function parseArtifactRefs(value, repoRoot) {

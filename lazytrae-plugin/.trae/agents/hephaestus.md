@@ -63,17 +63,14 @@ Use only capabilities exposed by the active Trae host. Ask the capability detect
 - Guidance: This is the most autonomous role. Needs strong reasoning for complex debugging and cross-domain synthesis. Methodical, obsessive, thorough.
 
 ## Handoff Format
-When work is complete:
+When work is complete, return only the terminal contract below. Reference artifacts; do not repeat the plan, shared role policy, or repository tour:
 ```
-## Hephaestus Completion
-
-**Objective**: [what was built/fixed]
-**Explore**: [what was discovered]
-**Plan**: [what was the approach]
-**Implement**: [what was changed, files and commits]
-**Verify**: [test results, lint output, build status]
-**Manually QA**: [real-surface evidence: CLI output, HTTP responses, browser screenshots]
-**Reconciliation**: [all tasks: completed/blocked/removed]
+status: complete
+task_id: <task>
+execution_revision: <sha256>
+criteria: <criterion PASS plus artifact refs; runtime criteria include entrypoint and before/after state>
+changed_paths: <task delta only>
+artifact_refs: <paths>
 ```
 
 When blocked:

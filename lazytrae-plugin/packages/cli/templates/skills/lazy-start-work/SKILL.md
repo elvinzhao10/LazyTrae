@@ -57,14 +57,11 @@ Write `.lazytrae/state/boulder.json` before implementation starts:
 
 1. Read the full plan. Find the first unchecked top-level checkbox.
 2. Classify the checkbox tier: LIGHT (narrow change inside existing layers) or HEAVY (new module, auth, external integration, DB schema, concurrency, cross-domain refactor).
-3. **DELEGATE EVERYTHING.** Use Trae Subagents to dispatch implementation. NEVER implement yourself.
-4. Each sub-task must include:
-   - Goal and exact files/directories in scope.
-   - A failing-first proof (test or Manual-QA scenario) captured RED before production changes.
-   - Implementation constraints from the plan.
-   - Automated verification commands.
-   - One Manual-QA channel with exact tool and invocation.
-   - Adversarial QA classes that apply.
+3. Capture `git status --short` and the state of every owned path without mutation. Store only this pre-task provenance, not file contents.
+4. Convert safe plan checks to argv, validate them once, and record `commandValidation`. Reject shell operators, mutating Git/dependency commands, remote actions, and approval-gated commands.
+5. **DELEGATE EVERYTHING.** Use Trae Subagents to dispatch implementation. NEVER implement yourself.
+6. Dispatch the fixed execution contract plus only the task delta and artifact references: task id/revision, criterion ids, owned paths, validated command argv, RED/QA scenarios, changed constraints, and evidence destinations. Reference the plan and prior artifacts by path; do not paste the full plan, repository tour, role description, or unchanged policy.
+7. Require a compact terminal report with task id, execution revision, per-criterion PASS plus artifact refs, and a real entrypoint/state transition for every runtime criterion. Recover a lost conversational result only from that complete task/revision/criterion-bound report.
 
 ### Phase 4: Verify and Record Evidence
 
@@ -93,7 +90,7 @@ When all top-level checkboxes are complete:
 2. Complete the **Global Review and Debugging Gate**:
    - Invoke `review-work` with the final diff, changed files, and verification evidence.
    - Run a debugging-oriented runtime audit (at least three plausible failure hypotheses).
-   - If any review lane fails, fix and rerun.
+   - Fix failures and rerun only lanes whose prior result is FAIL, MISSING, STALE, or whose inputs changed. Preserve unaffected PASS receipts; all five current lanes must be PASS before completion.
 3. Remove or mark the Boulder work as completed.
 4. Print an `ORCHESTRATION COMPLETE` block.
 

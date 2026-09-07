@@ -34,6 +34,28 @@ the package or that the feature works. `load-check` and `doctor` describe local
 package readiness and health only; the selected host still needs the observation
 in [Host routes](reference/host-routes.md).
 
+The same boundary applies to v1.2.2 adaptive handoffs: a native current-task
+capsule can be presented to a host, but the resulting record remains
+`presented-to-host` / `not-observed` until a real host session is observed.
+
+## Compact execution report and recovery
+
+For an active v1.2.2 loop goal, the execution record is deliberately bounded:
+it contains a fixed contract, task-specific delta, artifact references,
+read-only pre-task status/ownership provenance, and plan commands as validated
+safe argv. It does not repeat the full plan or capture caller file contents.
+
+The terminal report is recovery evidence only when its task id, execution
+revision, ordered criteria, and artifact references match the active goal.
+Every runtime criterion additionally records an entrypoint and a real
+before/after transition. A partial or stale conversational result is therefore
+diagnostic, not permission to complete a task. Review records track five lanes
+(goal, QA, code, security, context): retain a current PASS, rerun only FAIL,
+MISSING, STALE, or input-affected lanes, and require all five current PASS
+results before completion. A stale `active_goal_id` fails checkpointing before
+state mutation, and secret-bearing context free text is redacted before
+presentation.
+
 ## Enforced completion paths
 
 Use `lazytrae verify --must-pass` when the task needs the CLI hard gate. The

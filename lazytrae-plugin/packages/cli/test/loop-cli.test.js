@@ -2,13 +2,16 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
+const { executionRevision } = require('../src/lib/harness-execution-context');
 const {
   BAD_QUALITY_GATE_PATH,
   OLD_QUALITY_GATE_PATH,
   QUALITY_GATE_PATH,
   makeLoopFixture,
+  makeCanonicalQualityGate,
   readLoopState,
   runCli,
+  writeCanonicalQualityGate,
 } = require('./test-helpers');
 
 test('loop CLI completes its goal without forging canonical completion authority', () => {
@@ -73,6 +76,7 @@ test('loop checkpoint retains the active goal as checkpoint provenance', () => {
   const goal = structuredClone(state.goals[0]);
   goal.id = 'goal-2';
   goal.successCriteria[0].id = 'goal-2-criterion';
+  goal.executionRevision = executionRevision(goal);
   state.goals.push(goal);
   fs.writeFileSync(statePath, JSON.stringify(state, null, 2) + '\n');
 
@@ -83,9 +87,30 @@ test('loop checkpoint retains the active goal as checkpoint provenance', () => {
   readyForCheckpoint.goals[1].successCriteria[0].status = 'pass';
   readyForCheckpoint.active_goal_id = 'goal-2';
   fs.writeFileSync(statePath, JSON.stringify(readyForCheckpoint, null, 2) + '\n');
+  writeCanonicalQualityGate(fixture, QUALITY_GATE_PATH, makeCanonicalQualityGate(readyForCheckpoint.goals[1]));
 
   assert.equal(runCli(['loop', 'checkpoint', '--quality-gate-json', QUALITY_GATE_PATH], { cwd: fixture }).status, 0);
   assert.equal(readLoopState(fixture).checkpoints.at(-1).goal_id, 'goal-2');
+});
+
+test('loop checkpoint rejects a stale active goal identity without mutating state', () => {
+  // Given
+  const fixture = makeLoopFixture('lazytrae-loop-stale-active-goal-');
+  assert.equal(runCli(['loop', 'create-goals', '--brief', '.lazytrae/evidence/brief.md', '--goal-id', 'goal-1', '--criterion-id', 'crit-1'], { cwd: fixture }).status, 0);
+  assert.equal(runCli(['loop', 'complete-goals'], { cwd: fixture }).status, 0);
+  assert.equal(runCli(['loop', 'record-evidence', 'goal-1', 'crit-1', '.lazytrae/evidence/proof.txt'], { cwd: fixture }).status, 0);
+  const statePath = path.join(fixture, '.lazytrae', 'state', 'active-loop.json');
+  const state = readLoopState(fixture);
+  state.active_goal_id = 'deleted-goal';
+  fs.writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`);
+  writeCanonicalQualityGate(fixture, QUALITY_GATE_PATH, makeCanonicalQualityGate(state.goals[0]));
+  const before = fs.readFileSync(statePath);
+  // When
+  const result = runCli(['loop', 'checkpoint', '--quality-gate-json', QUALITY_GATE_PATH], { cwd: fixture });
+  // Then
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /active_goal_id.*deleted-goal/);
+  assert.deepEqual(fs.readFileSync(statePath), before);
 });
 
 test('loop steer supports audit-only annotate_ledger with evidence and rationale', () => {

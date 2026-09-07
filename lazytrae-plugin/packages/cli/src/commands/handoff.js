@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { formatCompletionStatus, getCompletionStatus } = require('../lib/completion-gates');
+const { deriveContextCapsule } = require('../lib/context-capsule');
+const { redactText } = require('../mcp/redaction');
 
 function detectRepoRoot() {
   let dir = process.cwd();
@@ -19,6 +21,15 @@ function safeReadJSON(filePath) {
   } catch (e) {
     return null;
   }
+}
+
+function projectTask(task) {
+  if (!task) return null;
+  return {
+    id: redactText(typeof task.id === 'string' ? task.id : ''),
+    description: redactText(typeof task.description === 'string' ? task.description : ''),
+    status: redactText(typeof task.status === 'string' ? task.status : ''),
+  };
 }
 
 function run(args) {
@@ -46,6 +57,7 @@ Options:
     ? fs.readdirSync(evidenceDir).filter(f => f.endsWith('.md'))
     : [];
   const completionGate = getCompletionStatus(repoRoot);
+  const context = deriveContextCapsule({ boulder, loop, sessions });
 
   // Determine active work
   let activeWork = null;
@@ -70,16 +82,18 @@ Options:
         ? `${activeWork.tasks.filter(t => t.status === 'complete').length}/${activeWork.tasks.length}`
         : 'N/A',
       currentTask: activeWork
-        ? (activeWork.tasks.find(t => t.status === 'in_progress') || null)
+        ? projectTask(activeWork.tasks.find(t => t.status === 'in_progress'))
         : null,
       activeLoop,
       loopIteration: loop ? `${loop.iteration || 0}/${loop.max_iterations || 500}` : 'N/A',
     },
     evidenceProduced: evidenceFiles.map(f => `.lazytrae/evidence/${f}`),
     completionGate,
+    contextCapsule: context.capsule,
+    contextStatus: context.status,
     remainingGaps: [],
     blockers: [],
-    nextPrompt: '',
+    nextPrompt: context.capsule ? JSON.stringify(context.capsule) : '',
   };
 
   if (activeWork) {
@@ -102,12 +116,14 @@ Options:
   }
 
   if (asJson) {
-    console.log(JSON.stringify(handoff, null, 2));
+    console.log(JSON.stringify(handoff, (_key, value) => (
+      typeof value === 'string' ? redactText(value) : value
+    ), 2));
     return;
   }
 
   // Output as markdown
-  console.log(`# Session Handoff
+  console.log(redactText(`# Session Handoff
 
 ## Handoff Summary
 
@@ -160,7 +176,7 @@ ${handoff.blockers.length > 0
 \`\`\`
 ${handoff.nextPrompt || '(paste the next prompt to continue)'}
 \`\`\`
-`);
+`));
 }
 
 module.exports = { run };

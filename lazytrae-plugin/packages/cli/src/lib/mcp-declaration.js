@@ -193,6 +193,12 @@ function updateMcpDeclaration(repoRoot, templatePath, destinationPath) {
   return result;
 }
 
+function preflightMcpDeclaration(repoRoot, templatePath, destinationPath) {
+  const update = plannedUpdate(repoRoot, templatePath, destinationPath);
+  if (update.status === 'preserved_modified') throw new McpDeclarationError(update.detail);
+  return update.content === update.file.content ? 'unchanged' : 'writable';
+}
+
 function mergeMcpTemplate(repoRoot, templatePath, destinationPath) {
   const result = updateMcpDeclaration(repoRoot, templatePath, destinationPath);
   if (result.status === 'updated') return true;
@@ -236,6 +242,7 @@ function removeManagedMcpDeclaration(repoRoot, templatePath, destinationPath) {
 module.exports = {
   McpDeclarationError,
   mergeMcpTemplate,
+  preflightMcpDeclaration,
   removeManagedMcpDeclaration,
   updateMcpDeclaration,
 };

@@ -1,15 +1,10 @@
 'use strict';
 
-const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RELEASE_VERSION = '1.2.1';
-const PREVIOUS_VERSION = '1.2.0';
-const HISTORICAL_DIGESTS = {
-  'RELEASE_NOTES-v1.1.0.md': '1b0a39ed74b5caec056391e9ed083b5716d9b0110bf05b63127c26639725c5a7',
-  'RELEASE_NOTES-v1.2.0.md': 'b7de8ba88255068cb9f987783f6210af0d96f747d69c792d8313bac6f3f2a41e',
-};
+const RELEASE_VERSION = '1.2.2';
+const PREVIOUS_VERSION = '1.2.1';
 const VERSION_JSON_PATHS = [
   ['lazytrae-plugin/packages/cli/package.json', ['version']],
   ['lazytrae-plugin/packages/cli/package-lock.json', ['version']],
@@ -48,7 +43,8 @@ function nestedValue(value, keys) {
 function walk(root, directory = root) {
   const files = [];
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    if (entry.name === '.git' || entry.name === 'node_modules') continue;
+    if (entry.name === '.git' || entry.name === 'node_modules'
+      || (directory === root && ['.lazytrae', '.omo', '.trae'].includes(entry.name))) continue;
     const absolute = path.join(directory, entry.name);
     if (entry.isDirectory()) files.push(...walk(root, absolute));
     else if (entry.isFile()) files.push(path.relative(root, absolute).split(path.sep).join('/'));
@@ -57,10 +53,8 @@ function walk(root, directory = root) {
 }
 
 function previousVersionClassification(relativePath, line) {
-  if (relativePath === 'RELEASE_NOTES-v1.2.0.md' || relativePath.startsWith('docs/v1.2.0-')) return 'historical-release-document';
+  if (relativePath === 'RELEASE_NOTES.md' || relativePath.startsWith('docs/v1.2.0-')) return 'historical-release-document';
   if (relativePath === 'CHANGELOG.md') return 'historical-release-history';
-  if (relativePath === 'RELEASE_NOTES-v1.2.1.md') return 'documented-migration-boundary';
-  if (relativePath === '.product-naming-allowlist.json') return 'historical-naming-allowlist';
   if (relativePath.includes('/contracts/fixtures/') || relativePath.includes('/test/fixtures/')) return 'historical-or-adversarial-fixture';
   if (relativePath.includes('paired-candidate-contract.v1') || relativePath.endsWith('validate-paired-candidate.js')) return 'schema-independent-contract-version';
   if (relativePath.endsWith('contracts/tests/paired-candidate-contract.test.js') || relativePath.endsWith('contracts/tests/completion-cost-contract.test.js')) return 'schema-independent-contract-test';
@@ -88,8 +82,8 @@ function classify(root) {
   const runtimeVersion = require(path.join(root, 'lazytrae-plugin/packages/cli/src/lib/version.js')).CURRENT_VERSION;
   if (runtimeVersion !== RELEASE_VERSION) failures.push(`PACKAGE_RUNTIME_MISMATCH runtime expected ${RELEASE_VERSION}, got ${runtimeVersion}`);
 
-  const notesPath = path.join(root, `RELEASE_NOTES-v${RELEASE_VERSION}.md`);
-  if (!fs.existsSync(notesPath)) failures.push(`MISSING_RELEASE_NOTE RELEASE_NOTES-v${RELEASE_VERSION}.md`);
+  const notesPath = path.join(root, 'RELEASE_NOTES.md');
+  if (!fs.existsSync(notesPath)) failures.push('MISSING_RELEASE_NOTE RELEASE_NOTES.md');
   else {
     const notes = fs.readFileSync(notesPath, 'utf8');
     for (const section of REQUIRED_RELEASE_NOTE_SECTIONS) {
@@ -97,10 +91,8 @@ function classify(root) {
     }
   }
 
-  for (const [relativePath, expected] of Object.entries(HISTORICAL_DIGESTS)) {
-    const actual = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, relativePath))).digest('hex');
-    if (actual !== expected) failures.push(`CHANGED_HISTORICAL_FIXTURE ${relativePath}`);
-  }
+  const standaloneNotes = fs.readdirSync(root).filter(name => /^RELEASE_NOTES-v.*\.md$/.test(name));
+  if (standaloneNotes.length) failures.push(`SUPERSEDED_RELEASE_NOTES ${standaloneNotes.join(',')}`);
 
   for (const relativePath of walk(root)) {
     let contents;

@@ -6,7 +6,7 @@ LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 **TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-The current stable release is [v1.2.1](https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.2.1).
+Version v1.2.2 is prepared for publication; it is not a stable release until the tag and release artifact are published.
 
 ## Efficiency improvements since v1.2.0
 
@@ -19,10 +19,11 @@ The current stable release is [v1.2.1](https://github.com/elvinzhao10/LazyTrae/r
 - Redacted cost/outcome records make invocation count, reruns, rework, and
   evidence volume visible. Unavailable timing or token data remains explicit
   rather than being estimated.
-- Pull requests now run the publication, package, standalone MCP, product-name,
-  and workflow safety gates, while a weekly compatibility job checks the
-  supported Node.js range and dependency freshness without weakening release
-  verification.
+- Pull requests run the publication, package, standalone MCP, and workflow
+  safety gates. Version and release-documentation consistency is covered by
+  the existing CLI source/package and publication suites. A weekly compatibility
+  job checks the supported Node.js range and dependency freshness without
+  weakening release verification.
 - Interrupting optional-provider startup now forwards SIGINT immediately and
   waits for the child to exit, avoiding an unnecessary timeout delay.
 
@@ -32,7 +33,7 @@ You do not need to work through the technical setup alone. Open an AI coding
 assistant in your project and paste this:
 
 > Help me install LazyTrae from https://github.com/elvinzhao10/LazyTrae for
-> this project. Use the stable v1.2.1 route. Run safe package checks first,
+> this project. Use the prepared v1.2.2 package route. Run safe package checks first,
 > explain each step plainly, and ask me before changing host settings, adding
 > an MCP connector, or registering anything in Trae.
 
@@ -103,6 +104,31 @@ LazyTrae does not automate credentials, external services, or host
 registrations. It asks for approval before host-managed actions and keeps safe
 package checks separate from settings and connector changes.
 
+## v1.2.2 context and lifecycle safety
+
+Automatic selection reads the native current task, loop, and session state; it
+does not infer proprietary host execution. A fully matching identity can be
+carried in a bounded context capsule for a real handoff or recovery, while
+missing or mismatched state is rejected. The measured representative capsule is
+1,076 bytes versus a 7,227-byte native preimage (85.11% smaller). This is a
+same-packet measurement only—not a token, worker, or host-performance claim.
+
+Host presentation stays advisory: LazyTrae records `presented-to-host` and
+`not-observed` rather than claiming a Trae UI executed it. `init` and `sync`
+preflight managed conflicts, promote receipt-owned assets transactionally, and
+preserve caller state, evidence, modified, unknown, and linked files.
+
+Execution onboarding and review templates now send a compact fixed contract
+plus only the task delta and artifact paths. They first capture read-only
+status/ownership provenance and validate each safe plan check as argv once;
+shell operators, mutating/dependency/remote commands, and approval-gated
+actions are rejected. A recoverable result must match the active task,
+execution revision, and every criterion; runtime criteria also prove a real
+entrypoint transition. Passing review lanes are preserved, while only failed,
+missing, stale, or input-affected lanes rerun; all five lanes still require
+PASS. Context capsules redact secret-bearing free text, and a stale active goal
+is rejected before checkpoint state can change.
+
 ## Package inventory
 
 | Surface | Count | Role |
@@ -133,7 +159,7 @@ runtime.
 - [Install and verify a host](docs/03-install-and-host-verification.md)
 - [Historical v1.2.0 supported route](docs/v1.2.0-supported-route.md)
 - [Historical v1.2.0 migration guide](docs/v1.2.0-migration-guide.md)
-- [v1.2.1 release notes](RELEASE_NOTES-v1.2.1.md)
+- [v1.2.2 release notes](RELEASE_NOTES.md)
 - [Documentation index](docs/README.md)
 
 ## License

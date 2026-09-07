@@ -2,6 +2,12 @@
 
 LazyTrae CLI — Trae-native workflow installer and runtime.
 
+This v1.2.2 package keeps automatic selection native and host handling
+advisory: a complete current task/loop/session identity may form a bounded
+context capsule, but `presented-to-host` remains `not-observed` until a real
+Trae session is observed. Init and sync preflight managed conflicts and retain
+caller-owned or modified bytes.
+
 This CLI belongs to the LazyTrae learning project. It is
 primarily inspired by LazyCodex. Its package-local [NOTICE](NOTICE) records
 the LazyCodex and OmO upstream attribution; it is an independent implementation
@@ -118,7 +124,7 @@ Context7 and `grep_app` are disabled by default. `lazytrae tooling enable contex
 
 ## Onboard
 
-Open or link the durable `v1.0.3` release in the selected Trae host, give the agent
+Open or link the durable `v1.2.2` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The setup guide
 asks for TraeCode, TraeWork, or TraeCode CLI and uses the stable durable
 launcher, never PATH/global lookup:
@@ -145,6 +151,24 @@ it into Work's **Settings → MCP** or the selected CLI build's
 documented/manual MCP settings flow. No public universal MCP registration
 command is assumed. The supplied QA could not access TraeCode CLI, so its live-host
 route remains explicitly unverified.
+
+## Compact execution evidence
+
+The installed workflow templates use a short fixed execution contract plus a
+task-specific delta and artifact references. Before work, capture
+`git status --short` and owned-path state read-only; convert plan checks to
+safe argv and validate each one time. Shell operators, mutating Git or
+dependency commands, remote actions, and approval-gated commands are not safe
+plan checks.
+
+For a completion report, the active task id, execution revision, every
+criterion, and each artifact reference must match. A criterion marked runtime
+also records an entrypoint and a real before/after state transition. A lost
+conversational result is recoverable only from that complete report. Review
+retains unaffected PASS results, reruns only failed/missing/stale/input-affected
+lanes, and still requires current PASS from goal, QA, code, security, and
+context lanes. Context projections redact secret-bearing free text; a stale
+`active_goal_id` is rejected before checkpoint mutation.
 
 This will:
 - Detect repo root (finds `.git`)

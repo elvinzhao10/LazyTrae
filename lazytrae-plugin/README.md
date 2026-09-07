@@ -1,6 +1,6 @@
 # LazyTrae plugin
 
-## Durable v1.2.1 installation
+## Durable v1.2.2 installation
 
 **Node.js LTS 20 or newer** and **Git** are required. Run `lifecycle onboard`
 only from `https://github.com/elvinzhao10/LazyTrae.git`, then use
@@ -49,7 +49,7 @@ projects. Keep it self-contained and run the CLI test suite after changes.
 
 ## Install, verify, and remove
 
-Bootstrap v1.2.1 once from a verified official source checkout, then use the
+Bootstrap v1.2.2 once from a verified official source checkout, then use the
 durable launcher rather than treating that checkout as the installed runtime:
 
 ```bash
@@ -95,6 +95,22 @@ read-only LSP bridge may be selected for a task without changing host or
 project configuration. CodeGraph and remote providers remain explicit optional
 lifecycles; onboarding, doctor, and InitDeep do not enable them.
 
+Adaptive selection reads native current task/loop/session state and produces a
+capsule only for a complete matching identity. Host presentation remains
+advisory (`presented-to-host` / `not-observed`), so the package does not claim
+proprietary Trae execution. `init` and `sync` preflight managed conflicts and
+transactionally promote only receipt-owned assets, preserving caller state,
+evidence, modified, unknown, and linked bytes.
+
+The shipped execution templates keep onboarding and review handoffs compact:
+they record read-only pre-task provenance, validate the planned safe argv checks
+once, and reference the task delta and evidence instead of copying full plans.
+Completion recovery requires the exact task/revision/criterion-bound terminal
+report; runtime criteria include a real transition. The five review lanes stay
+mandatory, but only failed, missing, stale, or input-affected lanes rerun.
+Context capsule free text is redacted, and a stale active goal cannot produce a
+checkpoint.
+
 Remove only receipt-owned package assets through the durable launcher. Start
 with the non-mutating lifecycle plan, then confirm only the exact product root:
 
@@ -131,9 +147,10 @@ path. Helper modules in `test/` are never discovered as tests.
 
 Risk-based `verify --json` reports an in-memory monotonic `elapsed_ms` total
 and an `elapsed_ms` value for every gate outcome. These timings are returned
-only in the report; they are not added to persisted telemetry. Checked-in
-efficiency baselines use `validation_elapsed_ms` so their validation metadata
-cannot be mistaken for a live verification-gate measurement.
+only in the report; they are not added to persisted telemetry. Validated
+cost/outcome telemetry stores completed records with its own `elapsed_ms`,
+invocation, evidence, rerun, rework, gate-outcome, and token-source fields;
+it does not establish a checked-in efficiency baseline.
 
 For contributors, keep source/template mirrors aligned, preserve receipt
 ownership boundaries, and run the CLI suite before changing package behavior.

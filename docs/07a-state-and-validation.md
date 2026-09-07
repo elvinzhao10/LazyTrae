@@ -29,6 +29,13 @@ stateDiagram-v2
 
 State establishes what the package recorded and validated. It does not establish that TraeCode, Work, or CLI loaded a skill, ran a hook, or connected MCP. Package readiness and state integrity are local facts; host integration remains a separate user observation.
 
+For execution-contract goals, the loop also stores an execution revision over
+the task boundary, criteria/runtime flags, owned paths, and planned argv.
+Checkpoint validation requires the exact active goal to exist; a stale
+`active_goal_id` is rejected before any quality-gate or loop-state mutation.
+The associated terminal report covers every criterion and artifact reference,
+and runtime criteria include a real state transition rather than a bare PASS.
+
 ## Artifact lifecycle at field level
 
 The state model is intentionally split by concern:

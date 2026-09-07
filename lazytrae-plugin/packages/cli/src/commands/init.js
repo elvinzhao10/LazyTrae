@@ -1,11 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const {
-  chmodRepoFile, copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile,
-} = require('../lib/templates');
+const { copyRepoDir, copyRepoFileIfChanged, ensureRepoDir, writeRepoFile } = require('../lib/templates');
 const { appendManagedGitignoreBlock } = require('../lib/managed-gitignore');
 const { localLauncherContext, materializeGuidance } = require('../lib/local-launcher');
-const { updateMcpDeclaration } = require('../lib/mcp-declaration');
+const { preflightMcpDeclaration, updateMcpDeclaration } = require('../lib/mcp-declaration');
 const { RECEIPT_PATH, installProjectAssets } = require('../lib/project-assets');
 const { ensureToolingState } = require('../lib/tooling-state');
 const { inspectGitMetadata } = require('../lib/git-repository');
@@ -72,6 +70,11 @@ Options:
     globalHooksPath,
     templatePath: path.join(templatesDir, 'hooks.json'),
   });
+  preflightMcpDeclaration(
+    repoRoot,
+    path.join(templatesDir, 'mcp.json'),
+    path.join(repoRoot, '.trae', 'mcp.json'),
+  );
 
   console.log(`LazyTrae init v${CURRENT_VERSION}`);
   console.log(`Repo root: ${repoRoot}\n`);
@@ -94,47 +97,16 @@ Options:
   const assetsResult = installProjectAssets(repoRoot);
   if (assetsResult.written.length > 0) summary.created.push(`${assetsResult.written.length} receipt-owned host asset files`);
   else summary.skipped.push('receipt-owned host assets (no changes)');
-  if (!assetReceiptExisted) summary.created.push(RECEIPT_PATH);
-
-  // Copy .trae/agents/
-  const agentsResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'agents'),
-    path.join(repoRoot, '.trae', 'agents'),
-    { overwrite: false },
-  );
-  if (agentsResult.created > 0) summary.created.push(`${agentsResult.created} agent files`);
-  if (agentsResult.updated > 0) summary.updated.push(`${agentsResult.updated} agent files`);
-
-  // Copy .trae/skills/
-  const skillsResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'skills'),
-    path.join(repoRoot, '.trae', 'skills'),
-    { overwrite: false },
-  );
-  if (skillsResult.created > 0) summary.created.push(`${skillsResult.created} skill files`);
-  if (skillsResult.updated > 0) summary.updated.push(`${skillsResult.updated} skill files`);
-
-  // Copy .trae/commands/
-  const commandsResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'commands'),
-    path.join(repoRoot, '.trae', 'commands'),
-    { overwrite: false },
-  );
-  if (commandsResult.created > 0) summary.created.push(`${commandsResult.created} command files`);
-  if (commandsResult.updated > 0) summary.updated.push(`${commandsResult.updated} command files`);
-  if (commandsResult.skipped > 0) {
-    summary.skipped.push(`refused to overwrite ${commandsResult.skipped} modified command files (preserved; resolve ownership before retrying)`);
-    process.exitCode = 1;
+  if (assetsResult.preserved.length > 0) {
+    const commands = assetsResult.preserved.filter((item) => item.startsWith('.trae/commands/'));
+    if (commands.length > 0) {
+      summary.skipped.push(`refused to overwrite ${commands.length} modified command files (preserved; resolve ownership before retrying)`);
+      process.exitCode = 1;
+    }
+    const others = assetsResult.preserved.length - commands.length;
+    if (others > 0) summary.skipped.push(`preserved ${others} caller-modified managed asset files`);
   }
-
-  // Copy .trae/rules/
-  const rulesResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'rules'),
-    path.join(repoRoot, '.trae', 'rules'),
-    { overwrite: false },
-  );
-  if (rulesResult.created > 0) summary.created.push(`${rulesResult.created} rule files`);
-  if (rulesResult.updated > 0) summary.updated.push(`${rulesResult.updated} rule files`);
+  if (!assetReceiptExisted) summary.created.push(RECEIPT_PATH);
 
   try {
     const mcpUpdate = updateMcpDeclaration(repoRoot,
@@ -176,26 +148,6 @@ Options:
     process.exitCode = 1;
   }
 
-  // Copy .trae/hooks/ shell scripts
-  const hooksResult = copyRepoDir(repoRoot,
-    path.join(templatesDir, 'hooks'),
-    path.join(repoRoot, '.trae', 'hooks'),
-    { overwrite: false },
-  );
-  if (hooksResult.created > 0) summary.created.push(`${hooksResult.created} hook scripts`);
-  if (hooksResult.updated > 0) summary.updated.push(`${hooksResult.updated} hook scripts`);
-  // Make hook scripts executable
-  const hooksDestDir = path.join(repoRoot, '.trae', 'hooks');
-  if (fs.existsSync(hooksDestDir)) {
-    const scripts = fs.readdirSync(hooksDestDir).filter(f => f.endsWith('.sh'));
-    for (const script of scripts) {
-      try {
-        const scriptPath = path.join(hooksDestDir, script);
-        chmodRepoFile(repoRoot, scriptPath, 0o755);
-      } catch (_) { /* ignore */ }
-    }
-  }
-
   // Copy .lazytrae/config.json
   if (!fs.existsSync(path.join(repoRoot, '.lazytrae', 'config.json'))) {
     copyRepoFileIfChanged(repoRoot,
@@ -210,7 +162,8 @@ Options:
   // Copy .lazytrae/schemas/
   const schemasResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'schemas'),
-    path.join(repoRoot, '.lazytrae', 'schemas')
+    path.join(repoRoot, '.lazytrae', 'schemas'),
+    { overwrite: false },
   );
   if (schemasResult.created > 0) summary.created.push(`${schemasResult.created} schema files`);
   if (schemasResult.updated > 0) summary.updated.push(`${schemasResult.updated} schema files`);
@@ -218,7 +171,8 @@ Options:
   // Copy .lazytrae/evidence/
   const evidenceResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'evidence'),
-    path.join(repoRoot, '.lazytrae', 'evidence')
+    path.join(repoRoot, '.lazytrae', 'evidence'),
+    { overwrite: false },
   );
   if (evidenceResult.created > 0) summary.created.push(`${evidenceResult.created} evidence files`);
   if (evidenceResult.updated > 0) summary.updated.push(`${evidenceResult.updated} evidence files`);
@@ -226,7 +180,8 @@ Options:
   // Copy .lazytrae/state/
   const stateResult = copyRepoDir(repoRoot,
     path.join(templatesDir, 'state'),
-    path.join(repoRoot, '.lazytrae', 'state')
+    path.join(repoRoot, '.lazytrae', 'state'),
+    { overwrite: false },
   );
   if (stateResult.created > 0) summary.created.push(`${stateResult.created} state files`);
   if (stateResult.updated > 0) summary.updated.push(`${stateResult.updated} state files`);

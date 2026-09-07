@@ -103,6 +103,35 @@ Package qualification and a persisted directive do not prove host execution.
 The emitted directive records `hostExecution: "not-observed"`; host readiness
 remains pending until the selected Trae surface is observed separately.
 
+## 4.1 v1.2.2 native context and advisory presentation
+
+The current context adapter reads LazyTrae-native current task, loop, and
+session state. It emits a bounded capsule only when work, run, task, request,
+revision, scope, and plan identity agree; incomplete or mismatched state has no
+reusable capsule. The representative explicit packet shrinks from 7,227 bytes
+to 1,076 bytes (85.11%). That is not a token, worker, or proprietary-host
+performance claim.
+
+`handoff --json`, `hook session-start`, and `hook recover-context` may present
+that capsule to a host. Their native host evidence remains
+`dispatch: presented-to-host` and `host_execution: not-observed`; host UI
+execution is not inferred. Lifecycle promotion preflights managed conflicts,
+uses the receipt-owned transactional writer, and preserves caller state,
+evidence, modified, unknown, and linked bytes.
+
+The v1.2.2 execution contract keeps worker dispatches and review reports
+compact: a fixed contract carries the task-specific delta, validated plan argv,
+and artifact references rather than duplicated plan prose. It captures
+pre-task status and owned-path provenance read-only. Terminal recovery accepts
+only a complete active task/revision/criterion-bound report; runtime criteria
+need an entrypoint and a real before/after transition. Review retains PASS lanes
+and reruns only failed, missing, stale, or input-affected lanes, but all five
+goal/QA/code/security/context lanes must be current PASS.
+
+Free-text capsule projections are redacted before presentation while structural
+identity stays exact. Loop checkpointing refuses a stale `active_goal_id` before
+mutating state; it never silently applies a report to a fallback goal.
+
 ## 5. Maintainer checks
 
 When the snapshot changes, update the runtime validator, contract fixture

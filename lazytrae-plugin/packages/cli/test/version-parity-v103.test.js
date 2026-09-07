@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 
-const RELEASE_VERSION = '1.2.1';
+const RELEASE_VERSION = '1.2.2';
 const REPOSITORY_ROOT = path.resolve(__dirname, '../../../..');
 
 const JSON_VERSION_PATHS = [
@@ -26,12 +26,14 @@ const JSON_VERSION_PATHS = [
   ['lazytrae-plugin/packages/cli/tooling/lsp/typescript/package.json', ['version']],
   ['lazytrae-plugin/packages/cli/tooling/lsp/typescript/package-lock.json', ['version']],
   ['lazytrae-plugin/packages/cli/tooling/lsp/typescript/package-lock.json', ['packages', '', 'version']],
+  ['lazytrae-plugin/packages/cli/contracts/lazyseries-trae-host-status.v2.schema.json', ['properties', 'version', 'const']],
 ];
 
 const RELEASE_TEXT_PATHS = [
   'AGENTS.md',
   'README.md',
   'CHANGELOG.md',
+  'RELEASE_NOTES.md',
   'lazytrae-plugin/packages/cli/AGENTS.md',
   'lazytrae-plugin/packages/cli/src/index.js',
   'lazytrae-plugin/packages/cli/src/commands/doctor.js',

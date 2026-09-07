@@ -162,7 +162,11 @@ function installAssets(options) {
     });
     writes.push({ target: location.absolute, bytes: nextReceipt, mode: 0o600 });
     transactionalWrite(writes, options.rename || fs.renameSync);
-    return { written: writes.slice(0, -1).map((item) => item.relative), receipt: location.absolute };
+    return {
+      written: writes.slice(0, -1).map((item) => item.relative),
+      preserved: plan.filter((item) => item.receipt.caller_modified).map((item) => item.relative),
+      receipt: location.absolute,
+    };
   } finally {
     fs.rmSync(compiled.treeRoot, { recursive: true, force: true });
   }
