@@ -87,6 +87,12 @@ Options:
   }
 
   addResult('MCP server running', 'WARN', `Started on demand by TraeCode, TraeWork, or TraeCode CLI via ${localCommand(repoRoot)} mcp`);
+  // Host opt-in gate (Trae): project-level MCP stays OFF until the user enables it in the
+  // IDE and confirms. This is a manual, host-owned action and is never auto-detected here,
+  // so it is surfaced as pending host proof rather than claimed readiness.
+  addResult('Trae project-level MCP opt-in', 'WARN',
+    'Pending host proof: Trae requires Settings → MCP → enable "Enable project-level MCP" → confirm the popup. '
+    + 'Init/config writes .trae/mcp.json only; host enablement is a manual IDE action, not auto-detected here.');
   const gitStatus = inspectGitMetadata(repoRoot);
   addResult('Git metadata', gitStatus.status, gitStatus.detail);
 
