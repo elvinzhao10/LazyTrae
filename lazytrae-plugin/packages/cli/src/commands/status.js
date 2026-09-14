@@ -152,8 +152,43 @@ function run(args) {
   else for (const profile of profiles) {
     console.log(`${profile.host}: PACKAGE ${profile.package_readiness.toUpperCase()}; HOST ${profile.host_readiness.toUpperCase()}`);
     console.log(`  assets=${profile.package_assets.status} generated=${profile.generated_assets.status} config=${profile.config.status} probe=${profile.probe.status} registration=${profile.registration.status} session=${profile.session.status} mcp=${profile.mcp.status} observation=${profile.observation.status} support=${profile.support}`);
+    const next = nextAction(profile);
+    if (next) console.log(`  next: ${next}`);
+    const detail = actionableDetail(profile);
+    if (detail) console.log(`  ${detail}`);
   }
   return profiles.some(profile => profile.package_readiness === 'failed') ? 1 : 0;
+}
+
+// T3: one concrete next action per host profile. A confirmed toggle is not a
+// successful connection, and package readiness is never host readiness.
+function nextAction(profile) {
+  if (profile.package_readiness === 'failed') {
+    const failed = [
+      ['assets', profile.package_assets], ['generated', profile.generated_assets], ['config', profile.config],
+    ].find(([, component]) => component.status === 'failed' || component.status === 'conflict');
+    if (failed) return `fix package ${failed[0]} (${failed[1].detail || failed[1].status}) — re-run init or restore the owned file, then re-run status`;
+  }
+  const mcpWaiting = profile.mcp.status === 'pending';
+  if (profile.host === 'trae-ide' && mcpWaiting) {
+    return 'Trae IDE: Settings → MCP → enable "Enable project-level MCP" → confirm the popup, then start the lazytrae MCP server (a confirmed toggle is not a connection)';
+  }
+  if (profile.host === 'trae-cli' && mcpWaiting) return 'register the lazytrae MCP server with TraeCode CLI, then re-run status with a live session';
+  if (profile.host === 'trae-work' && mcpWaiting) return 'register the lazytrae MCP server manually in TraeWork MCP settings, then re-run status';
+  if (profile.host_readiness === 'observed') return null;
+  return `provide current host evidence (fresh session + MCP connection) for ${profile.host}`;
+}
+
+// T3: name the failing component and its exact repair instruction when a detail exists.
+function actionableDetail(profile) {
+  const components = [
+    ['assets', profile.package_assets], ['generated', profile.generated_assets], ['config', profile.config],
+    ['probe', profile.probe], ['registration', profile.registration], ['session', profile.session],
+    ['mcp', profile.mcp], ['observation', profile.observation],
+  ];
+  const failing = components.filter(([, component]) => ['failed', 'conflict'].includes(component.status));
+  if (failing.length === 0) return null;
+  return failing.map(([name, component]) => `${name}: ${component.detail || component.status}`).join('; ');
 }
 
 module.exports = { buildStatusReport, run, validateStatusReport };

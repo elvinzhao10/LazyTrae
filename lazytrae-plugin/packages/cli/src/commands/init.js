@@ -129,6 +129,19 @@ Options:
         : 'declaration was not written';
       summary.skipped.push(`.trae/mcp.json (protected destination; ${declarationState}; ${manualHostAction})`);
     }
+
+    // Host opt-in gate (Trae): project-level MCP is OFF until the user enables it in the
+    // IDE. This tool writes the declaration only; it never toggles the host setting or
+    // starts the server, so it must not claim host readiness. Printed only when a valid
+    // declaration is on disk (updated/unchanged) — not for protected or conflict paths.
+    if (host === 'ide' && (mcpUpdate.status === 'updated' || mcpUpdate.status === 'unchanged')) {
+      console.log('\nMCP host opt-in required (Trae):');
+      console.log('  Project-level MCP is OFF by default. Enable it in Trae:');
+      console.log('    Settings → MCP → turn ON "Enable project-level MCP" → confirm the popup dialog.');
+      console.log('  Trust warning: only load .trae/mcp.json from a workspace whose files you trust;');
+      console.log('  untrusted workspace configs can run unexpected commands when the server starts.');
+      console.log('  This tool wrote the declaration only — it does not toggle the host setting or start the server.');
+    }
   } catch (e) {
     summary.skipped.push(`.trae/mcp.json (copy failed: ${e.message})`);
     process.exitCode = 1;

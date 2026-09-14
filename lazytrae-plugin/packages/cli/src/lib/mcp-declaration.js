@@ -41,6 +41,8 @@ class McpDeclarationError extends Error {
   }
 }
 
+const { McpPlatformValidationError, collectTraePlatformErrors, validateDeclarationForPlatform } = require('./mcp-platform');
+
 function sameJson(left, right) { return JSON.stringify(left) === JSON.stringify(right); }
 
 function templateConfiguration(repoRoot, templatePath) {
@@ -53,7 +55,6 @@ function templateConfiguration(repoRoot, templatePath) {
     },
   };
 }
-
 function readDestination(repoRoot, destinationPath) {
   let file;
   try {
@@ -81,7 +82,6 @@ function readDestination(repoRoot, destinationPath) {
   }
   return { file, config };
 }
-
 function isLegacyManagedCodeGraphServer(name, server) {
   return name === 'codegraph'
     && server
@@ -95,21 +95,17 @@ function isLegacyManagedCodeGraphServer(name, server) {
     && server.required === false
     && server.description === MANAGED_CODEGRAPH_DESCRIPTION;
 }
-
 function isManagedCodeGraphServer(name, server) {
   return name === MANAGED_CODEGRAPH_SERVER
     && isManagedLocalServer(server, 'codegraph')
     && server.description === MANAGED_CODEGRAPH_DESCRIPTION;
 }
-
 function isLegacyRemoteServer(name, server) {
   return Object.hasOwn(LEGACY_REMOTE_SERVERS, name) && sameJson(server, LEGACY_REMOTE_SERVERS[name]);
 }
-
 function isLegacyLocalServer(name, server) {
   return Object.hasOwn(LEGACY_LOCAL_SERVERS, name) && sameJson(server, LEGACY_LOCAL_SERVERS[name]);
 }
-
 function callerServers(repoRoot, existingServers, templateServers) {
   const legacyRemoteTemplate = sameJson(existingServers.context7_docs, LEGACY_REMOTE_SERVERS.context7_docs);
   return Object.fromEntries(Object.entries(existingServers).filter(([name, server]) => {
@@ -129,8 +125,7 @@ function callerServers(repoRoot, existingServers, templateServers) {
     return !(name === 'codegraph' && sameJson(server, LEGACY_CODEGRAPH_PLACEHOLDER));
   }));
 }
-
-function plannedUpdate(repoRoot, templatePath, destinationPath) {
+function planDeclarationUpdate(repoRoot, templatePath, destinationPath) {
   const template = templateConfiguration(repoRoot, templatePath);
   const codeGraph = managedCodeGraphServer(repoRoot);
   if (codeGraph) template.mcpServers[MANAGED_CODEGRAPH_SERVER] = codeGraph;
@@ -174,7 +169,14 @@ function plannedUpdate(repoRoot, templatePath, destinationPath) {
     previousLauncher: core.launcher,
   };
 }
-
+function plannedUpdate(repoRoot, templatePath, destinationPath) {
+  const update = planDeclarationUpdate(repoRoot, templatePath, destinationPath);
+  if (update.content !== undefined) {
+    const errors = validateDeclarationForPlatform(JSON.parse(update.content));
+    if (errors.length) throw new McpDeclarationError(errors.map(error => `${error.code}: ${error.message}`).join('\n'));
+  }
+  return update;
+}
 function updateMcpDeclaration(repoRoot, templatePath, destinationPath) {
   const update = plannedUpdate(repoRoot, templatePath, destinationPath);
   if (update.status) return { status: update.status, detail: update.detail };
@@ -192,20 +194,17 @@ function updateMcpDeclaration(repoRoot, templatePath, destinationPath) {
   if (update.previousLauncher !== undefined) result.previousLauncher = update.previousLauncher;
   return result;
 }
-
 function preflightMcpDeclaration(repoRoot, templatePath, destinationPath) {
   const update = plannedUpdate(repoRoot, templatePath, destinationPath);
   if (update.status === 'preserved_modified') throw new McpDeclarationError(update.detail);
   return update.content === update.file.content ? 'unchanged' : 'writable';
 }
-
 function mergeMcpTemplate(repoRoot, templatePath, destinationPath) {
   const result = updateMcpDeclaration(repoRoot, templatePath, destinationPath);
   if (result.status === 'updated') return true;
   if (result.status === 'unchanged') return false;
   throw new McpDeclarationError(result.detail || 'The managed .trae/mcp.json declaration is unavailable and was not changed.');
 }
-
 function removableManagedServer(repoRoot, name, server, templateServers) {
   if (name === 'lazytrae') return true;
   if (sameJson(server, templateServers[name])) return true;
@@ -214,7 +213,6 @@ function removableManagedServer(repoRoot, name, server, templateServers) {
   if (isLegacyRemoteServer(name, server) || isLegacyLocalServer(name, server)) return true;
   return name === 'codegraph' && sameJson(server, LEGACY_CODEGRAPH_PLACEHOLDER);
 }
-
 function removeManagedMcpDeclaration(repoRoot, templatePath, destinationPath) {
   const { file, config } = readDestination(repoRoot, destinationPath);
   if (!file.exists) return { status: 'absent' };
@@ -241,8 +239,11 @@ function removeManagedMcpDeclaration(repoRoot, templatePath, destinationPath) {
 
 module.exports = {
   McpDeclarationError,
+  McpPlatformValidationError,
+  collectTraePlatformErrors,
   mergeMcpTemplate,
   preflightMcpDeclaration,
   removeManagedMcpDeclaration,
   updateMcpDeclaration,
+  validateDeclarationForPlatform,
 };

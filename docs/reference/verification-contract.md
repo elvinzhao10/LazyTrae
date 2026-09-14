@@ -41,7 +41,7 @@ gate is separate. `lazytrae.mark_task_done` also requires existing non-empty
 evidence paths before it changes a task status. It does not itself execute
 tests or establish a host connection.
 
-For a loop goal that opts into the v1.2.2 execution contract, completion adds
+For a loop goal that opts into the v1.2.3 execution contract, completion adds
 an identity-bound terminal report: exact task id, execution revision, every
 criterion, and existing artifact references. Runtime criteria carry a real
 entrypoint plus a changed before/after state. Pre-task status/ownership capture

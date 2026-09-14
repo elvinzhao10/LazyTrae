@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { resolveRepoPath } = require('./path-boundary');
+const { validatePlanCheckboxes } = require('./plan-checkbox-parser');
 
 function isInside(parent, candidate) {
   const relative = path.relative(parent, candidate);
@@ -28,6 +29,8 @@ function validateActivePlan(repoRoot, activePlan) {
   if (!isInside(realPlansDir, resolved.path)) {
     return { valid: false, error: 'active plan must be a regular file inside .lazytrae/plans' };
   }
+  const error = validatePlanCheckboxes(fs.readFileSync(resolved.path, 'utf8'));
+  if (error) return { valid: false, error };
   return { valid: true, path: resolved.path };
 }
 

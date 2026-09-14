@@ -3,8 +3,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RELEASE_VERSION = '1.2.2';
-const PREVIOUS_VERSION = '1.2.1';
+const RELEASE_VERSION = '1.2.3';
+const PREVIOUS_VERSION = '1.2.2';
 const VERSION_JSON_PATHS = [
   ['lazytrae-plugin/packages/cli/package.json', ['version']],
   ['lazytrae-plugin/packages/cli/package-lock.json', ['version']],
@@ -53,7 +53,7 @@ function walk(root, directory = root) {
 }
 
 function previousVersionClassification(relativePath, line) {
-  if (relativePath === 'RELEASE_NOTES.md' || relativePath.startsWith('docs/v1.2.0-')) return 'historical-release-document';
+  if (relativePath === 'RELEASE_NOTES.md' || (relativePath.startsWith('docs/v1.2.') && relativePath !== 'docs/v1.2.3-supported-route.md')) return 'historical-release-document';
   if (relativePath === 'CHANGELOG.md') return 'historical-release-history';
   if (relativePath.includes('/contracts/fixtures/') || relativePath.includes('/test/fixtures/')) return 'historical-or-adversarial-fixture';
   if (relativePath.includes('paired-candidate-contract.v1') || relativePath.endsWith('validate-paired-candidate.js')) return 'schema-independent-contract-version';
@@ -68,7 +68,7 @@ function previousVersionClassification(relativePath, line) {
   if (relativePath.endsWith('automatic-tooling-contract.test.js')) return 'schema-independent-contract-test';
   if (/(?:^|\/)(?:test|tests)\//.test(relativePath) && /(previous|historical|fixture|wrong|from|upgrade|mutable|prior|stale)/i.test(line)) return 'historical-test-input';
   if (/\bcurrent\b.*\b(?:release|version)\b/i.test(line)) return 'current-version-drift';
-  if (/(upgrade|migrat|rollback|previous|historical|prior|old release|since v?1\.2\.0|from v?1\.2\.0|tag\/v1\.2\.0|release notes)/i.test(line)) return 'historical-migration-reference';
+  if (/(upgrade|migrat|rollback|previous|historical|prior|old release|since v?1\.2\.[0-9]|from v?1\.2\.[0-9]|tag\/v1\.2\.[0-9]|release notes)/i.test(line)) return 'historical-migration-reference';
   return null;
 }
 

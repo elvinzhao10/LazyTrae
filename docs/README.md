@@ -5,7 +5,7 @@ installation manual: each page names the executable boundary, the data it
 owns, and the evidence that constrains its behavior. Use the root
 [README](../README.md) for host directions.
 
-The current documentation release is [v1.2.2](../RELEASE_NOTES.md). Its
+The current documentation release is [v1.2.3](../RELEASE_NOTES.md). Its
 adaptive context guidance keeps native selection separate from advisory,
 unobserved host presentation.
 
@@ -30,7 +30,7 @@ The CLI is the control plane. Templates create managed project assets, schemas
 constrain state, and the MCP server offers a separate JSON-RPC surface. Host
 settings and live integration remain outside package ownership.
 
-## v1.2.2 execution-report boundary
+## v1.2.3 execution-report boundary
 
 Current onboarding and review templates do not repeat a full plan into every
 dispatch. They carry a fixed short contract plus a task-specific delta and
@@ -70,7 +70,7 @@ local package contracts, not a claim that a host executed a presentation.
 | [01 — Execution model](01-mental-model.md) | Why are instructions, templates, execution, state, and proof distinct layers? |
 | [02 — Request decomposition](02-first-task.md) | How does an outcome become acceptance criteria and a proof surface? |
 | [03 — Package delivery](03-install-and-host-verification.md) | What does `init` copy, and what remains a host observation? |
-| [Historical v1.2.0 supported route](v1.2.0-supported-route.md) | Which source branch, lifecycle commands, and host proof defined v1.2.0? |
+| [v1.2.3 supported route](v1.2.3-supported-route.md) | Which source branch, lifecycle commands, and host proof are current? |
 | [04 — Workflow playbooks](04-workflow-playbooks.md) | How do skills, commands, and agent roles encode proportional workflow policy? |
 | [05 — Evidence and completion](05-evidence-and-completion.md) | How are doctor, gates, statuses, and completion claims kept honest? |
 | [06 — Capabilities and approvals](06-capabilities-and-approvals.md) | How does local-first capability selection avoid persistent mutation? |
@@ -82,7 +82,6 @@ local package contracts, not a claim that a host executed a presentation.
 | [08 — Safe removal](08-safe-removal.md) | Why does removal stop at package-owned paths? |
 | [09 — Test and release verification](09-test-and-release-verification.md) | What does each release gate prove? |
 | [10 — Host capability matrix](10-host-capability-matrix.md) | Where do TraeCode, Work, and CLI intentionally diverge? |
-| [Historical v1.2.0 migration guide](v1.2.0-migration-guide.md) | How did v1.2.0 define native host boundaries, v2 evidence, profiles, probes, and scoped offboard? |
 
 The lookup tables in [reference](reference/) provide the concrete state
 artifacts, MCP inventory, verification vocabulary, and host routes used by

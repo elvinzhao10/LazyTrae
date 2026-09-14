@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { inspectCoreDeclaration } = require('./local-launcher');
+const { validateDeclarationForPlatform } = require('./mcp-platform');
 
 /**
  * Runs all .trae/ structural checks (rules, skills, commands, agents, hooks, mcp).
@@ -77,7 +78,7 @@ function checkTraeStructure(repoRoot) {
       results.push({ label: '.trae/hooks.json', status: 'FAIL', detail: `Invalid JSON: ${e.message}` });
     }
   } else {
-    results.push({ label: '.trae/hooks.json', status: 'WARN', detail: 'Hooks config for v1.2.2' });
+    results.push({ label: '.trae/hooks.json', status: 'WARN', detail: 'Hooks config for v1.2.3' });
   }
 
   // .trae/hooks/ — executability
@@ -125,16 +126,17 @@ function checkTraeStructure(repoRoot) {
     try {
       const config = JSON.parse(fs.readFileSync(mcpPath, 'utf-8'));
       const inspection = inspectCoreDeclaration(repoRoot, config);
+      const platformErrors = validateDeclarationForPlatform(config);
       results.push({
         label: '.trae/mcp.json',
-        status: inspection.ready ? 'PASS' : 'FAIL',
-        detail: inspection.detail,
+        status: inspection.ready && platformErrors.length === 0 ? 'PASS' : 'FAIL',
+        detail: [inspection.detail, ...platformErrors.map(error => `${error.code}: ${error.message}`)].filter(Boolean).join('\n'),
       });
     } catch (e) {
       results.push({ label: '.trae/mcp.json', status: 'FAIL', detail: `Invalid JSON: ${e.message}` });
     }
   } else {
-    results.push({ label: '.trae/mcp.json', status: 'WARN', detail: 'MCP config for v1.2.2' });
+    results.push({ label: '.trae/mcp.json', status: 'WARN', detail: 'MCP config for v1.2.3' });
   }
 
   return results;
