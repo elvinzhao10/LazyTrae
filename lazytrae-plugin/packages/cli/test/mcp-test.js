@@ -17,7 +17,7 @@ function makeRepoRoot() {
   fs.mkdirSync(path.join(root, '.lazytrae', 'state'), { recursive: true });
   fs.mkdirSync(path.join(root, '.lazytrae', 'plans'), { recursive: true });
   fs.mkdirSync(path.join(root, 'src'), { recursive: true });
-  fs.writeFileSync(path.join(root, '.lazytrae', 'plans', 'demo.md'), '# Demo plan\n');
+  fs.writeFileSync(path.join(root, '.lazytrae', 'plans', 'demo.md'), '# Demo plan\n## TODOs\n- [ ] T1: Demo task\n');
   fs.writeFileSync(path.join(root, 'README.md'), 'Fixture docs describe the fixtureMarker workflow.\n');
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ scripts: { test: 'node --test' } }) + '\n');
   fs.writeFileSync(path.join(root, 'src', 'fixture.js'), "const fs = require('fs');\nfunction fixtureMarker() { return fs.existsSync('.'); }\nmodule.exports = { fixtureMarker };\n");

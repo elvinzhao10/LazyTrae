@@ -63,7 +63,7 @@ function makeFixture(prefix = 'lazytrae-cli-test-') {
   fs.mkdirSync(path.join(root, '.git'));
   const init = runCli(['init'], { cwd: root });
   if (init.status !== 0) throw new Error(`Fixture init failed: ${init.stderr || init.stdout}`);
-  fs.writeFileSync(path.join(root, '.lazytrae', 'plans', 'demo.md'), '# Demo plan\n');
+  fs.writeFileSync(path.join(root, '.lazytrae', 'plans', 'demo.md'), '# Demo plan\n## TODOs\n- [ ] T1: Demo task\n');
   fs.mkdirSync(path.join(root, 'packages', 'mcp', 'src'), { recursive: true });
   fs.cpSync(MCP_SOURCE_ROOT, path.join(root, 'packages', 'mcp', 'src'), { recursive: true });
   fs.mkdirSync(path.join(root, 'packages', 'cli', 'src', 'lib'), { recursive: true });

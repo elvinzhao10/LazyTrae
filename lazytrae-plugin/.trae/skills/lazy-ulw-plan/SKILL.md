@@ -82,8 +82,8 @@ Wave 1 (no dependencies):
 |------|------------|--------|----------------------|
 | 1    | none       | 2, 3   | 4                    |
 
-## Todos
-- [ ] N. <Task title>
+## TODOs
+- [ ] T1: <Task title>
   What to do: <clear implementation steps>
   Must NOT do: <explicit exclusions>
   References: <file paths, line numbers, patterns to follow>
@@ -93,11 +93,23 @@ Wave 1 (no dependencies):
   - Scenario: <happy path> | Tool: <bash|curl|browser> | Steps: <exact> | Expected: <binary pass/fail>
   Commit: <YES|NO> | Message: `<type>(<scope>): <summary>` | Files: [<paths>]
 
-## Final verification wave
+## Final Verification Wave
 - [ ] F1. Plan compliance audit
 - [ ] F2. Code quality review
 - [ ] F3. Real manual QA
 - [ ] F4. Scope fidelity
+
+### Plan formatting rules (canonical)
+
+- The task section heading MUST be `## TODOs` (canonical). Legacy plans may use
+  `## Todos` — both are parsed; any other casing (e.g. `## todos`) is NOT
+  recognised and will make the plan parse as zero tasks (a hard error).
+- Each task checkbox MUST carry a canonical `T<n>:` id prefix, e.g.
+  `- [ ] T1: ...`. Legacy `T<n>.` and `A<n>.` id prefixes are also accepted. The
+  `Final Verification Wave` section may use id-less checkboxes.
+- The verification section heading MUST be `## Final Verification Wave`
+  (legacy lowercase `## Final verification wave` is also accepted by the parser).
+
 
 ## Commit strategy
 - Conventional Commits, atomic, one logical change per commit.

@@ -73,6 +73,9 @@ function handleGetNextTask(root) {
   const work = getActiveWork(root);
   if (!work) return { message: 'No active work.', next_task: null };
 
+  const activePlan = validateActivePlan(root, work.active_plan);
+  if (!activePlan.valid) return { error: 'INVALID_ACTIVE_PLAN', message: activePlan.error, next_task: null };
+
   const tasks = work.tasks || [];
   const blockers = work.blockers || [];
   const blkList = blockers.map(blk => ({ reason: blk.reason, task_id: blk.task_id || null }));
