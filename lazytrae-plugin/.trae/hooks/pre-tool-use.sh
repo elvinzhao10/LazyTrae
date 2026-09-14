@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.2.2 — PreToolUse hook
+# LazyTrae v1.2.3 — PreToolUse hook
 # Warns on write-before-read and destructive git commands.
 # Provide git-bash MCP guidance and ulw-loop goal-budget protection.
 # Always exits 0 — never blocks a session.
@@ -45,7 +45,7 @@ process.stdin.on('data',c=>d+=c);
 process.stdin.on('end',()=>{
   try{const j=JSON.parse(d);process.stdout.write(j.command||j.cmd||'')}catch(e){}
 });" 2>/dev/null || true)
-  if echo "$cmd" | grep -qiE '(push\s+(-f|--force)|reset\s+--hard|clean\s+-f|branch\s+-D|checkout\s+--\s|restore\s+\.)' 2>/dev/null; then
+  if echo "$cmd" | grep -qiE '(push[[:space:]]+(-f|--force)|reset[[:space:]]+--hard|clean[[:space:]]+-f|branch[[:space:]]+-D|checkout[[:space:]]+--[[:space:]]|restore[[:space:]]+\.)' 2>/dev/null; then
     echo "[LazyTrae] WARNING: Destructive git command detected: ${cmd}"
     echo "[LazyTrae] Verify this is intentional before proceeding."
   fi

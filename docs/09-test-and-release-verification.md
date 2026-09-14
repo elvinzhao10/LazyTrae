@@ -1,6 +1,6 @@
 # Test and release verification
 
-**Current documentation release: v1.2.2.** Release checks must distinguish a
+**Current documentation release: v1.2.3.** Release checks must distinguish a
 local generator/profile/probe result from a native host observation.
 
 LazyTrae uses layered evidence. A release check is useful only when its scope is explicit: a unit test does not prove a packed artifact, a packed artifact does not prove a host connection, and host observation does not rewrite package ownership.
@@ -47,7 +47,7 @@ Normal CI is self-contained: it does not require a sibling repository. Documenta
 
 The final host layer is intentionally manual. A selected Trae host must show asset discovery, any relevant hook behavior, and MCP connection before those facts are claimed. Current package evidence is verified on macOS only.
 
-For v1.2.2, archive QA also invokes installed `init`, `status`, `sync`, and
+For v1.2.3, archive QA also invokes installed `init`, `status`, `sync`, and
 adaptive/handoff surfaces. It confirms a complete native context capsule,
 preserved caller files on lifecycle paths, a deterministic archive checksum,
 and `presented-to-host` / `not-observed` host semantics. It does not claim a
@@ -115,5 +115,5 @@ mapping, snapshot, and explanation modules behave per the shared contract
 against the shared fixture set. They do **not** prove that a live TraeCode,
 TraeWork, or TraeCode CLI session observed adaptive selection, the explanation
 surface, failure escalation, or continuation. Live-host observation for W5.3
-and W5.4 is **PENDING** — see the known gaps in
-[`docs/v1.0.3-adaptive-harness-contract.md`](v1.0.3-adaptive-harness-contract.md).
+and W5.4 is **PENDING** — record it per host in the current
+[host capability matrix](10-host-capability-matrix.md).

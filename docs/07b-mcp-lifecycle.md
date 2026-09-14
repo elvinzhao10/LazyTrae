@@ -56,3 +56,15 @@ It does not provision providers, register itself with a host, or store
 credentials. That small surface is what makes a copied package testable: the
 declaration is static, process lifetime is host-owned, and mutable behavior
 remains behind `.lazytrae` path and receipt boundaries.
+
+## Host opt-in gate (Trae)
+
+Project-level MCP is OFF by default. Verified rule
+(https://docs.trae.ai/ide/add-mcp-servers, retrieved 2026-09-14): enable it via
+**Settings → MCP → turn ON "Enable project-level MCP" → confirm the popup dialog**.
+Trae also shows a trust warning: only load `.trae/mcp.json` from a workspace whose
+files you trust, since untrusted workspace configs can run unexpected commands when
+the server starts. `init`/`sync` write the declaration only; they never toggle the
+host setting or start the server, so they must not claim host readiness. The doctor
+surfaces this opt-in as *pending host proof* — it is a manual IDE action and is not
+auto-detected.

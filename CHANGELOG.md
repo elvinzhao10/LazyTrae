@@ -3,6 +3,36 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.3] - 2026-09-14
+
+### Changed
+
+- MCP declarations are validated before use. Every declared server must use a
+  space-free `command`; a violation reports a typed error naming the server and
+  the remediation. Only `${workspaceFolder}` is expanded, and an unsupported
+  variable is reported instead of passed through.
+- `init` presents the project-level MCP opt-in as a host setting and states that
+  enabling the toggle is not an observation that a server is running.
+- `status` prints the remaining step per host and names the failing component,
+  keeping package readiness and host readiness separate.
+- Plan parsing accepts `## TODOs` and the legacy `## Todos` heading. A non-empty
+  plan that parses zero tasks fails with an actionable error, and missing or
+  duplicate task identifiers are reported rather than guessed.
+- Shipped hook patterns use POSIX character classes instead of `\s`, so a host
+  command shim without extended-class support cannot silently disable the
+  destructive-command guard.
+- Local-first onboarding is unchanged: the durable lifecycle launcher remains the
+  only supported promotion path, and generated candidates stay inert until a
+  selected build is observed.
+- Host readiness reporting is unchanged: package checks, generated files, and a
+  probe remain package evidence only, and no host is claimed ready without
+  current-session observation.
+
+### Notes
+
+- Workflow and decision-memory features are deferred to v1.3.0 and are not part
+  of this patch.
+
 ## [1.2.2] - 2026-09-05
 
 ### Changed
