@@ -18,7 +18,16 @@ class McpPlatformValidationError extends Error {
 function isTraeHttpTransport(server) {
   if (!server || typeof server !== 'object') return false;
   if (TRAE_HTTP_TYPES.has(server.type)) return true;
-  return 'url' in server;
+  return server.type === undefined && 'url' in server;
+}
+
+function isLaunchString(value) {
+  return typeof value === 'string' && !value.includes('\0');
+}
+
+function isStringMap(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    && Object.entries(value).every(([key, item]) => isLaunchString(key) && isLaunchString(item));
 }
 
 function collectTraePlatformErrors(declaration) {
@@ -33,6 +42,15 @@ function collectTraePlatformErrors(declaration) {
       continue;
     }
     if (server.disabled === true) continue;
+    const invalid = (code, field, requirement) => errors.push({
+      code, server: name, message: `mcpServers.${name}.${field} ${requirement}`,
+    });
+    if (server.type !== undefined && !['stdio', 'http', 'sse'].includes(server.type)) {
+      invalid('MCP_TRANSPORT_INVALID', 'type', 'must be stdio, http, or sse.');
+    }
+    if (server.args !== undefined && (!Array.isArray(server.args) || !server.args.every(isLaunchString))) {
+      invalid('MCP_ARGS_INVALID', 'args', 'must be an array of strings without NUL characters.');
+    }
 
     const scanVariables = (value) => {
       if (typeof value !== 'string') return;
@@ -44,7 +62,7 @@ function collectTraePlatformErrors(declaration) {
           errors.push({
             code: 'MCP_UNKNOWN_VARIABLE',
             server: name,
-            message: `mcpServers.${name} references unsupported variable "\${${variable}}". `
+            message: `mcpServers.${name} references an unsupported variable. `
               + 'Trae expands only ${workspaceFolder} (substituted with the project root at server start).',
           });
         }
@@ -52,11 +70,14 @@ function collectTraePlatformErrors(declaration) {
     };
 
     for (const field of ['env', 'headers']) {
-      if (server[field] && typeof server[field] === 'object') Object.values(server[field]).forEach(scanVariables);
+      if (server[field] === undefined) continue;
+      if (!isStringMap(server[field])) {
+        invalid(`MCP_${field.toUpperCase()}_INVALID`, field, 'must be an object of strings without NUL characters.');
+      } else Object.values(server[field]).forEach(scanVariables);
     }
     if (isTraeHttpTransport(server)) {
       const url = server.url;
-      if (typeof url !== 'string' || url.trim() === '') {
+      if (!isLaunchString(url) || url.trim() === '') {
         errors.push({
           code: 'MCP_HTTP_URL_REQUIRED',
           server: name,
@@ -78,11 +99,15 @@ function collectTraePlatformErrors(declaration) {
       });
       continue;
     }
-    if (typeof command === 'string' && /\s/.test(command)) {
+    if (!isLaunchString(command)) {
+      invalid('MCP_COMMAND_INVALID', 'command', 'must not contain NUL characters.');
+      continue;
+    }
+    if (/\s/.test(command)) {
       errors.push({
         code: 'MCP_COMMAND_NOT_SPACE_FREE',
         server: name,
-        message: `mcpServers.${name}.command must not contain spaces (${command}); Trae parses the command `
+        message: `mcpServers.${name}.command must not contain spaces; Trae parses the command `
           + 'as one executable token and fails otherwise. Remediation: use a single executable token and '
           + 'move spaced values into args.',
       });

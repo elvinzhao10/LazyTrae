@@ -103,3 +103,39 @@ test('invalid command types and unresolved env/header placeholders fail', () => 
     { url: 'https://example.test/mcp', headers: { Authorization: 'Bearer ${SECRET}' } },
   ]) assert.ok(findError(validateDeclarationForPlatform({ mcpServers: { bad: server } }), 'MCP_UNKNOWN_VARIABLE'));
 });
+
+test('launch field schemas reject malformed values without disclosing values', () => {
+  for (const [server, code] of [
+    [{ command: 'node\0' }, 'MCP_COMMAND_INVALID'],
+    [{ command: 'node', args: 'secret-value' }, 'MCP_ARGS_INVALID'],
+    [{ command: 'node', args: [42] }, 'MCP_ARGS_INVALID'],
+    [{ command: 'node', args: ['secret-value\0'] }, 'MCP_ARGS_INVALID'],
+    [{ command: 'node', env: [] }, 'MCP_ENV_INVALID'],
+    [{ command: 'node', env: null }, 'MCP_ENV_INVALID'],
+    [{ command: 'node', env: { ['TOKEN\0']: 'literal' } }, 'MCP_ENV_INVALID'],
+    [{ command: 'node', env: { TOKEN: 42 } }, 'MCP_ENV_INVALID'],
+    [{ command: 'node', env: { TOKEN: 'secret-value\0' } }, 'MCP_ENV_INVALID'],
+    [{ url: 'https://example.test', headers: 'secret-value' }, 'MCP_HEADERS_INVALID'],
+    [{ url: 'https://example.test', headers: [] }, 'MCP_HEADERS_INVALID'],
+    [{ url: 'https://example.test', headers: null }, 'MCP_HEADERS_INVALID'],
+    [{ url: 'https://example.test', headers: { Authorization: 42 } }, 'MCP_HEADERS_INVALID'],
+    [{ url: 'https://example.test', headers: { Authorization: 'secret-value\0' } }, 'MCP_HEADERS_INVALID'],
+    [{ url: 'https://example.test\0' }, 'MCP_HTTP_URL_REQUIRED'],
+    [{ type: 'secret-value', command: 'node' }, 'MCP_TRANSPORT_INVALID'],
+    [{ type: 'stdio', url: 'https://example.test' }, 'MCP_COMMAND_EMPTY'],
+  ]) {
+    const errors = validateDeclarationForPlatform({ mcpServers: { bad: server } });
+    assert.ok(findError(errors, code), JSON.stringify(errors));
+    assert.doesNotMatch(JSON.stringify(errors), /secret-value/);
+  }
+  for (const server of [
+    { command: 'node secret-value' },
+    { command: 'node', env: { TOKEN: '${secret-value}' } },
+    { url: 'https://example.test', headers: { Authorization: '${secret-value}' } },
+  ]) assert.doesNotMatch(JSON.stringify(validateDeclarationForPlatform({ mcpServers: { bad: server } })), /secret-value/);
+  assert.deepEqual(validateDeclarationForPlatform({ mcpServers: {
+    off: { disabled: true, type: 'anything', command: 42, args: false, env: null, headers: [] },
+    local: { type: 'stdio', command: 'node', args: ['with spaces'], env: { TOKEN: 'literal' } },
+    stream: { type: 'sse', url: 'https://example.test', headers: { Authorization: 'literal' } },
+  } }), []);
+});
