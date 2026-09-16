@@ -2,7 +2,7 @@
 
 LazyTrae CLI — Trae-native workflow installer and runtime.
 
-This v1.2.3 package keeps automatic selection native and host handling
+This v1.3.0 package keeps automatic selection native and host handling
 advisory: a complete current task/loop/session identity may form a bounded
 context capsule, but `presented-to-host` remains `not-observed` until a real
 Trae session is observed. Init and sync preflight managed conflicts and retain
@@ -124,7 +124,7 @@ Context7 and `grep_app` are disabled by default. `lazytrae tooling enable contex
 
 ## Onboard
 
-Open or link the durable `v1.2.3` release in the selected Trae host, give the agent
+Open or link the durable `v1.3.0` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The setup guide
 asks for TraeCode, TraeWork, or TraeCode CLI and uses the stable durable
 launcher, never PATH/global lookup:

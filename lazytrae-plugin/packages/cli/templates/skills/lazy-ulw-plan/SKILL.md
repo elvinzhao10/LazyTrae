@@ -115,6 +115,66 @@ Wave 1 (no dependencies):
 - Conventional Commits, atomic, one logical change per commit.
 ```
 
+### Progressive Milestones (v1.3.0)
+
+For complex work (tier `complex`), produce ONE parent plan whose tasks are grouped
+into **milestones**. Child plans are only used when a milestone needs independent
+ownership or substantial detail; the parent plan ID and dependency links remain
+authoritative. Use this `## Milestones` shape:
+
+```markdown
+## Milestones
+- M1: discovery and scaffold
+  - depends: (none)
+  - provisional: false
+  - parent_plan_id: (none)
+- M2: billing integration
+  - depends: M1
+  - provisional: true
+  - parent_plan_id: plan-root
+  - T1: integrate provider-x
+- M3: reporting
+  - depends: M2
+  - provisional: true
+```
+
+Milestone flag rules (enforced by the runtime validator):
+
+- `provisional` — later milestones MAY be `provisional: true`. A provisional
+  milestone and its tasks **MUST NOT dispatch**. The next (first non-provisional)
+  milestone is executable; every later milestone is forced provisional until it is
+  refined from evidence. Do not demand all distant decisions upfront.
+- `parent_plan_id` — authoritative parent plan identifier. A `parent_plan_id`
+  pointing at an unknown plan is a **dangling child link** and is rejected.
+- `depends` / `dependency_links` — task/milestone dependency links. **Cycles are
+  rejected**, and links to **missing IDs are rejected**. Validate the dependency
+  matrix before handoff (no circular dependencies).
+
+### Decision Gates (v1.3.0 canonical shape)
+
+Surface consequential product decisions as explicit decision gates under
+`## Decision Gates`. Every gate carries the canonical shape below. A recommendation
+never becomes owner approval automatically — `status` stays `open` until a real
+answer exists, and only tasks that transitively depend on the gate block (independent
+work proceeds).
+
+```markdown
+## Decision Gates
+### G1
+question: Which billing provider should the billing milestone integrate?
+recommendation: Provider X (existing contract, lowest integration cost).
+alternatives: provider-x (Existing contract provider; tradeoffs: lower cost, fewer features) | provider-y (New provider; tradeoffs: more features, new procurement)
+owner: product-owner
+affected_tasks: billing-integration
+needed_by: M2
+status: open
+assumptions: Billing is the only consequential product decision surfaced now.
+```
+
+Required fields: `question`, `recommendation`, `alternatives` (array with at least one
+**non-recommended** option), `owner`, `affected_tasks`, `needed_by`, `status`
+(one of `open | answered | blocked | superseded`), plus `assumptions`.
+
 ### Phase 4: Approval Gate
 
 Present a short brief. Record `status: awaiting-approval`. Wait for explicit user approval. Approval authorizes writing the plan ONLY — never implementation.

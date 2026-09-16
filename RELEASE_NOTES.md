@@ -1,46 +1,53 @@
-# LazyTrae v1.2.3 — platform compatibility patch
+# LazyTrae v1.3.0 — adaptive workflow experience
 
-**Release date:** 2026-09-14
+**Release date:** 2026-09-16
 
-This release prepares the v1.2.3 package. It does not publish a tag, GitHub
+This release prepares the v1.3.0 package. It does not publish a tag, GitHub
 release, marketplace entry, host registration, or proprietary host execution.
 Package readiness and host readiness remain separate authorities.
 
-This is a patch release. It changes host-facing MCP declaration validation,
-setup and status output, and plan parsing. Workflow and decision-memory
-features are **not** part of this release; they are scheduled for v1.3.0.
+This is a feature release. It adds dual activation, progressive milestones
+with scoped decision gates, human plan-edit reconciliation, a cross-plan
+decision ledger, and verification-tier selection with receipt reuse. Existing
+routing, execution, verification, and librarian surfaces are retained; no new
+orchestration framework or mandatory arbiter command is introduced.
 
 ## Eval-driven fixes
 
-- MCP declarations are validated before they are trusted. Every declared server
-  must use a space-free `command`; a declaration that violates this reports a
-  typed error naming the server and the remediation instead of loading anyway.
-- Only `${workspaceFolder}` is expanded as a documented variable. An
-  unsupported variable is reported rather than silently passed through, so a
-  declaration cannot appear valid while referencing an unresolvable path.
-- The project-level MCP opt-in is presented as a host setting. `init` prints
-  the enable-and-confirm step for the selected host and states that enabling
-  the toggle is not an observation that a server is running.
-- `status` prints the remaining step per host and names the failing component
-  with its detail, so a reader does not have to infer the next action.
-  Package readiness and host readiness stay separate authorities.
-- Plan parsing accepts the canonical `## TODOs` heading and the legacy
-  `## Todos` form. A non-empty plan that parses zero tasks now fails with an
-  actionable error rather than reporting success, and missing or duplicate task
-  identifiers are reported instead of matched by guesswork.
-- Shipped hook patterns use POSIX character classes, so a host tool surface
-  that interposes a command shim without extended-class support does not
-  silently change the destructive-command guard.
+- Explicit start-work and plain natural-language implementation requests
+  converge on the same execution authority and gates. Explanation,
+  quoted-command, and explicit plan-only requests never mutate product files,
+  and an ambiguous approval with several pending questions never grants
+  execution authority.
+- `execution_intent` (plan_only|execute) is persisted separately from workflow
+  mode and current stage, defaulting to plan_only. Duplicate host events do
+  not duplicate dispatch; resume selects the single compatible run or asks
+  only when genuinely ambiguous.
+- Complex work uses one parent plan with milestones. Provisional milestones
+  never dispatch; dependency cycles, missing IDs, and dangling child links are
+  rejected. Decision gates carry the canonical shape; a recommendation never
+  becomes owner approval and only transitive dependents block.
+- Human plan edits are reconciled at execution boundaries: cosmetic edits
+  preserve all evidence, semantic edits invalidate only the affected task and
+  its transitive dependents, a human checked box is a completion assertion
+  never a verified result, and stale results cannot update newer plan state.
+- Cross-plan decision memory is durable (`decisions/ledger.jsonl`): immutable
+  versioned events, replay-derived active view, scoped corrections, and
+  visible failure on malformed records.
+- Verification is selected once from the changed boundary and risk on the
+  V0-V3 tier ladder, then a green receipt is reused while its declared inputs
+  and covered behavior are unchanged. Counts never promote a tier; a failing
+  focused check reruns only itself plus directly affected integration checks.
 
 ## Measured efficiency
 
-This patch does not change the compact execution evidence figures. The v1.2.2
+This patch does not change the compact execution evidence figures. The v1.2.3
 measurements remain the current authority. No new efficiency claim is made
 here, and no unavailable token reduction is asserted.
 
 ## Host capability matrix
 
-| Product surface | v1.2.3 package capability | Host evidence boundary |
+| Product surface | v1.3.0 package capability | Host evidence boundary |
 | --- | --- | --- |
 | TraeCode | Local project assets, core MCP declaration, and native context presentation. | Discovery, hooks, session, MCP connection, and execution require current observation. |
 | TraeWork | Explicit profile plus approval-gated Skills copy and manual MCP JSON. | A presentation is advisory; desktop/local paths do not prove execution. |
@@ -79,7 +86,7 @@ still requires the host opt-in to be confirmed in the current build.
 ## Rollback
 
 Use the durable launcher’s receipt-scoped offboard or rollback flow. Remove
-only v1.2.3 receipt-owned unmodified assets after approval. Preserve modified,
+only v1.3.0 receipt-owned unmodified assets after approval. Preserve modified,
 unknown, linked, caller-owned, and host-managed files and registrations; never
 restore an older release over user changes. For a stale runtime, use a fresh
 verified checkout for scoped offboard and then onboard the desired immutable

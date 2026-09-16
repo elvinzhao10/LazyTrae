@@ -3,6 +3,32 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-09-16
+
+### Added
+
+- Dual activation: explicit start-work and natural-language implementation
+  requests converge on the same execution authority and gates;
+  `execution_intent` (plan_only|execute) is persisted separately and defaults
+  to plan_only. Explanation, quoted-command, and plan-only requests never
+  mutate product files.
+- Progressive milestones with scoped decision gates: provisional milestones
+  never dispatch; cycles, missing IDs, and dangling links are rejected;
+  recommendations never auto-approve and only transitive dependents block.
+- Human plan-edit reconciliation at execution boundaries: cosmetic edits
+  preserve evidence, semantic edits invalidate only affected tasks and their
+  transitive dependents, and stale results cannot update newer plan state.
+- Cross-plan decision ledger (`decisions/ledger.jsonl`): immutable events,
+  replay-derived active view, scoped corrections, visible malformed-record
+  failure.
+- Verification tiers V0-V3 with receipt reuse: lowest sufficient tier selected
+  from changed boundary and risk; green receipts reused while inputs and
+  covered behavior are unchanged.
+
+- Local-first onboarding and honest host readiness: package checks validate
+  local files only and every host stays pending until observed in a fresh
+  session; no tag, release, or installation is published from this change.
+
 ## [1.2.3] - 2026-09-14
 
 ### Changed
@@ -298,6 +324,8 @@ runtime replacement uses scoped offboard/re-onboard. Package success leaves
   lifecycle.
 
 [1.0.3]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.2...v1.0.3
+[1.3.0]: https://github.com/elvinzhao10/LazyTrae/compare/v1.2.3...v1.3.0
+[1.2.3]: https://github.com/elvinzhao10/LazyTrae/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/elvinzhao10/LazyTrae/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/elvinzhao10/LazyTrae/compare/v1.2.0...v1.2.1
 [1.1.0]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.3...v1.1.0

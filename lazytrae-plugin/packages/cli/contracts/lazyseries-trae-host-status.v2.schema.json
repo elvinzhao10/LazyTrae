@@ -21,7 +21,7 @@
       "const": "LazyTrae"
     },
     "version": {
-      "const": "1.2.3"
+      "const": "1.3.0"
     },
     "profiles": {
       "type": "array",

@@ -1,6 +1,6 @@
 # Security and authority
 
-**Current documentation release: v1.2.3.** A host generator, profile, or probe
+**Current documentation release: v1.3.0.** A host generator, profile, or probe
 is local evidence, not authority over a native host.
 
 LazyTrae can inspect local project information, but a package check does not
@@ -17,7 +17,7 @@ different, explicit compatibility choice: it writes a managed namespaced MCP
 selection. Onboarding, InitDeep, doctor, and automatic routing do not enable
 it.
 
-The v1.2.3 adaptive route reads native task, loop, and session state and can
+The v1.3.0 adaptive route reads native task, loop, and session state and can
 form a bounded capsule only when its full identity matches. It does not turn a
 host presentation into execution evidence: `presented-to-host` remains
 `not-observed` until a selected Trae session is actually observed.

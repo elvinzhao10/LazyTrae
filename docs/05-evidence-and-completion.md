@@ -34,13 +34,13 @@ the package or that the feature works. `load-check` and `doctor` describe local
 package readiness and health only; the selected host still needs the observation
 in [Host routes](reference/host-routes.md).
 
-The same boundary applies to v1.2.3 adaptive handoffs: a native current-task
+The same boundary applies to v1.3.0 adaptive handoffs: a native current-task
 capsule can be presented to a host, but the resulting record remains
 `presented-to-host` / `not-observed` until a real host session is observed.
 
 ## Compact execution report and recovery
 
-For an active v1.2.3 loop goal, the execution record is deliberately bounded:
+For an active v1.3.0 loop goal, the execution record is deliberately bounded:
 it contains a fixed contract, task-specific delta, artifact references,
 read-only pre-task status/ownership provenance, and plan commands as validated
 safe argv. It does not repeat the full plan or capture caller file contents.

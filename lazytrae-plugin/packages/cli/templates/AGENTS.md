@@ -7,7 +7,7 @@
 LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. The release-owned local launcher supplies the portable installer,
 verification gate, and local MCP server. Package behavior is verified on
 macOS only; host behavior keeps the evidence labels below. The current
-documentation release is `1.2.3`.
+documentation release is `1.3.0`.
 
 ## Durable onboarding (start here)
 
@@ -193,7 +193,7 @@ offboarding, InitDeep, and doctor never enable optional providers. CodeGraph,
 Context7, `grep_app`, filesystem, and Playwright require an explicit lifecycle
 and approval; they never become proof of host readiness.
 
-## v1.2.3 adaptive context boundary
+## v1.3.0 adaptive context boundary
 
 Automatic selection reads only native current task/loop/session state and keeps
 host handling advisory. A complete native identity may produce a bounded

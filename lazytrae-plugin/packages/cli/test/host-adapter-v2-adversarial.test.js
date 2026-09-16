@@ -116,7 +116,7 @@ test('public status probe and observation artifacts satisfy the exact v2 schemas
     const evidence = writeBoundEvidence(root);
     const status = JSON.parse(runCli(['status', '--host', 'cli', '--json'], { cwd: root }).stdout);
     const executable = path.join(root, 'trae-cli');
-    fs.writeFileSync(executable, '#!/bin/sh\nprintf "TraeCode CLI 1.2.3\\nregion: global\\nedition: enterprise\\n"\n');
+    fs.writeFileSync(executable, '#!/bin/sh\nprintf "TraeCode CLI 1.3.0\\nregion: global\\nedition: enterprise\\n"\n');
     fs.chmodSync(executable, 0o755);
     const digest = crypto.createHash('sha256').update(fs.readFileSync(executable)).digest('hex');
     const probeResult = runCli(['host-probe', '--host', 'cli', '--executable', executable, '--expected-sha256', digest, '--json'], { cwd: root });

@@ -1,6 +1,6 @@
 {
   "name": "lazytrae-ai",
-  "version": "1.2.3",
+  "version": "1.3.0",
   "description": "LazyTrae CLI installer and doctor \u2014 Trae-native workflows with MCP support",
   "main": "src/index.js",
   "bin": {

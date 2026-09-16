@@ -78,7 +78,7 @@ function checkTraeStructure(repoRoot) {
       results.push({ label: '.trae/hooks.json', status: 'FAIL', detail: `Invalid JSON: ${e.message}` });
     }
   } else {
-    results.push({ label: '.trae/hooks.json', status: 'WARN', detail: 'Hooks config for v1.2.3' });
+    results.push({ label: '.trae/hooks.json', status: 'WARN', detail: 'Hooks config for v1.3.0' });
   }
 
   // .trae/hooks/ — executability
@@ -136,7 +136,7 @@ function checkTraeStructure(repoRoot) {
       results.push({ label: '.trae/mcp.json', status: 'FAIL', detail: `Invalid JSON: ${e.message}` });
     }
   } else {
-    results.push({ label: '.trae/mcp.json', status: 'WARN', detail: 'MCP config for v1.2.3' });
+    results.push({ label: '.trae/mcp.json', status: 'WARN', detail: 'MCP config for v1.3.0' });
   }
 
   return results;

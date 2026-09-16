@@ -136,7 +136,7 @@ function main() {
     process.exit(0);
   });
 
-  process.stderr.write('LazyTrae MCP server v1.2.3 started\n');
+  process.stderr.write('LazyTrae MCP server v1.3.0 started\n');
 }
 
 // Run directly if executed as a script
