@@ -118,6 +118,25 @@ When all top-level checkboxes are complete:
 4. **Adversarial QA**: Every applicable class probed with captured result.
 5. **Cleanup**: All QA resources torn down, receipts recorded.
 
+## Verification tiers (v1.3.0)
+
+Scale verification to the changed boundary and risk — never to test/file/plan
+counts, agent counts, or a request merely called "complex". Select ONE tier per
+changed boundary (see `src/lib/verification-tiers.js` and the shared LazySeries
+contract):
+
+- **V0 inspect** — docs, metadata, formatting, inert fixtures. Syntax/schema/static checks only when applicable; no new test by default.
+- **V1 focused** — localized reversible behavior. The smallest existing test or direct user-surface scenario for the changed boundary.
+- **V2 integrated** — cross-module, state, parser, migration, lifecycle, or host-routing. Focused checks plus one real consumer/integration scenario.
+- **V3 comprehensive** — security/trust boundaries, release packaging, shared contract/schema changes, broad infra, or an unexplained focused failure. The comprehensive gate, once, normally in protected CI.
+
+Rules:
+- **Select once.** After choosing a tier for a boundary, run its check once. Do not rerun an already-green command against the same tree, environment, and inputs just to produce another artifact or satisfy another agent role.
+- **Reuse green receipts.** A green verification receipt (tier, argv/surface, covered behavior, tree/revision, environment fingerprint, result, artifact ref) is reusable while its declared inputs and covered behavior are unchanged. Store one receipt; reference it from ledgers rather than copying output into multiple ledgers.
+- **Reviewers inspect, do not rerun.** Verifier/reviewer/gate agents inspect the diff and existing evidence first; rerun only a missing, stale, contradictory, failed, or untrusted check. A code change invalidates only checks whose declared inputs or covered behavior changed.
+- **A failed focused check does not cascade.** Diagnose the failure; rerun only the failed check, then any directly affected integration check. Do NOT trigger the full V2/V3 suite.
+- **One comprehensive gate.** Run V3 once after the final relevant change, preferably in protected CI. Do not duplicate it locally when protected CI will run it on the exact commit.
+
 ## Failure Handling
 
 - If a subagent fails: investigate the failure, record the reason, respawn with narrowed scope.
