@@ -6,7 +6,7 @@ tooling. It does not change project dependencies, lockfiles, `.trae/mcp.json`,
 or host MCP settings. This differs from explicitly enabling persistent
 compatibility.
 
-The v1.2.3 adaptive route likewise selects from native current task, loop, and
+The v1.3.0 adaptive route likewise selects from native current task, loop, and
 session state. It may present a bounded capsule to a host only as advisory
 input; `presented-to-host` and `not-observed` never describe proprietary host
 execution.
@@ -54,7 +54,7 @@ approval. Authenticated browser work, forms, external writes, purchases,
 destructive actions, and secret reads always prompt. A status command is
 read-only; it neither grants approval nor enables a service.
 
-The same distinction applies to a planned verification command in the v1.2.3
+The same distinction applies to a planned verification command in the v1.3.0
 execution record. Only exact argv that pass the one-time safe-check validation
 may be recorded as a plan check. Shell composition, mutating Git or dependency
 commands, remote actions, and approval-gated actions are rejected rather than

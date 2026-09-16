@@ -1,6 +1,6 @@
 # Package delivery
 
-**Current documentation release: v1.2.3.** The package can create evidence;
+**Current documentation release: v1.3.0.** The package can create evidence;
 only the selected host can supply discovery and live-session evidence.
 
 This page explains the deployment boundary in code terms. The CLI contains canonical templates and a local MCP runtime; it does not contain Trae's settings database, session state, or live connector process table.
@@ -29,7 +29,7 @@ Platform defaults are package behavior, not host-support evidence:
 
 ## Host onboarding
 
-Open or link the durable `v1.2.3` release in the selected Trae host, give the agent
+Open or link the durable `v1.3.0` release in the selected Trae host, give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for TraeCode, TraeWork, or TraeCode CLI, runs safe package checks, and
 reports package readiness separately from host readiness. Before copying Work
@@ -79,7 +79,7 @@ observation evidence agree; historical v1 receipts are read-only inputs.
 
 `packages/cli/src/commands/init.js` is the installer. It resolves the target project, copies or merges files from `packages/cli/templates/`, and then runs the selected host's load check. `sync.js` follows the same managed-content rules for later updates. The safe-write and managed-block helpers prevent an update from silently overwriting protected destinations.
 
-In v1.2.3, init and sync preflight managed MCP/config conflicts and use the
+In v1.3.0, init and sync preflight managed MCP/config conflicts and use the
 receipt-owned transactional promotion path. Caller state, evidence, modified,
 unknown, and linked paths remain preserved; an interrupted promotion publishes
 no partial receipt and can be retried cleanly.

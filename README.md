@@ -6,7 +6,7 @@ LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 **TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-Version v1.2.3 is prepared for publication; it is not a stable release until the tag and release artifact are published.
+Version v1.3.0 is prepared for publication; it is not a stable release until the tag and release artifact are published.
 
 ## Efficiency improvements since v1.2.0
 
@@ -33,7 +33,7 @@ You do not need to work through the technical setup alone. Open an AI coding
 assistant in your project and paste this:
 
 > Help me install LazyTrae from https://github.com/elvinzhao10/LazyTrae for
-> this project. Use the prepared v1.2.3 package route. Run safe package checks first,
+> this project. Use the prepared v1.3.0 package route. Run safe package checks first,
 > explain each step plainly, and ask me before changing host settings, adding
 > an MCP connector, or registering anything in Trae.
 
@@ -104,7 +104,7 @@ LazyTrae does not automate credentials, external services, or host
 registrations. It asks for approval before host-managed actions and keeps safe
 package checks separate from settings and connector changes.
 
-## v1.2.3 context and lifecycle safety
+## v1.3.0 context and lifecycle safety
 
 Automatic selection reads the native current task, loop, and session state; it
 does not infer proprietary host execution. A fully matching identity can be
@@ -157,7 +157,7 @@ runtime.
 ## Learn more
 
 - [Install and verify a host](docs/03-install-and-host-verification.md)
-- [Supported v1.2.3 route](docs/v1.2.3-supported-route.md)
+- [Supported v1.3.0 route](docs/v1.3.0-supported-route.md)
 - [v1.2.2 release notes](RELEASE_NOTES.md)
 - [Documentation index](docs/README.md)
 

@@ -1,6 +1,6 @@
 # LazyTrae verification evidence
 
-**Current documentation release: v1.2.3.** Historical v1.0.3 evidence below
+**Current documentation release: v1.3.0.** Historical v1.0.3 evidence below
 is retained as historical release evidence; it is not a current writer or a
 host-readiness claim.
 
@@ -44,7 +44,7 @@ native check until the task selects it. Automatic selection is temporary and
 does not modify project MCP configuration, project tooling state, dependencies,
 lockfiles, or host settings.
 
-The v1.2.3 adaptive context path reads native task, loop, and session state
+The v1.3.0 adaptive context path reads native task, loop, and session state
 only. A complete identity emits a bounded current-task capsule; mismatched or
 incomplete state fails closed. The representative capsule is 1,076 bytes from
 a 7,227-byte native preimage (85.11% smaller). This measures only explicit
