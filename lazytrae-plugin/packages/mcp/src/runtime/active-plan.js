@@ -3,7 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { resolveRepoPath } = require('./path-boundary');
 const { validatePlanCheckboxes } = require('./plan-checkbox-parser');
-const { acceptResult, classifyPlanEdits } = require('./plan-reconcile');
+const { classifyPlanEdits, acceptResult } = require('./plan-reconcile');
 const {
   computeExecutableMilestones,
   parseDecisionGates,
@@ -74,8 +74,9 @@ function parsePlanMilestones(planText, options) {
   return validateMilestones(planText, options || {});
 }
 
-// v1.3.0 T4: reconcile a human-edited plan body against the approved revision
-// (same contract as the CLI package's active-plan.reconcilePlanBody).
+// v1.3.0 T4: reconcile a human-edited plan body against the approved revision.
+// Delegates classification to ./plan-reconcile; returns the reconciliation
+// report plus the current approved sha for stale-result guarding.
 function reconcilePlanBody(approvedText, currentText) {
   const currentSha = crypto.createHash('sha256').update(currentText).digest('hex');
   const approvedSha = crypto.createHash('sha256').update(approvedText).digest('hex');
