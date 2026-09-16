@@ -53,8 +53,7 @@ function walk(root, directory = root) {
 }
 
 function previousVersionClassification(relativePath, line) {
-  if (relativePath === 'RELEASE_NOTES.md' || (relativePath.startsWith('docs/v1.2.') && relativePath !== 'docs/v1.2.3-supported-route.md')) return 'historical-release-document';
-  if (relativePath === 'docs/v1.2.3-supported-route.md') return 'historical-release-document';
+  if (relativePath === 'RELEASE_NOTES.md' || relativePath.startsWith('docs/v1.2.')) return 'historical-release-document';
   if (relativePath.endsWith('lazyseries-shared-semantics.v1.json')) return 'schema-independent-contract-history';
   if (relativePath === 'CHANGELOG.md') return 'historical-release-history';
   if (relativePath.includes('/contracts/fixtures/') || relativePath.includes('/test/fixtures/')) return 'historical-or-adversarial-fixture';

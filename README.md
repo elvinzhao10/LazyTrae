@@ -8,24 +8,57 @@ a host is only considered ready after it is observed in a fresh session.
 
 Version v1.3.0 is prepared for publication; it is not a stable release until the tag and release artifact are published.
 
-## Efficiency improvements since v1.2.0
+## New in v1.3.0: work the way you talk
 
-- Verification is selected by deterministic risk: small, low-risk changes use
-  targeted checks, while release, security, stale-evidence, and public-contract
-  changes always escalate to the full gate.
-- Source and package test suites are disjoint, test discovery is standalone,
-  and Node test concurrency is bounded to keep verification efficient without
-  weakening final assertions.
-- Redacted cost/outcome records make invocation count, reruns, rework, and
-  evidence volume visible. Unavailable timing or token data remains explicit
-  rather than being estimated.
-- Pull requests run the publication, package, standalone MCP, and workflow
-  safety gates. Version and release-documentation consistency is covered by
-  the existing CLI source/package and publication suites. A weekly compatibility
-  job checks the supported Node.js range and dependency freshness without
-  weakening release verification.
-- Interrupting optional-provider startup now forwards SIGINT immediately and
-  waits for the child to exit, avoiding an unnecessary timeout delay.
+v1.3.0 is a major workflow release. You no longer need to remember commands —
+the harness meets you at the level of your request.
+
+### Just ask, or use a command — both work
+
+Two entry routes converge on the same execution authority and gates:
+
+- **Natural language**: describe the work plainly — "Fix the typo in the
+  welcome label" — and the smallest sufficient workflow is selected and run.
+- **Explicit command**: the start-work command for known plans, or the planner
+  command for new ones. Same authority, same gates.
+
+No command is required for a clear implementation request. Conversely, asking
+to *explain*, quoting a command, or saying "plan only" never touches your
+files: the persisted `execution_intent` stays `plan_only` until you actually
+ask for execution, and a vague "ok" with several open questions never grants
+execution by itself.
+
+### Plans you can edit while work runs
+
+Plans are Markdown you own. Edit them mid-run; the harness reconciles your
+changes at execution boundaries instead of overwriting them:
+
+- Cosmetic edits (wording, reordering, checking a box) keep all evidence.
+- Semantic edits (acceptance, dependencies, verification commands) invalidate
+  only the affected task and its dependents — unrelated work is untouched.
+- Your checkbox is an *assertion*, not a verdict: a checked box alone never
+  counts as verified completion, and unchecking reopens the task.
+
+### Decisions the harness remembers
+
+Cross-plan decisions live in a durable ledger
+(`.lazytrae/decisions/ledger.jsonl`). When plan two hits a question plan one
+already answered — with evidence — it recalls the decision instead of
+re-asking you. Contradictions are surfaced as supersessions, defects become
+scoped corrections that block only the affected work, and nothing in memory
+can override your current instructions.
+
+### Verification sized to the change
+
+Checks run once, at the right tier: documentation edits get a light inspect
+(V0), small changes a focused check (V1), cross-module behavior an integration
+scenario (V2), and security/release boundaries the comprehensive gate (V3,
+normally in CI). A green check is reused while its inputs are unchanged — the
+same test is never rerun just because a phase changed.
+
+Milestones, decision gates, and full state/version semantics are shared
+byte-identically with LazyBuddy and LazyQoder (see
+`lazytrae-plugin/packages/cli/contracts/lazyseries-shared-semantics.v1.json`).
 
 ## Recommended: install with AI help
 
@@ -88,7 +121,7 @@ session.
 Start with the result you want and how you will know it worked. Then use the
 smallest amount of structure that fits the task. You can simply describe the
 work in plain language; the modes are guidance, not commands you need to
-memorize.
+memorize. The v1.3.0 dual-entry routing picks one of these for you.
 
 | Mode | Use it when | Example request |
 | --- | --- | --- |
@@ -158,7 +191,10 @@ runtime.
 
 - [Install and verify a host](docs/03-install-and-host-verification.md)
 - [Supported v1.3.0 route](docs/v1.3.0-supported-route.md)
-- [v1.2.2 release notes](RELEASE_NOTES.md)
+- [Workflow playbooks — how the modes pick work](docs/04-workflow-playbooks.md)
+- [Evidence and completion — what "done" proves](docs/05-evidence-and-completion.md)
+- [Host routes and recovery](docs/reference/host-routes.md)
+- [Release notes](RELEASE_NOTES.md)
 - [Documentation index](docs/README.md)
 
 ## License
