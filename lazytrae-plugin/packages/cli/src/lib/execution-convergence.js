@@ -148,9 +148,7 @@ function classifyAdaptiveRoute(request, context = {}) {
   const execution_intent = resolveExecutionIntent(request, context);
   const missingHook = detectMissingHook(context);
   const decision = classifyAdaptiveDecision(request, context);
-  const explicitPlanOnly = isPlanOnlyRequest(request)
-    || decision.snapshot?.verificationLevel === 'targeted'
-    && decision.verification_level === 'targeted';
+  const explicitPlanOnly = isPlanOnlyRequest(request) || isExplanationRequest(request);
   const effectiveIntent = missingHook ? execution_intent : execution_intent;
   return {
     route,

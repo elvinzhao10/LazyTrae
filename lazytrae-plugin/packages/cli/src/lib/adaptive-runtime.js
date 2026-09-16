@@ -2,6 +2,7 @@
 
 const path = require('node:path');
 const { classifyAdaptiveDecision, stableDigest } = require('./adaptive-decision');
+const { classifyAdaptiveRoute } = require('./execution-convergence');
 const {
   mapAdaptiveDecisionToSurfaces,
   qualifyInstalledHost,
@@ -173,6 +174,10 @@ function processAdaptivePrompt({ repoRoot, prompt, context = {} }) {
     revisionFingerprint,
     persisted.persistence,
   );
+  const routeDecision = classifyAdaptiveRoute(prompt, {
+    ...context,
+    priorExecutionIntent: priorSnapshot?.executionIntent,
+  });
   const directive = {
     version: 1,
     kind: 'workflow-decision',
@@ -183,6 +188,10 @@ function processAdaptivePrompt({ repoRoot, prompt, context = {} }) {
     verificationLevel: decision.verification_level,
     approval: decision.snapshot.approval,
     explicitWorkflow: decision.explicitWorkflow,
+    executionIntent: routeDecision.execution_intent,
+    entryRoute: routeDecision.route,
+    explicitPlanOnly: routeDecision.explicit_plan_only,
+    missingHostHook: routeDecision.missing_host_hook,
     workflowSurfaces: dispatch === 'presented-to-host' ? workflowSurfaces : [],
     hostQualification: mapping.host_qualification,
     dispatch,
