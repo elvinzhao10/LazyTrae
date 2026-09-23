@@ -12,7 +12,7 @@ The latest published stable release is v1.3.0. This worktree documents a v1.3.1 
 
 ## Durable onboarding (start here)
 
-For new installations, use **Node.js LTS 24 (recommended)** or **Node.js LTS 22 (supported alternative)**, plus **Git**. Node 18/20 CI jobs are legacy compatibility checks only; they do not set the recommended install runtime. Bootstrap only from the
+For new installations, use **Node.js LTS 24 (recommended)** or **Node.js LTS 22 (supported alternative)**, plus **Git**. Node.js LTS 20 is also accepted by the lifecycle for compatibility; Node 18 jobs are legacy CI checks only. Bootstrap only from the
 verified official origin `https://github.com/elvinzhao10/LazyTrae.git` (or the
 same URL without `.git`). The first checkout is transport only; it is not the
 installed runtime and may be deleted after successful promotion.
