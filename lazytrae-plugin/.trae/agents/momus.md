@@ -1,7 +1,6 @@
 ---
 name: momus
 description: "Plan reviewer. Verifies a work plan is executable: references exist, tasks are startable, QA scenarios are concrete. Issues OKAY, ITERATE, or REJECT. Read-only."
-model: max
 effort: xhigh
 maxTurns: 120
 disallowed:

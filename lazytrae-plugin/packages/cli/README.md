@@ -1,8 +1,10 @@
 # lazytrae-ai
 
+The latest published stable release is v1.3.1; fresh-session native-host activation remains pending.
+
 LazyTrae CLI — Trae-native workflow installer and runtime.
 
-This v1.3.0 package keeps automatic selection native and host handling
+The v1.3.1 package keeps automatic selection native and host handling
 advisory: a complete current task/loop/session identity may form a bounded
 context capsule, but `presented-to-host` remains `not-observed` until a real
 Trae session is observed. Init and sync preflight managed conflicts and retain
@@ -11,14 +13,17 @@ caller-owned or modified bytes.
 This CLI belongs to the LazyTrae learning project. It is
 primarily inspired by LazyCodex. Its package-local [NOTICE](NOTICE) records
 the LazyCodex and OmO upstream attribution; it is an independent implementation
-and does not require LazyCodex or OmO at runtime. It is verified on macOS only.
+and does not require LazyCodex or OmO at runtime. Release archive QA is performed
+on macOS, and CI also checks package behavior on Ubuntu; neither establishes
+activation in a Trae host.
 Its self-contained CLI tarball carries the CLI, local MCP implementation,
 templates, package-local `LICENSE` and `NOTICE`, and its production dependency
 closure; a cold offline install checks that artifact without asserting host
 discovery or an MCP connection.
 
-**Node.js LTS 20 or newer** and **Git** are required. Bootstrap `lifecycle
-onboard` only from `https://github.com/elvinzhao10/LazyTrae.git`. After
+**Node.js LTS 24 (recommended) or 22 (supported alternative)** and **Git** are
+recommended for new installs. The lifecycle also accepts Node.js LTS 20 for compatibility. Bootstrap `lifecycle onboard` only from
+`https://github.com/elvinzhao10/LazyTrae.git`. After
 promotion, invoke `node "<install-root>/LazyTrae/launcher.js"` from any
 project. The source checkout may be deleted. `lifecycle update`, `lifecycle
 status`, `recover-bootstrap-lock`, and plan-first `lifecycle offboard` manage
@@ -97,6 +102,36 @@ code examples when local evidence is insufficient. Use `lazytrae tooling verify`
 to discover project-native lint/typecheck/test/build commands; it runs none
 until the caller gives `--run <selection>`.
 
+## Host-scoped model routing
+
+Propose delegation and any model switch in the plan, and remind the user of
+the quality, latency, and cost tradeoff. If the plan is silent, subagents keep
+the current model across retries. Use the local advisory helper once at task
+start; `--allow-switch` applies only after the plan explicitly enables it:
+
+```bash
+lazytrae model-route --host trae-ide --task implementation --risk high \
+  --failed-attempts 0 --catalog /absolute/path/safe-model-catalog.json
+lazytrae model-route --host trae-ide --task review --catalog /absolute/path/safe-model-catalog.json \
+  --allow-switch --model configured-builtin-42
+lazytrae model-route --host trae-cli --task mechanical --list
+```
+
+`--host` is one of `trae-ide`, `trae-work`, or `trae-cli`; `--task` is one of
+`mechanical`, `implementation`, `architecture`, `review`, `security`, or
+`visual`. `--risk high` and `--failed-attempts N` can raise the recommended
+tier. A catalog contains caller-supplied safe model identifiers and origin
+metadata only: never provider URLs, credentials, or costs.
+
+The helper does not select a host model, change host configuration, run a
+model, or calculate billing. For TraeCode, only a catalog entry declared as a
+configured built-in with `subagentSupported: true` can be recommended for
+supported subagent frontmatter; custom models remain main-session-only.
+TraeWork and TraeCode CLI output manual main-session guidance until a native
+selection contract is observed. A local
+`traecli models --json` result of `[]` is an empty active configuration, not a
+global list of unavailable models.
+
 ## Optional CodeGraph bridge
 
 CodeGraph is a separate optional MCP process, never an extra LazyTrae internal tool. `lazytrae tooling codegraph-doctor` recommends it only when the target has at least 500 supported source files or 100,000 supported source lines. It never starts CodeGraph, downloads anything, or creates `.codegraph/`. `codegraph-install` pins `@colbymchenry/codegraph@1.6.0` in an explicit empty LazyTrae-owned tooling root with package scripts disabled. `codegraph-init` is an explicit caller action that creates or refreshes the project index with telemetry disabled and all runtime state contained in that tooling root; it never claims ownership of or removes the project `.codegraph/` directory. `codegraph-enable` proves that index before adding the managed `lazytrae codegraph ...` MCP entry. `sync` preserves that managed entry and caller MCP entries. The bridge invokes only `codegraph init` and `codegraph serve --mcp`; it never calls CodeGraph's agent-install, uninstall, upgrade, or provisioning commands. `codegraph-uninstall` removes only an unmodified receipt-owned tooling root and never removes a project `.codegraph/` directory.
@@ -124,7 +159,7 @@ Context7 and `grep_app` are disabled by default. `lazytrae tooling enable contex
 
 ## Onboard
 
-Open or link the durable `v1.3.0` release in the selected Trae host, give the agent
+For a stable install, open or link the published v1.3.1 release in the selected Trae host. Give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The setup guide
 asks for TraeCode, TraeWork, or TraeCode CLI and uses the stable durable
 launcher, never PATH/global lookup:

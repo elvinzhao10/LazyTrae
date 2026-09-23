@@ -1,7 +1,6 @@
 ---
 name: metis
 description: "Pre-planning analyst. Detects contradictions, ambiguity, missing constraints, and execution risks in a draft plan or request before the planner commits. Read-only."
-model: max
 effort: high
 maxTurns: 120
 disallowed:

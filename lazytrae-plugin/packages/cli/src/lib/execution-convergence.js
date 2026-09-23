@@ -22,47 +22,64 @@
 
 const { classifyAdaptiveDecision } = require('./adaptive-decision');
 
-const EXPLICIT_COMMAND = /^\s*\/(lazy-start-work|start-work|lazy-ulw-plan|ulw-plan)\b/i;
-const EXPLANATION_REQUEST = /\b(explain|describe|how does|how do|what is|what are|show(?: me)? the (?:command|steps|way)|walk me through)\b/i;
-const QUOTED_COMMAND = /`[^`]+`|```[\s\S]*?```/;
-const PLAN_ONLY_REQUEST = /\b(plan[- ]?only|do not implement|don't implement|create a plan only|just (?:plan|the plan)|no (?:implementation|coding|code))\b/i;
-const EXECUTION_REQUEST = /\b(implement (?:this|the) plan|start work|start the work|execute (?:this|the) plan|continue (?:the )?plan|resume (?:the )?plan|begin implementation|go ahead and (?:build|implement|do) it)\b/i;
+const COMMAND_INTENTS = Object.freeze({
+  'lazy-start-work': Object.freeze({ intent: 'execute', route: 'explicit-execution' }),
+  'start-work': Object.freeze({ intent: 'execute', route: 'explicit-execution' }),
+  'lazy-ulw-plan': Object.freeze({ intent: 'plan_only', route: 'explicit-planning' }),
+  'ulw-plan': Object.freeze({ intent: 'plan_only', route: 'explicit-planning' }),
+});
+const EXPLICIT_COMMAND = new RegExp(`^\\s*\\/(${Object.keys(COMMAND_INTENTS).join('|')})(?=\\s|$)`, 'i');
+const EXPLANATION_REQUEST = /\b(explain|describe|how does|how do|what is|what are|show(?: me)? the (?:command|steps|way)|walk me through)\b|(?:解释|说明)(?:一下)?(?:这个)?计划|solo explica|計画だけ説明/i;
+const QUOTED_COMMAND = /```[\s\S]*?```|`[^`]+`|"[^"\n]+"|'[^'\n]+'/;
+const QUOTED_COMMAND_GLOBAL = /```[\s\S]*?```|`[^`]+`|"[^"\n]+"|'[^'\n]+'/g;
+const PLAN_ONLY_REQUEST = /\b(plan[- ]?only|do not implement|don't implement|create a plan only|just (?:plan|the plan)|no (?:implementation|coding|code))\b|^\s*(?:(?:(?:can|could|would|will)\s+you\s+)?(?:please\s+)?(?:create|write|draft|make)(?:\s+me)?\s+(?:(?:an?|the)\s+)?(?:implementation\s+)?plan\b|(?:please\s+)?plan\s+(?:this|the|a)\b|(?:please\s+)?update\s+me\s+(?:on|about|with)\b)/i;
+const NON_EXECUTION_REQUEST = /(?:^|[,;.!]\s*)(?:(?:but|then)\s+)?(?:please\s+)?(?:(?:pause|stop|hold)(?:\s+(?:here|now|execution|work))?\s*(?:[.!]?\s*$|(?:and|then|until|before)\b)|wait\s+(?:for|until)\b)|^\s*(?:please\s+)?(?:add|begin|build|change|continue|create|delete|execute|fix|implement|make|modify|refactor|remove|repair|resume|run|start|update)\s+(?:nothing|no\b)|\b(?:do not|don't|dont|never)\s+(?:execute|run|implement|start|build|change|modify|continue|resume)\b|\b(?:no\s+(?:ejecut(?:a|ar|es)|implement(?:a|ar|es))|solo\s+explica)\b|(?:先|暂时|暂)?(?:不要|别|无需|暂不)(?:执行|实施|实现|运行|修改|开始)|只(?:解释|说明)(?:一下)?(?:这个)?计划|実行せず|実行しない|実装しない|計画だけ説明/i;
+const EXECUTION_REQUEST = /(?:^|[,;.!]\s*)(?:(?:then|and then)\s+)?(?:please\s+)?(?:add|begin|build|change|continue|create|delete|execute|fix|implement|make|modify|refactor|remove|repair|resume|run|start|update)\b|\b(?:can|could|will|would)\s+you\s+(?:please\s+)?(?:add|build|change|create|delete|execute|fix|implement|make|modify|refactor|remove|repair|run|start|update)\b|\bi\s+(?:need|want)\s+you\s+to\s+(?:add|build|change|create|delete|execute|fix|implement|make|modify|refactor|remove|repair|run|start|update)\b|(?:^|[,;.!]\s*)(?:please\s+)?(?:go ahead and (?:add|build|change|create|delete|execute|fix|implement|make|modify|refactor|remove|repair|run|start|update|do it)|proceed with (?:the\s+)?(?:implementation|work|changes?))\b|^\s*请?(?:修复|实现|执行|运行|修改|更新|删除|添加|开始)/i;
 
 // A vague affirmative that is NOT a clear execution instruction. On its own it
 // does not grant execution authority — especially when several questions remain.
 const VAGUE_AFFIRMATIVE = /^\s*(yes|yeah|yep|ok|okay|sure|sounds good|approved?|lgmts?|go)\b[.!]?\s*$/i;
 
+function commandFor(request) {
+  const match = EXPLICIT_COMMAND.exec(String(request || ''));
+  return match ? { name: match[1].toLowerCase(), ...COMMAND_INTENTS[match[1].toLowerCase()] } : null;
+}
+
 function isExplicitCommand(request) {
-  return EXPLICIT_COMMAND.test(String(request || ''));
+  return commandFor(request) !== null;
 }
 
 function isExplanationRequest(request) {
   const text = String(request || '');
   if (EXPLANATION_REQUEST.test(text)) return true;
-  // a quoted command alone, with no execution verb, is non-executing
-  return QUOTED_COMMAND.test(text) && !EXECUTION_REQUEST.test(text) && !/\b(implement|run|execute|do)\b/i.test(text);
+  const unquoted = text.replace(QUOTED_COMMAND_GLOBAL, ' ');
+  return QUOTED_COMMAND.test(text) && !EXECUTION_REQUEST.test(unquoted);
 }
 
 function isPlanOnlyRequest(request) {
-  return PLAN_ONLY_REQUEST.test(String(request || ''));
+  const text = String(request || '');
+  return PLAN_ONLY_REQUEST.test(text) || NON_EXECUTION_REQUEST.test(text);
 }
 
 function isExecutionRequest(request) {
   const text = String(request || '');
-  return EXECUTION_REQUEST.test(text) || isExplicitCommand(text);
+  if (isPlanOnlyRequest(text)) return false;
+  const command = commandFor(text);
+  if (command) return command.intent === 'execute';
+  return EXECUTION_REQUEST.test(text.replace(QUOTED_COMMAND_GLOBAL, ' '));
 }
 
 // A neutral question (Wh- lead or trailing '?') with no execution verb is not
 // an implementation directive; it defaults to plan_only rather than execute.
 function isQuestionRequest(request) {
   const text = String(request || '').trim();
-  if (/\?\s*$/.test(text)) return true;
+  if (/\?\s*$/.test(text) && !isExecutionRequest(text)) return true;
   return /^(what|why|when|where|who|which|can|could|should|is|are|do|does|did|will|would|has|have|am)\b/i.test(text)
     && !EXECUTION_REQUEST.test(text);
 }
 
 function routeFor(request) {
-  return isExplicitCommand(request) ? 'explicit-execution' : 'automatic-activation';
+  return commandFor(request)?.route || 'automatic-activation';
 }
 
 // Resolve the persisted execution_intent. Invariant: explanation / quoted /
@@ -70,22 +87,22 @@ function routeFor(request) {
 // one pending question cannot grant execution authority. A clear directive to
 // change product code executes; a neutral question defaults to plan_only.
 function resolveExecutionIntent(request, context = {}) {
-  if (isPlanOnlyRequest(request) || isExplanationRequest(request)) return 'plan_only';
-  if (isExecutionRequest(request)) return 'execute';
+  const text = String(request || '').trim();
+  if (text.length === 0 || isPlanOnlyRequest(text)) return 'plan_only';
+  const command = commandFor(text);
+  if (command) return command.intent;
 
   const pendingQuestions = Number(context.pendingQuestions != null ? context.pendingQuestions : (context.pendingDecisionGates || 0));
-  const isVagueYes = VAGUE_AFFIRMATIVE.test(String(request || '').trim());
+  const isVagueYes = VAGUE_AFFIRMATIVE.test(text);
   if (isVagueYes) {
     if (pendingQuestions > 1) return 'plan_only';
     return context.priorExecutionIntent === 'execute' ? 'execute' : 'plan_only';
   }
 
-  // A neutral question (no execution verb, no explanation) does not execute.
-  if (isQuestionRequest(request)) return 'plan_only';
+  if (isExecutionRequest(text)) return 'execute';
+  if (isQuestionRequest(text) || isExplanationRequest(text)) return 'plan_only';
 
-  // Anything else is a directive to change product code: execute by default.
-  if (context.priorExecutionIntent === 'execute') return 'execute';
-  return 'execute';
+  return 'plan_only';
 }
 
 // Plan-only invariant: a plan_only intent must not mutate product files and
@@ -159,6 +176,7 @@ function classifyAdaptiveRoute(request, context = {}) {
     // execution_intent is persisted separately from workflow_mode / current_stage
     persisted_fields: {
       execution_intent: effectiveIntent,
+      entry_route: route,
       workflow_mode: decision.mode,
       current_stage: decision.snapshot?.currentStage || decision.stages?.[0] || 'understand',
     },
@@ -172,11 +190,13 @@ function classifyAdaptiveRoute(request, context = {}) {
 }
 
 module.exports = {
+  COMMAND_INTENTS,
   EXECUTION_REQUEST,
   EXPLICIT_COMMAND,
   VAGUE_AFFIRMATIVE,
   checkPlanOnlyInvariant,
   classifyAdaptiveRoute,
+  commandFor,
   detectMissingHook,
   isExplanationRequest,
   isExecutionRequest,

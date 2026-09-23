@@ -107,7 +107,8 @@ test('local-first onboarding protocol covers every stage and host readiness boun
     const content = fs.readFileSync(documentPath, 'utf8');
 
     // When: the surface is checked against the local-first onboarding contract.
-    assert.match(content, /Node\.js LTS 20/i, documentPath);
+    assert.match(content, /Node\.js LTS 24[^\n]*(?:recommended)/i, documentPath);
+    assert.match(content, /(?:Node\.js LTS )?22[^\n]*(?:supported alternative)/i, documentPath);
     assert.match(content, /\bGit\b/, documentPath);
     assert.match(content, /https:\/\/github\.com\/elvinzhao10\/LazyTrae/, documentPath);
     assert.match(content, /\bonboard\b/i, documentPath);

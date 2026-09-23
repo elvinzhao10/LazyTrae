@@ -1,7 +1,6 @@
 ---
 name: explorer
 description: "Codebase search specialist. Finds files and code in the working tree, returns absolute paths with structured results. Read-only."
-model: lite
 effort: low
 maxTurns: 40
 disallowed:

@@ -1,7 +1,6 @@
 ---
 name: oracle
 description: "Post-implementation reviewer and verification gate enforcer. Consolidates code-reviewer, QA-executor, and gate-reviewer roles. Read-only by default. Issues APPROVE, ITERATE, or REJECT."
-model: max
 effort: xhigh
 maxTurns: 120
 disallowed:

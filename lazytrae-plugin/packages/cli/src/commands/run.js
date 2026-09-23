@@ -52,8 +52,10 @@ function printRoutingGuidance(agent, category, prompt) {
   const repoRoot = detectRepoRoot();
   const config = loadConfig(repoRoot);
   const resolved = config ? resolveCategory(config, agent) : { category: 'quick', traeMode: 'auto' };
-  const effectiveCategory = category || resolved.category;
-  const effectiveMode = resolved.traeMode || 'auto';
+  const explicitRoute = config?.routing?.[category];
+  const effectiveRoute = explicitRoute ? { category, ...explicitRoute } : resolved;
+  const effectiveCategory = effectiveRoute.category;
+  const effectiveMode = effectiveRoute.traeMode || 'auto';
 
   console.log(`
   ╔══════════════════════════════════════════════════════════╗
@@ -68,7 +70,7 @@ function printRoutingGuidance(agent, category, prompt) {
     Agent:       ${agent || '(unspecified)'}
     Category:    ${effectiveCategory}
     Trae Mode:   ${effectiveMode === 'max' ? 'Max' : 'Auto'}
-    Description: ${resolved.description || 'Standard execution'}
+    Description: ${effectiveRoute.description || 'Standard execution'}
 
   How to apply:
     1. Open TraeCode in this project.

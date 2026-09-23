@@ -48,12 +48,16 @@ function assertDurableLifecycleGuidance(content, documentationPath) {
   assert.doesNotMatch(content, /\/private\/tmp/, `${documentationPath} must not publish a temporary installation path`);
   assert.doesNotMatch(content, /\bv1\.0\.4\b/, `${documentationPath} must keep deferred work described as v1.0.3 gaps`);
   assert.doesNotMatch(content, /release folder as the source of truth/i, `${documentationPath} must not make a removable source checkout authoritative`);
-  assert.match(content, /Node\.js LTS 20/i, `${documentationPath} must state the Node.js prerequisite`);
   assert.match(content, /\bGit\b/, `${documentationPath} must state the Git prerequisite`);
   assert.match(content, /https:\/\/github\.com\/elvinzhao10\/LazyTrae(?:\.git)?/, `${documentationPath} must name the verified official origin`);
   assert.match(content, /launcher\.js/, `${documentationPath} must use the stable durable launcher`);
   assert.match(content, /lifecycle (?:onboard|update|status|offboard)/, `${documentationPath} must document lifecycle commands`);
   assert.match(content, /HOST READINESS:\s*PENDING/i, `${documentationPath} must keep unobserved host readiness pending`);
+}
+
+function assertCurrentRuntimeGuidance(content, documentationPath) {
+  assert.match(content, /Node\.js(?: LTS)? 24/i, `${documentationPath} must recommend Node.js 24`);
+  assert.match(content, /(?:Node\.js(?: LTS)? |or )22/i, `${documentationPath} must name Node.js 22 as an alternative`);
 }
 
 function assertTraeCliRemovalGuidance(content, documentationPath) {
@@ -69,6 +73,7 @@ test('Given installed LazyTrae guidance, when its package boundary is checked, t
   assert.match(packageReadme, /self-contained CLI tarball/i, 'package README must describe the self-contained CLI artifact');
   assert.match(packageReadme, /cold offline/i, 'package README must describe the cold-offline artifact check');
   assertDurableLifecycleGuidance(installedGuide, 'installed AGENTS.md');
+  assertCurrentRuntimeGuidance(installedGuide, 'installed AGENTS.md');
   assert.match(installedGuide, /## `offboard` protocol/, 'installed setup guide must provide safe offboarding');
   assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI README must describe the self-contained CLI artifact');
 });
@@ -80,18 +85,21 @@ test('Given public lifecycle documentation, when its installation contract is ch
     'docs/03-install-and-host-verification.md',
     'docs/10-host-capability-matrix.md',
     'docs/reference/host-routes.md',
-    'docs/v1.3.0-supported-route.md',
     'CHANGELOG.md',
     'lazytrae-plugin/README.md',
     'lazytrae-plugin/packages/cli/templates/AGENTS.md',
   ];
 
   for (const relativePath of paths) {
-    assertDurableLifecycleGuidance(
-      fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8'),
-      relativePath,
-    );
+    const content = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
+    assertDurableLifecycleGuidance(content, relativePath);
+    assertCurrentRuntimeGuidance(content, relativePath);
   }
+
+  const historicalRoutePath = 'docs/v1.3.0-supported-route.md';
+  const historicalRoute = fs.readFileSync(path.join(repositoryRoot, historicalRoutePath), 'utf8');
+  assertDurableLifecycleGuidance(historicalRoute, historicalRoutePath);
+  assert.match(historicalRoute, /For the v1\.3\.0 route, \*\*Node\.js LTS 20 or newer\*\*/i, `${historicalRoutePath} must preserve its Node.js 20-or-newer historical requirement`);
 });
 
 test('Given safe-removal guidance, when TraeCode CLI host removal is documented, then it uses the selected build settings flow', () => {
@@ -111,7 +119,7 @@ test('Given v1.2 host-readiness documentation, when current release boundaries a
 
   for (const relativePath of currentPaths) {
     const content = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
-    assert.match(content, /1\.3\.0/, `${relativePath} must identify the current v1.3.0 release`);
+    assert.match(content, /1\.3\.1/, `${relativePath} must identify the current v1.3.1 release`);
     assert.match(content, /TraeCode[\s\S]*TraeWork[\s\S]*TraeCode CLI/, `${relativePath} must keep three independent host sections`);
     assert.match(content, /package readiness[\s\S]{0,300}host readiness|host readiness[\s\S]{0,300}package readiness/i, `${relativePath} must separate package and host readiness`);
     assert.doesNotMatch(content, /(?:^|\n)(?![^\n]*(?:\bno\b|\bnot\b|\bnever\b|\bwithout\b|\binert\b))[^\n]*(?:marketplace\s+(?:publish|install)|cloud\s+upload|package[- ]ready[^\n]{0,80}host[- ]ready)/im, `${relativePath} must not make an unsupported promotion or distribution claim`);
@@ -149,7 +157,7 @@ test('Given current v1.2 documentation references, when a linked Markdown or JSO
 test('Given maintainer documentation, when contributor verification guidance is checked, then it describes the current suite without unsupported source-tree readiness commands', () => {
   const packageAgents = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'AGENTS.md'), 'utf8');
 
-  assert.match(packageAgents, /1\.3\.0/, 'CLI maintainer guidance must name the packaged baseline');
+  assert.match(packageAgents, /1\.3\.1/, 'CLI maintainer guidance must name the prepared package baseline');
   assert.match(packageAgents, /broad Node test suite/i, 'CLI maintainer guidance must describe the current suite');
   assert.doesNotMatch(packageAgents, /v0\.13|250 LOC|Currently thin/i, 'CLI maintainer guidance must not retain stale constraints');
   assert.match(packageAgents, /node --test test\/documentation-regression\.test\.js/, 'CLI maintainer guidance must name a focused documentation check');
