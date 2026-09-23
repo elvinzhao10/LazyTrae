@@ -122,9 +122,9 @@ function assertTextReleaseVersions(root) {
   const changelog = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
   const sectionPattern = new RegExp(`## \\[${RELEASE_VERSION.replaceAll('.', '\\.')}\\][\\s\\S]*?(?=\n## \\[|$)`);
   const currentSection = changelog.match(sectionPattern)?.[0] || '';
-  assert.match(currentSection, /unreleased/i, `${RELEASE_VERSION} release notes omit candidate status`);
-  assert.match(currentSection, /candidate changes are documented in RELEASE_NOTES\.md/i, `${RELEASE_VERSION} release notes omit the current detail authority`);
-  assert.match(currentSection, /not a publication record/i, `${RELEASE_VERSION} release notes overstate publication`);
+  assert.match(currentSection, /2026-09-23/i, `${RELEASE_VERSION} changelog omits publication date`);
+  assert.match(currentSection, /RELEASE_NOTES\.md/i, `${RELEASE_VERSION} changelog omits the current detail authority`);
+  assert.doesNotMatch(currentSection, /unreleased|not a publication record/i, `${RELEASE_VERSION} changelog retains candidate status`);
 }
 
 function copyFixture(root) {

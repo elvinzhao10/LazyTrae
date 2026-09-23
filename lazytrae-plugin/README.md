@@ -1,7 +1,7 @@
 # LazyTrae plugin
 
 
-The latest published stable release is v1.3.0; the v1.3.1 source in this worktree is an unpublished candidate.
+The latest published stable release is v1.3.1; fresh-session native-host activation remains pending.
 
 ## Published stable v1.3.0 installation
 

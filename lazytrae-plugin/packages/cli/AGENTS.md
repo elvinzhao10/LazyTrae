@@ -6,7 +6,7 @@
 verification gate, hook dispatcher, loop controls, team mode, model routing,
 tooling lifecycle, and the launcher for the local MCP server.
 
-This worktree carries package v1.3.1 as an unpublished candidate. The latest published stable release is v1.3.0.
+The latest published stable release is v1.3.1. Current native-host activation remains pending until observed in a fresh session.
 
 ## ADAPTIVE HARNESS
 

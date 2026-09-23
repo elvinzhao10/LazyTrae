@@ -1,8 +1,8 @@
 # LazyTrae verification evidence
 
-**Current documentation release: v1.3.1 candidate.**
+**Current documentation release: v1.3.1.**
 
-The published stable release is v1.3.0; this candidate is not tagged or published. Historical v1.0.3 evidence below
+The published stable release is v1.3.1; fresh-session host readiness is still pending. Historical v1.0.3 evidence below
 is retained as historical release evidence; it is not a current writer or a
 host-readiness claim.
 

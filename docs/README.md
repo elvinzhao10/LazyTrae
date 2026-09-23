@@ -5,7 +5,7 @@ installation manual: each page names the executable boundary, the data it
 owns, and the evidence that constrains its behavior. Use the root
 [README](../README.md) for host directions.
 
-The current documentation release is the [v1.3.1 candidate](../RELEASE_NOTES.md). Its
+The current documentation release is the [v1.3.1 release](../RELEASE_NOTES.md). Its
 adaptive context guidance keeps native selection separate from advisory,
 unobserved host presentation.
 

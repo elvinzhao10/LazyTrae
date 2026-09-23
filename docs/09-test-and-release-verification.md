@@ -1,8 +1,8 @@
 # Test and release verification
 
-**Current documentation release: v1.3.1 candidate.**
+**Current documentation release: v1.3.1.**
 
-The published stable release is v1.3.0; this candidate is not tagged or published. Release checks must distinguish a
+The published stable release is v1.3.1; native-host activation still needs fresh-session verification. Release checks must distinguish a
 local generator/profile/probe result from a native host observation.
 
 LazyTrae uses layered evidence. A release check is useful only when its scope is explicit: a unit test does not prove a packed artifact, a packed artifact does not prove a host connection, and host observation does not rewrite package ownership.

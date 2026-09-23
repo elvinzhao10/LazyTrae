@@ -119,7 +119,7 @@ test('Given v1.2 host-readiness documentation, when current release boundaries a
 
   for (const relativePath of currentPaths) {
     const content = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
-    assert.match(content, /1\.3\.1/, `${relativePath} must identify the current v1.3.1 candidate`);
+    assert.match(content, /1\.3\.1/, `${relativePath} must identify the current v1.3.1 release`);
     assert.match(content, /TraeCode[\s\S]*TraeWork[\s\S]*TraeCode CLI/, `${relativePath} must keep three independent host sections`);
     assert.match(content, /package readiness[\s\S]{0,300}host readiness|host readiness[\s\S]{0,300}package readiness/i, `${relativePath} must separate package and host readiness`);
     assert.doesNotMatch(content, /(?:^|\n)(?![^\n]*(?:\bno\b|\bnot\b|\bnever\b|\bwithout\b|\binert\b))[^\n]*(?:marketplace\s+(?:publish|install)|cloud\s+upload|package[- ]ready[^\n]{0,80}host[- ]ready)/im, `${relativePath} must not make an unsupported promotion or distribution claim`);

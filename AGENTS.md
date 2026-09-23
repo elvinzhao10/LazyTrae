@@ -6,9 +6,9 @@
 
 LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. CI workflows run package checks on Ubuntu and macOS; live host observations in the supplied reports are historical macOS observations. No current-session host activation is established. Package files, host settings, credentials, and sessions remain separate authorities.
 
-## Current documentation release: v1.3.1 candidate
+## Current documentation release: v1.3.1
 
-The latest published stable release is v1.3.0. This worktree documents a v1.3.1 candidate; it is not tagged or published.
+The latest published stable release is v1.3.1. Current native-host activation remains pending until observed in a fresh session.
 
 ## Durable onboarding (start here)
 

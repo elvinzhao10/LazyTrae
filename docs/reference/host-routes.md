@@ -1,6 +1,6 @@
 # Host routes
 
-**Current documentation release: v1.3.1 candidate.** Select exactly one independent
+**Current documentation release: v1.3.1.** Select exactly one independent
 host route; package outputs never prove that the selected host discovered or
 executed them.
 
@@ -19,7 +19,7 @@ macOS, `${XDG_DATA_HOME:-~/.local/share}/lazyseries` on Linux, and
 for scoped offboard and re-onboard rather than editing receipts. These package
 operations never prove a host: **HOST READINESS: PENDING** until observation.
 
-For a stable install, use the published v1.3.0 release. This v1.3.1 candidate documentation is not a release tag. Give the agent
+For a stable install, use the published v1.3.1 release. Give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for the host, runs safe package checks, and reports package readiness
 before any host-managed mutation.
