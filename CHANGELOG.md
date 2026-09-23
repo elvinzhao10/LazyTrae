@@ -3,6 +3,14 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.1] - Unreleased
+
+- Follow-up fixes bind evaluation snapshots to bytes, report honest integrity and measurement scope, and close confirmed routing/isolation/context-tool gaps; see RELEASE_NOTES.md for product-specific scope.
+
+- Removed obsolete agent-session attribution and port setup notes; NOTICE and LICENSE retain project credits.
+- Candidate changes are documented in RELEASE_NOTES.md. This entry is not a publication record.
+- New installations recommend Node.js LTS 24, with Node.js LTS 22 as the supported alternative. Node 18/20 checks cover legacy compatibility only.
+
 ## [1.3.0] - 2026-09-16
 
 ### Added

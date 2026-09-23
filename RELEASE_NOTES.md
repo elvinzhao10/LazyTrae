@@ -1,93 +1,46 @@
-# LazyTrae v1.3.0 — adaptive workflow experience
+# LazyTrae v1.3.1 — release candidate (unpublished)
 
-**Release date:** 2026-09-16
-
-This release prepares the v1.3.0 package. It does not publish a tag, GitHub
-release, marketplace entry, host registration, or proprietary host execution.
-Package readiness and host readiness remain separate authorities.
-
-This is a feature release. It adds dual activation, progressive milestones
-with scoped decision gates, human plan-edit reconciliation, a cross-plan
-decision ledger, and verification-tier selection with receipt reuse. Existing
-routing, execution, verification, and librarian surfaces are retained; no new
-orchestration framework or mandatory arbiter command is introduced.
+The latest published stable release is v1.3.0. This v1.3.1 worktree is a release candidate only: it has not been tagged or published, and it makes no host-installation or activation claim. Main-branch CI and package checks are not evidence about a release archive.
 
 ## Eval-driven fixes
 
-- Explicit start-work and plain natural-language implementation requests
-  converge on the same execution authority and gates. Explanation,
-  quoted-command, and explicit plan-only requests never mutate product files,
-  and an ambiguous approval with several pending questions never grants
-  execution authority.
-- `execution_intent` (plan_only|execute) is persisted separately from workflow
-  mode and current stage, defaulting to plan_only. Duplicate host events do
-  not duplicate dispatch; resume selects the single compatible run or asks
-  only when genuinely ambiguous.
-- Complex work uses one parent plan with milestones. Provisional milestones
-  never dispatch; dependency cycles, missing IDs, and dangling child links are
-  rejected. Decision gates carry the canonical shape; a recommendation never
-  becomes owner approval and only transitive dependents block.
-- Human plan edits are reconciled at execution boundaries: cosmetic edits
-  preserve all evidence, semantic edits invalidate only the affected task and
-  its transitive dependents, a human checked box is a completion assertion
-  never a verified result, and stale results cannot update newer plan state.
-- Cross-plan decision memory is durable (`decisions/ledger.jsonl`): immutable
-  versioned events, replay-derived active view, scoped corrections, and
-  visible failure on malformed records.
-- Verification is selected once from the changed boundary and risk on the
-  V0-V3 tier ladder, then a green receipt is reused while its declared inputs
-  and covered behavior are unchanged. Counts never promote a tier; a failing
-  focused check reruns only itself plus directly affected integration checks.
+- Cohort comparison now reads and hashes referenced task, budget and permission snapshots. Outcome integrity distinguishes absent, partial and validated evidence; explicitly marked fixture-validation telemetry is rejected as execution input.
+- Isolation now separates directory allocation from Git worktree provisioning, rejects untracked caller changes and preserves populated allocations during release/recovery.
+- Model-routing health checks validate configured category values and explicitly leave native model resolution unobserved.
+- Subagents inherit the current model unless a plan explicitly enables switching. Host-scoped routing gives advisory task-tier guidance from a safe catalog when `--allow-switch` is used. It never writes host configuration, treats a current empty TraeCLI catalog as local observation only, and omits unsupported `auto`, `max`, and `lite` subagent model aliases.
+
+- Outcome evaluation reports explicit host-billed cost only. It does not infer dollar costs from token rates, preserves usage records when a run fails, includes failed-run costs in the condition numerator, and rejects cohorts with mismatched host build, model, task snapshot, budget, or permissions. Artifact hashes establish integrity, not independent truth.
+- Trae intent routing distinguishes explicit execution (/lazy-start-work and /start-work) from explicit planning (/lazy-ulw-plan and /ulw-plan); ambiguous or denied requests remain plan-only, including supported multilingual denials.
+
+- The installed onboarding guide now matches the repository guide: Node.js LTS 24 is recommended, 22 is the supported alternative, and the lifecycle accepts 20 for compatibility.
+
+## Documentation cleanup
+
+Removed obsolete implementation-session notes and initial port instructions. Current contributor guidance is in AGENTS.md and CONTRIBUTING.md; project credits and licenses remain in NOTICE and LICENSE.
 
 ## Measured efficiency
 
-This patch does not change the compact execution evidence figures. The v1.2.3
-measurements remain the current authority. No new efficiency claim is made
-here, and no unavailable token reduction is asserted.
+No observed productivity gain, speedup, token-price estimate, or efficiency improvement is claimed for this candidate. Cost comparisons follow the [outcome evaluation protocol](lazytrae-plugin/packages/cli/contracts/OUTCOME-EVALUATION.md) and are limited to explicit host-billed records and matching cohorts.
 
 ## Host capability matrix
 
-| Product surface | v1.3.0 package capability | Host evidence boundary |
-| --- | --- | --- |
-| TraeCode | Local project assets, core MCP declaration, and native context presentation. | Discovery, hooks, session, MCP connection, and execution require current observation. |
-| TraeWork | Explicit profile plus approval-gated Skills copy and manual MCP JSON. | A presentation is advisory; desktop/local paths do not prove execution. |
-| TraeCode CLI | Local project configuration and receipt-owned candidate generation. | Candidate and presentation stay inert/unobserved until a selected build/session is observed. |
+The package routes below describe available package declarations. The rows remain pending until a fresh host session supplies current host build/edition, selected route, session identity, activation, MCP call, specialist action, cancellation, completion, and actual artifact evidence.
 
-Package checks, generated files, and a probe remain package evidence only.
-Every host is **pending host proof** until observed in a fresh session; this
-release does not claim that any host loaded, enabled, or connected anything.
+| Host | Package route | Current host evidence |
+| --- | --- | --- |
+| TraeCode | Project route | Pending: current build/edition/route/session, activation, MCP calls, specialist, cancellation, completion artifact. |
+| TraeWork | User Skills route or documented selected route | Pending: current build/edition/route/session, activation, MCP calls, specialist, cancellation, completion artifact. |
+| TraeCode CLI | CLI route | Pending: current build/edition/route/session, activation, MCP calls, specialist, cancellation, completion artifact. |
 
 ## Migration and upgrade
 
-Upgrade through the durable release-owned lifecycle launcher. Inventory managed,
-modified, unknown, linked, and caller-owned assets before promotion. Replace
-only receipt-owned unmodified assets; preserve user changes and host-managed
-settings. Run package checks, then start a fresh host session and observe the
-selected route before reporting host readiness.
-
-Declarations that already use a space-free `command` and a documented variable
-need no change. A project-level MCP surface that was previously enabled by hand
-still requires the host opt-in to be confirmed in the current build.
+Keep the published v1.3.0 release as the stable reference. For candidate evaluation, use normal durable lifecycle inventory and package verification; preserve modified, unknown, linked, and caller-owned files. Verify the exact archive or candidate commit independently before host testing. Do not infer archive contents from main-branch CI. No host mutation is included in this preparation.
 
 ## Known risks
 
-- Discovery, hooks, session, MCP connection, and execution remain host-owned
-  and pending without current-session evidence.
-- Command validation is a local declaration boundary. It does not prove that a
-  declared server starts, that its arguments are safe, or that a host will load
-  it.
-- Host tool surfaces may interpose their own command shims. A shim that does
-  not implement POSIX regular-expression classes can change the behavior of
-  shipped shell checks on that host; this release converts the affected hook
-  patterns to POSIX character classes but cannot constrain arbitrary host shims.
-- Same-version ref movement, a changed runtime/executable, or a changed host
-  fingerprint invalidates prior evidence and requires re-verification.
+- Host integration remains pending without current-session observation. CI and host-parser validation do not prove asset discovery, a loaded Skill/command, specialist execution, MCP connectivity, cancellation behavior, or task completion.
+- Evaluation hashes only bind supplied evidence bytes; they do not establish that evidence is independently true.
 
 ## Rollback
 
-Use the durable launcher’s receipt-scoped offboard or rollback flow. Remove
-only v1.3.0 receipt-owned unmodified assets after approval. Preserve modified,
-unknown, linked, caller-owned, and host-managed files and registrations; never
-restore an older release over user changes. For a stale runtime, use a fresh
-verified checkout for scoped offboard and then onboard the desired immutable
-release.
+Stop the host session, then use the durable lifecycle rollback/offboard path to return to the exact prior release after reviewing receipt ownership. Remove only unmodified receipt-owned assets; preserve modified, unknown, linked, caller-owned, and host-managed state. Start a fresh session before recording any restored host behavior.

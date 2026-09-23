@@ -1,11 +1,11 @@
 # Host routes
 
-**Current documentation release: v1.3.0.** Select exactly one independent
+**Current documentation release: v1.3.1 candidate.** Select exactly one independent
 host route; package outputs never prove that the selected host discovered or
 executed them.
 
-Use exactly one route at a time. **Node.js LTS 20 or newer** and **Git** are
-required. Bootstrap with `lifecycle onboard` only from the verified official
+Use exactly one route at a time. **Node.js LTS 24 (recommended) or 22 (supported alternative)** and **Git** are
+recommended for new installs. The lifecycle also accepts Node.js LTS 20 for compatibility. Bootstrap with `lifecycle onboard` only from the verified official
 origin `https://github.com/elvinzhao10/LazyTrae.git`, then use
 `node "<install-root>/LazyTrae/launcher.js"`. `lifecycle update`,
 `lifecycle status`, and plan-first `lifecycle offboard` operate on
@@ -19,7 +19,7 @@ macOS, `${XDG_DATA_HOME:-~/.local/share}/lazyseries` on Linux, and
 for scoped offboard and re-onboard rather than editing receipts. These package
 operations never prove a host: **HOST READINESS: PENDING** until observation.
 
-Open or link the durable `v1.3.0` documentation release in the host, give the agent
+For a stable install, use the published v1.3.0 release. This v1.3.1 candidate documentation is not a release tag. Give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for the host, runs safe package checks, and reports package readiness
 before any host-managed mutation.

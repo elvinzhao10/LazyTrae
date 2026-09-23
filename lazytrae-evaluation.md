@@ -1,6 +1,8 @@
 # LazyTrae verification evidence
 
-**Current documentation release: v1.3.0.** Historical v1.0.3 evidence below
+**Current documentation release: v1.3.1 candidate.**
+
+The published stable release is v1.3.0; this candidate is not tagged or published. Historical v1.0.3 evidence below
 is retained as historical release evidence; it is not a current writer or a
 host-readiness claim.
 
@@ -162,7 +164,7 @@ remain unverified until observed in the selected host. Linux and Windows TraeWor
 
 ## macOS verification scope
 
-LazyTrae is verified on macOS only. Normal CI does not require a sibling
+LazyTrae has automated package coverage in CI on Ubuntu and macOS; live host behavior is only established by current-session observation. Normal CI does not require a sibling
 repository; release-only paired parity uses explicitly supplied sibling roots
 as evidence and never becomes a runtime or installation dependency.
 

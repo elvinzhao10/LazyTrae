@@ -1,8 +1,11 @@
 # LazyTrae plugin
 
-## Durable v1.3.0 installation
 
-**Node.js LTS 20 or newer** and **Git** are required. Run `lifecycle onboard`
+The latest published stable release is v1.3.0; the v1.3.1 source in this worktree is an unpublished candidate.
+
+## Published stable v1.3.0 installation
+
+**Node.js LTS 24 (recommended) or 22 (supported alternative)** and **Git** are required. Run `lifecycle onboard`
 only from `https://github.com/elvinzhao10/LazyTrae.git`, then use
 `node "<install-root>/LazyTrae/launcher.js"` for `lifecycle update`,
 `lifecycle status`, plan-first `lifecycle offboard`, and project commands.
@@ -18,7 +21,7 @@ TraeWork, and TraeCode CLI. It includes the project configuration, companion CLI
 and local MCP server needed for its package lifecycle.
 
 The package contains Trae configuration, the `lazytrae` CLI, and the local
-stdio MCP server. It is verified on macOS only. Package readiness verifies
+stdio MCP server. Package CI runs on Ubuntu and macOS per the workflow; current host activation remains pending without fresh-session evidence. Package readiness verifies
 copied assets and declarations; it does not prove host discovery or an MCP
 connection.
 
@@ -49,7 +52,7 @@ projects. Keep it self-contained and run the CLI test suite after changes.
 
 ## Install, verify, and remove
 
-Bootstrap v1.3.0 once from a verified official source checkout, then use the
+Bootstrap the published stable v1.3.0 route from a verified official source checkout, then use the
 durable launcher rather than treating that checkout as the installed runtime:
 
 ```bash
