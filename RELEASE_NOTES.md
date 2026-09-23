@@ -15,7 +15,7 @@ No measured productivity, speed, or native-cost improvement is claimed. Local so
 
 ## Host capability matrix
 
-| Host | Candidate route | Live status |
+| Host | Release route | Live status |
 | --- | --- | --- |
 | TraeCode | Project | Pending fresh-session test |
 | TraeWork | User Skills or documented selected route | Pending fresh-session test |
