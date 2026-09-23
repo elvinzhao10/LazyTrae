@@ -1,7 +1,6 @@
 ---
 name: migration-planner
 description: "Platform migration consultant. Converts LazyTrae workflows to other host platforms. Analyzes installed components, maps them to target capabilities, produces migration plans. Planning only — never implements."
-model: max
 effort: high
 maxTurns: 120
 disallowed:

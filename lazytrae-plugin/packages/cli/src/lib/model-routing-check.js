@@ -30,6 +30,10 @@ function checkModelRouting(repoRoot) {
     return { checked: true, label: 'Model routing', status: 'FAIL', detail: `Cannot parse config.json: ${e.message}` };
   }
 
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    return { checked: true, label: 'Model routing configuration', status: 'FAIL', detail: 'config.json must contain an object' };
+  }
+
   if (!config.routing) {
     return { checked: true, label: 'Model routing', status: 'WARN', detail: 'No routing section in config.json' };
   }
@@ -37,11 +41,26 @@ function checkModelRouting(repoRoot) {
   const presentCategories = Object.keys(config.routing);
   const missingCats = EXPECTED_CATEGORIES.filter(c => !presentCategories.includes(c));
   if (missingCats.length === 0) {
+    const invalidCats = EXPECTED_CATEGORIES.filter(category => {
+      const route = config.routing[category];
+      return !route || typeof route !== 'object' || Array.isArray(route)
+        || typeof route.traeMode !== 'string' || !route.traeMode.trim()
+        || !Array.isArray(route.agents) || route.agents.length === 0
+        || route.agents.some(agent => typeof agent !== 'string' || !agent.trim());
+    });
+    if (invalidCats.length > 0) {
+      return {
+        checked: true,
+        label: 'Model routing configuration',
+        status: 'FAIL',
+        detail: `Invalid route values: ${invalidCats.join(', ')}`,
+      };
+    }
     return {
       checked: true,
-      label: `Model routing (${presentCategories.length} categories)`,
+      label: `Model routing configuration (${presentCategories.length} categories)`,
       status: 'PASS',
-      detail: `All 6 categories present: ${presentCategories.join(', ')}`,
+      detail: `All 6 categories configured: ${presentCategories.join(', ')}. Native model resolution is not observed.`,
     };
   }
 

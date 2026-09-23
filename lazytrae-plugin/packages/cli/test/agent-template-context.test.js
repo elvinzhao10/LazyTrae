@@ -19,6 +19,7 @@ const ACTIVE_AGENT_NAMES = [
 ];
 const LEGACY_AGENT_REFERENCE = /lazycodex|\bomo\b|old checkout|legacy harness/i;
 const ABSENT_CONSUMER_DOCUMENT = /docs\/lazytrae-/i;
+const ADVISORY_MODEL_ALIAS = /^model:\s*(?:auto|max|lite)\s*$/mi;
 
 function agentFileNames(directory) {
   return fs.readdirSync(directory)
@@ -76,6 +77,8 @@ test('all active agent source mirrors, templates, and fresh installs remain self
 
       assert.equal(source, template, `${name} source mirror drifted from its template`);
       assert.equal(installed, template, `${name} was not installed from its template`);
+      assert.doesNotMatch(template, ADVISORY_MODEL_ALIAS,
+        `${name} ships an advisory model alias in Trae frontmatter`);
       assert.doesNotMatch(template, LEGACY_AGENT_REFERENCE, `${name} retains legacy operational guidance`);
       assert.doesNotMatch(template, ABSENT_CONSUMER_DOCUMENT, `${name} links to documentation absent from consumer projects`);
     }

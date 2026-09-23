@@ -7,8 +7,8 @@ const test = require('node:test');
 const expectedVersion = require('../package.json').version;
 const packagedMcp = require('../src/mcp');
 const sourceMcp = require('../../mcp/src');
-const RELEASE_VERSION = '1.3.0';
-const previousReleaseVersion = '1.2.3';
+const RELEASE_VERSION = '1.3.1';
+const previousReleaseVersion = '1.3.0';
 
 const CURRENT_RELEASE_PATHS = [
   '../../../../README.md',
@@ -62,13 +62,14 @@ const CURRENT_RELEASE_PATHS = [
 const REGEX_EXPECTATION_PATHS = [
   {
     relativePath: '../test/documentation-regression.test.js',
-    previous: /assert\.match\(packageAgents, \/1\\\.2\\\.3\//,
-    current: /assert\.match\(packageAgents, \/1\\\.3\\\.0\//,
+    previous: /assert\.match\(packageAgents, \/1\\\.3\\\.0\//,
+    current: /assert\.match\(packageAgents, \/1\\\.3\\\.1\//,
   },
 ];
 const HISTORICAL_CONTEXT_PATHS = new Set([
   '../../../../README.md',
   '../../../../AGENTS.md',
+  '../../../../lazytrae-plugin/packages/cli/AGENTS.md',
   '../templates/AGENTS.md',
   '../test/runtime-version.test.js',
 ]);

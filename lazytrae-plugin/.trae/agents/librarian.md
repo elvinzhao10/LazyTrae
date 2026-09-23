@@ -1,7 +1,6 @@
 ---
 name: librarian
 description: "External open-source codebase and documentation researcher. Uses capability-routed research and returns SHA-pinned source citations. Read-only for code; write-permitted for docs."
-model: lite
 effort: low
 maxTurns: 40
 isolation: true

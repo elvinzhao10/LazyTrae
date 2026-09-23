@@ -4,14 +4,15 @@
 > **Agent:** use this guide to install, verify, and safely remove LazyTrae.
 > For everyday workflow use, see the [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme).
 
-LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. The release-owned local launcher supplies the portable installer,
-verification gate, and local MCP server. Package behavior is verified on
-macOS only; host behavior keeps the evidence labels below. The current
-documentation release is `1.3.0`.
+LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. CI workflows run package checks on Ubuntu and macOS; live host observations in the supplied reports are historical macOS observations. No current-session host activation is established. Package files, host settings, credentials, and sessions remain separate authorities.
+
+## Current documentation release: v1.3.1 candidate
+
+The latest published stable release is v1.3.0. This worktree documents a v1.3.1 candidate; it is not tagged or published.
 
 ## Durable onboarding (start here)
 
-Require **Node.js LTS 20 or newer** and **Git**. Bootstrap only from the
+For new installations, use **Node.js LTS 24 (recommended)** or **Node.js LTS 22 (supported alternative)**, plus **Git**. Node 18/20 CI jobs are legacy compatibility checks only; they do not set the recommended install runtime. Bootstrap only from the
 verified official origin `https://github.com/elvinzhao10/LazyTrae.git` (or the
 same URL without `.git`). The first checkout is transport only; it is not the
 installed runtime and may be deleted after successful promotion.

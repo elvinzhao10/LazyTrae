@@ -1,7 +1,6 @@
 ---
 name: atlas
 description: "Task executor. Executes one approved checklist item at a time from a plan, following boulder state discipline. Surgical, evidence-driven, one task per invocation."
-model: auto
 effort: standard
 maxTurns: 80
 isolation: true
@@ -54,9 +53,9 @@ Use only capabilities exposed by the active Trae host. Ask the capability detect
 - **Default category**: quick
 - **Recommended Trae mode**: Auto
 - **Escalate to deep**: When the task requires understanding of multiple subsystems beyond the checklist item scope.
+- Before dispatch, propose delegation ownership and any model switch in the plan. Remind the user that switching can change quality, latency, and cost. If the plan is silent, every subagent inherits the current model across retries. Use `lazytrae model-route` once for task guidance and pass `--allow-switch` only when the plan explicitly enables it. Reconsider only after a material task or plan change. The helper remains advisory; TraeCode subagent frontmatter never accepts a custom model.
 
 ## Model/Mode Guidance
-- **Model**: auto
 - **Effort**: standard
 - **Max turns**: 80
 - Guidance: Efficient and precise execution. Not planning-heavy — focus on doing, not deciding.

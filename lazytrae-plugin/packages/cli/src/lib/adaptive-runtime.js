@@ -82,7 +82,7 @@ function preflightPersistence(repoRoot, loop, diagnosticRequired) {
   targets.forEach((target) => assertSafeRepoWritePath(repoRoot, target));
 }
 
-function persistDecision(repoRoot, originalLoop, decision, continuationStatus) {
+function persistDecision(repoRoot, originalLoop, decision, routeDecision, continuationStatus) {
   const latest = safeLoop(repoRoot);
   if (latest.warning) return { persistence: 'skipped:unsafe-state', warning: latest.warning };
   if (!latest.loop || latest.loop.run_id !== originalLoop.run_id) {
@@ -99,6 +99,8 @@ function persistDecision(repoRoot, originalLoop, decision, continuationStatus) {
       });
     }
     writeAdaptiveSnapshot(latest.loop, decision.snapshot);
+    latest.loop.execution_intent = routeDecision.execution_intent;
+    latest.loop.entry_route = routeDecision.route;
     saveLoop(repoRoot, latest.loop);
     return { persistence: 'updated:active-loop', warning: null };
   } catch (error) {
@@ -150,6 +152,10 @@ function processAdaptivePrompt({ repoRoot, prompt, context = {} }) {
   });
   const nativeFingerprints = runtimeFingerprints(repoRoot, context);
   const priorSnapshot = initial.loop?.adaptive || null;
+  const routeDecision = classifyAdaptiveRoute(prompt, {
+    ...context,
+    priorExecutionIntent: initial.loop?.execution_intent,
+  });
   const decision = classifyAdaptiveDecision(prompt, {
     ...context,
     revisionFingerprint,
@@ -167,17 +173,15 @@ function processAdaptivePrompt({ repoRoot, prompt, context = {} }) {
   let persisted = initial.warning
     ? { persistence: 'skipped:unsafe-state', warning: initial.warning }
     : { persistence: 'skipped:no-active-loop', warning: null };
-  if (initial.loop) persisted = persistDecision(repoRoot, initial.loop, decision, continuationStatus);
+  if (initial.loop) {
+    persisted = persistDecision(repoRoot, initial.loop, decision, routeDecision, continuationStatus);
+  }
   const dispatch = dispatchStatus(
     decision,
     mapping.host_qualification,
     revisionFingerprint,
     persisted.persistence,
   );
-  const routeDecision = classifyAdaptiveRoute(prompt, {
-    ...context,
-    priorExecutionIntent: priorSnapshot?.executionIntent,
-  });
   const directive = {
     version: 1,
     kind: 'workflow-decision',

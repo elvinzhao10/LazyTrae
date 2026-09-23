@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 
-const RELEASE_VERSION = '1.3.0';
+const RELEASE_VERSION = '1.3.1';
 const REPOSITORY_ROOT = path.resolve(__dirname, '../../../..');
 
 const JSON_VERSION_PATHS = [
@@ -122,8 +122,9 @@ function assertTextReleaseVersions(root) {
   const changelog = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
   const sectionPattern = new RegExp(`## \\[${RELEASE_VERSION.replaceAll('.', '\\.')}\\][\\s\\S]*?(?=\n## \\[|$)`);
   const currentSection = changelog.match(sectionPattern)?.[0] || '';
-  assert.match(currentSection, /local-first onboarding/i, `${RELEASE_VERSION} release notes omit local-first onboarding`);
-  assert.match(currentSection, /host readiness/i, `${RELEASE_VERSION} release notes omit honest host readiness`);
+  assert.match(currentSection, /unreleased/i, `${RELEASE_VERSION} release notes omit candidate status`);
+  assert.match(currentSection, /candidate changes are documented in RELEASE_NOTES\.md/i, `${RELEASE_VERSION} release notes omit the current detail authority`);
+  assert.match(currentSection, /not a publication record/i, `${RELEASE_VERSION} release notes overstate publication`);
 }
 
 function copyFixture(root) {

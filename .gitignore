@@ -27,6 +27,8 @@ desktop.ini
 
 # Logs
 *.log
+!/lazytrae-plugin/packages/cli/contracts/fixtures/completion-evidence-v1/artifacts/criterion.log
+!/lazytrae-plugin/packages/cli/contracts/fixtures/outcome-evaluation-v1/artifacts/criterion.log
 npm-debug.log*
 
 # Runtime state (samples live in other/)

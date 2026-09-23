@@ -20,6 +20,7 @@ const commands = {
   mcp: () => require('./commands/mcp').run,
   loop: () => require('./commands/loop').run,
   run: () => require('./commands/run').run,
+  'model-route': () => require('./commands/model-route').run,
   team: () => require('./commands/team').run,
   work: () => require('./commands/work').run,
   tooling: () => require('./commands/tooling').run,
@@ -68,6 +69,7 @@ Commands:
   mcp         Start the LazyTrae MCP server (stdio JSON-RPC)
   loop        Long-horizon execution loop status and control
   run         Present explicit model routing for the supported TraeCode route
+  model-route Recommend host-scoped model guidance without changing a host
   team        Team mode / parallel-work coordination
   work        Install or inspect global TraeWork skills
   tooling     Manage a package-owned local tooling root

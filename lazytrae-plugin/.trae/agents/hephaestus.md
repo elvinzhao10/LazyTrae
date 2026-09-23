@@ -1,7 +1,6 @@
 ---
 name: hephaestus
 description: "Autonomous deep worker for complex implementation, debugging, and cross-domain synthesis. Goal-oriented: given objectives, not recipes. Runs the full Explore->Plan->Implement->Verify->QA loop."
-model: max
 effort: high
 maxTurns: 120
 isolation: true
