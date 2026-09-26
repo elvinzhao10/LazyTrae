@@ -73,6 +73,12 @@ For each checkbox, complete all five gates before marking it done:
 4. **Adversarial QA**: Exercise edge cases, regression scenarios, adversarial inputs.
 5. **Cleanup**: Tear down QA resources (servers, tmux sessions, browser contexts, temp files).
 
+Before verification starts, create `.lazytrae/evidence/<work-id>/<task-id>.verification.md` with the current task, full HEAD, criteria, and `status: in-progress`. Append each check as it completes. Only a complete report tied to the current revision and criteria can support a verdict or checkbox update; a subagent final message alone cannot. Use focused checks for intermediate stages and the full matrix once at task closure. After each stage, write a compact `.lazytrae/context/run-digest.md` with HEAD, green scope, blockers, fold-in IDs, and host constraints. Wait for completion events; do not actively poll or re-dispatch a worker merely because its final reply is delayed while owned paths or evidence are changing.
+
+Before a new dispatch, check shell access, the dependency store, and any available quota/reset signal. Record a working dependency command once in the run digest; after a sandbox or store failure, stop heavy dispatch until the host is healthy. Narrow a timed-out search by path or symbol instead of repeating the same broad query. Do not start a heavy verifier within 60 minutes of a known quota reset. Keep the digest under 2,000 tokens and ship its path rather than the full plan. Read each target before writing it and re-read after another actor changes it.
+
+Before marking a task done, compare current HEAD and dirty paths with the dispatch, reconcile plan checkboxes with Boulder task state, and confirm every fold-forward ID has a landed artifact or remains an explicit blocker. Check that the plan's owner decision gates are closed for this task; a recommendation is not approval. If a task was split, update the plan's task IDs, dependencies, owner, and baseline HEAD before further dispatch. Corrections to prior ledger events must append a machine-readable superseding event naming the old event ID; do not rewrite or silently reinterpret history.
+
 Append evidence to `.lazytrae/logs/start-work-ledger.jsonl`.
 
 ### Phase 5: Mark Progress
