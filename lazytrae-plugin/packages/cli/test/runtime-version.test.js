@@ -69,6 +69,7 @@ const REGEX_EXPECTATION_PATHS = [
 const HISTORICAL_CONTEXT_PATHS = new Set([
   '../../../../README.md',
   '../../../../AGENTS.md',
+  '../../../../lazytrae-plugin/packages/cli/AGENTS.md',
   '../templates/AGENTS.md',
   '../test/runtime-version.test.js',
 ]);

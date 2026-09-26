@@ -27,6 +27,30 @@ existing project or host provider before it provisions the package-owned
 fallback. `lazytrae tooling verify` can discover native lint, typecheck, test,
 and build commands, but runs none until the caller selects `--run`.
 
+## Host-scoped model advice
+
+The plan should propose delegation and any model switch, remind the user of
+the quality, latency, and cost tradeoff, and record the decision. When silent,
+subagents keep the current model. `--allow-switch` is used only after the plan
+enables switching. `lazytrae model-route` recommends a task tier from caller-supplied, safe model
+metadata. It never reads or writes Trae settings, provider URLs, credentials,
+or billing data, and it never invokes a model. The result is advisory: choose
+the main-session model or mode in the selected host yourself.
+
+The existing `.lazytrae/config.json` `routing` categories and their `traeMode`
+values remain version-compatible task guidance. They are not a model catalog,
+provider-dispatch mechanism, or a declaration that a host resolved a model.
+
+For international TraeCode, a supplied catalog entry can be named in a
+subagent only when it is a configured built-in and the caller explicitly marks
+it `subagentSupported: true`. Custom models are not eligible for TraeCode
+subagent `model` frontmatter, so the generated agent templates omit that field
+and inherit the model selected in Agent. TraeWork and TraeCode CLI have no
+verified native subagent-selection contract here; their recommendations always
+remain manual main-session guidance. An empty
+`traecli models --json` result means the active configuration supplied no
+models; it does not establish a global catalog or availability.
+
 ## Core MCP versus optional declarations
 
 The base `.trae/mcp.json` contains eight declarations: one executable local

@@ -1,7 +1,6 @@
 ---
 name: cleaner
 description: "AI-slop remover. Locks behavior with regression tests first, then runs categorized cleanup across 10 slop categories, then verifies with quality gates. Conservative — when in doubt, leave it."
-model: auto
 effort: standard
 maxTurns: 80
 isolation: true

@@ -5,6 +5,72 @@ const test = require('node:test');
 
 const ec = require('../src/lib/execution-convergence');
 
+test('canonical commands declare their route and authorization intent', () => {
+  assert.deepEqual(ec.COMMAND_INTENTS, {
+    'lazy-start-work': { intent: 'execute', route: 'explicit-execution' },
+    'start-work': { intent: 'execute', route: 'explicit-execution' },
+    'lazy-ulw-plan': { intent: 'plan_only', route: 'explicit-planning' },
+    'ulw-plan': { intent: 'plan_only', route: 'explicit-planning' },
+  });
+  assert.equal(ec.resolveExecutionIntent('/lazy-ulw-plan', {}), 'plan_only');
+  assert.equal(ec.routeFor('/lazy-ulw-plan'), 'explicit-planning');
+  assert.equal(ec.commandFor('/lazy-start-work-example'), null);
+  assert.equal(ec.resolveExecutionIntent('/lazy-start-work-example', {}), 'plan_only');
+  assert.equal(ec.routeFor('/lazy-start-work-example'), 'automatic-activation');
+});
+
+test('non-execution prompts never create execution authority', () => {
+  const cases = [
+    '',
+    '`run tests`',
+    '"run tests"',
+    'Pause and wait for approval',
+    'Fix this, but wait for approval before implementing.',
+    'Please do not implement; run tests after approval.',
+    'Update me on the current status.',
+    'Delete nothing; explain the plan.',
+    'Run no tests; just explain.',
+    'Create a plan for the migration.',
+    'Write a plan for this fix.',
+    'Please write an implementation plan.',
+    'Can you create a plan?',
+    'Plan this fix before we make changes.',
+    'Explain how to implement the plan.',
+    '先不要执行，只解释计划',
+    'No ejecutes; solo explica el plan.',
+    '実行せず、計画だけ説明してください。',
+  ];
+  for (const request of cases) {
+    assert.equal(
+      ec.resolveExecutionIntent(request, {}),
+      'plan_only',
+      `${JSON.stringify(request)} must not authorize execution`,
+    );
+  }
+});
+
+test('clear implementation requests retain execution authority', () => {
+  const cases = [
+    '/lazy-start-work plan-a',
+    'Fix the typo in the welcome label.',
+    'Please run tests',
+    'Can you fix this bug?',
+    'Add a stop button.',
+    'Fix the pause handler.',
+    'Implement this change and explain it.',
+    'After you explain, fix the bug.',
+    'Explain the bug, then fix it.',
+    'I need you to fix the bug.',
+    'Go ahead and run the tests.',
+    'Make the requested change.',
+    'Proceed with the implementation.',
+    '请修复这个错误',
+  ];
+  for (const request of cases) {
+    assert.equal(ec.resolveExecutionIntent(request, {}), 'execute', request);
+  }
+});
+
 // Table-driven route cases (behaviors a + b, scenarios S1-S5, S13, S14).
 const ROUTE_CASES = [
   {

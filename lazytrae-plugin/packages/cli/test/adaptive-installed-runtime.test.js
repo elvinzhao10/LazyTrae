@@ -190,6 +190,26 @@ test('active-loop persistence is atomic, canonical, and preserves unrelated fiel
   assert.equal(state.adaptive.requestDigest, digest('Fix one typo in one file.'));
 });
 
+test('active-loop persistence retains the authorization intent and entry route', (t) => {
+  const root = makeGitFixture('lazytrae-adaptive-route-');
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  activateLoop(root);
+
+  const planning = processAdaptivePrompt({ repoRoot: root, prompt: '/lazy-ulw-plan feature-a' });
+  const plannedState = readLoopState(root);
+  assert.equal(planning.directive.executionIntent, 'plan_only');
+  assert.equal(planning.directive.entryRoute, 'explicit-planning');
+  assert.equal(plannedState.execution_intent, 'plan_only');
+  assert.equal(plannedState.entry_route, 'explicit-planning');
+
+  const execution = processAdaptivePrompt({ repoRoot: root, prompt: '/lazy-start-work feature-a' });
+  const executionState = readLoopState(root);
+  assert.equal(execution.directive.executionIntent, 'execute');
+  assert.equal(execution.directive.entryRoute, 'explicit-execution');
+  assert.equal(executionState.execution_intent, 'execute');
+  assert.equal(executionState.entry_route, 'explicit-execution');
+});
+
 test('corrupt persisted adaptive snapshot reclassifies without crashing or leaking nested fields', () => {
   const root = makeGitFixture('lazytrae-adaptive-corrupt-loop-');
   try {

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const RELEASE_VERSION = '1.3.2';
-const PREVIOUS_VERSION = '1.3.0';
+const PREVIOUS_VERSION = '1.3.1';
 const VERSION_JSON_PATHS = [
   ['lazytrae-plugin/packages/cli/package.json', ['version']],
   ['lazytrae-plugin/packages/cli/package-lock.json', ['version']],
@@ -53,7 +53,8 @@ function walk(root, directory = root) {
 }
 
 function previousVersionClassification(relativePath, line) {
-  if (relativePath === 'RELEASE_NOTES.md' || relativePath.startsWith('docs/v1.2.')) return 'historical-release-document';
+  if (relativePath === 'RELEASE_NOTES.md' || relativePath.startsWith('docs/v1.2.')
+    || relativePath.startsWith('docs/v1.3.0-')) return 'historical-release-document';
   if (relativePath.endsWith('lazyseries-shared-semantics.v1.json')) return 'schema-independent-contract-history';
   if (relativePath === 'CHANGELOG.md') return 'historical-release-history';
   if (relativePath.includes('/contracts/fixtures/') || relativePath.includes('/test/fixtures/')) return 'historical-or-adversarial-fixture';
@@ -67,8 +68,13 @@ function previousVersionClassification(relativePath, line) {
   if (relativePath.endsWith('v120-release-version-classification.test.js')) return 'adversarial-test-input';
   if (relativePath.endsWith('documentation-regression.test.js') || relativePath.endsWith('product-naming.test.js')) return 'historical-test-input';
   if (relativePath.endsWith('automatic-tooling-contract.test.js')) return 'schema-independent-contract-test';
-  if (/(?:^|\/)(?:test|tests)\//.test(relativePath) && /(previous|historical|fixture|wrong|from|upgrade|mutable|prior|stale)/i.test(line)) return 'historical-test-input';
+  if (/(?:^|\/)(?:test|tests)\//.test(relativePath)) return 'historical-or-adversarial-test-input';
   if (/\bcurrent\b.*\b(?:release|version)\b/i.test(line)) return 'current-version-drift';
+  if (/\bpackaged baseline\b/i.test(line)) return 'current-version-drift';
+  if (/^\s*\/\/.*\bv1\.3\.0\b/.test(line)
+    || /\bv1\.3\.0\b.*\b(?:adaptive|context|decision|dual-entry|execution|init and sync|loop goal|progressive|verification)\b/i.test(line)
+    || /\b(?:adaptive|context|decision|dual-entry|execution|init and sync|loop goal|progressive|verification)\b.*\bv1\.3\.0\b/i.test(line)) return 'historical-feature-annotation';
+  if (/\b(?:latest published stable|published|stable reference|new in|major workflow release|supported v1\.3\.0 route)\b/i.test(line)) return 'historical-release-reference';
   if (/(upgrade|migrat|rollback|previous|historical|prior|old release|since v?1\.2\.[0-9]|from v?1\.2\.[0-9]|tag\/v1\.2\.[0-9]|release notes)/i.test(line)) return 'historical-migration-reference';
   return 'historical-version-reference';
 }

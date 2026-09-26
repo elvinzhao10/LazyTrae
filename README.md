@@ -68,7 +68,7 @@ You do not need to work through the technical setup alone. Open an AI coding
 assistant in your project and paste this:
 
 > Help me install LazyTrae from https://github.com/elvinzhao10/LazyTrae for
-> this project. Use the prepared v1.3.0 package route. Run safe package checks first,
+> this project. Use the published v1.3.1 route. Run safe package checks first,
 > explain each step plainly, and ask me before changing host settings, adding
 > an MCP connector, or registering anything in Trae.
 
@@ -77,7 +77,7 @@ The assistant can guide onboarding, but you approve every host-managed change.
 ## Manual setup
 
 Manual setup is available when you prefer complete control. You need
-**Node.js LTS 20 or newer** and **Git**. Start from the verified origin
+**Node.js LTS 24 (recommended) or 22 (supported alternative)** and **Git**. The lifecycle also accepts Node.js LTS 20 for compatibility. Start from the verified origin
 `https://github.com/elvinzhao10/LazyTrae` and follow the
 [installation guide](docs/03-install-and-host-verification.md).
 

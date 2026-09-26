@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   cli-supported-floor:
-    name: CLI supported floor (Node 18)
+    name: Legacy CLI Node 18 compatibility (EOL)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -32,7 +32,7 @@ jobs:
       - run: node scripts/verify-supported-floor.mjs --surface cli --expected-runtime 18.0.0 --exercise package,install,cli
 
   onboarding-lsp-floor:
-    name: Onboarding/LSP floor (Node 20)
+    name: Legacy onboarding/LSP Node 20 compatibility (EOL)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -63,6 +63,7 @@ jobs:
           cache: npm
           cache-dependency-path: lazytrae-plugin/packages/cli/package-lock.json
       - run: npm ci --ignore-scripts
+      - run: node --test contracts/tests/completion-cost-contract.test.js
       - run: npm run test:all
       - run: npm run test:publication
 
@@ -82,6 +83,7 @@ jobs:
           cache: npm
           cache-dependency-path: lazytrae-plugin/packages/cli/package-lock.json
       - run: npm ci --ignore-scripts
+      - run: node --test contracts/tests/completion-cost-contract.test.js
       - run: npm run test:all
       - run: npm run test:publication
 

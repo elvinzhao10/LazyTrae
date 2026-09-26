@@ -5,7 +5,7 @@ claim that a package result has made any host ready.
 
 LazyTrae deliberately aligns policy and package safety across Trae surfaces while keeping host adapters distinct. The same project assets may be present on two surfaces without both hosts exposing the same discovery or registration behavior.
 
-This matrix assumes **Node.js LTS 20 or newer** and **Git** bootstrap
+This matrix recommends **Node.js LTS 24 or 22** and **Git** for bootstrap; the lifecycle also accepts Node.js LTS 20 for compatibility. Run
 `lifecycle onboard` only from
 `https://github.com/elvinzhao10/LazyTrae.git`. Later `lifecycle update`,
 `lifecycle status`, and plan-first `lifecycle offboard` run through
@@ -78,6 +78,6 @@ supplied macOS IDE/Work behavior is an **observed prerelease route**; without a
 current observation, **HOST READINESS: PENDING**. The supplied QA could not
 access TraeCode CLI, so its live-host route is explicitly unverified.
 
-## macOS-only scope
+## Host evidence scope
 
-The package evidence is verified on macOS only. It does not claim equivalent TraeWork paths, discovery, hook execution, or MCP connection on other operating systems. Those are observed per selected host session.
+Automated package CI runs on Ubuntu and macOS as defined in the workflows. TraeWork paths, discovery, hook execution, and MCP connection remain per-session observations; the supplied host reports are historical macOS evidence only.

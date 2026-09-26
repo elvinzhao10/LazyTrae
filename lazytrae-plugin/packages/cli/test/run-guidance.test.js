@@ -23,3 +23,16 @@ test('run guidance omits global runner commands and directs users to TraeCode', 
   assert.match(result.stdout, /Continue with the project-local TraeCode route above\./);
   assert.doesNotMatch(result.stdout, /npm install -g trae-agent|npx trae-agent/);
 });
+
+test('run guidance uses an explicit category route instead of the agent default', (t) => {
+  const root = makeGitFixture('lazytrae-run-category-route-');
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+
+  const result = runCli(['run', '--agent', 'explorer', '--category', 'review', 'Review the current diff.'], {
+    cwd: root,
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Category:\s+review/);
+  assert.match(result.stdout, /Trae Mode:\s+Max/);
+});

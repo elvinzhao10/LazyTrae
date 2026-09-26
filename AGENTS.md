@@ -11,7 +11,7 @@ documentation release is `1.3.2`.
 
 ## Durable onboarding (start here)
 
-Require **Node.js LTS 20 or newer** and **Git**. Bootstrap only from the
+For new installations, use **Node.js LTS 24 (recommended)** or **Node.js LTS 22 (supported alternative)**, plus **Git**. Node.js LTS 20 is also accepted by the lifecycle for compatibility; Node 18 jobs are legacy CI checks only. Bootstrap only from the
 verified official origin `https://github.com/elvinzhao10/LazyTrae.git` (or the
 same URL without `.git`). The first checkout is transport only; it is not the
 installed runtime and may be deleted after successful promotion.

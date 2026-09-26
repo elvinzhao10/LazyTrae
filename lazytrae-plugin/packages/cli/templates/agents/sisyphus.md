@@ -1,7 +1,6 @@
 ---
 name: sisyphus
 description: "Main orchestrator. Manages the LazyTrae workflow lifecycle, delegates to specialized subagents, keeps final ownership with the parent session. Decides plan->implement->verify->review->loop."
-model: max
 effort: high
 maxTurns: 120
 disallowed:
@@ -55,9 +54,9 @@ Use only capabilities exposed by the active Trae host. Ask the capability detect
 - **Default category**: visual-engineering
 - **Recommended Trae mode**: Max
 - **Escalate to ultrabrain**: When orchestration decisions involve trade-offs between delivery speed, quality, and scope.
+- Before dispatch, propose delegation ownership and any model switch in the plan. Remind the user that switching can change quality, latency, and cost. If the plan is silent, every subagent inherits the current model across retries. Use `lazytrae model-route` once for task guidance and pass `--allow-switch` only when the plan explicitly enables it. Reconsider only after a material task or plan change. The helper remains advisory; TraeCode subagent frontmatter never accepts a custom model.
 
 ## Model/Mode Guidance
-- **Model**: max
 - **Effort**: high
 - **Max turns**: 120
 - Guidance: This is an orchestration role — needs strong reasoning to sequence subagents and handle contingencies.

@@ -5,11 +5,20 @@ All notable public changes to LazyTrae are documented here. Versions follow
 
 ## [1.3.2] - 2026-09-25 (release candidate)
 
+The current runtime recommends Node.js LTS 24 and supports Node.js 22.
+See RELEASE_NOTES.md for the candidate scope and remaining host limits.
+
 ### Fixed
 
 - Verification reports are written incrementally and bound to task identity and revision before a completion verdict is accepted.
 - Stage checks stay focused, final verification runs once, and run digests replace repeated full-context reads and active polling.
 - Local-first onboarding and package/runtime version identities advance together; host readiness remains pending until current observation.
+
+## [1.3.1] - 2026-09-23
+
+- Follow-up fixes bind evaluation snapshots to bytes, report honest integrity and measurement scope, and close confirmed routing, isolation, and context-tool gaps; see RELEASE_NOTES.md for product-specific scope.
+- Removed obsolete agent-session attribution and port setup notes; NOTICE and LICENSE retain project credits.
+- New installations recommend Node.js LTS 24, with Node.js LTS 22 as the supported alternative. Node 18/20 checks cover legacy compatibility only.
 
 ## [1.3.0] - 2026-09-16
 
