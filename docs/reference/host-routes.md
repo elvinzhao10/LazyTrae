@@ -1,6 +1,6 @@
 # Host routes
 
-**Current documentation release: v1.3.0.** Select exactly one independent
+**Current documentation release: v1.3.2.** Select exactly one independent
 host route; package outputs never prove that the selected host discovered or
 executed them.
 

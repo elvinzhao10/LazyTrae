@@ -3,6 +3,14 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.2] - 2026-09-25 (release candidate)
+
+### Fixed
+
+- Verification reports are written incrementally and bound to task identity and revision before a completion verdict is accepted.
+- Stage checks stay focused, final verification runs once, and run digests replace repeated full-context reads and active polling.
+- Local-first onboarding and package/runtime version identities advance together; host readiness remains pending until current observation.
+
 ## [1.3.0] - 2026-09-16
 
 ### Added

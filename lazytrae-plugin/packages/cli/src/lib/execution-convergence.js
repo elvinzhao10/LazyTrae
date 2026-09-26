@@ -142,7 +142,7 @@ function selectResumeRun(runs, requestContext = {}) {
 
 // Compose the full route decision. Both entry routes converge on the shared
 // adaptive authority (classifyAdaptiveDecision) for mode selection; this layer
-// adds route + execution_intent + the v1.3.0 guards.
+// adds route + execution_intent + the v1.3.2 guards.
 function classifyAdaptiveRoute(request, context = {}) {
   const route = routeFor(request);
   const execution_intent = resolveExecutionIntent(request, context);

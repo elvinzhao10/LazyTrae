@@ -1,3 +1,37 @@
+# LazyTrae v1.3.2 — durable verification handoff
+
+**Status:** Local release candidate. Package checks and source tests are required before publication; live host readiness remains pending.
+
+## Eval-driven fixes
+
+- The start-work contract requires a run-scoped, revision-bound report before a verdict. Trae's generic task completion API does not yet enforce this report format.
+- The start-work contract requires focused checks between stages, one full matrix at closure, a compact run digest, and completion events instead of active polling. It forbids duplicate dispatch while owned paths or evidence are changing.
+- Trae's PreToolUse hook is advisory. The start-work skill limits orchestrator writes to run state and evidence, but this host does not currently provide a blocking role-aware write gate; direct product writes require independent review.
+
+## Measured efficiency
+
+The B3 postmortem identifies repeated whole-suite verification and polling as major token sinks. v1.3.2 has no measured token, latency, or cost reduction yet.
+
+## Host capability matrix
+
+| Host | Package route | Current session |
+| --- | --- | --- |
+| TraeCode, TraeWork, TraeCode CLI | Existing documented routes | Pending live observation |
+
+## Migration and upgrade
+
+Upgrade from v1.3.0 using the documented lifecycle after inventorying managed and modified assets. Preserve caller files and existing run evidence. The report gate applies to new verification attempts; old conversational verdicts do not become durable evidence.
+
+## Known risks
+
+Trae's hook does not enforce the orchestrator write boundary. Quota termination can still leave an in-progress report; it must remain blocked until independently resumed or rerun.
+
+## Rollback
+
+Use the lifecycle rollback to the prior verified release. Keep v1.3.2 run evidence for diagnosis and do not mark in-progress reports complete.
+
+## Prior release notes (v1.3.0)
+
 # LazyTrae v1.3.0 — adaptive workflow experience
 
 **Release date:** 2026-09-16
