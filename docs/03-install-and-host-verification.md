@@ -1,6 +1,6 @@
 # Package delivery
 
-**Current documentation release: v1.3.1.** The package can create evidence;
+**Current documentation release: v1.3.2.** The package can create evidence;
 only the selected host can supply discovery and live-session evidence.
 
 This page explains the deployment boundary in code terms. The CLI contains canonical templates and a local MCP runtime; it does not contain Trae's settings database, session state, or live connector process table.

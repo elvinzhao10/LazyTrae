@@ -4,11 +4,10 @@
 > **Agent:** use this guide to install, verify, and safely remove LazyTrae.
 > For everyday workflow use, see the [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme).
 
-LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. CI workflows run package checks on Ubuntu and macOS; live host observations in the supplied reports are historical macOS observations. No current-session host activation is established. Package files, host settings, credentials, and sessions remain separate authorities.
-
-## Current documentation release: v1.3.1
-
-The latest published stable release is v1.3.1. Current native-host activation remains pending until observed in a fresh session.
+LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. The release-owned local launcher supplies the portable installer,
+verification gate, and local MCP server. Package behavior is verified on
+macOS only; host behavior keeps the evidence labels below. The current
+documentation release is `1.3.2`.
 
 ## Durable onboarding (start here)
 

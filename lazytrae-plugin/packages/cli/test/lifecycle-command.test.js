@@ -25,7 +25,7 @@ function writeRelease(root, selfTest = "process.stdout.write('self-test-ok\\n');
   fs.mkdirSync(path.join(cli, 'bin'), { recursive: true });
   fs.mkdirSync(path.join(cli, 'scripts'), { recursive: true });
   fs.mkdirSync(path.join(cli, 'contracts'), { recursive: true });
-  fs.writeFileSync(path.join(cli, 'package.json'), '{"name":"lazytrae-ai","version":"1.3.1"}\n');
+  fs.writeFileSync(path.join(cli, 'package.json'), '{"name":"lazytrae-ai","version":"1.3.2"}\n');
   fs.writeFileSync(path.join(cli, 'bin', 'lazytrae.js'), "process.stdout.write('durable-cli-ok\\n');\n");
   fs.writeFileSync(path.join(cli, 'scripts', 'lifecycle-self-test.js'), selfTest);
   for (const name of [
@@ -96,7 +96,7 @@ function lifecycleFixture(t) {
   git(source, ['add', '.']);
   git(source, ['commit', '-qm', 'fixture v1']);
   git(source, ['branch', '-M', 'main']);
-  git(source, ['tag', 'v1.3.1']);
+  git(source, ['tag', 'v1.3.2']);
   git(sandbox, ['clone', '--bare', source, remote]);
   const realGit = childProcess.spawnSync('which', ['git'], { encoding: 'utf8' }).stdout.trim();
   const shim = `#!/usr/bin/env node

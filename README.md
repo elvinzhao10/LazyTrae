@@ -6,18 +6,13 @@ LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 **TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-The latest published stable release is v1.3.1. Native-host activation still requires verification in a fresh session.
+Version v1.3.2 is prepared for publication; it is not a stable release until the tag and release artifact are published.
 
-## New in v1.3.1
+v1.3.2 adds durable verifier reports and bounded stage verification. See [release notes](RELEASE_NOTES.md).
 
-v1.3.1 tightens worktree cleanup, route validation, and
-outcome-evidence integrity. Subagents inherit the current model unless a plan
-explicitly enables a switch. See [release notes](RELEASE_NOTES.md) for the
-changes and verification scope; current native-host testing is pending.
+## Introduced in v1.3.0: work the way you talk
 
-## New in v1.3.0: work the way you talk
-
-v1.3.0 is a major workflow release. You no longer need to remember commands —
+v1.3.0 introduced the major workflow release. You no longer need to remember commands —
 the harness meets you at the level of your request.
 
 ### Just ask, or use a command — both work
