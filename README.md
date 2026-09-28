@@ -6,7 +6,7 @@ LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 **TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-Version v1.3.2 is prepared for publication; it is not a stable release until the tag and release artifact are published.
+Version v1.3.2 is the current release. The tag and attached release artifact identify its published package; fresh host activation still requires observation.
 
 v1.3.2 adds durable verifier reports and bounded stage verification. See [release notes](RELEASE_NOTES.md).
 
