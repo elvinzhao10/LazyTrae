@@ -3,10 +3,10 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
-## [1.3.2] - 2026-09-25 (release candidate)
+## [1.3.2] - 2026-09-27
 
 The current runtime recommends Node.js LTS 24 and supports Node.js 22.
-See RELEASE_NOTES.md for the candidate scope and remaining host limits.
+See RELEASE_NOTES.md for the release scope and remaining host limits.
 
 ### Fixed
 

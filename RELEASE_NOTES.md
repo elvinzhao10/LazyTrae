@@ -1,6 +1,6 @@
 # LazyTrae v1.3.2 — durable verification handoff
 
-**Status:** Draft release candidate. Local source and publication checks passed, and PR #37 checks passed. Fresh Trae activation remains pending.
+**Status:** v1.3.2 release. Source, publication, and main-branch CI checks passed. Fresh Trae activation remains pending; package verification alone does not establish host readiness.
 
 ## Eval-driven fixes
 
@@ -11,6 +11,10 @@
 ## Measured efficiency
 
 The B3 postmortem identifies repeated whole-suite verification and polling as major token sinks. v1.3.2 has no measured token, latency, or cost reduction yet.
+
+## Release verification
+
+PR #37 and the merged main branch passed CI. The tag-triggered release workflow separately verifies the CLI and MCP package before attaching its release asset. The current TraeCLI package route is not verified as a native plugin: local `traecli plugin validate` reports no provided capabilities. Use the documented CLI and MCP installation route, and confirm the selected Trae host in a fresh session before claiming live readiness.
 
 ## Host capability matrix
 
