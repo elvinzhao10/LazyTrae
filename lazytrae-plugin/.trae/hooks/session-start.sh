@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.3.2 — SessionStart hook
+# LazyTrae v1.3.3 — SessionStart hook
 # Reads state files and outputs active plan/loop/blockers/next action.
 # Load rules and bootstrap the session; CodeGraph remains optional.
 # Always exits 0 — never blocks a session.
@@ -27,20 +27,20 @@ if [ -f "$BOULDER" ]; then
 const fs=require('fs');
 try{
   const d=JSON.parse(fs.readFileSync(process.argv[1],'utf-8'));
-  const w=d.active_work_id&&d.works?d.works[d.active_work_id]:null;
-  let plan='', task='', blockers='';
-  if(w){
-    plan=w.plan_name||w.active_plan||'';
+  const w=d&&typeof d==='object'&&d.active_work_id&&d.works&&typeof d.works==='object'?d.works[d.active_work_id]:null;
+  let plan='(none)', task='(none)', blockers='(none)';
+  if(w&&typeof w==='object'){
+    plan=w.plan_name||w.active_plan||'(none)';
     const tasks=Array.isArray(w.tasks)?w.tasks:[];
-    const next=tasks.find(t=>t.status==='in_progress')||tasks.find(t=>t.status==='pending')||tasks.find(t=>t.status==='blocked');
-    task=next?(next.description||''):(tasks.length?'all tasks done':'');
-    blockers=Array.isArray(w.blockers)?w.blockers.map(b=>b.reason||b.description||'unnamed').join('; '):'';
-  fi
+    const next=tasks.find(t=>t&&t.status==='in_progress')||tasks.find(t=>t&&t.status==='pending')||tasks.find(t=>t&&t.status==='blocked');
+    task=next?(next.description||'(none)'):(tasks.length?'all tasks done':'(none)');
+    blockers=Array.isArray(w.blockers)&&w.blockers.length?w.blockers.map(b=>b&&typeof b==='object'?(b.reason||b.description||'unnamed'):'unnamed').join('; '):'(none)';
+  }
   process.stdout.write([plan,task,blockers].map(v=>String(v).replace(/\n/g,' ')).join('\t'));
 }catch(e){}" "$BOULDER" 2>/dev/null || true)
   if [ -n "$boulder_info" ]; then
     IFS=$'\t' read -r active_plan current_task blockers <<< "$boulder_info"
-    [ -n "$current_task" ] && next_action="execute task: $current_task"
+    [ "$current_task" != "(none)" ] && next_action="execute task: $current_task"
   fi
 fi
 
@@ -50,8 +50,8 @@ if [ -f "$LOOP" ]; then
 const fs=require('fs');
 try{
   const d=JSON.parse(fs.readFileSync(process.argv[1],'utf-8'));
-  const g=Array.isArray(d.goals)?d.goals.find(g=>g.status==='in_progress'):null;
-  const goal=g?(g.title||''):(d.active_goal_id||'');
+  const g=d&&Array.isArray(d.goals)?d.goals.find(g=>g&&g.status==='in_progress'):null;
+  const goal=g?(g.title||''):(d&&d.active_goal_id||'');
   const iter=g?String(g.attempt||1):'';
   process.stdout.write([goal,iter].map(v=>String(v).replace(/\n/g,' ')).join('\t'));
 }catch(e){}" "$LOOP" 2>/dev/null || true)
@@ -67,7 +67,7 @@ fi
 
 # Output
 cat <<LAZYTRAE_SESSION_START
-[LazyTrae v1.3.2] Session started.
+[LazyTrae v1.3.3] Session started.
 
 Active plan: $active_plan
 Current task: $current_task

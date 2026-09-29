@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const { formatReadinessSummary, readinessReport } = require('../lib/lazyseries-capability-readiness');
 const { inspectInitializeReceipt } = require('../lib/initialize-receipt');
 const { inspectHostProfile } = require('../lib/host-adapter-lifecycle');
@@ -178,6 +179,21 @@ configuration only; it does not claim that a host has registered or loaded them.
 
   console.log(`=== LazyTrae Tool Load Check — v${CURRENT_VERSION} Package Readiness ===`);
   console.log(`Host: ${host}`);
+  const packageRoot = path.resolve(__dirname, '../..');
+  const sourceRoot = path.resolve(packageRoot, '../../..');
+  let sourceRevision = 'unavailable in installed package';
+  if (fs.existsSync(path.join(sourceRoot, '.git'))
+    && fs.existsSync(path.join(sourceRoot, 'lazytrae-plugin/packages/cli/package.json'))) {
+    const revision = spawnSync('git', ['-C', sourceRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8', timeout: 2000 });
+    if (revision.status === 0) {
+      const status = spawnSync('git', ['-C', sourceRoot, 'status', '--porcelain', '--untracked-files=normal'], { encoding: 'utf8', timeout: 2000 });
+      sourceRevision = `${revision.stdout.trim()}${status.status === 0 && status.stdout ? '+dirty' : ''}`;
+    }
+  }
+  console.log(`Package root: ${packageRoot}`);
+  console.log(`Source revision: ${sourceRevision}`);
+  console.log('MCP profile: core package server; optional servers require explicit enablement.');
+  console.log('Role enforcement: live host hook authority requires a host observation.');
   for (const result of checks) {
     const expected = ARTIFACT_CONTRACT[result.label].length;
     const ready = expected - result.missing.length;

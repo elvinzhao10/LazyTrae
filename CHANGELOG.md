@@ -3,6 +3,10 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.3] - 2026-09-28
+
+This local candidate repairs SessionStart state parsing and aligns runtime and package metadata. See RELEASE_NOTES.md for verification scope and pending host acceptance.
+
 ## [1.3.2] - 2026-09-27
 
 The current runtime recommends Node.js LTS 24 and supports Node.js 22.

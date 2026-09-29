@@ -1,3 +1,34 @@
+# LazyTrae v1.3.3 — reliability and release consistency
+
+**Status:** v1.3.3 release. Source, package, and publication checks passed locally on Node 22 and 24 and in PR CI. TraeCode CLI 0.120.52 connected the core MCP server and discovered commands in an isolated project; command execution stopped at the required enterprise login.
+
+## Eval-driven fixes
+
+- Corrected the embedded JavaScript terminator in the SessionStart hook template and shipped mirror. Executable fixtures cover populated, empty, missing, and malformed state.
+- Advanced package, runtime, hook, and status metadata together for this candidate.
+
+## Measured efficiency
+
+No token, latency, or cost improvement has been measured for this patch.
+
+## Host capability matrix
+
+Trae CLI package checks exercise hook and MCP entry points. Fresh IDE and CLI activation still require a recorded host build and session.
+
+## Migration and upgrade
+
+Update through the normal Trae package route from v1.3.2. Preserve caller state and verify the installed version before relying on host behavior.
+
+## Known risks
+
+Local package verification does not prove a live Trae hook denial or command execution. The observed TraeCode CLI MCP connection covers only the isolated project and CLI build above; broader host acceptance remains pending.
+
+## Rollback
+
+Use the lifecycle rollback to the prior verified v1.3.2 release, preserving diagnostic evidence and caller state.
+
+## Prior release notes
+
 # LazyTrae v1.3.2 — durable verification handoff
 
 **Status:** v1.3.2 release. Source, publication, and main-branch CI checks passed. Fresh Trae activation remains pending; package verification alone does not establish host readiness.
