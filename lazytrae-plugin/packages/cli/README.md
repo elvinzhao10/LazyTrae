@@ -1,10 +1,10 @@
 # lazytrae-ai
 
-The latest published stable release is v1.3.1; fresh-session native-host activation remains pending.
+The latest published stable release is v1.3.2; fresh-session native-host activation remains pending.
 
 LazyTrae CLI — Trae-native workflow installer and runtime.
 
-This v1.3.2 package keeps automatic selection native and host handling
+This v1.3.3 package keeps automatic selection native and host handling
 advisory: a complete current task/loop/session identity may form a bounded
 context capsule, but `presented-to-host` remains `not-observed` until a real
 Trae session is observed. Init and sync preflight managed conflicts and retain

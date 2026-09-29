@@ -3,8 +3,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RELEASE_VERSION = '1.3.2';
-const PREVIOUS_VERSION = '1.3.1';
+const RELEASE_VERSION = '1.3.3';
+const PREVIOUS_VERSION = '1.3.2';
 const VERSION_JSON_PATHS = [
   ['lazytrae-plugin/packages/cli/package.json', ['version']],
   ['lazytrae-plugin/packages/cli/package-lock.json', ['version']],

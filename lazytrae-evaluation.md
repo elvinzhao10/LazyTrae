@@ -1,6 +1,6 @@
 # LazyTrae verification evidence
 
-**Current documentation release: v1.3.2.**
+**Current documentation release: v1.3.3.**
 Historical v1.0.3 evidence below
 is retained as historical release evidence; it is not a current writer or a
 host-readiness claim.

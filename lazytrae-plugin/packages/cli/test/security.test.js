@@ -73,6 +73,56 @@ test('session-start hook treats Boulder active_work_id as data', (t) => {
   assert.equal(fs.existsSync(path.join(fixture, 'pwned-session')), false);
 });
 
+test('session-start reports populated and empty state and tolerates malformed state', (t) => {
+  const fixture = makeFixture('lazytrae-session-state-');
+  t.after(() => fs.rmSync(fixture, { recursive: true, force: true }));
+  const stateDir = path.join(fixture, '.lazytrae', 'state');
+  const boulderPath = path.join(stateDir, 'boulder.json');
+  const loopPath = path.join(stateDir, 'active-loop.json');
+  const run = () => runCli(['hook', 'session-start'], { cwd: fixture });
+
+  fs.writeFileSync(boulderPath, JSON.stringify({
+    active_work_id: 'work-1',
+    works: { 'work-1': {
+      plan_name: 'release plan',
+      tasks: [{ status: 'in_progress', description: 'Fix startup' }],
+      blockers: [{ reason: 'Waiting for fixture' }],
+    } },
+  }));
+  fs.writeFileSync(loopPath, JSON.stringify({
+    goals: [{ status: 'in_progress', title: 'Ship repair', attempt: 2 }],
+  }));
+  const populated = run();
+  assert.equal(populated.status, 0);
+  assert.match(populated.stdout, /Active plan: release plan/);
+  assert.match(populated.stdout, /Current task: Fix startup/);
+  assert.match(populated.stdout, /Blockers:\s+Waiting for fixture/);
+  assert.match(populated.stdout, /Loop goal:\s+Ship repair \(iteration 2\)/);
+
+  fs.writeFileSync(boulderPath, JSON.stringify({
+    active_work_id: 'work-1',
+    works: { 'work-1': { tasks: [{ status: 'pending', description: '' }], blockers: [] } },
+  }));
+  fs.rmSync(loopPath);
+  const empty = run();
+  assert.equal(empty.status, 0);
+  assert.match(empty.stdout, /Current task: \(none\)/);
+  assert.match(empty.stdout, /Blockers:\s+\(none\)/);
+  assert.match(empty.stdout, /Next action:\s+\(none\)/);
+
+  fs.writeFileSync(boulderPath, '{broken');
+  fs.writeFileSync(loopPath, '{broken');
+  const malformed = run();
+  assert.equal(malformed.status, 0);
+  assert.match(malformed.stdout, /Active plan: \(none\)/);
+
+  fs.rmSync(boulderPath);
+  fs.rmSync(loopPath);
+  const missing = run();
+  assert.equal(missing.status, 0);
+  assert.match(missing.stdout, /Active plan: \(none\)/);
+});
+
 test('run command never executes a PATH-spoofed open-source trae-agent', (t) => {
   const fixture = makeGitFixture('lazytrae-run-prompt-injection-');
   const binDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-fake-bin-'));
