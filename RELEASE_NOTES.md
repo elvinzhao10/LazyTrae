@@ -1,6 +1,6 @@
 # LazyTrae v1.3.3 — reliability and release consistency
 
-**Status:** local release candidate. Source, package, and publication checks passed locally on Node 22 and 24. TraeCode CLI 0.120.52 connected the core MCP server and discovered commands in an isolated project; command execution stopped at the required enterprise login. Release publication has not been observed.
+**Status:** v1.3.3 release. Source, package, and publication checks passed locally on Node 22 and 24 and in PR CI. TraeCode CLI 0.120.52 connected the core MCP server and discovered commands in an isolated project; command execution stopped at the required enterprise login.
 
 ## Eval-driven fixes
 
