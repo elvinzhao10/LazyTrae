@@ -63,3 +63,17 @@ dev/
 .lazytrae/loop/
 .lazytrae/evidence/
 # lazytrae:managed:end:gitignore
+
+# Shared LazySeries development hygiene (keep example configuration public).
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.template
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.tsbuildinfo
