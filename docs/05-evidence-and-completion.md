@@ -100,7 +100,7 @@ assets are ready,” “completion gates are ready,” “the requested surface 
 observed,” and “a host fact remains unverified.”
 
 
-## v1.3.1 measurement boundary
+## v1.3.4 measurement boundary
 
 Cost-outcome records may identify `measurement_scope` as `fixture-validation` or `execution`. An absent scope is unspecified. Buddy/Qoder baseline-runner records explicitly use `fixture-validation`: their elapsed time measures fixture validation, and their counters come from the supplied fixture. They are not observations of a coding task. The outcome comparison accepts only explicit `execution` scope; unspecified and fixture-validation records are rejected there. Scope metadata is a caller declaration, not independent execution or billing proof.
 

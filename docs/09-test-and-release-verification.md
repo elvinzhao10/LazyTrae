@@ -45,7 +45,7 @@ checked-in efficiency baseline.
 
 Normal CI is self-contained: it does not require a sibling repository. Documentation and contract parity with LazyBuddy are release-only paired parity checks, run only when both absolute roots are explicitly supplied. That keeps the shared safety contract auditable without creating a runtime, installer, or CI dependency between packages.
 
-Package CI coverage runs on the operating systems and Node versions listed in the workflows. Trae asset discovery, hooks, MCP calls, specialist behavior, cancellation, and completion require separate manual observation in the selected current host session. The supplied host observations are historical macOS reports and do not establish current v1.3.1 readiness.
+Package CI coverage runs on the operating systems and Node versions listed in the workflows. Trae asset discovery, hooks, MCP calls, specialist behavior, cancellation, and completion require separate manual observation in the selected current host session. The supplied host observations are historical macOS reports and do not establish current v1.3.4 readiness.
 
 Historical QA of the published v1.3.0 archive also invoked installed `init`, `status`, `sync`, and
 adaptive/handoff surfaces. It confirms a complete native context capsule,
@@ -120,7 +120,7 @@ and W5.4 is **PENDING** — record it per host in the current
 
 ## Manual host-session verification record
 
-Automated CI and package checks do not establish host activation. Current observation: no current TraeCode, TraeWork, or TraeCode CLI session has been observed. The supplied macOS host reports are historical and do not establish v1.3.1 behavior. Keep the per-host record below pending until observed; do not fill unknown fields from package files or a previous build.
+Automated CI and package checks do not establish host activation. Current observation: no current TraeCode, TraeWork, or TraeCode CLI session has been observed. The supplied macOS host reports are historical and do not establish v1.3.4 behavior. Keep the per-host record below pending until observed; do not fill unknown fields from package files or a previous build.
 
 Before a host session, record the candidate commit or archive SHA and package-check result. In the selected user-approved host, record host product, exact version/build, edition or region when shown, OS, selected route, install root, fresh session ID and start time. Then observe a real Skill/command/hook appropriate to that route and record the exact invocation and result. Invoke one named specialist for a bounded task and capture the host-visible action and actual outputs. Start a bounded delegated task, cancel it through the host, and record cancellation propagation plus whether any late write occurred. Complete a small task and inspect the actual changed paths, task/plan status, and completion artifact; record artifact paths and hashes alongside the content review. Hashes prove byte integrity only, not independent truth. Follow the [outcome-evaluation protocol](../lazytrae-plugin/packages/cli/contracts/OUTCOME-EVALUATION.md) for cost and cohort claims. For the selected Trae route, record the real core MCP tool call and every expected server/tool status declared by that route.
 

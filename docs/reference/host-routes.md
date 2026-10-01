@@ -19,7 +19,7 @@ macOS, `${XDG_DATA_HOME:-~/.local/share}/lazyseries` on Linux, and
 for scoped offboard and re-onboard rather than editing receipts. These package
 operations never prove a host: **HOST READINESS: PENDING** until observation.
 
-For a stable install, use the published v1.3.1 release. Give the agent
+For installation, use the durable release selected by `lifecycle status`. Give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for the host, runs safe package checks, and reports package readiness
 before any host-managed mutation.

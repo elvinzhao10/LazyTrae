@@ -29,7 +29,7 @@ Platform defaults are package behavior, not host-support evidence:
 
 ## Host onboarding
 
-For the latest published stable route, open or link v1.3.2 in the selected Trae host. Give the agent
+Open or link the durable release selected by `lifecycle status` in the selected Trae host. Give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The agent detects
 or asks for TraeCode, TraeWork, or TraeCode CLI, runs safe package checks, and
 reports package readiness separately from host readiness. Before copying Work
