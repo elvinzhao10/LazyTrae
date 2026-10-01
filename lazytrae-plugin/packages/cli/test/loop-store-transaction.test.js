@@ -109,7 +109,7 @@ function eventFiles(root) {
 }
 
 function lockPath(root) {
-  const key = crypto.createHash('sha256').update('run-transaction').digest('hex').slice(0, 32);
+  const key = crypto.createHash('sha256').update('active-loop').digest('hex').slice(0, 32);
   return path.join(root, '.lazytrae', 'state', 'transactions', 'locks', `${key}.lock`);
 }
 

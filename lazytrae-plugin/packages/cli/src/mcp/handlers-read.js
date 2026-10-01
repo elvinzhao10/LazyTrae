@@ -102,7 +102,10 @@ function handleGetNextTask(root) {
 
   return {
     work_id: b.active_work_id, plan_name: work.plan_name,
-    message: 'All tasks are complete, blocked, or failed.', next_task: null,
+    status: tasks.some(t => t.status === 'blocked') ? 'blocked'
+      : tasks.some(t => t.status === 'failed') ? 'failed'
+      : tasks.length > 0 && tasks.every(t => t.status === 'complete') ? 'complete' : 'blocked',
+    message: 'No pending task is available.', next_task: null,
     task_summary: {
       total: tasks.length,
       complete: tasks.filter(t => t.status === 'complete').length,

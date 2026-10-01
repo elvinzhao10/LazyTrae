@@ -88,17 +88,23 @@ function queryInstalledMcp(binary) {
           return;
         }
       }
-      if (responses.has(1) && responses.has(2)) finish();
+      if ([1, 2, 3, 4, 5].every(id => responses.has(id))) finish();
     });
     child.stderr.on('data', chunk => { stderr += chunk; });
     child.on('error', error => finish(error));
     child.on('exit', code => {
-      if (!responses.has(1) || !responses.has(2)) {
+      if (![1, 2, 3, 4, 5].every(id => responses.has(id))) {
         finish(new Error(`installed MCP exited before responding (code ${code}):\n${stderr}`));
       }
     });
 
-    child.stdin.end(`${JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} })}\n${JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/list' })}\n`);
+    child.stdin.end([
+      { jsonrpc: '2.0', id: 1, method: 'initialize', params: {} },
+      { jsonrpc: '2.0', id: 2, method: 'tools/list' },
+      { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'run_check', arguments: {} } },
+      { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'lazytrae.record_evidence', arguments: { gate_type: [] } } },
+      { jsonrpc: '2.0', id: 5, method: 'ping' },
+    ].map(request => JSON.stringify(request)).join('\n') + '\n');
   });
 }
 
@@ -142,6 +148,20 @@ test('packed and prefix-installed CLI starts MCP with all 15 tools', { timeout: 
 
     const binary = path.join(installRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lazytrae.cmd' : 'lazytrae');
     const responses = await queryInstalledMcp(binary);
+    assert.equal(responses.get(3).error.code, -32601);
+    assert.equal(responses.get(4).error.code, -32602);
+    assert.deepEqual(responses.get(5).result, {});
+    const project = path.join(temporaryRoot, 'project');
+    fs.mkdirSync(path.join(project, '.git'), { recursive: true });
+    run(binary, ['init'], { cwd: project });
+    const sessions = path.join(project, '.lazytrae/state/sessions.json');
+    fs.writeFileSync(sessions, JSON.stringify({ current_session_id: 's1', sessions: { s1: {} } }));
+    const hook = spawnSync('bash', [path.join(project, '.trae/hooks/post-tool-use.sh')], {
+      input: JSON.stringify({ tool_name: 'Edit', tool_input: { file_path: 'main.js' } }), encoding: 'utf8',
+    });
+    assert.equal(hook.status, 0, hook.stderr);
+    assert.deepEqual(JSON.parse(fs.readFileSync(sessions)).sessions.s1.changed_files, ['main.js']);
+    assert.equal(fs.existsSync(path.join(project, 'packages/cli/src/lib')), false);
     const initialize = responses.get(1);
     const toolList = responses.get(2);
 

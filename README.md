@@ -6,9 +6,9 @@ LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 **TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-Version v1.3.3 is the current local release candidate. Publication and fresh host activation remain pending.
+Version v1.3.4 is the current local release candidate. Publication and fresh host activation remain pending.
 
-v1.3.3 repairs SessionStart state parsing and aligns package metadata. See [release notes](RELEASE_NOTES.md).
+v1.3.4 repairs SessionStart state parsing and aligns package metadata. See [release notes](RELEASE_NOTES.md).
 
 ## Introduced in v1.3.0: work the way you talk
 
@@ -213,3 +213,18 @@ files; `npm run test:all` runs their complete non-overlapping union. The harness
 uses two workers by default. Set `LAZYTRAE_TEST_CONCURRENCY=1` for a fully
 serial check or an integer up to `4` for a bounded local run. Report
 vulnerabilities privately according to [SECURITY.md](SECURITY.md).
+
+
+The commercial TraeCode CLI is a separate host from the open-source TRAE-agent
+project. LazyTrae remains a separate native integration with its own package
+and observed-host evidence. It does not substitute TRAE-agent execution for a
+commercial CLI session. The base topology is one active core MCP server with
+15 tools; seven optional capability declarations remain disabled placeholders.
+
+Loop selection returns distinct active, blocked, failed, exhausted, and complete
+outcomes. Only a verified checkpoint records loop completion. Starting a pending
+goal consumes one global iteration; resuming that goal consumes none. Repeated
+`create-goals` refuses an existing goal set; use steering to change current work.
+Loop writers reject stale revisions, and installed post-tool hooks carry their
+own local path and transaction helpers to record edits without a source checkout.
+Trae hooks remain advisory and exit zero; CLI and MCP own hard completion gates.
