@@ -1,28 +1,64 @@
-# LazyTrae v1.3.4 — runtime integrity and native adapter repairs
+# LazyTrae v1.3.4 — safer runs, clearer host boundaries
+
+A small maintenance release for the LazySeries family. It repairs runtime and
+host-adapter boundaries while retaining the workflow foundation inherited from
+family versions v1.3.0–v1.3.3. Those inherited features are not new in this patch
+and do not imply prior public releases of the Kimi or DeepSeek ports.
 
 ## Eval-driven fixes
 
-Installed hooks include their runtime dependencies. Loop writes reject stale revisions, preserve populated runs, enforce iteration limits, and distinguish blocked, failed, exhausted and independently verified completion. LazyTrae retains its separate npm CLI and one active core MCP server. Finalization requires all intended tasks done; persisted status is assessed separately from completion evidence.
+- Installed post-tool hooks carry their local path and transaction helpers, so they work outside the source checkout.
+- Loop writes reject stale revisions and repeated goal creation preserves the existing run.
+- Starting a goal consumes one global iteration; resuming it consumes none. Blocked, failed and exhausted states stay distinct.
+- Finalization requires all intended tasks done; persisted status is assessed
+  separately from completion evidence.
+
+## Cumulative workflow experience
+
+Describe work in natural language or use explicit workflow entry points.
+Keep editable Markdown plans, durable decisions, evidence-bound completion
+and verification sized to the change. Planning-only requests remain separate
+from execution authority. The README presents these inherited features together
+with the 1.3.4 fixes; historical notes below retain the version-by-version record.
 
 ## Measured efficiency
 
-This maintenance release makes no new latency, token-saving or recall claim. Ledger append/compaction, learned routing and shared-core migration are deferred.
+No new latency, token-saving, cost or recall improvement is measured for this
+patch. Ledger append/compaction, learned routing and shared-core migration are deferred.
 
 ## Host capability matrix
 
 Commercial TraeCode CLI is distinct from the open-source TRAE-agent. Native authenticated command acceptance remains pending. Hooks are advisory; completion and mutation gates run in the CLI/MCP. Seven optional MCP placeholders remain disabled.
 
+Package and distribution checks do not prove a current native host session.
+**HOST READINESS: PENDING** until loading, command/skill behavior and the expected
+MCP connections are observed. The README links the selected host's setup guide.
+
 ## Migration and upgrade
 
 Use the receipt-aware upgrade route with an explicit project binding. Preserve project evidence and unknown host configuration. No credentials or production host settings are changed by package verification.
 
+Read [AGENTS.md](AGENTS.md) and [the install guide](docs/03-install-and-host-verification.md).
+Choose one route, check the installed package version, and restart the host.
+Source checkouts and release archives have different build requirements; follow
+the documented route. Do not reset populated runs merely to upgrade.
+
 ## Known risks
 
-Native host acceptance is still separate from package readiness. Token/cost budgets are metadata, and pending approval results are persisted observations without a live approval queue. Shell loop policy beyond its configured global cap requires orchestrator enforcement.
+Native acceptance is separate from package readiness. Token/cost budgets are
+metadata; pending approvals are persisted observations without a live approval
+queue. Shell loop policy beyond the configured global cap needs orchestrator enforcement.
 
 ## Rollback
 
 Retain the published v1.3.3 tag and ownership receipts. Remove only receipt-owned, unmodified assets and use a fresh host session to verify removal.
+
+## Documentation and family presentation
+
+Aligned sibling README structure, current setup navigation and a shared six-repo
+family table. Personal environment files and caches are ignored while example
+configuration and pinned fixture logs remain publishable. Earlier release notes
+remain below as historical evidence.
 
 ## Prior release notes
 

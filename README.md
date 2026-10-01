@@ -2,20 +2,45 @@
 
 ![LazyTrae](lazytrae-banner.jpg)
 
+[![Package 1.3.4](https://img.shields.io/badge/package-1.3.4-7ce8d1)](RELEASE_NOTES.md)
+[![MIT License](https://img.shields.io/badge/license-MIT-silver)](LICENSE)
+[![LazySeries family](https://img.shields.io/badge/LazySeries-6_siblings-7ce8d1)](#lazyseries-family)
+
+**Describe the work. Keep the plan. Prove the result.**
+
 LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 **TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-The current package version is v1.3.4. Fresh native-host acceptance remains
-pending; package checks do not prove a host loaded it.
+[Get started](#recommended-install-with-ai-help) · [Host routes](#choose-one-route) ·
+[1.3.4 notes](RELEASE_NOTES.md) · [Family](#lazyseries-family) · [Docs](docs/)
 
-v1.3.4 packages standalone hook dependencies, rejects stale loop updates,
-counts iterations consistently, and preserves work when a run is repeated. See [release notes](RELEASE_NOTES.md).
+> **Current package version: v1.3.4. HOST READINESS: PENDING.** Local checks and release
+> archives prove package behavior; a fresh host session must prove loading,
+> command/skill execution and MCP connections.
 
-## Introduced in v1.3.0: work the way you talk
+## What's in 1.3.4
 
-v1.3.0 introduced the major workflow release. You no longer need to remember commands —
-the harness meets you at the level of your request.
+- Installed post-tool hooks carry their local path and transaction helpers, so they work outside the source checkout.
+- Loop writes reject stale revisions and repeated goal creation preserves the existing run.
+- Starting a goal consumes one global iteration; resuming it consumes none. Blocked, failed and exhausted states stay distinct.
+- Finalization requires all intended tasks to be done; persisted status is
+  assessed separately from completion evidence.
+
+This is a maintenance release. It includes the workflow foundation introduced
+in the family since v1.3.0 and subsequent reliability work. For Kimi and DeepSeek,
+that describes inherited family behavior, not prior public releases of these
+ports. The details below describe the cumulative v1.3.4 experience; the
+[release notes](RELEASE_NOTES.md) distinguish this patch's fixes from inherited
+features. No new speed, token-saving or cost claim is made.
+
+| Family milestone | What you get in the current package |
+| --- | --- |
+| v1.3.0 foundation | Natural-language entry, editable plans, durable decisions and verification tiers. |
+| v1.3.1 reliability | Clearer execution intent, safer isolation and evidence comparisons. |
+| v1.3.2 handoff | Revision-bound verification-report contracts; generic completion APIs have separate limits. |
+| v1.3.3 hardening | Host-specific hook, MCP and publication repairs. |
+| v1.3.4 maintenance | The run-integrity and native-adapter fixes listed above. |
 
 ### Just ask, or use a command — both work
 
@@ -37,7 +62,7 @@ execution by itself.
 Plans are Markdown you own. Edit them mid-run; the harness reconciles your
 changes at execution boundaries instead of overwriting them:
 
-- Cosmetic edits (wording, reordering, checking a box) keep all evidence.
+- Cosmetic wording and ordering edits preserve existing evidence.
 - Semantic edits (acceptance, dependencies, verification commands) invalidate
   only the affected task and its dependents — unrelated work is untouched.
 - Your checkbox is an *assertion*, not a verdict: a checked box alone never
@@ -54,11 +79,11 @@ can override your current instructions.
 
 ### Verification sized to the change
 
-Checks run once, at the right tier: documentation edits get a light inspect
-(V0), small changes a focused check (V1), cross-module behavior an integration
-scenario (V2), and security/release boundaries the comprehensive gate (V3,
-normally in CI). A green check is reused while its inputs are unchanged — the
-same test is never rerun just because a phase changed.
+The workflow calls for verification sized to the change: a documentation
+inspection (V0), a focused check (V1), an integration scenario (V2), or a
+comprehensive security/release gate (V3, normally in CI). Valid evidence may be
+reused while its inputs match; affected, missing or stale checks must rerun.
+Native execution still needs acceptance in the selected host.
 
 Milestones, decision gates, and full state/version semantics are shared
 byte-identically with LazyBuddy and LazyQoder (see
@@ -70,7 +95,7 @@ You do not need to work through the technical setup alone. Open an AI coding
 assistant in your project and paste this:
 
 > Help me install LazyTrae from https://github.com/elvinzhao10/LazyTrae for
-> this project. Use the published v1.3.1 route. Run safe package checks first,
+> this project. Use v1.3.4 and follow AGENTS.md and the current install guide. Run safe package checks first,
 > explain each step plainly, and ask me before changing host settings, adding
 > an MCP connector, or registering anything in Trae.
 
@@ -141,7 +166,53 @@ LazyTrae does not automate credentials, external services, or host
 registrations. It asks for approval before host-managed actions and keeps safe
 package checks separate from settings and connector changes.
 
-## v1.3.0 context and lifecycle safety
+## Package inventory
+
+| Surface | Count | Role |
+| --- | ---: | --- |
+| Skills | 17 | Host-facing workflow policies for planning, execution, review, and verification. |
+| Commands | 9 | Named host entry points for those workflow policies. |
+| Agents | 11 | Specialist role definitions for planning, implementation, QA, security, and context. |
+| MCP declarations | 8 | One local core service and seven disabled capability placeholders. |
+
+## LazySeries family
+
+**One workflow philosophy. Six host integrations.** Choose the sibling for the
+host you use; each keeps its own native adapters, installation route and
+acceptance evidence. These packages run independently.
+
+| Sibling | Target host |
+| --- | --- |
+| [LazyBuddy](https://github.com/elvinzhao10/LazyBuddy) | CodeBuddy CLI / IDE · WorkBuddy |
+| [LazyTrae](https://github.com/elvinzhao10/LazyTrae) **← you are here** | TraeCode / TraeWork / TraeCode CLI |
+| [LazyQoder](https://github.com/elvinzhao10/LazyQoder) | Qoder CLI / IDE / app |
+| [LazyZCode](https://github.com/elvinzhao10/LazyZCode) | ZCode |
+| [LazyKimi](https://github.com/elvinzhao10/LazyKimi) | Kimi Code CLI · Kimi Work (experimental) |
+| [LazyDeepSeek](https://github.com/elvinzhao10/LazyDeepSeek) | DeepSeek Harness 0.2.0-rc.2 |
+
+The family shares planning, evidence, decision-memory and completion contracts.
+Matching contracts do not make host capabilities interchangeable. In particular,
+Kimi Work remains experimental for LazyKimi, and DeepSeek's synthesized events
+are not native hooks. Use each sibling's host guide before installation.
+
+## Technical reference and evaluation
+
+The source-level explanation lives in [docs/README.md](docs/README.md). It
+maps the package, execution flow, state model, security boundaries, MCP
+lifecycle, host differences, and release checks with diagrams tied to the
+implementation.
+
+For a capability-by-capability account of what the package implements and what
+its tests verify, see [lazytrae-evaluation.md](lazytrae-evaluation.md).
+
+LazyTrae is primarily inspired by LazyCodex
+([upstream project](https://github.com/code-yeongyu/lazycodex)). Its
+relationship to OmO and upstream sources is recorded in [NOTICE](NOTICE).
+It is an independent implementation and does not require LazyCodex or OmO at
+runtime.
+
+<details>
+<summary>Trae runtime and lifecycle details</summary>
 
 Automatic selection reads the native current task, loop, and session state; it
 does not infer proprietary host execution. A fully matching identity can be
@@ -166,36 +237,26 @@ missing, stale, or input-affected lanes rerun; all five lanes still require
 PASS. Context capsules redact secret-bearing free text, and a stale active goal
 is rejected before checkpoint state can change.
 
-## Package inventory
+The commercial TraeCode CLI is a separate host from the open-source TRAE-agent
+project. LazyTrae remains a separate native integration with its own package
+and observed-host evidence. It does not substitute TRAE-agent execution for a
+commercial CLI session. The base topology is one active core MCP server with
+15 tools; seven optional capability declarations remain disabled placeholders.
 
-| Surface | Count | Role |
-| --- | ---: | --- |
-| Skills | 17 | Host-facing workflow policies for planning, execution, review, and verification. |
-| Commands | 9 | Named host entry points for those workflow policies. |
-| Agents | 11 | Specialist role definitions for planning, implementation, QA, security, and context. |
-| MCP declarations | 8 | One local core service and seven disabled capability placeholders. |
+Loop selection returns distinct active, blocked, failed, exhausted, and complete
+outcomes. Only a verified checkpoint records loop completion. Starting a pending
+goal consumes one global iteration; resuming that goal consumes none. Repeated
+`create-goals` refuses an existing goal set; use steering to change current work.
+Loop writers reject stale revisions, and installed post-tool hooks carry their
+own local path and transaction helpers to record edits without a source checkout.
+Trae hooks remain advisory and exit zero; CLI and MCP own hard completion gates.
 
-## Technical reference and evaluation
-
-The source-level explanation lives in [docs/README.md](docs/README.md). It
-maps the package, execution flow, state model, security boundaries, MCP
-lifecycle, host differences, and release checks with diagrams tied to the
-implementation.
-
-For a capability-by-capability account of what the package implements and what
-its tests verify, see [lazytrae-evaluation.md](lazytrae-evaluation.md).
-
-LazyTrae is primarily inspired by LazyCodex
-([upstream project](https://github.com/code-yeongyu/lazycodex)). Its
-relationship to OmO and upstream sources is recorded in [NOTICE](NOTICE).
-It is an independent implementation and does not require LazyCodex or OmO at
-runtime.
+</details>
 
 ## Learn more
 
 - [Install and verify a host](docs/03-install-and-host-verification.md)
 - [Remove receipt-owned assets safely](docs/08-safe-removal.md)
-- [Historical v1.3.0 route](docs/v1.3.0-supported-route.md)
 - [Workflow playbooks — how the modes pick work](docs/04-workflow-playbooks.md)
 - [Evidence and completion — what "done" proves](docs/05-evidence-and-completion.md)
 - [Host routes and recovery](docs/reference/host-routes.md)
@@ -216,18 +277,3 @@ files; `npm run test:all` runs their complete non-overlapping union. The harness
 uses two workers by default. Set `LAZYTRAE_TEST_CONCURRENCY=1` for a fully
 serial check or an integer up to `4` for a bounded local run. Report
 vulnerabilities privately according to [SECURITY.md](SECURITY.md).
-
-
-The commercial TraeCode CLI is a separate host from the open-source TRAE-agent
-project. LazyTrae remains a separate native integration with its own package
-and observed-host evidence. It does not substitute TRAE-agent execution for a
-commercial CLI session. The base topology is one active core MCP server with
-15 tools; seven optional capability declarations remain disabled placeholders.
-
-Loop selection returns distinct active, blocked, failed, exhausted, and complete
-outcomes. Only a verified checkpoint records loop completion. Starting a pending
-goal consumes one global iteration; resuming that goal consumes none. Repeated
-`create-goals` refuses an existing goal set; use steering to change current work.
-Loop writers reject stale revisions, and installed post-tool hooks carry their
-own local path and transaction helpers to record edits without a source checkout.
-Trae hooks remain advisory and exit zero; CLI and MCP own hard completion gates.
