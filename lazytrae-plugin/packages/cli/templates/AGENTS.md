@@ -44,7 +44,7 @@ When the user types `onboard`:
 2. Run `lifecycle status` through the durable `launcher.js`. If absent, use the
    verified source entrypoint to run `lifecycle onboard`; if blocked, stop and
    report the exact issue without editing lifecycle state.
-3. When migrating to v1.2.2, inventory managed versus modified/unknown
+3. When upgrading from an earlier release, inventory managed versus modified/unknown
    assets first. Replace only managed assets, preserve user changes, and
    record any conflict.
 4. Run only safe package checks and project-local setup through the local
