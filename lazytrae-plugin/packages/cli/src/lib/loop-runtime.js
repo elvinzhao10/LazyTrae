@@ -2,27 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { applySteering } = require('./loop-steering');
 const { validateQualityGate } = require('./loop-quality');
-const { appendEvent, defaultLoop, loadLoop, parseArgs, persistBrief, requireLoop, saveLoop } = require('./loop-store');
+const { appendEvent, defaultLoop, loadLoop, parseArgs, requireLoop, saveLoop } = require('./loop-store');
 const { requireRepoFile, resolveRepoPath } = require('./path-boundary');
 const { executionRevision } = require('./harness-execution-context');
+const { completeGoals, status } = require('./loop-selection');
 
-function goalCounts(loop) {
-  const count = status => loop.goals.filter(goal => goal.status === status).length;
-  return { complete: count('complete'), pending: count('pending'), inProgress: count('in_progress'), blocked: count('blocked') + count('review_blocked') };
-}
-
-function status(repoRoot) {
-  const loop = loadLoop(repoRoot);
-  if (!loop) {
-    console.log('No active loop found. Run `lazytrae loop --help` for usage.');
-    return;
-  }
-  const counts = goalCounts(loop);
-  console.log(`Loop State: ${loop.loop_state || 'idle'}`);
-  console.log(`Run ID:     ${loop.run_id || 'N/A'}`);
-  console.log(`Task:       ${loop.current_task_index != null ? `#${loop.current_task_index + 1}` : 'N/A'}`);
-  console.log(`Goals:      ${counts.complete} complete, ${counts.inProgress} in_progress, ${counts.pending} pending, ${counts.blocked} blocked (${loop.goals.length} total)`);
-}
 
 function transition(repoRoot, nextState, message, allowedStates, action) {
   const loop = requireLoop(repoRoot);
@@ -65,6 +49,9 @@ function createGoals(repoRoot, args) {
   const criterionId = flags['--criterion-id'] || `${goalId}-crit-1`;
   const brief = readBrief(repoRoot, flags['--brief']);
   const existingLoop = loadLoop(repoRoot);
+  if (existingLoop && existingLoop.goals && existingLoop.goals.length) {
+    throw new Error('Loop already has goals; use steer to modify existing work.');
+  }
   const loop = existingLoop && typeof existingLoop.run_id === 'string' ? existingLoop : defaultLoop();
   Object.assign(loop, { loop_state: 'active', started_at: loop.started_at || now, active_goal_id: goalId });
   const goal = {
@@ -91,26 +78,11 @@ function createGoals(repoRoot, args) {
   };
   goal.executionRevision = executionRevision(goal);
   loop.goals = [goal];
-  persistBrief(repoRoot, loop, brief);
-  saveLoop(repoRoot, loop);
+  saveLoop(repoRoot, loop, { brief });
   appendEvent(repoRoot, loop, 'create_goals', { goal_id: goalId, criterion_id: criterionId });
   console.log(`Loop goals created: ${goalId}/${criterionId}`);
 }
 
-function completeGoals(repoRoot) {
-  const loop = requireLoop(repoRoot);
-  const goal = loop.goals.find(item => item.status === 'in_progress') || loop.goals.find(item => item.status === 'pending' || item.status === 'failed');
-  if (!goal) { console.log('All goals complete or blocked.'); return; }
-  goal.status = 'in_progress';
-  goal.startedAt = goal.startedAt || new Date().toISOString();
-  goal.updatedAt = goal.startedAt;
-  goal.attempt = (goal.attempt || 0) + 1;
-  loop.active_goal_id = goal.id;
-  loop.loop_state = 'active';
-  saveLoop(repoRoot, loop);
-  appendEvent(repoRoot, loop, 'complete_goals', { goal_id: goal.id });
-  console.log(`Active goal: ${goal.id}`);
-}
 
 function findGoal(loop, goalId) {
   const goal = loop.goals.find(candidate => candidate.id === goalId);

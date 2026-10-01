@@ -3,6 +3,10 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.4] - 2026-09-30
+
+Repair installed hook dependencies, stale loop writers, iteration accounting and terminal outcomes. See RELEASE_NOTES.md for package verification scope and pending native host acceptance.
+
 ## [1.3.3] - 2026-09-28
 
 This local candidate repairs SessionStart state parsing and aligns runtime and package metadata. See RELEASE_NOTES.md for verification scope and pending host acceptance.
@@ -353,3 +357,5 @@ runtime replacement uses scoped offboard/re-onboard. Package success leaves
 [1.0.2]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/elvinzhao10/LazyTrae/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.0
+
+[1.3.4]: https://github.com/elvinzhao10/LazyTrae/compare/v1.3.3...v1.3.4

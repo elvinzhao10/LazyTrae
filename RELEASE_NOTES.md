@@ -1,3 +1,31 @@
+# LazyTrae v1.3.4 — runtime integrity and native adapter repairs
+
+## Eval-driven fixes
+
+Installed hooks include their runtime dependencies. Loop writes reject stale revisions, preserve populated runs, enforce iteration limits, and distinguish blocked, failed, exhausted and independently verified completion. LazyTrae retains its separate npm CLI and one active core MCP server. Finalization requires all intended tasks done; persisted status is assessed separately from completion evidence.
+
+## Measured efficiency
+
+This maintenance release makes no new latency, token-saving or recall claim. Ledger append/compaction, learned routing and shared-core migration are deferred.
+
+## Host capability matrix
+
+Commercial TraeCode CLI is distinct from the open-source TRAE-agent. Native authenticated command acceptance remains pending. Hooks are advisory; completion and mutation gates run in the CLI/MCP. Seven optional MCP placeholders remain disabled.
+
+## Migration and upgrade
+
+Use the receipt-aware upgrade route with an explicit project binding. Preserve project evidence and unknown host configuration. No credentials or production host settings are changed by package verification.
+
+## Known risks
+
+Native host acceptance is still separate from package readiness. Token/cost budgets are metadata, and pending approval results are persisted observations without a live approval queue. Shell loop policy beyond its configured global cap requires orchestrator enforcement.
+
+## Rollback
+
+Retain the published v1.3.3 tag and ownership receipts. Remove only receipt-owned, unmodified assets and use a fresh host session to verify removal.
+
+## Prior release notes
+
 # LazyTrae v1.3.3 — reliability and release consistency
 
 **Status:** v1.3.3 release. Source, package, and publication checks passed locally on Node 22 and 24 and in PR CI. TraeCode CLI 0.120.52 connected the core MCP server and discovered commands in an isolated project; command execution stopped at the required enterprise login.

@@ -92,13 +92,22 @@ function requireLoop(repoRoot) {
   return loop;
 }
 
-function saveLoop(repoRoot, loop) {
+function saveLoop(repoRoot, loop, options = {}) {
   Object.assign(loop, loopArtifactPaths(loop));
-  loop.updated_at = new Date().toISOString();
-  runTransaction(repoRoot, loop.run_id, () => ({ members: [
-    { path: statePath(repoRoot), content: JSON.stringify(loop, null, 2) + '\n' },
-    { path: path.join(repoRoot, loop.goals_path), content: JSON.stringify(loop.goals, null, 2) + '\n' },
-  ] }));
+  const expectedRevision = loop.revision || 0;
+  runTransaction(repoRoot, 'active-loop', () => {
+    const current = readJSON(statePath(repoRoot));
+    if (current && ((current.run_id !== null && current.run_id !== loop.run_id) || (current.revision || 0) !== expectedRevision)) {
+      throw new Error('STALE_LOOP_STATE: reload the loop before writing.');
+    }
+    loop.revision = expectedRevision + 1;
+    loop.updated_at = new Date().toISOString();
+    return { members: [
+      { path: statePath(repoRoot), content: JSON.stringify(loop, null, 2) + '\n' },
+      { path: path.join(repoRoot, loop.goals_path), content: JSON.stringify(loop.goals, null, 2) + '\n' },
+      ...(options.brief === undefined ? [] : [{ path: path.join(repoRoot, loop.brief_path), content: options.brief }]),
+    ] };
+  });
 }
 
 function eventLines(filePath) {

@@ -7,7 +7,7 @@
 LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. The release-owned local launcher supplies the portable installer,
 verification gate, and local MCP server. Package behavior is verified on
 macOS only; host behavior keeps the evidence labels below. The current
-documentation release is `1.3.3`.
+documentation release is `1.3.4`.
 
 ## Durable onboarding (start here)
 
@@ -44,7 +44,7 @@ When the user types `onboard`:
 2. Run `lifecycle status` through the durable `launcher.js`. If absent, use the
    verified source entrypoint to run `lifecycle onboard`; if blocked, stop and
    report the exact issue without editing lifecycle state.
-3. When migrating to v1.2.2, inventory managed versus modified/unknown
+3. When upgrading from an earlier release, inventory managed versus modified/unknown
    assets first. Replace only managed assets, preserve user changes, and
    record any conflict.
 4. Run only safe package checks and project-local setup through the local

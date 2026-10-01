@@ -1,10 +1,10 @@
 # lazytrae-ai
 
-The latest published stable release is v1.3.2; fresh-session native-host activation remains pending.
+The current package version is v1.3.4; fresh-session native-host activation remains pending.
 
 LazyTrae CLI — Trae-native workflow installer and runtime.
 
-This v1.3.3 package keeps automatic selection native and host handling
+This v1.3.4 package keeps automatic selection native and host handling
 advisory: a complete current task/loop/session identity may form a bounded
 context capsule, but `presented-to-host` remains `not-observed` until a real
 Trae session is observed. Init and sync preflight managed conflicts and retain
@@ -159,7 +159,7 @@ Context7 and `grep_app` are disabled by default. `lazytrae tooling enable contex
 
 ## Onboard
 
-For a stable install, open or link the published v1.3.1 release in the selected Trae host. Give the agent
+For installation, open or link the durable release selected by `lifecycle status` in the selected Trae host. Give the agent
 `https://github.com/elvinzhao10/LazyTrae`, and type `onboard`. The setup guide
 asks for TraeCode, TraeWork, or TraeCode CLI and uses the stable durable
 launcher, never PATH/global lookup:

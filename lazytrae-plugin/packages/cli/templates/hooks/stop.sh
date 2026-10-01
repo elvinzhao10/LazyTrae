@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.3.3 — Stop hook
+# LazyTrae v1.3.4 — Stop hook
 # Emits continuation reminder if active work is incomplete.
 # Provide start-work continuation and executor evidence verification.
 # Always exits 0 — never blocks a session.
@@ -47,7 +47,7 @@ reminders=""
 if [ -f "$BOULDER" ]; then
   incomplete=$(node -e "
 try{
-  const d=require('$BOULDER');
+  const d=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));
   const wid=d.active_work_id;
   if(!wid){process.exit(0);}
   const w=d.works[wid];
@@ -56,7 +56,7 @@ try{
   if(pending.length>0){
     process.stdout.write(pending[0].description+'|'+pending.length+'|'+w.plan_name);
   }
-}catch(e){}" 2>/dev/null || true)
+}catch(e){}" "$BOULDER" 2>/dev/null || true)
   if [ -n "$incomplete" ]; then
     has_incomplete=true
     task_desc=$(echo "$incomplete" | cut -d'|' -f1)
@@ -73,7 +73,7 @@ fi
 if [ -f "$LOOP" ]; then
   loop_status=$(node -e "
 try{
-  const d=require('$LOOP');
+  const d=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));
   const active=d.goals?d.goals.find(g=>g.status==='in_progress'):null;
   if(active)process.stdout.write(active.title+'|'+String(active.attempt||1));
   else if(d.active_goal_id)process.stdout.write(d.active_goal_id+'|1');

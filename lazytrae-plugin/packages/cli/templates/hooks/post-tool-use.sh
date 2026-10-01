@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.3.3 — PostToolUse hook
+# LazyTrae v1.3.4 — PostToolUse hook
 # Records changed files, runs comment-checker, captures verification output.
 # Always exits 0 — never blocks a session.
 
@@ -55,16 +55,19 @@ try{
   const path=require('path');
   const sessions=process.argv[1];
   const repoRoot=path.resolve(path.dirname(sessions),'..','..');
-  require(path.join(repoRoot,'packages','cli','src','lib','path-boundary')).assertSafeRepoWritePath(repoRoot,sessions);
+  const {runTransaction}=require(path.join(repoRoot,'.trae','hooks','runtime','state-transaction'));
   const paths=process.argv[2].split('\n').filter(Boolean);
-  const d=JSON.parse(fs.readFileSync(sessions,'utf-8'));
-  const sid=d.current_session_id;
-  if(sid&&d.sessions&&d.sessions[sid]){
-    if(!d.sessions[sid].changed_files)d.sessions[sid].changed_files=[];
-    for(const p of paths)if(!d.sessions[sid].changed_files.includes(p))d.sessions[sid].changed_files.push(p);
-    d.sessions[sid].last_active_at=new Date().toISOString();
-    fs.writeFileSync(sessions,JSON.stringify(d,null,2)+'\n');
-  }
+  runTransaction(repoRoot,'sessions',()=>{
+    const d=JSON.parse(fs.readFileSync(sessions,'utf-8'));
+    const sid=d.current_session_id;
+    if(sid&&d.sessions&&d.sessions[sid]){
+      if(!d.sessions[sid].changed_files)d.sessions[sid].changed_files=[];
+      for(const p of paths)if(!d.sessions[sid].changed_files.includes(p))d.sessions[sid].changed_files.push(p);
+      d.sessions[sid].last_active_at=new Date().toISOString();
+    }
+    d.revision=(d.revision||0)+1;
+    return {members:[{path:sessions,content:JSON.stringify(d,null,2)+'\n'}]};
+  });
 }catch(e){}" "$SESSIONS" "$changed_files" 2>/dev/null || true
 fi
 

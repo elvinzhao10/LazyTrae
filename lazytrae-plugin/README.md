@@ -1,9 +1,9 @@
 # LazyTrae plugin
 
 
-The latest published stable release is v1.3.2; fresh-session native-host activation remains pending.
+The current package version is v1.3.4; fresh-session native-host activation remains pending.
 
-## Published stable v1.3.0 installation
+## Durable installation
 
 **Node.js LTS 24 (recommended) or 22 (supported alternative)** and **Git** are required. Run `lifecycle onboard`
 only from `https://github.com/elvinzhao10/LazyTrae.git`, then use
@@ -52,7 +52,7 @@ projects. Keep it self-contained and run the CLI test suite after changes.
 
 ## Install, verify, and remove
 
-Bootstrap the published stable v1.3.0 route from a verified official source checkout, then use the
+Bootstrap the current package from a verified official source checkout, then use the
 durable launcher rather than treating that checkout as the installed runtime:
 
 ```bash
