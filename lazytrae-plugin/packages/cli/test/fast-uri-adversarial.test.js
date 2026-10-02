@@ -8,8 +8,9 @@ test('Given the installed dependency tree, when every fast-uri edge is listed, t
   const tree = JSON.parse(execFileSync('npm', ['ls', 'fast-uri', '--all', '--json'], { cwd: root, encoding: 'utf8' }));
   const direct = tree.dependencies['fast-uri'].version;
   const nested = tree.dependencies.ajv.dependencies['fast-uri'].version;
-  assert.equal(direct, '4.1.5');
-  assert.equal(nested, '3.1.8');
+  const manifest = require('../package.json');
+  assert.equal(direct, manifest.dependencies['fast-uri']);
+  assert.equal(nested, manifest.overrides.ajv['fast-uri']);
 });
 
 
@@ -18,6 +19,22 @@ const implementations = {
   direct: require('fast-uri'),
   ajv: createRequire(require.resolve('ajv'))('fast-uri'),
 };
+
+test('Given mailto authority recipients, when repeatedly normalized, then normalization reaches a stable result', () => {
+  const uri = implementations.direct;
+  const first = uri.normalize('mailto://host/recipient@example.test?to=other@example.test');
+  assert.equal(uri.normalize(first), first);
+  assert.equal(uri.serialize({ scheme: 'mailto', host: 'host', to: ['recipient@example.test'] }), 'mailto:recipient@example.test');
+});
+
+test('Given an IPv6 zone identifier, when serialized and normalized, then the zone survives consistently', () => {
+  const uri = implementations.direct;
+  const input = 'http://[fe80::1%25eth0]/';
+  const normalized = uri.normalize(input);
+  assert.equal(uri.normalize(normalized), normalized);
+  assert.equal(uri.parse(uri.serialize(uri.parse(input))).host, uri.parse(input).host);
+  assert.equal(uri.equal(input, normalized), true);
+});
 
 for (const [name, uri] of Object.entries(implementations)) {
   test(`Given ${name} URI parsing, when a scheme-relative host uses encoded uppercase, then host decisions agree`, () => {

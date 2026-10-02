@@ -71,6 +71,11 @@ test('packed CLI installs from a cold offline npm cache with only production dep
     const tarball = path.join(root, packageInfo.filename);
     const members = run('tar', ['-tzf', tarball]).trim().split('\n');
     assertNoPrivateOmoMembers(members);
+    assert.deepEqual(
+      members.filter(member => /^package\/tooling\/.*\/node_modules(?:\/|$)/.test(member)),
+      [],
+      'optional provider installations must not enter the runtime artifact',
+    );
     const bundledPackages = new Set(members
       .map(member => member.match(/^package\/node_modules\/([^/]+)\/package\.json$/)?.[1])
       .filter(Boolean));
@@ -120,7 +125,7 @@ test('packed CLI installs from a cold offline npm cache with only production dep
       env: nodeOnlyEnvironment,
     });
     assert.equal(localResponse.error, undefined);
-    assert.equal(localResponse.result.serverInfo.version, '1.3.4');
+    assert.equal(localResponse.result.serverInfo.version, '1.3.5');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

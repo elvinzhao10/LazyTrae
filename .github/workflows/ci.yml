@@ -29,7 +29,9 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "18.0.0"
+      - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: node scripts/verify-supported-floor.mjs --surface cli --expected-runtime 18.0.0 --exercise package,install,cli
+      - run: node scripts/verify-supported-floor.mjs --surface cli --expected-runtime 18.0.0 --exercise lsp-provider --expect-unsupported
 
   onboarding-lsp-floor:
     name: Legacy onboarding/LSP Node 20 compatibility (EOL)
@@ -45,6 +47,7 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "20.0.0"
+      - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: node scripts/verify-supported-floor.mjs --surface onboarding-lsp --expected-runtime 20.0.0 --exercise onboarding,lsp-provider
 
   cli:
@@ -63,6 +66,7 @@ jobs:
           cache: npm
           cache-dependency-path: lazytrae-plugin/packages/cli/package-lock.json
       - run: npm ci --ignore-scripts
+      - run: node --test test/supported-floor.test.js
       - run: node --test contracts/tests/completion-cost-contract.test.js
       - run: npm run test:all
       - run: npm run test:publication

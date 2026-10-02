@@ -1,6 +1,7 @@
 # Private agent planning and evidence are never part of a distributable CLI.
 .omo/
 **/.omo/
+tooling/**/node_modules/
 test/*
 !test/packaged-self-verification.test.js
 !test/work-profile.test.js

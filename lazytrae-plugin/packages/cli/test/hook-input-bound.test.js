@@ -155,3 +155,40 @@ test('direct and generated hooks reject raw NUL before shell normalization', (t)
     assert.deepEqual(directive.workflowSurfaces, [], surface);
   }
 });
+
+for (const event of ['pre-tool-use', 'post-tool-use']) {
+  test(`installed ${event} rejects oversize input without state changes`, (t) => {
+    // Given: the generated legacy-adapter hook and a byte-overflow event.
+    const { project } = makeGeneratedHookFixture(t, `lazytrae-${event}-bound-`);
+    const statePath = path.join(project, '.lazytrae', 'state', 'sessions.json');
+    const before = fs.readFileSync(statePath, 'utf8');
+    const input = JSON.stringify({ tool_name: 'Write', tool_input: { file_path: 'src/changed.js' }, padding: 'x'.repeat(EXPECTED_MAX_HOOK_INPUT_BYTES) });
+    // When: the installed shell hook receives stdin directly.
+    const result = spawnSync('/bin/bash', [path.join(project, '.trae', 'hooks', `${event}.sh`)], {
+      cwd: project, input, encoding: 'utf8',
+    });
+    // Then: it remains advisory and leaves the receipt-owned state untouched.
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, '');
+    assert.equal(JSON.parse(result.stderr).error, 'hook_input_too_large');
+    assert.equal(fs.readFileSync(statePath, 'utf8'), before);
+  });
+}
+
+for (const character of ['x', '界']) {
+  test(`installed post-tool records a valid 1 MiB event padded with ${character}`, (t) => {
+    // Given: installed hooks and an active session with no changed files.
+    const { project } = makeGeneratedHookFixture(t, 'lazytrae-post-tool-at-bound-');
+    const statePath = path.join(project, '.lazytrae', 'state', 'sessions.json');
+    fs.writeFileSync(statePath, JSON.stringify({ revision: 0, current_session_id: 'fixture', sessions: { fixture: { changed_files: [] } } }));
+    const base = JSON.stringify({ tool_name: 'Write', tool_input: { file_path: 'src/boundary.js' }, padding: '' });
+    const remaining = EXPECTED_MAX_HOOK_INPUT_BYTES - Buffer.byteLength(base);
+    const input = base.slice(0, -2) + character.repeat(Math.floor(remaining / Buffer.byteLength(character))) + ' '.repeat(remaining % Buffer.byteLength(character)) + '"}';
+    assert.equal(Buffer.byteLength(input), EXPECTED_MAX_HOOK_INPUT_BYTES);
+    // When: the installed shell hook receives the boundary-sized event.
+    const result = spawnSync('/bin/bash', [path.join(project, '.trae', 'hooks', 'post-tool-use.sh')], { cwd: project, input, encoding: 'utf8' });
+    // Then: the accepted event changes session state exactly as a small event does.
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(fs.readFileSync(statePath, 'utf8')).sessions.fixture.changed_files, ['src/boundary.js']);
+  });
+}

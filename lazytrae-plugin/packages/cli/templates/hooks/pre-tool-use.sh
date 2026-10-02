@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.3.4 — PreToolUse hook
+# LazyTrae v1.3.5 — PreToolUse hook
 # Warns on write-before-read and destructive git commands.
 # Provide git-bash MCP guidance and ulw-loop goal-budget protection.
 # Always exits 0 — never blocks a session.
@@ -7,24 +7,20 @@
 set -euo pipefail
 
 # Read stdin for tool call metadata
-input=""
-if [ ! -t 0 ]; then
-  input=$(cat)
-fi
-
-if [ -z "$input" ]; then
-  exit 0
-fi
+[ ! -t 0 ] || exit 0
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/bounded-input.bash"
+hook_read_input || exit 0
+[ -s "$HOOK_INPUT_FILE" ] || exit 0
 
 # Extract tool_name and tool_input
-tool_name=$(echo "$input" | node -e "
+tool_name=$(cat "$HOOK_INPUT_FILE" | node -e "
 let d='';
 process.stdin.on('data',c=>d+=c);
 process.stdin.on('end',()=>{
   try{const j=JSON.parse(d);process.stdout.write(j.tool_name||j.toolName||'')}catch(e){}
 });" 2>/dev/null || true)
 
-tool_input=$(echo "$input" | node -e "
+tool_input=$(cat "$HOOK_INPUT_FILE" | node -e "
 let d='';
 process.stdin.on('data',c=>d+=c);
 process.stdin.on('end',()=>{

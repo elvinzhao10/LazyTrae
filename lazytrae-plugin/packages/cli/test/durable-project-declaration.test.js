@@ -13,23 +13,33 @@ const { runCli } = require('./test-helpers');
 const CLI_ROOT = path.resolve(__dirname, '..');
 const ORIGIN = 'https://github.com/elvinzhao10/LazyTrae.git';
 
+function copyCliFixture(target) {
+  fs.cpSync(CLI_ROOT, target, {
+    recursive: true,
+    filter: (entry) => {
+      const relative = path.relative(CLI_ROOT, entry).split(path.sep);
+      return relative[0] !== 'tooling' || !relative.includes('node_modules');
+    },
+  });
+}
+
 function durableFixture(sandbox, name, fill) {
   const installRoot = path.join(sandbox, name);
   const paths = prepareProductRoot({ installRoot, product: 'LazyTrae' });
   const source = path.join(sandbox, `${name} source checkout`);
   const staging = path.join(paths.staging, `${name}-stage`);
   const sha = fill.repeat(40);
-  fs.cpSync(CLI_ROOT, source, { recursive: true });
+  copyCliFixture(source);
   fs.cpSync(source, staging, { recursive: true });
   promoteRelease(paths, {
     commitSha: sha,
     entrypoint: 'bin/lazytrae.js',
     manifestRelativePath: 'package.json',
     origin: ORIGIN,
-    releaseId: `1.3.4-${sha.slice(0, 12)}`,
+    releaseId: `1.3.5-${sha.slice(0, 12)}`,
     runtimePath: process.execPath,
     stagingPath: staging,
-    version: '1.3.4',
+    version: '1.3.5',
   });
   return { paths, sha, source };
 }
@@ -84,7 +94,7 @@ test('durable init records the absolute runtime and stable launcher after source
   assert.equal(server._lazytrae.release_sha, fixture.sha);
   assert.match(server._lazytrae.managed_entry_sha256, /^[a-f0-9]{64}$/);
   assert.equal(started.status, 0, started.stderr);
-  assert.equal(JSON.parse(started.stdout.trim()).result.serverInfo.version, '1.3.4');
+  assert.equal(JSON.parse(started.stdout.trim()).result.serverInfo.version, '1.3.5');
 });
 
 test('durable init rejects tampered provenance before writing project assets', async (t) => {
@@ -155,7 +165,7 @@ test('active release replacement changes stable launcher behavior without editin
   const before = fs.readFileSync(target);
   const nextSha = '1'.repeat(40);
   const staging = path.join(fixture.paths.staging, 'next-stage');
-  fs.cpSync(CLI_ROOT, staging, { recursive: true });
+  copyCliFixture(staging);
   const entry = path.join(staging, 'bin', 'lazytrae.js');
   const source = fs.readFileSync(entry, 'utf8');
   fs.writeFileSync(entry, source.replace(
@@ -169,10 +179,10 @@ test('active release replacement changes stable launcher behavior without editin
     entrypoint: 'bin/lazytrae.js',
     manifestRelativePath: 'package.json',
     origin: ORIGIN,
-    releaseId: `1.3.4-${nextSha.slice(0, 12)}`,
+    releaseId: `1.3.5-${nextSha.slice(0, 12)}`,
     runtimePath: process.execPath,
     stagingPath: staging,
-    version: '1.3.4',
+    version: '1.3.5',
   });
   const probed = childProcess.spawnSync(process.execPath, [fixture.paths.launcher, 'release-probe'], {
     encoding: 'utf8',
