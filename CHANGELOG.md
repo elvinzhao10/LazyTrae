@@ -3,7 +3,7 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
-## [1.3.5] - 2026-10-02 (candidate)
+## [1.3.5] - 2026-10-02
 
 Run real runtime-floor exercises, bound hook input while preserving refusal contracts, and distinguish current native platform routes. Keep CLI Node 18 separate from optional LSP Node 20. Exclude generated optional-provider dependencies from packed releases; update dependency regressions. See RELEASE_NOTES.md for verification scope and pending native host acceptance.
 
