@@ -1,7 +1,7 @@
 # LazyTrae plugin
 
 
-The current package version is v1.3.4; fresh-session native-host activation remains pending.
+The current package version is v1.3.5; fresh-session native-host activation remains pending.
 
 ## Durable installation
 

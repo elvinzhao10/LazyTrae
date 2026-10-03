@@ -64,8 +64,9 @@ function wait(milliseconds) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-async function waitForFile(filePath) {
-  for (let attempt = 0; attempt < 50; attempt += 1) {
+async function waitForFile(filePath, startupTimeoutMs = 1_000) {
+  const deadline = Date.now() + startupTimeoutMs;
+  while (Date.now() < deadline) {
     if (fs.existsSync(filePath)) return;
     await wait(20);
   }
@@ -343,7 +344,7 @@ test('closing one CodeGraph MCP stream terminates only its owned process tree', 
     }
     first = startCodeGraph(firstTarget, toolingRoot, firstPidPath);
     second = startCodeGraph(secondTarget, toolingRoot, secondPidPath);
-    await Promise.all([waitForFile(firstPidPath), waitForFile(secondPidPath)]);
+    await Promise.all([waitForFile(firstPidPath, 5_000), waitForFile(secondPidPath, 5_000)]);
     const firstRecord = JSON.parse(fs.readFileSync(firstPidPath, 'utf8'));
     const secondRecord = JSON.parse(fs.readFileSync(secondPidPath, 'utf8'));
 
@@ -378,7 +379,7 @@ test('closing a CodeGraph MCP stream force-kills a descendant that ignores SIGTE
     fs.mkdirSync(path.join(target, '.codegraph'), { recursive: true });
     fs.writeFileSync(path.join(target, '.codegraph', 'codegraph.db'), 'SQLite format 3\u0000fixture\n');
     bridge = startCodeGraph(target, toolingRoot, pidPath);
-    await waitForFile(pidPath);
+    await waitForFile(pidPath, 5_000);
     const record = JSON.parse(fs.readFileSync(pidPath, 'utf8'));
 
     // When: the MCP client closes its input stream.

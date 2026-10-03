@@ -1,6 +1,6 @@
 # Host capability matrix
 
-**Current documentation release: v1.3.4.** This is a boundary matrix, not a
+**Current documentation release: v1.3.5.** This is a boundary matrix, not a
 claim that a package result has made any host ready.
 
 LazyTrae deliberately aligns policy and package safety across Trae surfaces while keeping host adapters distinct. The same project assets may be present on two surfaces without both hosts exposing the same discovery or registration behavior.
@@ -23,7 +23,7 @@ PENDING** until current observation.
 | Project assets | `.trae/` and `.lazytrae/` | Global Work skills plus project state | Local project configuration | Templates and managed copies are present. |
 | Skills/commands/agents | Project discovery | Global skill discovery; no global command registry | CLI/session discovery | Files are present; host must load them. |
 | MCP | Project declaration; reopen is host-owned | Paste-ready JSON for manual Settings → MCP | Paste-ready JSON for the selected build's documented/manual settings flow | Core launcher and protocol tests are present. |
-| Hooks | Host event lifecycle | Host-specific behavior | CLI/project behavior | Hooks are advisory declarations. |
+| Hooks | Host event lifecycle | Host-specific behavior | CLI/project behavior | Shipped adapter hooks are advisory; current CN IDE native hooks can block. |
 | Removal | Project assets only | Bounded skills removal plus manual registration removal | Project assets plus manual registration removal | Package never guesses host locations. |
 
 ## Structural differences
@@ -58,7 +58,7 @@ MCP, and observation evidence must be fingerprint-bound and current first.
 | --- | --- | --- | --- |
 | Workflow guidance | Ships template skills, commands, agents, rules, and hooks. | Decides discovery/exposure on IDE, Work, or CLI. | A copied template is not proof that a host loaded it. |
 | Installation | `init`/`sync` performs managed project writes and load checks. | Owns Work global skill discovery and CLI/IDE session behavior. | An initialized project is not a connected host session. |
-| Hook policy | Ships advisory scripts and mappings. | Delivers events and defines hook lifecycle semantics. | Hard completion belongs in CLI/MCP gates, not hook exit codes. |
+| Hook policy | Ships advisory scripts and mappings. | Delivers events and defines hook lifecycle semantics. | The shipped adapter uses CLI/MCP completion gates; native CN IDE hooks separately support blocking decisions. |
 | Local MCP | Ships one core stdio server and disabled placeholders. | Starts, registers, and displays the connection. | A declaration is not a connection. |
 | Optional providers | Implements policy, receipts, and managed namespaced entries. | Stores credentials and applies connector/network policy. | Selection/receipt status is not provider authorization or connection. |
 | Adaptive context | Selects from native current state and emits a bounded capsule only for a full identity match. | May receive an advisory presentation; execution remains host-observed. | `presented-to-host` is not a claim that proprietary host execution occurred. |
@@ -81,3 +81,5 @@ access TraeCode CLI, so its live-host route is explicitly unverified.
 ## Host evidence scope
 
 Automated package CI runs on Ubuntu and macOS as defined in the workflows. TraeWork paths, discovery, hook execution, and MCP connection remain per-session observations; the supplied host reports are historical macOS evidence only.
+
+See [the dated platform audit](reference/platform-status-2026-10-02.md) and [Trae product surfaces](reference/trae-product-surfaces.md) for native CN IDE hooks and CLI 2.0 boundaries.

@@ -50,6 +50,7 @@ function assertJob(block, { nodeVersion, lockfile, commands }) {
 }
 
 function assertFloorJob(block, { nodeVersion, command }) {
+  assert.match(block, /^      - run: npm ci --ignore-scripts --no-audit --no-fund$/m, 'floor job must install its locked dependencies');
   assert.match(block, /^    runs-on: ubuntu-latest$/m);
   assert.match(block, /^    timeout-minutes: 10$/m);
   assert.match(block, new RegExp(`^          node-version: "${nodeVersion}"$`, 'm'));
@@ -116,6 +117,7 @@ test('workflow regression rejects missing gates, unpinned actions, and dry-run p
   const contents = fs.readFileSync(WORKFLOW_PATH, 'utf8');
 
   assert.throws(() => validateWorkflow('jobs: [invalid'), /Psych::SyntaxError/);
+  assert.throws(() => validateWorkflow(contents.replace('      - run: npm ci --ignore-scripts --no-audit --no-fund\n', '')), /floor job must install/);
   assert.throws(() => validateWorkflow(contents.replace('      - run: npm run test:all\n', '')), /job must run npm run test:all/);
   assert.throws(() => validateWorkflow(contents.replace('      - run: node scripts/verify-supported-floor.mjs --surface cli --expected-runtime 18.0.0 --exercise package,install,cli\n', '')), /floor job must run/);
   assert.throws(() => validateWorkflow(contents.replace('      - run: npm test\n', '')), /job must run npm test/);

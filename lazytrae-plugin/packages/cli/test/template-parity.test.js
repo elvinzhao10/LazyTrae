@@ -167,7 +167,7 @@ test('MCP templates have no unbounded active npx defaults', () => {
 });
 
 test('MCP default guard rejects ranges, mutable tags, and disabled executables', () => {
-  for (const selector of ['^1.3.4', '~1.3.4', 'latest', 'next']) {
+  for (const selector of ['^1.3.5', '~1.3.5', 'latest', 'next']) {
     assert.throws(
       () => assertSafeMcpDefaults({
         optional: { command: 'npx', args: ['-y', `@example/mcp@${selector}`] },

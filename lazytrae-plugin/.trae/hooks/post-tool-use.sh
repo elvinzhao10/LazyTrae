@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# LazyTrae v1.3.4 — PostToolUse hook
+# LazyTrae v1.3.5 — PostToolUse hook
 # Records changed files, runs comment-checker, captures verification output.
 # Always exits 0 — never blocks a session.
 
@@ -8,11 +8,12 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 SESSIONS="$REPO_ROOT/.lazytrae/state/sessions.json"
 
-input=""
-[ ! -t 0 ] && input=$(cat)
-[ -z "$input" ] && exit 0
+[ ! -t 0 ] || exit 0
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/bounded-input.bash"
+hook_read_input || exit 0
+[ -s "$HOOK_INPUT_FILE" ] || exit 0
 
-metadata=$(printf '%s' "$input" | node -e "
+metadata=$(cat "$HOOK_INPUT_FILE" | node -e "
 let d='';
 process.stdin.on('data',c=>d+=c);
 process.stdin.on('end',()=>{

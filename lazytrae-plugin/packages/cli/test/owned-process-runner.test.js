@@ -98,7 +98,7 @@ test('owned timeout kills a TERM-ignoring descendant without signaling its calle
         && error.code === 'FIXTURE_TIMEOUT'
         && error.message.includes('best-effort termination was requested for its owned process group'),
     );
-    waitForFile(pidPath);
+    waitForFile(pidPath, 5_000);
     const descendantPid = Number(fs.readFileSync(pidPath, 'utf8'));
 
     // Then: only that detached session is removed; the caller survives and the descendant is gone.

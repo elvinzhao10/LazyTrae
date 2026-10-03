@@ -5,9 +5,12 @@
 > For everyday workflow use, see the [LazyTrae README](https://github.com/elvinzhao10/LazyTrae#readme).
 
 LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. The release-owned local launcher supplies the portable installer,
-verification gate, and local MCP server. Package behavior is verified on
-macOS only; host behavior keeps the evidence labels below. The current
-documentation release is `1.3.4`.
+verification gate, and local MCP server. Automated package checks run on
+Ubuntu and macOS in the repository workflows; host behavior keeps the evidence labels below. The current
+documentation release is `1.3.5`.
+
+See [the current platform audit](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/reference/platform-status-2026-10-02.md)
+for version-specific native features and legacy route limits.
 
 ## Durable onboarding (start here)
 
@@ -173,7 +176,7 @@ and TraeCode through its project MCP UI. Do not assume a universal CLI command.
 lifecycle-owned sibling bootstrap lock or product `staging/`/`locks/` artifact,
 and requires `--yes` after that verification; the caller workspace is always
 preserved.
-For an upgrade rollback, remove only the exact receipt-owned v1.2.2 generated
+For an upgrade rollback, remove only the selected release's exact receipt-owned generated
 assets after approval; do not restore an earlier release over user-modified
 files. Historical v1.0.3 release evidence is immutable and is not removal
 authority.
