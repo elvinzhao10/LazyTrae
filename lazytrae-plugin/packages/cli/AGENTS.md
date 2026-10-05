@@ -6,7 +6,7 @@
 verification gate, hook dispatcher, loop controls, team mode, model routing,
 tooling lifecycle, and the launcher for the local MCP server.
 
-The packaged baseline is `v1.3.5`.
+The packaged baseline is `v1.4.0`.
 
 ## ADAPTIVE HARNESS
 

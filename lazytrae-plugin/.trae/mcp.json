@@ -47,7 +47,7 @@
     }
   },
   "lazytrae": {
-    "description": "LazyTrae MCP configuration template for v1.3.5. Init or sync materializes one Node-launched, absolute release-owned core server and seven disabled placeholders. Context7, grep_app, filesystem, and Playwright require explicit tooling enable commands and are created as namespaced lazytrae_* servers. The core server provides 16 state, evidence, handoff, local context, and dashboard tools after connection.",
+    "description": "LazyTrae MCP configuration template for v1.4.0. Init or sync materializes one Node-launched, absolute release-owned core server and seven disabled placeholders. Context7, grep_app, filesystem, and Playwright require explicit tooling enable commands and are created as namespaced lazytrae_* servers. The core server provides 16 state, evidence, handoff, local context, and dashboard tools after connection.",
     "note": "Required: false servers are optional and will not cause errors if unavailable. Disable unwanted servers by setting 'disabled': true."
   }
 }

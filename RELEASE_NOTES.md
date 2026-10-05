@@ -1,3 +1,77 @@
+# LazyTrae v1.4.0 - vendored dashboard core and native Trae adapter
+
+A feature release across the six LazySeries siblings: the family's portable
+dashboard core is vendored identically into every package and wired through a
+native Trae adapter.
+
+## Eval-driven fixes
+
+- The portable dashboard core (projection, command/queue reducers, browser UI)
+  is vendored from the LazyBuddy source tree byte-identically and pinned in
+  `shared/dashboard.vendor.json`; the Trae adapter, authenticated loopback
+  service, and bounded execute/verify workload are native to this package.
+- The core MCP server gains its sixteenth tool, `lazytrae.dashboard`
+  (start/open/status/stop/snapshot/context). It manages the owned browser
+  dashboard or reads native task context; it does not execute tasks.
+- Every stale "15 tools" string in the README, AGENTS guides, evaluation,
+  reference docs, CLI package README, and the MCP description writers is
+  corrected to 16, and the managed-entry identity constant moves together
+  with its template writers.
+- The adapter suite covers CAS and replay, cycle rejection, queue persistence,
+  revision-bound execution with an independent verifier, failed/cancelled/
+  dirty/stale history, authentication and path boundaries, owned lifecycle,
+  restart, and crash recovery. The packed-route MCP test exercises the
+  documented local `npm pack` tarball route.
+
+## Measured efficiency
+
+No latency, token, cost, or native-host performance improvement is claimed.
+The dashboard service binds an owned loopback port with an authentication
+boundary; queue edits never start work, so planning traffic cannot trigger
+execution. Host embedding, chat handoff, and wake remain unobserved.
+
+## Host capability matrix
+
+TraeCode, TraeWork, and TraeCode CLI remain three independent hosts. The
+dashboard is package-owned local software: it does not prove that a host
+embedded it, handed off a chat, or woke from a host event. `dashboard
+context` reports `host_execution: not-observed`. **HOST READINESS: PENDING**
+until the selected current client demonstrates discovery, skill/command
+execution, relevant hooks, and MCP connections.
+
+## Migration and upgrade
+
+Use the receipt-aware lifecycle update with an explicit project binding.
+Preserve populated run state, modified assets, unknown files, and host
+settings. Existing 1.3.5 tags and assets remain intact. Managed MCP entries
+written by 1.3.5 carry the previous core description; run `lazytrae sync`
+after upgrading so managed entries match the current identity.
+
+Read [AGENTS.md](AGENTS.md), [README.md](README.md), and the selected host
+guide before following a native installation route.
+
+## Known risks
+
+Until `lazytrae-ai` 1.4.0-family versions are published to npm,
+`lazytrae-plugin/packages/mcp` cannot resolve its pinned CLI dependency with
+a plain `npm ci`; the documented local `npm pack` tarball route in
+[Test and release verification](docs/09-test-and-release-verification.md) is
+the workaround. `packages/cli` itself has no unpublished dependency and stays
+installable. Authenticated current-client acceptance remains pending: a
+copied configuration, manifest validation, or isolated lifecycle fixture
+cannot establish host loading. Native host embedding, chat handoff, and wake
+stay unobserved.
+
+## Rollback
+
+Retain the previous release and receipts. Follow the scoped lifecycle removal
+or rollback plan, preserving user-modified and foreign assets. Stop the owned
+dashboard service with `lazytrae dashboard stop` before rollback; host-managed
+registrations require their selected client's removal flow; never remove
+credentials, sessions, or entire shared configuration directories.
+
+## Prior release notes
+
 # LazyTrae v1.3.5 - runtime verification and platform clarity
 
 A maintenance release across the six LazySeries siblings. It carries forward

@@ -2,7 +2,7 @@
 
 ![LazyTrae](lazytrae-banner.jpg)
 
-[![Package 1.3.5](https://img.shields.io/badge/package-1.3.5-7ce8d1)](RELEASE_NOTES.md)
+[![Package 1.4.0](https://img.shields.io/badge/package-1.4.0-7ce8d1)](RELEASE_NOTES.md)
 [![MIT License](https://img.shields.io/badge/license-MIT-silver)](LICENSE)
 [![LazySeries family](https://img.shields.io/badge/LazySeries-6_siblings-7ce8d1)](#lazyseries-family)
 
@@ -13,25 +13,24 @@ LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
 a host is only considered ready after it is observed in a fresh session.
 
 [Platform status](docs/reference/platform-status-2026-10-02.md) · [Get started](#recommended-install-with-ai-help) · [Host routes](#choose-one-route) ·
-[1.3.5 notes](RELEASE_NOTES.md) · [Family](#lazyseries-family) · [Docs](docs/)
+[1.4.0 notes](RELEASE_NOTES.md) · [Family](#lazyseries-family) · [Docs](docs/)
 
-> **Current package version: v1.3.5. HOST READINESS: PENDING.** Local checks and release
+> **Current package version: v1.4.0. HOST READINESS: PENDING.** Local checks and release
 > archives prove package behavior; a fresh host session must prove loading,
 > command/skill execution and MCP connections.
 
-## What's in 1.3.5
+## What's in 1.4.0
 
-- Runtime checks execute real package and lifecycle paths; unknown exercises and failed checks cannot report success.
-- Core and optional TypeScript LSP requirements are checked separately, including unsupported runtimes.
-- Hook input is bounded before parsing and stays out of process arguments.
-- Platform guides distinguish current native capabilities, legacy routes and integrations awaiting live acceptance.
+- The family's portable dashboard core is vendored behind a native Trae adapter: `lazytrae dashboard start|open|status|stop [--port]|snapshot|context|execute` and an authenticated loopback browser UI.
+- The core MCP server gains its sixteenth tool, `lazytrae.dashboard`; it manages the owned dashboard or reads native task context and does not execute tasks.
+- Queue planning in the browser UI can create, amend, and reorder queued plans; queue edits never start work, and dispatch stays an explicitly invoked bounded CLI workload with a separate verifier.
+- Documentation now states the honest capability labels: host embedding, chat handoff, and wake remain unobserved; host readiness stays pending; `dashboard context` reports `host_execution: not-observed`.
 
-This is a maintenance release. It includes the workflow foundation introduced
-in the family since v1.3.0 and subsequent reliability work. For Kimi and DeepSeek,
-that describes inherited family behavior, not prior public releases of these
-ports. The details below describe the cumulative v1.3.5 experience; the
-[release notes](RELEASE_NOTES.md) distinguish this patch's fixes from inherited
-features. No new speed, token-saving or cost claim is made.
+This release adds the shared dashboard surface to the workflow foundation
+introduced in the family since v1.3.0. The details below describe the
+cumulative v1.4.0 experience; the [release notes](RELEASE_NOTES.md)
+distinguish this release's additions from inherited features. No new speed,
+token-saving or cost claim is made.
 
 | Family milestone | What you get in the current package |
 | --- | --- |
@@ -41,6 +40,7 @@ features. No new speed, token-saving or cost claim is made.
 | v1.3.3 hardening | Host-specific hook, MCP and publication repairs. |
 | v1.3.4 maintenance | Transactional run integrity, safer lifecycle and native adapter repairs. |
 | v1.3.5 repairs | Real runtime exercises, bounded hooks, dependency updates and current platform guidance. |
+| v1.4.0 dashboard | Vendored portable dashboard core, native Trae adapter, sixteenth MCP tool, queue planning UI and honest capability labels. |
 
 ### Just ask, or use a command — both work
 
@@ -135,7 +135,7 @@ You do not need to work through the technical setup alone. Open an AI coding
 assistant in your project and paste this:
 
 > Help me install LazyTrae from https://github.com/elvinzhao10/LazyTrae for
-> this project. Use v1.3.5 and follow AGENTS.md and the current install guide. Run safe package checks first,
+> this project. Use v1.4.0 and follow AGENTS.md and the current install guide. Run safe package checks first,
 > explain each step plainly, and ask me before changing host settings, adding
 > an MCP connector, or registering anything in Trae.
 
