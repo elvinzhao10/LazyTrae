@@ -5,7 +5,7 @@
 | **Package readiness** | Local evidence that canonical assets and declarations are present; not proof of host loading or connection. |
 | **Host observation** | What a person sees after reopening, reloading, registering, or starting the selected Trae surface. |
 | **Companion command** | Installed `lazytrae` CLI that supplies installation, verification, lifecycle, tooling, and `lazytrae mcp`. |
-| **Core MCP server** | The single executable local `lazytrae` stdio server; after connection it exposes 15 tools. |
+| **Core MCP server** | The single executable local `lazytrae` stdio server; after connection it exposes 16 tools. |
 | **Disabled placeholder** | One of seven non-base MCP declarations that does not run until explicitly selected/configured. |
 | **Skill** | Workflow guidance matched to a task such as planning, debugging, or verification. |
 | **Command** | A `lazy-` slash-command entry point for a common workflow. |

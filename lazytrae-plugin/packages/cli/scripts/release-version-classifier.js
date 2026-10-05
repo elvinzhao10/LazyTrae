@@ -3,8 +3,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RELEASE_VERSION = '1.3.5';
-const PREVIOUS_VERSION = '1.3.4';
+const RELEASE_VERSION = '1.4.0';
+const PREVIOUS_VERSION = '1.3.5';
 const VERSION_JSON_PATHS = [
   ['lazytrae-plugin/packages/cli/package.json', ['version']],
   ['lazytrae-plugin/packages/cli/package-lock.json', ['version']],
@@ -54,7 +54,8 @@ function walk(root, directory = root) {
 
 function previousVersionClassification(relativePath, line) {
   if (relativePath === 'RELEASE_NOTES.md' || relativePath.startsWith('docs/v1.2.')
-    || relativePath.startsWith('docs/v1.3.0-')) return 'historical-release-document';
+    || relativePath.startsWith('docs/v1.3.0-')
+    || relativePath.startsWith('docs/reference/platform-status-')) return 'historical-release-document';
   if (relativePath.endsWith('lazyseries-shared-semantics.v1.json')) return 'schema-independent-contract-history';
   if (relativePath === 'CHANGELOG.md') return 'historical-release-history';
   if (relativePath.includes('/contracts/fixtures/') || relativePath.includes('/test/fixtures/')) return 'historical-or-adversarial-fixture';
@@ -107,7 +108,7 @@ function classify(root) {
     let contents;
     try { contents = fs.readFileSync(path.join(root, relativePath), 'utf8'); } catch { continue; }
     contents.split('\n').forEach((line, index) => {
-      if (!/(?:^|\/)(?:test|tests)\//.test(relativePath) && !relativePath.startsWith('docs/v1.3.0-') && /\bcurrent\b/i.test(line) && /\b(?:release|version)\b/i.test(line)) {
+      if (!/(?:^|\/)(?:test|tests)\//.test(relativePath) && !relativePath.startsWith('docs/v1.3.0-') && !relativePath.startsWith('docs/reference/platform-status-') && /\bcurrent\b/i.test(line) && /\b(?:release|version)\b/i.test(line)) {
         const versions = line.match(/1\.\d+\.\d+/g) || [];
         if (versions.some(version => version !== RELEASE_VERSION)) {
           failures.push(`CURRENT_VERSION_DRIFT_TEXT ${relativePath}:${index + 1}`);

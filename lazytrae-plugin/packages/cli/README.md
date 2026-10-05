@@ -1,10 +1,10 @@
 # lazytrae-ai
 
-The current package version is v1.3.5; fresh-session native-host activation remains pending.
+The current package version is v1.4.0; fresh-session native-host activation remains pending.
 
 LazyTrae CLI — Trae-native workflow installer and runtime.
 
-This v1.3.5 package keeps automatic selection native and host handling
+This v1.4.0 package keeps automatic selection native and host handling
 advisory: a complete current task/loop/session identity may form a bounded
 context capsule, but `presented-to-host` remains `not-observed` until a real
 Trae session is observed. Init and sync preflight managed conflicts and retain
@@ -256,7 +256,7 @@ remove it through the package manager that installed it.
 | `.trae/commands/*.md` | 9 slash command definitions |
 | `.trae/agents/*.md` | 11 custom agent role definitions |
 | `.trae/hooks.json` | Five configured events referencing eight hook scripts |
-| `.trae/mcp.json` | 8 MCP declarations; one executable core server and seven disabled placeholders. The `lazytrae` declaration exposes 15 tools when connected. |
+| `.trae/mcp.json` | 8 MCP declarations; one executable core server and seven disabled placeholders. The `lazytrae` declaration exposes 16 tools when connected. |
 | `.lazytrae/config.json` | LazyTrae configuration |
 | `.lazytrae/state/` | Durable runtime state (boulder, active-loop, sessions) |
 | `.lazytrae/schemas/` | JSON schemas for state validation |

@@ -1,6 +1,6 @@
 # Host routes
 
-**Current documentation release: v1.3.5.** Select exactly one independent
+**Current documentation release: v1.4.0.** Select exactly one independent
 host route; package outputs never prove that the selected host discovered or
 executed them.
 
@@ -117,7 +117,7 @@ After the approved setup and required reload/new session, send:
 > actually observed, the core MCP status and tool count, any exact error, and
 > package readiness separately from host readiness. Do not infer from files.
 
-The core server exposes 15 tools after a host connects it. The seven disabled
+The core server exposes 16 tools after a host connects it. The seven disabled
 placeholders (`grep_app`, `context7`, `filesystem`, `git`, `playwright`,
 `ast_grep`, and `lsp`) are declarations only and must not be counted as live
 MCP connections unless the user separately selects and observes them.

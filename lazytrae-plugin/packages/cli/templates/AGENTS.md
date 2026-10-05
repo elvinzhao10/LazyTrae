@@ -7,7 +7,7 @@
 LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. The release-owned local launcher supplies the portable installer,
 verification gate, and local MCP server. Automated package checks run on
 Ubuntu and macOS in the repository workflows; host behavior keeps the evidence labels below. The current
-documentation release is `1.3.5`.
+documentation release is `1.4.0`.
 
 See [the current platform audit](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/reference/platform-status-2026-10-02.md)
 for version-specific native features and legacy route limits.
@@ -74,7 +74,7 @@ When the user types `onboard`:
    action, wait again, and inspect again.
 10. In the observed session, verify one real LazyTrae Skill or command and every
    expected MCP connection for the selected route. The base package expects one
-   `lazytrae` core MCP connection (15 tools after connection); seven optional
+   `lazytrae` core MCP connection (16 tools after connection); seven optional
    placeholders remain disabled unless separately selected.
 11. Report `package readiness` and `host readiness` as separate fields. Without
     a current Computer Use or user-supplied observation, **HOST READINESS:

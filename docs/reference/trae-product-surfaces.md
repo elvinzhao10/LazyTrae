@@ -1,4 +1,4 @@
-# Trae product surfaces — v1.3.5
+# Trae product surfaces — v1.4.0
 
 Reviewed 2026-10-02. TraeCode IDE, TraeWork and TraeCode CLI are separate
 execution surfaces. Record region, application/build and execution profile.

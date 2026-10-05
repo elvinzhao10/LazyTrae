@@ -1,6 +1,6 @@
 # Security and authority
 
-**Current documentation release: v1.3.5.** A host generator, profile, or probe
+**Current documentation release: v1.4.0.** A host generator, profile, or probe
 is local evidence, not authority over a native host.
 
 LazyTrae can inspect local project information, but a package check does not

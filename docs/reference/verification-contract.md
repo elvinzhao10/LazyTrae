@@ -27,7 +27,7 @@ installation dependency.
 No package check proves host discovery, hook execution, a running session, or
 an MCP connection. Reopen an IDE project; reload and register Work; or start a
 new registered CLI session, then observe the selected host. A core MCP
-declaration exposes its 15 tools only after that connection.
+declaration exposes its 16 tools only after that connection.
 
 Nor does package readiness prove an application change works. Verify the
 requested behaviour through focused automated checks and the real user surface,

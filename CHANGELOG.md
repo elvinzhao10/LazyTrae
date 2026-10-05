@@ -3,6 +3,10 @@
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-10-05
+
+Vendor the family's portable dashboard core byte-identically behind a native Trae adapter, add the authenticated loopback browser UI with queue planning that never starts work, and add the sixteenth core MCP tool `lazytrae.dashboard` (it does not execute tasks). Correct every stale "15 tools" string to 16 across docs, guides, and the managed-entry identity writers. Cover the adapter with CAS/replay, queue-persistence, revision-bound execute/verify, boundary, and lifecycle tests, and prove the standalone MCP package through the documented local `npm pack` tarball route (plain `npm ci` in `packages/mcp` stays blocked until `lazytrae-ai` 1.4.0 is published). Host embedding, chat handoff, and wake remain unobserved; host readiness stays pending. See RELEASE_NOTES.md for the full 1.4.0 scope and residual limits.
+
 ## [1.3.5] - 2026-10-02
 
 Run real runtime-floor exercises, bound hook input while preserving refusal contracts, and distinguish current native platform routes. Keep CLI Node 18 separate from optional LSP Node 20. Exclude generated optional-provider dependencies from packed releases; update dependency regressions. See RELEASE_NOTES.md for verification scope and pending native host acceptance.
@@ -363,4 +367,5 @@ runtime replacement uses scoped offboard/re-onboard. Package success leaves
 [1.0.0]: https://github.com/elvinzhao10/LazyTrae/releases/tag/v1.0.0
 
 [1.3.4]: https://github.com/elvinzhao10/LazyTrae/compare/v1.3.3...v1.3.4
-[1.3.5]: RELEASE_NOTES.md
+[1.3.5]: https://github.com/elvinzhao10/LazyTrae/compare/v1.3.4...v1.3.5
+[1.4.0]: RELEASE_NOTES.md
