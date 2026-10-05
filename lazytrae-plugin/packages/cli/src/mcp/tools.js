@@ -2,6 +2,7 @@
 // Re-exports from split modules for backward compatibility.
 
 const { TOOLS } = require('./tool-defs');
+const { tool: dashboardTool, handleDashboard } = require('./handlers-dashboard');
 const { handleGetActivePlan, handleGetBoulderStatus, handleGetNextTask, handleGetParityStatus } = require('./handlers-read');
 const { handleRecordEvidence, handleMarkTaskDone } = require('./handlers-evidence');
 const { handleAddBlocker, handleRequestReview } = require('./handlers-review');
@@ -16,6 +17,7 @@ const {
 } = require('./handlers-context');
 
 const HANDLERS = {
+  'lazytrae.dashboard': handleDashboard,
   'lazytrae.get_active_plan': handleGetActivePlan,
   'lazytrae.get_boulder_status': handleGetBoulderStatus,
   'lazytrae.get_next_task': handleGetNextTask,
@@ -33,4 +35,4 @@ const HANDLERS = {
   'lazytrae.dependency_graph': handleDependencyGraph,
 };
 
-module.exports = { TOOLS, HANDLERS };
+module.exports = { TOOLS: [...TOOLS, dashboardTool], HANDLERS };

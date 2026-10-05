@@ -15,7 +15,7 @@ function emptyRepo() {
 test('MCP context tools are listed with the existing state tools', () => {
   const names = TOOLS.map(tool => tool.name);
 
-  assert.equal(TOOLS.length, 15);
+  assert.equal(TOOLS.length, 16);
   for (const name of [
     'lazytrae.symbol_search',
     'lazytrae.find_references',

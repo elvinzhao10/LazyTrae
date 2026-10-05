@@ -23,6 +23,7 @@ const EXPECTED_TOOL_NAMES = [
   'lazytrae.diagnostics',
   'lazytrae.docs_lookup',
   'lazytrae.dependency_graph',
+  'lazytrae.dashboard',
 ];
 
 function listJavaScriptFiles(root, prefix = '') {

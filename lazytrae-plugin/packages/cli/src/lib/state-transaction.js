@@ -249,4 +249,12 @@ function runTransaction(repoRoot, runId, prepare) {
   });
 }
 
-module.exports = { recoverTransactions, runTransaction };
+function readTransaction(repoRoot, runId, read) {
+  const key = runKey(runId);
+  return withRunLock(repoRoot, key, () => {
+    recoverRunLocked(repoRoot, key);
+    return read();
+  });
+}
+
+module.exports = { readTransaction, recoverTransactions, runTransaction };

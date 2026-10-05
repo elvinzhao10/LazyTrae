@@ -3,6 +3,9 @@
   "version": "1.3.5",
   "description": "LazyTrae MCP server — exposes LazyTrae state and verification tools through Model Context Protocol",
   "main": "src/index.js",
+  "dependencies": {
+    "lazytrae-ai": "1.3.5"
+  },
   "bin": {
     "lazytrae-mcp": "src/index.js"
   },

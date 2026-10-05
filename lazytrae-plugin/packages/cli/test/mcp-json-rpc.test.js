@@ -94,5 +94,5 @@ test('MCP returns JSON-RPC errors for malformed input without blocking later val
   assert.equal(responses[5].result.serverInfo.name, 'lazytrae-mcp');
   assert.equal(responses[6].id, 6);
   assert.equal(responses[6].error, undefined);
-  assert.equal(responses[6].result.tools.length, 15);
+  assert.equal(responses[6].result.tools.length, 16);
 });
