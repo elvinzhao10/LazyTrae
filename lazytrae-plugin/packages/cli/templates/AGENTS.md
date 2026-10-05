@@ -74,7 +74,7 @@ When the user types `onboard`:
    action, wait again, and inspect again.
 10. In the observed session, verify one real LazyTrae Skill or command and every
    expected MCP connection for the selected route. The base package expects one
-   `lazytrae` core MCP connection (15 tools after connection); seven optional
+   `lazytrae` core MCP connection (16 tools after connection); seven optional
    placeholders remain disabled unless separately selected.
 11. Report `package readiness` and `host readiness` as separate fields. Without
     a current Computer Use or user-supplied observation, **HOST READINESS:

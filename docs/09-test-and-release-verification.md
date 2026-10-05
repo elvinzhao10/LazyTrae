@@ -32,6 +32,27 @@ The fixture harness uses two workers by default. Set
 out-of-range values fail before tests start. The bounded lock/process timing
 tests stay on the serial path even when the rest of the suite uses concurrency.
 
+### Standalone MCP package and the publish gap
+
+`lazytrae-plugin/packages/mcp` declares the exact published CLI package
+(`lazytrae-ai`) as its dependency. Until the `lazytrae-ai` 1.4.0-family
+versions are published to npm, a plain `npm ci` in `packages/mcp` cannot
+resolve that pin and fails; this is a known publish gap, not a broken package.
+The documented local workaround uses the CLI tarball directly:
+
+```bash
+npm pack lazytrae-plugin/packages/cli --pack-destination <disposable-dir>
+mkdir -p lazytrae-plugin/packages/mcp/node_modules/lazytrae-ai
+tar -xzf <disposable-dir>/lazytrae-ai-<version>.tgz \
+  -C lazytrae-plugin/packages/mcp/node_modules/lazytrae-ai --strip-components=1
+npm test --prefix lazytrae-plugin/packages/mcp
+```
+
+The extracted route is gitignored local install state for testing only; remove
+the disposable pack directory afterwards. Development checks in
+[CONTRIBUTING.md](../CONTRIBUTING.md) scope `npm ci` to `packages/cli`, which
+has no unpublished dependency and stays installable.
+
 ## Release evidence boundary
 
 `doctor` reports readiness and warnings. `verify --must-pass` adds completion gate status and exits unsuccessfully when either doctor or the gates are not ready. Trae hooks are advisory, so completion enforcement intentionally lives in these CLI/MCP paths rather than in host hook exit codes.

@@ -89,6 +89,46 @@ Milestones, decision gates, and full state/version semantics are shared
 byte-identically with LazyBuddy and LazyQoder (see
 `lazytrae-plugin/packages/cli/contracts/lazyseries-shared-semantics.v1.json`).
 
+## Browser dashboard (1.4.0)
+
+LazyTrae 1.4.0 vendors the family's portable dashboard core
+(`packages/cli/shared/dashboard/`, byte-identical with the LazyBuddy source and
+hash-pinned in `shared/dashboard.vendor.json`) behind a native Trae adapter.
+The CLI owns an authenticated loopback service and a browser UI:
+
+```text
+lazytrae dashboard start        # start the owned loopback service
+lazytrae dashboard open         # start and print the browser URL plus the protected credential file
+lazytrae dashboard status       # report service state
+lazytrae dashboard stop         # stop the service
+lazytrae dashboard snapshot     # print the same native snapshot
+lazytrae dashboard context <goal-id>   # print read-only task context (host_execution: not-observed)
+```
+
+`start`, `open`, `status`, and `stop` accept `--port N`; without it the service
+binds an owned loopback port. The browser UI offers Work, Verification, and
+Plan-edits views, a task inspector, an evidence preview dialog, and queue
+planning where you can create, amend, and reorder queued plans. Queue edits
+never start work: dispatch happens only through the explicit execute path
+below, and competing edits at one revision conflict without mutation.
+
+The MCP tool `lazytrae.dashboard` (actions `start|open|status|stop|snapshot|context`)
+delegates to the installed checked CLI route. **It does not execute tasks.**
+Task execution stays a CLI-only, explicitly invoked bounded workload:
+
+```text
+lazytrae dashboard execute <goal-id> <criterion-id> --executor <project-relative-node-script> --verifier <different-project-relative-node-script> [--timeout ms]
+```
+
+Both scripts receive a read-only captured JSON task context on stdin; the
+separate verifier must exit zero with non-empty output before any receipt is
+published. This is a local Node workload, never an HTTP or MCP operation.
+
+Honest boundaries: native host embedding, chat handoff, and wake-from-host
+remain **unobserved**, and host readiness stays **PENDING** — the dashboard is
+package-owned local software, not proof that a Trae host embedded or executed
+it. `dashboard context` reports `host_execution: not-observed`.
+
 ## Recommended: install with AI help
 
 You do not need to work through the technical setup alone. Open an AI coding
@@ -191,7 +231,9 @@ acceptance evidence. These packages run independently.
 | [LazyDeepSeek](https://github.com/elvinzhao10/LazyDeepSeek) | DeepSeek Harness 0.2.0-rc.2 |
 
 The family shares planning, evidence, decision-memory and completion contracts.
-The first shared verification core is vendored in every package; product adapters keep host setup and permissions explicit. Matching contracts do not make host capabilities interchangeable. In particular,
+The first shared verification core is vendored in every package, and 1.4.0 adds
+the shared portable dashboard core behind each product's native adapter;
+product adapters keep host setup and permissions explicit. Matching contracts do not make host capabilities interchangeable. In particular,
 Kimi Work remains experimental for LazyKimi, and DeepSeek's synthesized events
 are not native hooks. Use each sibling's host guide before installation.
 
@@ -241,7 +283,8 @@ The commercial TraeCode CLI is a separate host from the open-source TRAE-agent
 project. LazyTrae remains a separate native integration with its own package
 and observed-host evidence. It does not substitute TRAE-agent execution for a
 commercial CLI session. The base topology is one active core MCP server with
-15 tools; seven optional capability declarations remain disabled placeholders.
+16 tools, including the `lazytrae.dashboard` management tool; seven optional
+capability declarations remain disabled placeholders.
 
 Loop selection returns distinct active, blocked, failed, exhausted, and complete
 outcomes. Only a verified checkpoint records loop completion. Starting a pending

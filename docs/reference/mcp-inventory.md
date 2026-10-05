@@ -14,10 +14,11 @@ servers; they are not enabled by installation, doctor, or automatic routing.
 
 ## Core tool inventory
 
-After a host connection, the core exposes 15 tools: active-plan, Boulder
+After a host connection, the core exposes 16 tools: active-plan, Boulder
 status, next-task, evidence recording, task completion, blocker, review,
 handoff, parity, symbol search, reference search, definition lookup,
-diagnostics, documentation lookup, and dependency graph. These are local
+diagnostics, documentation lookup, dependency graph, and
+`lazytrae.dashboard`. These are local
 state/evidence/context tools; their presence does not prove an external
 provider is enabled.
 
@@ -25,7 +26,7 @@ Read [MCP lifecycle](../07b-mcp-lifecycle.md) for the order of operations.
 
 ## Tool groups and handler boundary
 
-The core's 15 tools are intentionally grouped by local responsibility:
+The core's 16 tools are intentionally grouped by local responsibility:
 
 | Group | Tools | Handler/data boundary |
 | --- | --- | --- |
@@ -33,6 +34,7 @@ The core's 15 tools are intentionally grouped by local responsibility:
 | Evidence/state writes | record evidence, mark task done, add blocker, request review | Uses runtime path boundary, atomic writes, and evidence checks before changing local state. |
 | Workflow output | generate handoff | Produces a project-local handoff from existing state/evidence. |
 | Local context | symbol search, find references, goto definition, diagnostics, docs lookup, dependency graph | Heuristic/local context helpers; availability does not imply an external provider is enabled. |
+| Dashboard | `lazytrae.dashboard` (start/open/status/stop/snapshot/context) | Delegates to the installed checked CLI route for the owned loopback browser service and read-only native task context. It does not execute tasks. |
 
 `packages/mcp/src/index.js` owns protocol dispatch. `tools.js` maps a namespaced tool name to a split handler module. `state-access.js` derives the repository root and constrains writes to `.lazytrae`; its runtime safe-write layer writes a temporary sibling then atomically renames where permitted. The CLI's `mcp` command launches this packaged implementation, so the server does not require a source checkout after installation.
 

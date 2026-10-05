@@ -256,7 +256,7 @@ remove it through the package manager that installed it.
 | `.trae/commands/*.md` | 9 slash command definitions |
 | `.trae/agents/*.md` | 11 custom agent role definitions |
 | `.trae/hooks.json` | Five configured events referencing eight hook scripts |
-| `.trae/mcp.json` | 8 MCP declarations; one executable core server and seven disabled placeholders. The `lazytrae` declaration exposes 15 tools when connected. |
+| `.trae/mcp.json` | 8 MCP declarations; one executable core server and seven disabled placeholders. The `lazytrae` declaration exposes 16 tools when connected. |
 | `.lazytrae/config.json` | LazyTrae configuration |
 | `.lazytrae/state/` | Durable runtime state (boulder, active-loop, sessions) |
 | `.lazytrae/schemas/` | JSON schemas for state validation |

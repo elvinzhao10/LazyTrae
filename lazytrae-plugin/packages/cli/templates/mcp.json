@@ -3,7 +3,7 @@
     "lazytrae": {
       "command": "node",
       "args": ["__LAZYTRAE_RELEASE_LAUNCHER__", "--root", "__LAZYTRAE_PROJECT_ROOT__", "mcp"],
-      "description": "LazyTrae state, evidence, handoff, and local context MCP server — exposes 15 tools including heuristic symbol/reference/docs/dependency helpers",
+      "description": "LazyTrae state, evidence, handoff, and local context MCP server — exposes 16 tools including the dashboard management tool and heuristic symbol/reference/docs/dependency helpers",
       "_lazytrae": {
         "schema_version": 1,
         "kind": "core",
@@ -47,7 +47,7 @@
     }
   },
   "lazytrae": {
-    "description": "LazyTrae MCP configuration template for v1.3.5. Init or sync materializes one Node-launched, absolute release-owned core server and seven disabled placeholders. Context7, grep_app, filesystem, and Playwright require explicit tooling enable commands and are created as namespaced lazytrae_* servers. The core server provides 15 state, evidence, handoff, and local context tools after connection.",
+    "description": "LazyTrae MCP configuration template for v1.3.5. Init or sync materializes one Node-launched, absolute release-owned core server and seven disabled placeholders. Context7, grep_app, filesystem, and Playwright require explicit tooling enable commands and are created as namespaced lazytrae_* servers. The core server provides 16 state, evidence, handoff, local context, and dashboard tools after connection.",
     "note": "Required: false servers are optional and will not cause errors if unavailable. Disable unwanted servers by setting 'disabled': true."
   }
 }
