@@ -17,6 +17,15 @@ native Trae adapter.
   reference docs, CLI package README, and the MCP description writers is
   corrected to 16, and the managed-entry identity constant moves together
   with its template writers.
+- The family's persistent project core is vendored into
+  `shared/project/` (pinned in `shared/project.vendor.json`) and exposed
+  through a native Trae store: `lazytrae project init|read|command`. The
+  record is strictly opt-in — `read` and `command` are inert typed
+  not-initialized results before an explicit `init`, and the seventeenth
+  core MCP tool `lazytrae.project` (read/command) never initializes and never
+  schedules work. Project, dashboard and native loop share one repository
+  identity (`trae:<sha256>`); a plan links to an inspected native run, never a
+  created one.
 - The adapter suite covers CAS and replay, cycle rejection, queue persistence,
   revision-bound execution with an independent verifier, failed/cancelled/
   dirty/stale history, authentication and path boundaries, owned lifecycle,

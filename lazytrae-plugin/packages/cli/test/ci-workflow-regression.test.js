@@ -79,11 +79,17 @@ function validateWorkflow(contents) {
     lockfile: 'lazytrae-plugin/packages/cli/package-lock.json',
     commands: ['npm ci --ignore-scripts', 'npm run test:all', 'npm run test:publication'],
   });
-  assertJob(jobBlock(contents, 'mcp'), {
-    nodeVersion: 22,
-    lockfile: 'lazytrae-plugin/packages/mcp/package-lock.json',
-    commands: ['npm ci --ignore-scripts', 'npm test'],
-  });
+  const mcpJob = jobBlock(contents, 'mcp');
+  assert.match(mcpJob, /^    runs-on: ubuntu-latest$/m);
+  assert.match(mcpJob, /^    timeout-minutes: 10$/m);
+  assert.match(mcpJob, /^          node-version: 22$/m);
+  // lazytrae-ai stays unpublished: the mcp job resolves its version-pinned
+  // dependency through the documented local packed route, never the registry.
+  assert.match(mcpJob, /npm pack --json --pack-destination "\$temporary_root" \.\.\/cli/);
+  assert.match(mcpJob, /tar -xzf "\$temporary_root\/\$archive_name" -C node_modules\/lazytrae-ai --strip-components=1/);
+  assert.match(mcpJob, /^      - run: npm test$/m, 'job must run npm test');
+  assert.doesNotMatch(mcpJob, /npm ci --ignore-scripts/m, 'mcp job must not resolve lazytrae-ai from the registry');
+  assert.doesNotMatch(mcpJob, /npm pack --dry-run/m);
   const packageJob = jobBlock(contents, 'package');
   assertJob(packageJob, {
     nodeVersion: 22,

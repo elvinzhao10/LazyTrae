@@ -64,7 +64,7 @@ and `lazytrae.mark_task_done`, which refuses to complete a task without
 non-empty, existing evidence paths. The latter updates Boulder state; it does
 not independently run tests or prove a host connection.
 
-The core server has 16 tools only after a host has connected it. Its tool list
+The core server has 17 tools only after a host has connected it. Its tool list
 and the distinction between a declaration and a connection are in
 [Capabilities and approvals](06-capabilities-and-approvals.md) and
 [MCP lifecycle](07b-mcp-lifecycle.md). For package and release evidence, use
