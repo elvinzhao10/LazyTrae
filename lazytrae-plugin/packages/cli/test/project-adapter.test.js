@@ -680,3 +680,19 @@ test('query operations and the preview-apply composition stay typed and byte-equ
     dispose(packRoot);
   }
 });
+
+test('host capability matrix claims no observed host adoption without a fresh current-session probe', () => {
+  const { buildCapabilityMatrix } = require('../src/lib/host-capability-matrix');
+  const root = tempRoot('no-adoption');
+  try {
+    for (const host of ['cli', 'ide', 'work']) {
+      const matrix = buildCapabilityMatrix(root, host, {});
+      for (const row of matrix.capabilities) {
+        assert.ok(row.status !== 'host-executed' && row.status !== 'host-observed',
+          `${host}/${row.capability_id} must not claim host adoption without a fresh current-session probe`);
+        assert.equal(row.evidence.observed_at, null,
+          `${host}/${row.capability_id} must not carry an adoption receipt timestamp`);
+      }
+    }
+  } finally { dispose(root); }
+});

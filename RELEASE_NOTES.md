@@ -4,6 +4,26 @@ A feature release across the six LazySeries siblings: the family's portable
 dashboard core is vendored identically into every package and wired through a
 native Trae adapter.
 
+## Project platform (2026-10-07)
+
+- The persistent project record is vendored as the family's second pinned
+  tree: `shared/project/` + `project.vendor.json` re-pin to family tree
+  `95c0e0fc…` (source revision `7bf5bd8`). Trae's owning adapter stays the
+  Node store at `src/lib/project-state.js` (`.lazytrae/state/project.json`,
+  journaled state transactions, read-only active-loop identity mapping, and
+  the neutral `.lazyseries/project.json` registry); the vendored Python
+  bridge route is not shipped here by the family boundary.
+- Trae's capability declaration remains distinct from the siblings'
+  dashboard-host capability record: per-surface readiness is declared through
+  the host-capability-matrix, and the project-adapter suite now asserts that
+  matrix claims `host-executed`/`host-observed` for no capability without a
+  fresh current-session probe (mutation-proven).
+- Boundaries stay explicit: the vendored git-observation collectors are
+  byte-pinned but wired into no Trae project route (this surface exposes no
+  git view; commit links stay producer-side `source_revision`); native host
+  embedding, chat handoff, and host wake remain unobserved; host readiness
+  stays pending.
+
 ## Eval-driven fixes
 
 - The portable dashboard core (projection, command/queue reducers, browser UI)

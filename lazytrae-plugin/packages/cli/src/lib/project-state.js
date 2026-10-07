@@ -8,7 +8,15 @@
 // only an explicit init creates. The vendored cli.mjs bridge route
 // (scripts/state/project-dashboard-bridge.py) is the Buddy-owned native
 // bridge; Trae's owning adapter is this Node store, per the family boundary
-// that keeps native bridges in their owning adapter areas.
+// that keeps native bridges in their owning adapter areas. Trae's capability
+// declaration is distinct from the siblings' dashboard-host capabilities.mjs
+// record: this package declares per-surface readiness through the
+// host-capability-matrix (src/lib/host-capability-matrix.js), where host
+// adoption is claimed only by a fresh current-session probe. The vendored
+// git-observation collectors (shared/project/git-observation/*) are
+// byte-pinned but wired into no Trae project route: this surface exposes no
+// git view, and commit links stay on the producer side (attempt
+// source_revision).
 const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
