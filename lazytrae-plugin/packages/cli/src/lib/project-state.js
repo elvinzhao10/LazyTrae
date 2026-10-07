@@ -13,7 +13,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { detectRepoRoot } = require('./loop-store');
-const { runTransaction } = require('./state-transaction');
+const { readTransaction, runTransaction } = require('./state-transaction');
 const { DashboardError, hash, json, safeRead } = require('./dashboard-files');
 const { projectId } = require('./dashboard-state');
 
@@ -227,14 +227,31 @@ async function execute(root, command, actor) {
   const { applyProjectCommand } = await portable('model.mjs');
   const { projectSnapshot } = await portable('projection.mjs');
   assertProjectCommand(command);
-  const prepare = () => {
-    // Reduce inside the journaled transaction: the revision-checked command
-    // always applies to the current published state under the store lock.
+  // Every command reduces against the current published state under the
+  // project-record store lock, with the host-supplied trusted captures.
+  const commandUnderLock = () => {
     const current = loadState(root);
     if (!current) throw new DashboardError('PROJECT_NOT_INITIALIZED');
     assertProjectState(current);
     const context = { actor, occurredAt: now(),
       capturedSources: captureSources(root, current, command), capturedRuns: captureRuns(root, command) };
+    return { current, context };
+  };
+  // The vendored model answers the non-mutating operations (project.read,
+  // project.change.preview, source.map, source.edit.preview) with a bare
+  // typed query result that has no receipt or state envelope: it passes
+  // through read-only under the same lock, so the accepted state, its file
+  // and the journaled transaction machinery all stay untouched.
+  if (['project.read', 'project.change.preview', 'source.map', 'source.edit.preview'].includes(command.operation)) {
+    return readTransaction(root, 'project-record', () => {
+      const { current, context } = commandUnderLock();
+      return applyProjectCommand(current, command, context);
+    });
+  }
+  const prepare = () => {
+    // Reduce inside the journaled transaction: the revision-checked command
+    // always applies to the current published state under the store lock.
+    const { current, context } = commandUnderLock();
     const outcome = applyProjectCommand(current, command, context);
     const options = assertProjectionOptions({ sourceObservations: observeSources(root, outcome.state),
       identity: identityObservation(root, outcome.state) });

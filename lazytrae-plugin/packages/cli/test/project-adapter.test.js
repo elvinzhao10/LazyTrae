@@ -485,3 +485,198 @@ test('project command boundary rejects malformed argv, unsafe sources and missin
     assert.deepEqual(after, before, 'rejected commands never mutate the accepted state');
   } finally { dispose(root); }
 });
+
+const EDITABLE_PLAN = '# Search plan\n\nDeliver search over the stored notes.\n\n## Section — Offline index\n\nThe index builds without a network.\n\n- [ ] Build the offline index\n- [ ] Verify query results\n\n```json\n{ "fenced": "example", "must": "stay byte-identical" }\n```\n\n## Section — Results ranking\n\nUnrelated prose stays untouched.\n';
+const FENCED_LINE = '{ "fenced": "example", "must": "stay byte-identical" }';
+const EDIT_TASK_TEXT = 'Build the offline index first';
+
+// G3T-R1: the four contract-accepted non-mutating operations must answer
+// their bare typed query result through the command route — never an
+// untyped crash from the receipt/state envelope they do not have.
+function registerEditablePlan(root) {
+  fs.mkdirSync(path.join(root, 'docs', 'plans'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs', 'plans', 'search.md'), EDITABLE_PLAN);
+  assert.equal(cli(root, ['project', 'init', '--actor', 'local:adapter-test']).status, 0);
+  const planHash = sha256(EDITABLE_PLAN);
+  const steps = [
+    ['cmd:query-reg-source', 0, 'register_source', { id: 'source:plan', path: 'docs/plans/search.md', role: 'plan' }],
+    ['cmd:query-reg-plan', 1, 'register_plan',
+      { id: 'plan:search', source: { source_id: 'source:plan', sha256: planHash, anchor_id: 'document' },
+        declared_lifecycle: 'planned', baseline_refs: [] }],
+  ];
+  for (const [commandId, revision, operation, payload] of steps) {
+    const result = projectCommand(root, commandEnvelope(root, commandId, revision, operation, payload));
+    assert.equal(result.status, 0, `${commandId} failed: ${result.stderr}`);
+    assert.equal(JSON.parse(result.stdout).receipt.status, 'saved');
+  }
+  return planHash;
+}
+
+function queryCommands(root, revision, planHash) {
+  return {
+    'source.map': commandEnvelope(root, 'cmd:query-map', revision, 'source.map', { source_id: 'source:plan' }),
+    'source.edit.preview': commandEnvelope(root, 'cmd:query-edit-preview', revision, 'source.edit.preview',
+      { authority: 'local:adapter-test', source_id: 'source:plan', expected_sha256: planHash,
+        expected_source_revision: 1, edits: [{ kind: 'set_task_text', anchor_id: 'document', item: 0, text: EDIT_TASK_TEXT }] }),
+    'project.read': commandEnvelope(root, 'cmd:query-read', revision, 'project.read', {}),
+    'project.change.preview': commandEnvelope(root, 'cmd:query-change-preview', revision, 'project.change.preview',
+      { change: { operation: 'register_plan',
+        payload: { id: 'plan:search-2', source: { source_id: 'source:plan', sha256: planHash, anchor_id: 'document' },
+          declared_lifecycle: 'planned', baseline_refs: [] } } }),
+  };
+}
+
+test('query operations answer typed results through the CLI command route without mutating the store', () => {
+  const root = tempRoot('query-cli');
+  try {
+    const planHash = registerEditablePlan(root);
+    const storePath = path.join(root, '.lazytrae/state/project.json');
+    const storeBefore = fs.readFileSync(storePath, 'utf8');
+
+    const map = projectCommand(root, queryCommands(root, 2, planHash)['source.map']);
+    assert.equal(map.status, 0, map.stderr);
+    const mapResult = JSON.parse(map.stdout);
+    assert.equal(mapResult.status, 'ok');
+    assert.equal(mapResult.operation, 'source.map');
+    assert.equal(mapResult.revision, 2);
+    assert.equal(mapResult.source_id, 'source:plan');
+    assert.equal(mapResult.observation, 'current');
+    assert.equal(mapResult.anchors.length, 3, 'document heading plus two section headings');
+    assert.equal('receipt' in mapResult, false, 'a query result never carries a mutation receipt');
+    assert.equal('snapshot' in mapResult, false);
+
+    const preview = projectCommand(root, queryCommands(root, 2, planHash)['source.edit.preview']);
+    assert.equal(preview.status, 0, preview.stderr);
+    const previewResult = JSON.parse(preview.stdout);
+    assert.equal(previewResult.status, 'valid');
+    assert.equal(previewResult.operation, 'source.edit.preview');
+    assert.equal(previewResult.current_sha256, planHash);
+    assert.notEqual(previewResult.next_sha256, planHash);
+    assert.equal(previewResult.patch_text.includes(EDIT_TASK_TEXT), true, 'the preview shows the patch');
+    assert.deepEqual(previewResult.edits, [{ kind: 'set_task_text', anchor_id: 'document', item: 0, text: EDIT_TASK_TEXT }]);
+    assert.equal('receipt' in previewResult, false);
+    assert.equal('snapshot' in previewResult, false);
+
+    const read = projectCommand(root, queryCommands(root, 2, planHash)['project.read']);
+    assert.equal(read.status, 0, read.stderr);
+    const readResult = JSON.parse(read.stdout);
+    assert.equal(readResult.status, 'ok');
+    assert.equal(readResult.operation, 'project.read');
+    assert.equal(readResult.initialized, true);
+    assert.equal(readResult.revision, 2);
+    assert.equal(readResult.snapshot.revision, 2);
+    assert.equal(readResult.snapshot.plans.length, 1);
+    assert.equal('receipt' in readResult, false);
+
+    const changePreview = projectCommand(root, queryCommands(root, 2, planHash)['project.change.preview']);
+    assert.equal(changePreview.status, 0, changePreview.stderr);
+    const changeResult = JSON.parse(changePreview.stdout);
+    assert.equal(changeResult.status, 'valid');
+    assert.equal(changeResult.operation, 'project.change.preview');
+    assert.equal(changeResult.revision, 2);
+    assert.equal(changeResult.next_revision, 3);
+    assert.deepEqual(changeResult.changed_ids, ['plan:search-2']);
+    assert.equal('receipt' in changeResult, false);
+    assert.equal('snapshot' in changeResult, false);
+
+    // Queries never mutate: the durable store is byte-identical and the
+    // journaled transaction machinery holds no query journal.
+    assert.equal(fs.readFileSync(storePath, 'utf8'), storeBefore, 'queries never rewrite the accepted state');
+    const store = JSON.parse(storeBefore);
+    assert.equal(store.revision, 2);
+    assert.equal(store.receipts.length, 2);
+    const journals = path.join(root, '.lazytrae/state/transactions/journals');
+    assert.equal(fs.existsSync(journals) ? fs.readdirSync(journals).length : 0, 0,
+      'a query leaves no transaction journal behind');
+  } finally { dispose(root); }
+});
+
+test('query operations and the preview-apply composition stay typed and byte-equal through the MCP route', { timeout: 180000 }, () => {
+  const root = tempRoot('query-mcp');
+  const packedDependency = path.join(MCP_ROOT, 'node_modules', 'lazytrae-ai');
+  const packRoot = tempRoot('query-mcp-pack');
+  try {
+    const planHash = registerEditablePlan(root);
+    const queries = queryCommands(root, 2, planHash);
+
+    // Documented local packed route: pack this repository's CLI and extract it
+    // as the mcp package's version-pinned dependency (lazytrae-ai unpublished).
+    const packOutput = spawnSync(npm, ['pack', '--json', '--pack-destination', packRoot],
+      { cwd: CLI_ROOT, encoding: 'utf8', timeout: 120000, env: { ...process.env, npm_config_update_notifier: 'false' } });
+    assert.equal(packOutput.status, 0, packOutput.stderr || packOutput.stdout);
+    const archive = JSON.parse(packOutput.stdout)[0].filename;
+    resources.packs.push(path.join(packRoot, archive));
+    if (fs.existsSync(packedDependency)) {
+      const preserved = `${packedDependency}.preserved-by-project-adapter-test`;
+      fs.renameSync(packedDependency, preserved);
+      resources.preservedPackedDependency = preserved;
+    }
+    fs.mkdirSync(packedDependency, { recursive: true });
+    resources.packedDependencyInstalled = true;
+    const extract = spawnSync('tar', ['-xzf', path.join(packRoot, archive), '-C', packedDependency, '--strip-components=1'],
+      { encoding: 'utf8', timeout: 60000 });
+    assert.equal(extract.status, 0, extract.stderr);
+    const { handleProject } = require('../../mcp/src/handlers-project');
+
+    // Every query op returns the same typed payload through both routes.
+    for (const [operation, command] of Object.entries(queries)) {
+      const viaCli = projectCommand(root, command);
+      assert.equal(viaCli.status, 0, `${operation} CLI failed: ${viaCli.stderr}`);
+      const viaMcp = handleProject(root, { action: 'command', command });
+      assert.deepEqual(viaMcp, JSON.parse(viaCli.stdout),
+        `${operation} returns a byte-equal typed result through the MCP route`);
+      assert.equal('receipt' in viaMcp, false);
+    }
+
+    // T20-style composition end to end: the preview (UI-equivalent MCP route)
+    // shows the patch, the apply (tool route) lands it, and the same apply
+    // command through the MCP route replays byte-equal without a second write.
+    const previewViaMcp = handleProject(root, { action: 'command', command: queries['source.edit.preview'] });
+    assert.equal(previewViaMcp.status, 'valid');
+    assert.equal(previewViaMcp.patch_text.includes(EDIT_TASK_TEXT), true);
+    const documentBefore = fs.readFileSync(path.join(root, 'docs/plans/search.md'), 'utf8');
+    assert.equal(documentBefore.includes('- [ ] Build the offline index\n'), true);
+
+    const apply = projectCommand(root, commandEnvelope(root, 'cmd:query-apply', 2, 'source.edit',
+      JSON.parse(JSON.stringify(queries['source.edit.preview'].payload))));
+    assert.equal(apply.status, 0, apply.stderr);
+    const applied = JSON.parse(apply.stdout);
+    assert.equal(applied.receipt.status, 'saved');
+    assert.equal(applied.receipt.operation, 'source.edit');
+    assert.equal(applied.receipt.revision, 3);
+    // The apply receipt snapshots before its write lands (honest 'changed');
+    // the next observation of the registered source is current again.
+    assert.equal(applied.snapshot.sources.find(source => source.id === 'source:plan').observation.status, 'changed');
+    const mapAfterApply = handleProject(root, { action: 'command',
+      command: commandEnvelope(root, 'cmd:query-map-after', 3, 'source.map', { source_id: 'source:plan' }) });
+    assert.equal(mapAfterApply.status, 'ok');
+    assert.equal(mapAfterApply.observation, 'current');
+
+    const documentAfter = fs.readFileSync(path.join(root, 'docs/plans/search.md'), 'utf8');
+    assert.equal(documentAfter.includes(`- [ ] ${EDIT_TASK_TEXT}`), true, 'the edit lands in the document');
+    assert.equal(documentAfter.includes('- [ ] Build the offline index\n'), false, 'the old task text is gone');
+    assert.equal(documentAfter.includes(FENCED_LINE), true, 'the fenced example is preserved');
+    assert.equal(documentAfter.split('\n').length, documentBefore.split('\n').length,
+      'a set_task_text edit splices exactly one line');
+    assert.equal(documentAfter.includes('Unrelated prose stays untouched.'), true);
+
+    const replayViaMcp = handleProject(root, { action: 'command',
+      command: commandEnvelope(root, 'cmd:query-apply', 2, 'source.edit',
+        JSON.parse(JSON.stringify(queries['source.edit.preview'].payload))) });
+    assert.equal(replayViaMcp.receipt.status, 'saved');
+    assert.equal(JSON.stringify(replayViaMcp.receipt), JSON.stringify(applied.receipt),
+      'byte-equal receipt through the MCP route on idempotent replay');
+    assert.equal(fs.readFileSync(path.join(root, 'docs/plans/search.md'), 'utf8'), documentAfter,
+      'the replay never applies the edit twice');
+  } finally {
+    if (resources.packedDependencyInstalled) {
+      fs.rmSync(packedDependency, { recursive: true, force: true });
+      resources.packedDependencyInstalled = false;
+    }
+    if (resources.preservedPackedDependency) {
+      fs.renameSync(resources.preservedPackedDependency, packedDependency);
+      resources.preservedPackedDependency = null;
+    }
+    dispose(packRoot);
+  }
+});
