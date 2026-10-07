@@ -8,7 +8,7 @@ native Trae adapter.
 
 - The persistent project record is vendored as the family's second pinned
   tree: `shared/project/` + `project.vendor.json` re-pin to family tree
-  `95c0e0fc…` (source revision `7bf5bd8`). Trae's owning adapter stays the
+  `1feb5646…` (source revision `537f393`). Trae's owning adapter stays the
   Node store at `src/lib/project-state.js` (`.lazytrae/state/project.json`,
   journaled state transactions, read-only active-loop identity mapping, and
   the neutral `.lazyseries/project.json` registry); the vendored Python
