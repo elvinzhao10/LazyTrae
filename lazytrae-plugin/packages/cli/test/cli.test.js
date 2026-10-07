@@ -121,7 +121,7 @@ test('doctor reports stale pending context recovery with manual recovery command
 
 test('MCP smoke imports the intentional packages/mcp tool surface', () => {
   const { TOOLS, HANDLERS } = require('../../mcp/src/tools');
-  assert.equal(TOOLS.length, 16);
+  assert.equal(TOOLS.length, 17);
   assert.equal(typeof HANDLERS['lazytrae.get_active_plan'], 'function');
   assert.equal(typeof HANDLERS['lazytrae.record_evidence'], 'function');
   assert.equal(typeof HANDLERS['lazytrae.symbol_search'], 'function');

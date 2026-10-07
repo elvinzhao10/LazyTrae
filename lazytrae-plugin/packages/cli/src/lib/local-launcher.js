@@ -6,7 +6,7 @@ const {
 } = require('./local-command');
 const { CURRENT_VERSION: RELEASE_VERSION } = require('./version');
 
-const CORE_DESCRIPTION = 'LazyTrae state, evidence, handoff, and local context MCP server — exposes 16 tools including the dashboard management tool and heuristic symbol/reference/docs/dependency helpers';
+const CORE_DESCRIPTION = 'LazyTrae state, evidence, handoff, and local context MCP server — exposes 17 tools including the dashboard management and project record tools and heuristic symbol/reference/docs/dependency helpers';
 const MANAGED_KEY = '_lazytrae';
 const MCP_JSON_BEGIN = 'LAZYTRAE_MCP_JSON_BEGIN';
 const MCP_JSON_END = 'LAZYTRAE_MCP_JSON_END';

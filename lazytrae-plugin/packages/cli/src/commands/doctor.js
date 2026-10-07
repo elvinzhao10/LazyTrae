@@ -74,8 +74,8 @@ Options:
       try {
         const { TOOLS } = require(mcpToolsPath);
         const toolCount = TOOLS.length;
-        addResult('MCP tools (16 expected)', toolCount === 16 ? 'PASS' : 'FAIL',
-          `Found ${toolCount} MCP tools, expected 16`);
+        addResult('MCP tools (17 expected)', toolCount === 17 ? 'PASS' : 'FAIL',
+          `Found ${toolCount} MCP tools, expected 17`);
       } catch (e) {
         addResult('MCP tools', 'FAIL', `Cannot load tools.js: ${e.message}`);
       }
