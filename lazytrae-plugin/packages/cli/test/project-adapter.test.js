@@ -681,6 +681,50 @@ test('query operations and the preview-apply composition stay typed and byte-equ
   }
 });
 
+// F-04: the neutral registry is shared across runtimes. A registry another
+// runtime owns is foreign state: Trae init refuses typed instead of
+// overwriting it, so the owning runtime keeps a working registry.
+test('init refuses a neutral registry another runtime owns and leaves the owner serviceable', () => {
+  const root = tempRoot('foreign-registry');
+  try {
+    registerProjectFixture(root);
+    const registryPath = path.join(root, '.lazyseries/project.json');
+    const foreign = { schema_version: 1, project_id: 'project:buddy-owned',
+      repository_key: `repo:${'ab'.repeat(32)}`, runtime: 'LazyBuddy',
+      created_at: '2026-10-01T00:00:00.000Z',
+      sources: [{ id: 'source:requirements', role: 'requirements', path: 'docs/requirements.md' }] };
+    fs.mkdirSync(path.join(root, '.lazyseries'), { recursive: true });
+    fs.writeFileSync(registryPath, `${JSON.stringify(foreign)}\n`);
+    const before = fs.readFileSync(registryPath);
+    const refused = cli(root, ['project', 'init', '--actor', 'local:adapter-test']);
+    assert.equal(refused.status, 1);
+    assert.equal(JSON.parse(refused.stderr).code, 'REGISTRY_FOREIGN_RUNTIME');
+    assert.equal(fs.readFileSync(registryPath).equals(before), true,
+      'a refused init must leave the foreign registry byte-identical');
+    const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    assert.equal(registry.runtime, 'LazyBuddy');
+    assert.equal(registry.project_id, 'project:buddy-owned');
+    assert.equal(registry.sources.length, 1, 'the owning runtime source list stays stable');
+    assert.equal(fs.existsSync(path.join(root, '.lazytrae/state/project.json')), false,
+      'a refused init creates no Trae store');
+    // Repeated refusals stay stable: no partial adoption, no flip-flopping.
+    const second = cli(root, ['project', 'init', '--actor', 'local:adapter-test']);
+    assert.equal(second.status, 1);
+    assert.equal(JSON.parse(second.stderr).code, 'REGISTRY_FOREIGN_RUNTIME');
+    assert.equal(fs.readFileSync(registryPath).equals(before), true);
+    // A registry Trae itself owns still re-inits idempotently.
+    const traeOwned = { ...foreign, runtime: 'LazyTrae', project_id: projectIdOf(root),
+      repository_key: `repo:${sha256(fs.realpathSync(root))}` };
+    fs.writeFileSync(registryPath, `${JSON.stringify(traeOwned)}\n`);
+    const reinit = cli(root, ['project', 'init', '--actor', 'local:adapter-test']);
+    assert.equal(reinit.status, 0, reinit.stderr);
+    assert.equal(JSON.parse(reinit.stdout).initialized, true);
+    assert.equal(JSON.parse(reinit.stdout).project_id, projectIdOf(root));
+    assert.equal(JSON.parse(fs.readFileSync(registryPath, 'utf8')).runtime, 'LazyTrae');
+    assert.equal(fs.existsSync(path.join(root, '.lazytrae/state/project.json')), true);
+  } finally { dispose(root); }
+});
+
 test('host capability matrix claims no observed host adoption without a fresh current-session probe', () => {
   const { buildCapabilityMatrix } = require('../src/lib/host-capability-matrix');
   const root = tempRoot('no-adoption');

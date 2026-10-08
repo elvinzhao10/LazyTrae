@@ -203,6 +203,21 @@ async function init(root, options = {}) {
   const { projectSnapshot } = await portable('projection.mjs');
   const prepare = () => {
     if (loadState(root)) throw new DashboardError('PROJECT_ALREADY_INITIALIZED');
+    // A neutral registry that already exists is another runtime's (or another
+    // identity's) repository record: never overwrite it. Trae init fails
+    // closed instead of bricking the owning runtime's reads.
+    let registryBytes;
+    try { registryBytes = fs.readFileSync(registryFile(root), 'utf8'); } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    if (registryBytes !== undefined) {
+      let registry;
+      try { registry = JSON.parse(registryBytes); } catch { throw new DashboardError('INVALID_REGISTRY'); }
+      if (!registry || typeof registry !== 'object' || registry.runtime !== RUNTIME
+        || registry.project_id !== identity || registry.repository_key !== repositoryKey(root)) {
+        throw new DashboardError('REGISTRY_FOREIGN_RUNTIME');
+      }
+    }
     const createdAt = now();
     const state = createProject({ projectId: identity, runtime: RUNTIME, repositoryKey: repositoryKey(root), createdAt });
     const registry = { schema_version: 1, project_id: identity, repository_key: state.repository_key,
