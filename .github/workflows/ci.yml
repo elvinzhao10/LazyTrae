@@ -104,9 +104,26 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: lazytrae-plugin/packages/mcp/package-lock.json
-      - run: npm ci --ignore-scripts
+      # lazytrae-ai 1.4.0 is unpublished, so `npm ci` cannot resolve the
+      # version-pinned dependency from the registry. CI consumes the same
+      # documented local packed route the repository verification uses:
+      # pack the CLI package from this checkout and extract it into the
+      # mcp package's node_modules before running its tests. Publication
+      # to npm stays a separate authorized step and is not performed here.
+      - name: Resolve the unpublished CLI dependency through the local packed route
+        shell: bash
+        run: |
+          set -euo pipefail
+          temporary_root="$(mktemp -d)"
+          cleanup() {
+            rm -rf "$temporary_root"
+          }
+          trap cleanup EXIT
+          pack_json="$(npm pack --json --pack-destination "$temporary_root" ../cli)"
+          archive_name="$(node -e "const [entry] = JSON.parse(process.argv[1]); if (!entry?.filename) process.exit(1); process.stdout.write(entry.filename)" "$pack_json")"
+          test -f "$temporary_root/$archive_name"
+          mkdir -p node_modules/lazytrae-ai
+          tar -xzf "$temporary_root/$archive_name" -C node_modules/lazytrae-ai --strip-components=1
       - run: npm test
 
   package:

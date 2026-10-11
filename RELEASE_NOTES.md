@@ -4,6 +4,26 @@ A feature release across the six LazySeries siblings: the family's portable
 dashboard core is vendored identically into every package and wired through a
 native Trae adapter.
 
+## Project platform (2026-10-07)
+
+- The persistent project record is vendored as the family's second pinned
+  tree: `shared/project/` + `project.vendor.json` re-pin to family tree
+  `1feb5646…` (source revision `537f393`). Trae's owning adapter stays the
+  Node store at `src/lib/project-state.js` (`.lazytrae/state/project.json`,
+  journaled state transactions, read-only active-loop identity mapping, and
+  the neutral `.lazyseries/project.json` registry); the vendored Python
+  bridge route is not shipped here by the family boundary.
+- Trae's capability declaration remains distinct from the siblings'
+  dashboard-host capability record: per-surface readiness is declared through
+  the host-capability-matrix, and the project-adapter suite now asserts that
+  matrix claims `host-executed`/`host-observed` for no capability without a
+  fresh current-session probe (mutation-proven).
+- Boundaries stay explicit: the vendored git-observation collectors are
+  byte-pinned but wired into no Trae project route (this surface exposes no
+  git view; commit links stay producer-side `source_revision`); native host
+  embedding, chat handoff, and host wake remain unobserved; host readiness
+  stays pending.
+
 ## Eval-driven fixes
 
 - The portable dashboard core (projection, command/queue reducers, browser UI)
@@ -17,6 +37,15 @@ native Trae adapter.
   reference docs, CLI package README, and the MCP description writers is
   corrected to 16, and the managed-entry identity constant moves together
   with its template writers.
+- The family's persistent project core is vendored into
+  `shared/project/` (pinned in `shared/project.vendor.json`) and exposed
+  through a native Trae store: `lazytrae project init|read|command`. The
+  record is strictly opt-in — `read` and `command` are inert typed
+  not-initialized results before an explicit `init`, and the seventeenth
+  core MCP tool `lazytrae.project` (read/command) never initializes and never
+  schedules work. Project, dashboard and native loop share one repository
+  identity (`trae:<sha256>`); a plan links to an inspected native run, never a
+  created one.
 - The adapter suite covers CAS and replay, cycle rejection, queue persistence,
   revision-bound execution with an independent verifier, failed/cancelled/
   dirty/stale history, authentication and path boundaries, owned lifecycle,

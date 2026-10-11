@@ -22,7 +22,7 @@ implementation and does not require LazyCodex or OmO at runtime.
 LazyTrae supplies 17 skills, 9 commands, 11 agent definitions, eight hook
 scripts across five events, and eight MCP declarations. One declaration starts
 the executable `lazytrae` core server; the other seven are disabled
-placeholders. Once a host connects, the core server exposes 16 tools,
+placeholders. Once a host connects, the core server exposes 17 tools,
 including the `lazytrae.dashboard` management tool.
 
 The CLI installs and checks canonical project assets in `.trae/` and
@@ -82,7 +82,7 @@ removal, and JSON-RPC handling. The Work lifecycle tests use an explicit skills
 directory and reject symlink or hard-link traversal.
 
 The self-contained CLI tarball is checked by a cold offline installation and
-an isolated stdio MCP probe that lists the core server's 16 tools. The artifact
+an isolated stdio MCP probe that lists the core server's 17 tools. The artifact
 contains the CLI, local MCP implementation, templates, package-local `LICENSE`
 and `NOTICE`, and its production dependency closure; this remains package
 evidence rather than host integration evidence. The local macOS CI readiness

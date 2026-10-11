@@ -23,6 +23,7 @@ a host is only considered ready after it is observed in a fresh session.
 
 - The family's portable dashboard core is vendored behind a native Trae adapter: `lazytrae dashboard start|open|status|stop [--port]|snapshot|context|execute` and an authenticated loopback browser UI.
 - The core MCP server gains its sixteenth tool, `lazytrae.dashboard`; it manages the owned dashboard or reads native task context and does not execute tasks.
+- The family's persistent project core is vendored behind a native Trae store: `lazytrae project init|read|command` keeps the record strictly opt-in (`read` and `command` are inert typed not-initialized results before `init`), and the seventeenth MCP tool `lazytrae.project` reads the record or submits one typed project command; it never initializes and never schedules work.
 - Queue planning in the browser UI can create, amend, and reorder queued plans; queue edits never start work, and dispatch stays an explicitly invoked bounded CLI workload with a separate verifier.
 - Documentation now states the honest capability labels: host embedding, chat handoff, and wake remain unobserved; host readiness stays pending; `dashboard context` reports `host_execution: not-observed`.
 
@@ -41,6 +42,7 @@ token-saving or cost claim is made.
 | v1.3.4 maintenance | Transactional run integrity, safer lifecycle and native adapter repairs. |
 | v1.3.5 repairs | Real runtime exercises, bounded hooks, dependency updates and current platform guidance. |
 | v1.4.0 dashboard | Vendored portable dashboard core, native Trae adapter, sixteenth MCP tool, queue planning UI and honest capability labels. |
+| v1.4.0 project platform | Vendored persistent project core, native opt-in project record (`lazytrae project`), seventeenth MCP tool and Trae goal-identity mapping. |
 
 ### Just ask, or use a command — both work
 
@@ -283,7 +285,8 @@ The commercial TraeCode CLI is a separate host from the open-source TRAE-agent
 project. LazyTrae remains a separate native integration with its own package
 and observed-host evidence. It does not substitute TRAE-agent execution for a
 commercial CLI session. The base topology is one active core MCP server with
-16 tools, including the `lazytrae.dashboard` management tool; seven optional
+17 tools, including the `lazytrae.dashboard` management tool and the
+`lazytrae.project` record tool; seven optional
 capability declarations remain disabled placeholders.
 
 Loop selection returns distinct active, blocked, failed, exhausted, and complete
