@@ -58,6 +58,12 @@ function notInitialized(action) {
       question: 'No project record is initialized for this repository. Ask the user whether to run the explicit project init command; this route never creates or initializes a project.' } };
 }
 
+function assertProjectBinding(state, expectedProjectId) {
+  if (expectedProjectId !== undefined && state.project_id !== expectedProjectId) {
+    throw new DashboardError('FOREIGN_PROJECT');
+  }
+}
+
 // Read-only store access: pre-init reads never create directories, locks or
 // files, so the not-initialized path leaves the repository byte-identical.
 function loadState(root) {
@@ -233,15 +239,32 @@ async function init(root, options = {}) {
   return runTransaction(root, 'project-record', prepare);
 }
 
-async function read(root) {
+async function read(root, expectedProjectId) {
   const state = loadState(root);
   if (!state) return notInitialized('project.read');
   await assertState(state);
+  assertProjectBinding(state, expectedProjectId);
   return { initialized: true, project_id: state.project_id, revision: state.revision,
     snapshot: await snapshotOf(root, state), native_loop: nativeGoalMap(root) };
 }
 
-async function execute(root, command, actor) {
+async function readSource(root, sourceId, expectedProjectId) {
+  if (typeof sourceId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,255}$/.test(sourceId)) {
+    throw new DashboardError('INVALID_SOURCE_ID');
+  }
+  const { assertProjectState } = await portable('contract.mjs');
+  return readTransaction(root, 'project-record', () => {
+    const state = loadState(root);
+    if (!state) throw new DashboardError('PROJECT_NOT_INITIALIZED');
+    assertProjectState(state);
+    assertProjectBinding(state, expectedProjectId);
+    const source = state.sources.find(entry => entry.id === sourceId);
+    if (!source) throw new DashboardError('UNKNOWN_SOURCE');
+    return sourceCapture(root, source.id, source.path);
+  });
+}
+
+async function execute(root, command, actor, expectedProjectId) {
   if (!command || typeof command !== 'object' || Array.isArray(command)) throw new DashboardError('INVALID_PROJECT_COMMAND');
   const state = loadState(root);
   if (!state) return notInitialized(typeof command.operation === 'string' ? command.operation : 'project.command');
@@ -256,6 +279,7 @@ async function execute(root, command, actor) {
     const current = loadState(root);
     if (!current) throw new DashboardError('PROJECT_NOT_INITIALIZED');
     assertProjectState(current);
+    assertProjectBinding(current, expectedProjectId);
     const context = { actor, occurredAt: now(),
       capturedSources: captureSources(root, current, command), capturedRuns: captureRuns(root, command) };
     return { current, context };
@@ -287,5 +311,5 @@ async function execute(root, command, actor) {
   return runTransaction(root, 'project-record', prepare);
 }
 
-module.exports = { detectRepoRoot, notInitialized, init, read, execute, isInitialized: root => loadState(root) !== null,
+module.exports = { detectRepoRoot, notInitialized, init, read, readSource, execute, isInitialized: root => loadState(root) !== null,
   STATE_PATH, REGISTRY_PATH, RUNTIME, nativeGoalMap, repositoryKey };
