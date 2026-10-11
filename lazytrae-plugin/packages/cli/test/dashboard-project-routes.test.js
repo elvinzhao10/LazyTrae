@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 const test = require('node:test');
 
 const DASHBOARD = require('../src/commands/dashboard');
@@ -27,7 +28,8 @@ function fixture() {
   fs.mkdirSync(path.join(root, 'evidence'), { recursive: true });
   fs.writeFileSync(path.join(root, 'docs', 'plan.md'), '# HTTP plan\n\nRegistered source bytes.\n');
   fs.writeFileSync(path.join(root, 'docs', 'unregistered.md'), 'FOREIGN-BYTES-MUST-NOT-CROSS\n');
-  fs.writeFileSync(path.join(root, 'evidence', 'native-report.md'), '# Native report\n\nTrae-owned registered artifact.\n');
+  fs.writeFileSync(path.join(root, 'evidence', 'native-report.md'),
+    '# Native report\n\nTrae-owned registered artifact.\n<script>FOREIGN-PREVIEW-SCRIPT</script>\n');
   return root;
 }
 
@@ -83,8 +85,21 @@ test('native project HTTP routes preserve Trae identity, source boundaries and c
       const response = await request(live.url, '/api/project', { token });
       assert.equal(response.status, 200);
       assert.equal(response.value.project.project_id, projectId);
-      assert.equal(response.value.project.native_loop.project_id, projectId);
-      assert.equal(response.value.project.native_loop.run_id, 'run-project-http');
+      assert.ok(Array.isArray(response.value.project.plans), 'HTTP project is the shared snapshot, not the native helper envelope');
+      assert.equal(response.value.native_loop.project_id, projectId);
+      assert.equal(response.value.native_loop.run_id, 'run-project-http');
+      const uiRoot = path.resolve(__dirname, '../shared/dashboard/ui');
+      const { createLiveProjectAdapter } = await import(pathToFileURL(path.join(uiRoot, 'live-project-adapter.mjs')).href);
+      const { overviewFixture } = await import(pathToFileURL(path.join(uiRoot, 'overview-fixture.mjs')).href);
+      const adapter = createLiveProjectAdapter({ connection: {
+        project: async () => response.value,
+        projectSource: async () => { throw new Error('not used'); },
+      } });
+      const consumed = await adapter.read();
+      assert.equal(consumed.project_id, projectId);
+      const overview = overviewFixture(adapter.bundle());
+      assert.equal(overview.projection.project_id, projectId);
+      assert.equal(overview.docId, `overview:${projectId}`);
     });
 
     const source = '# HTTP plan\n\nRegistered source bytes.\n';
@@ -97,6 +112,20 @@ test('native project HTTP routes preserve Trae identity, source boundaries and c
       assert.equal(accepted.status, 200);
       assert.equal(accepted.value.receipt.status, 'saved');
       assert.match(accepted.value.receipt.actor, /^dashboard:[a-f0-9]{24}$/);
+      assert.equal(accepted.value.snapshot.project_id, projectId);
+      assert.ok(Array.isArray(accepted.value.snapshot.sources));
+      const uiRoot = path.resolve(__dirname, '../shared/dashboard/ui');
+      const { createLiveProjectAdapter, overviewBundle } = await import(pathToFileURL(path.join(uiRoot, 'live-project-adapter.mjs')).href);
+      const { overviewFixture } = await import(pathToFileURL(path.join(uiRoot, 'overview-fixture.mjs')).href);
+      const adapter = createLiveProjectAdapter({ connection: {
+        project: async () => ({ project: accepted.value.snapshot }),
+        projectSource: async () => { throw new Error('not used'); },
+        projectCommand: async () => accepted.value,
+      } });
+      const editorOutcome = await adapter.command(register);
+      const commandOverview = overviewFixture(overviewBundle(editorOutcome.snapshot));
+      assert.equal(commandOverview.projection.project_id, projectId,
+        'the real HTTP command response exposes the snapshot shape consumed after an editor save');
       const replay = await request(live.url, '/api/project/commands', { method: 'POST', token, body: register });
       assert.equal(replay.status, 200);
       assert.equal(JSON.stringify(replay.value.receipt), JSON.stringify(accepted.value.receipt));
@@ -132,11 +161,11 @@ test('native project HTTP routes preserve Trae identity, source boundaries and c
       assert.equal(assessment.value.allowed, false);
       assert.ok(assessment.value.reasons.some(reason => reason.code === 'NATIVE_RUN_REQUIRED'));
       const project = await request(live.url, '/api/project', { token });
-      assert.equal(project.value.project.snapshot.plans[0].declared_lifecycle, 'planned');
+      assert.equal(project.value.project.plans[0].declared_lifecycle, 'planned');
     });
 
     await t.test('architecture, Git and evidence details use recorded project facts without protected scans', async () => {
-      const artifact = '# Native report\n\nTrae-owned registered artifact.\n';
+      const artifact = '# Native report\n\nTrae-owned registered artifact.\n<script>FOREIGN-PREVIEW-SCRIPT</script>\n';
       const command = { schema_version: 1, command_id: 'http:artifact', project_id: projectId,
         expected_revision: 2, operation: 'artifact.register', payload: { id: 'artifact:http-report',
           type: 'design_note', producer: 'native:http-test', path: 'evidence/native-report.md', sha256: sha256(artifact) } };
@@ -157,6 +186,36 @@ test('native project HTTP routes preserve Trae identity, source boundaries and c
       assert.equal(evidence.value.scan.runs_indexed, 0, 'no unsupported Trae loop parser is fabricated');
       assert.ok(evidence.value.entries.some(entry => entry.registered?.id === 'artifact:http-report'
         && entry.path === 'evidence/native-report.md' && entry.status === 'available'));
+      const previewEntry = evidence.value.entries.find(entry => entry.registered?.id === 'artifact:http-report');
+      assert.equal((await request(live.url, '/api/project/evidence/preview', { method: 'POST', body: { artifact_id: previewEntry.id } })).status, 401);
+      const malformed = await request(live.url, '/api/project/evidence/preview', { method: 'POST', token, body: {} });
+      assert.equal(malformed.status, 422); assert.equal(malformed.value.code, 'INVALID_ARTIFACT_ID');
+      const unknown = await request(live.url, '/api/project/evidence/preview', { method: 'POST', token,
+        body: { artifact_id: 'artifact:unknown' } });
+      assert.equal(unknown.status, 404); assert.equal(unknown.value.code, 'UNKNOWN_ARTIFACT');
+      const preview = await request(live.url, '/api/project/evidence/preview', { method: 'POST', token,
+        body: { artifact_id: previewEntry.id } });
+      assert.equal(preview.status, 200);
+      assert.equal(preview.value.artifact_id, previewEntry.id);
+      assert.equal(preview.value.kind, 'markdown');
+      assert.equal(preview.value.available, true);
+      assert.ok(preview.value.blocks.some(block => block.type === 'heading' && block.text === 'Native report'));
+      assert.equal(preview.text.includes('FOREIGN-PREVIEW-SCRIPT'), false);
+      assert.ok(preview.value.sanitization.removed_script_blocks >= 1);
+      fs.appendFileSync(path.join(root, 'evidence', 'native-report.md'), '\nchanged after registration\n');
+      const changed = await request(live.url, '/api/project/evidence/preview', { method: 'POST', token,
+        body: { artifact_id: previewEntry.id } });
+      assert.equal(changed.status, 200);
+      assert.equal(changed.value.available, false);
+      assert.equal(changed.value.reason, 'artifact_redacted');
+      fs.unlinkSync(path.join(root, 'evidence', 'native-report.md'));
+      fs.symlinkSync('/etc/passwd', path.join(root, 'evidence', 'native-report.md'));
+      const linked = await request(live.url, '/api/project/evidence/preview', { method: 'POST', token,
+        body: { artifact_id: previewEntry.id } });
+      assert.equal(linked.status, 200);
+      assert.equal(linked.value.available, false);
+      assert.equal(linked.value.reason, 'artifact_inaccessible');
+      assert.equal(linked.text.includes('root:'), false);
       assert.equal(evidence.text.includes('TRAE-DASHBOARD-CANARY'), false);
       assert.equal(evidence.text.includes('TRAE-STATE-CANARY'), false);
       assert.equal(evidence.text.includes('BUDDY-FOREIGN-CANARY'), false);

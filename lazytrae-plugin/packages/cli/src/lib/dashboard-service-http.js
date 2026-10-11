@@ -7,7 +7,7 @@ const { portable, execute } = require('./dashboard-state');
 const { read: readProject, readSource: readProjectSource, execute: executeProjectCommand } = require('./project-state');
 const { authentication, checkRequest, readBody } = require('./dashboard-service-auth');
 const { capture: nativeCapture, evidence: nativeEvidence } = require('./dashboard-snapshot');
-const { safeRead, DashboardError: ServiceError } = require('./dashboard-files');
+const { hash, safeRead, DashboardError: ServiceError } = require('./dashboard-files');
 const capture = (options, cursor) => nativeCapture(options.projectRoot, cursor);
 const evidence = (options, id) => nativeEvidence(options.projectRoot, id);
 const projectPortable = name => import(pathToFileURL(resolve(__dirname, '../../shared/project', name)).href);
@@ -30,9 +30,10 @@ function send(response, value, status = 200) {
   response.end(bytes);
 }
 function projectFailure(error) {
-  if (error?.code === 'PROJECT_NOT_INITIALIZED' || error?.code === 'UNKNOWN_SOURCE') {
+  if (error?.code === 'PROJECT_NOT_INITIALIZED' || error?.code === 'UNKNOWN_SOURCE' || error?.code === 'UNKNOWN_ARTIFACT') {
     return new ServiceError(error.code, 404);
   }
+  if (error instanceof ServiceError && Number.isInteger(error.status) && error.status >= 400 && error.status <= 599) return error;
   if (typeof error?.code === 'string' && /^[A-Z][A-Z0-9_]{0,127}$/.test(error.code)) {
     return new ServiceError(error.code, 422);
   }
@@ -63,6 +64,19 @@ async function projectEvidence(options) {
   const { evidenceFixture } = await dashboardPortable('evidence-model.mjs');
   const index = await buildArtifactIndex(options.projectRoot, { snapshot: project.snapshot });
   return evidenceFixture({ index, snapshot: project.snapshot });
+}
+async function projectEvidencePreview(options, artifactId) {
+  const project = requireInitialized(await readProject(options.projectRoot, options.projectId));
+  const { buildArtifactIndex } = await projectPortable('artifacts/index.mjs');
+  const { renderArtifactPreview } = await projectPortable('artifacts/preview.mjs');
+  const index = await buildArtifactIndex(options.projectRoot, { snapshot: project.snapshot });
+  const entry = index.entries.find(candidate => candidate.id === artifactId);
+  if (!entry) throw new ServiceError('UNKNOWN_ARTIFACT', 404);
+  return renderArtifactPreview(options.projectRoot, entry, { readFile: async (_root, relative, limit) => {
+    const bytes = safeRead(options.projectRoot, relative, limit);
+    if (entry.sha256 && hash(bytes) !== entry.sha256) throw new ServiceError('ARTIFACT_CHANGED', 409);
+    return { bytes };
+  } });
 }
 async function assessProjectTransition(options, request) {
   const project = requireInitialized(await readProject(options.projectRoot, options.projectId));
@@ -101,7 +115,10 @@ async function listen(options, control) {
         }
         const actor = auth.session(request);
         if (request.method === 'GET' && request.url === '/api/project') {
-          try { send(response, { project: requireInitialized(await readProject(options.projectRoot, options.projectId)) }); }
+          try {
+            const native = requireInitialized(await readProject(options.projectRoot, options.projectId));
+            send(response, { project: native.snapshot, native_loop: native.native_loop });
+          }
           catch (error) { throw projectFailure(error); }
           return;
         }
@@ -139,6 +156,17 @@ async function listen(options, control) {
             throw new ServiceError('INVALID_TRANSITION_ASSESSMENT');
           }
           try { send(response, await assessProjectTransition(options, requestBody)); }
+          catch (error) { throw projectFailure(error); }
+          return;
+        }
+        if (request.method === 'POST' && request.url === '/api/project/evidence/preview') {
+          const requestBody = await readBody(request);
+          if (!requestBody || typeof requestBody !== 'object' || Array.isArray(requestBody)
+            || Object.keys(requestBody).length !== 1 || typeof requestBody.artifact_id !== 'string'
+            || !/^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,255}$/.test(requestBody.artifact_id)) {
+            throw new ServiceError('INVALID_ARTIFACT_ID');
+          }
+          try { send(response, await projectEvidencePreview(options, requestBody.artifact_id)); }
           catch (error) { throw projectFailure(error); }
           return;
         }
