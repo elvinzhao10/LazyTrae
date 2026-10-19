@@ -13,10 +13,10 @@
 // record: this package declares per-surface readiness through the
 // host-capability-matrix (src/lib/host-capability-matrix.js), where host
 // adoption is claimed only by a fresh current-session probe. The vendored
-// git-observation collectors (shared/project/git-observation/*) are
-// byte-pinned but wired into no Trae project route: this surface exposes no
-// git view, and commit links stay on the producer side (attempt
-// source_revision).
+// git-observation collectors (shared/project/git-observation/*) feed the
+// dashboard service's project git view (/api/project/git in
+// src/lib/dashboard-service-http.js), while commit links stay on the
+// producer side (attempt source_revision).
 const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
@@ -62,6 +62,19 @@ function assertProjectBinding(state, expectedProjectId) {
   if (expectedProjectId !== undefined && state.project_id !== expectedProjectId) {
     throw new DashboardError('FOREIGN_PROJECT');
   }
+}
+
+// Runtime pin on the native-state path (T3-FIX1): a document at Trae's own
+// store path that carries another family runtime's authorship (a sibling CLI
+// writing .lazytrae/state/project.json) must refuse typed on read, init and
+// command — STATE_FOREIGN_RUNTIME, the native-state sibling of the registry
+// layer's REGISTRY_FOREIGN_RUNTIME — instead of adopting the foreign record.
+// The vendored contract requires a runtime from its RUNTIMES vocabulary on
+// every valid state document, so a tampered or absent runtime already fails
+// its own typed validation (INVALID_VALUE / MISSING_FIELD) before the pin;
+// neither refusal ever rewrites the bytes.
+function assertOwnRuntime(state) {
+  if (state.runtime !== RUNTIME) throw new DashboardError('STATE_FOREIGN_RUNTIME');
 }
 
 // Read-only store access: pre-init reads never create directories, locks or
@@ -198,6 +211,7 @@ async function init(root, options = {}) {
   const existing = loadState(root);
   if (existing) {
     await assertState(existing);
+    assertOwnRuntime(existing);
     if (options.projectId && options.projectId !== existing.project_id) throw new DashboardError('FOREIGN_PROJECT');
     return { initialized: true, project_id: existing.project_id, revision: existing.revision,
       snapshot: await snapshotOf(root, existing) };
@@ -208,7 +222,11 @@ async function init(root, options = {}) {
   const { assertProjectState, assertProjectRegistry } = await portable('contract.mjs');
   const { projectSnapshot } = await portable('projection.mjs');
   const prepare = () => {
-    if (loadState(root)) throw new DashboardError('PROJECT_ALREADY_INITIALIZED');
+    // Race guard: a state document that appeared since the outer load must be
+    // Trae's own before init reports PROJECT_ALREADY_INITIALIZED — a foreign
+    // raced document refuses as foreign instead.
+    const raced = loadState(root);
+    if (raced) { assertOwnRuntime(raced); throw new DashboardError('PROJECT_ALREADY_INITIALIZED'); }
     // A neutral registry that already exists is another runtime's (or another
     // identity's) repository record: never overwrite it. Trae init fails
     // closed instead of bricking the owning runtime's reads.
@@ -243,6 +261,7 @@ async function read(root, expectedProjectId) {
   const state = loadState(root);
   if (!state) return notInitialized('project.read');
   await assertState(state);
+  assertOwnRuntime(state);
   assertProjectBinding(state, expectedProjectId);
   return { initialized: true, project_id: state.project_id, revision: state.revision,
     snapshot: await snapshotOf(root, state), native_loop: nativeGoalMap(root) };
@@ -257,6 +276,7 @@ async function readSource(root, sourceId, expectedProjectId) {
     const state = loadState(root);
     if (!state) throw new DashboardError('PROJECT_NOT_INITIALIZED');
     assertProjectState(state);
+    assertOwnRuntime(state);
     assertProjectBinding(state, expectedProjectId);
     const source = state.sources.find(entry => entry.id === sourceId);
     if (!source) throw new DashboardError('UNKNOWN_SOURCE');
@@ -268,6 +288,7 @@ async function execute(root, command, actor, expectedProjectId) {
   if (!command || typeof command !== 'object' || Array.isArray(command)) throw new DashboardError('INVALID_PROJECT_COMMAND');
   const state = loadState(root);
   if (!state) return notInitialized(typeof command.operation === 'string' ? command.operation : 'project.command');
+  assertOwnRuntime(state);
   if (typeof actor !== 'string' || !actor || actor.length > 256) throw new DashboardError('TRUSTED_ACTOR_REQUIRED');
   const { assertProjectState, assertProjectCommand, assertProjectionOptions } = await portable('contract.mjs');
   const { applyProjectCommand } = await portable('model.mjs');
@@ -279,6 +300,7 @@ async function execute(root, command, actor, expectedProjectId) {
     const current = loadState(root);
     if (!current) throw new DashboardError('PROJECT_NOT_INITIALIZED');
     assertProjectState(current);
+    assertOwnRuntime(current);
     assertProjectBinding(current, expectedProjectId);
     const context = { actor, occurredAt: now(),
       capturedSources: captureSources(root, current, command), capturedRuns: captureRuns(root, command) };

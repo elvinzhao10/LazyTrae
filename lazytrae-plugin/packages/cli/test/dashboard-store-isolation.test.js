@@ -160,6 +160,68 @@ test('init refuses a foreign-runtime registry repeatedly without creating a Trae
     no_trae_state_created: true, inert_read: true }));
 });
 
+// T3-FIX1 native-state half: the registry refusal above never fires when a
+// foreign runtime's document already sits at Trae's own state path, so the
+// state itself carries the runtime pin. A contract-valid document whose only
+// foreign fact is the authoring runtime must refuse typed on read, init and
+// command without adopting or mutating the foreign bytes, while Trae's own
+// valid state keeps loading.
+test('a foreign-authored native state document refuses typed and is never adopted', async t => {
+  const root = tempRoot('foreign-state');
+  const statePath = path.join(root, '.lazytrae/state/project.json');
+  fs.mkdirSync(path.join(root, '.lazytrae/state'), { recursive: true, mode: 0o700 });
+  // Contract-valid except for the runtime: the same document Trae would have
+  // written for this root, authored by LazyBuddy instead.
+  const foreign = { schema_version: 1, project_id: projectIdOf(root), runtime: 'LazyBuddy',
+    repository_key: repositoryKeyOf(root), created_at: '2026-10-01T00:00:00.000Z', revision: 0,
+    baseline_revision: 0, observation_revision: 0, sources: [], items: [], plans: [], receipts: [],
+    proposals: [], architecture: [], research: [], reconciliations: [], observations: [],
+    artifacts: [], requests: [], source_anchors: [] };
+  fs.writeFileSync(statePath, JSON.stringify(foreign), { mode: 0o600 });
+  const planted = fs.readFileSync(statePath);
+
+  const refusedRead = await trae(root, ['project', 'read']);
+  assert.equal(refusedRead.code, 1, 'a foreign native state must fail closed on read');
+  assert.equal(JSON.parse(refusedRead.stderr).code, 'STATE_FOREIGN_RUNTIME');
+  const refusedInit = await trae(root, ['project', 'init', '--actor', ACTOR]);
+  assert.equal(refusedInit.code, 1, 'a foreign native state must fail closed on init');
+  assert.equal(JSON.parse(refusedInit.stderr).code, 'STATE_FOREIGN_RUNTIME');
+  assert.equal(fs.existsSync(path.join(root, '.lazyseries')), false,
+    'a refused init creates no registry for a foreign state');
+  const refusedCommand = await trae(root, ['project', 'command', '--actor', ACTOR],
+    JSON.stringify({ operation: 'project.read', payload: {} }));
+  assert.equal(refusedCommand.code, 1, 'a foreign native state must fail closed on command');
+  assert.equal(JSON.parse(refusedCommand.stderr).code, 'STATE_FOREIGN_RUNTIME');
+  assert.equal(fs.readFileSync(statePath).equals(planted), true,
+    'every refusal must leave the foreign state document byte-identical');
+
+  // Adversarial malformed identity: a tampered or missing runtime never
+  // reaches the pin — the vendored contract refuses it typed instead (its
+  // own INVALID_VALUE for a foreign vocabulary, MISSING_FIELD for an absent
+  // runtime; INVALID_PROJECT_STATE is the unparseable-JSON path), bytes intact.
+  for (const [tampered, code] of [[{ ...foreign, runtime: 'LazyBogus' }, 'INVALID_VALUE'],
+    [{ ...foreign, runtime: undefined }, 'MISSING_FIELD']]) {
+    fs.writeFileSync(statePath, JSON.stringify(tampered));
+    const invalid = await trae(root, ['project', 'read']);
+    assert.equal(invalid.code, 1, 'a malformed runtime must fail closed');
+    assert.equal(JSON.parse(invalid.stderr).code, code);
+  }
+  fs.writeFileSync(statePath, planted);
+
+  // Trae's own valid state still loads: the pin refuses only foreign authorship.
+  fs.rmSync(statePath);
+  const initialized = await trae(root, ['project', 'init', '--actor', ACTOR]);
+  assert.equal(initialized.code, 0, initialized.stderr);
+  const loaded = JSON.parse(initialized.stdout);
+  assert.equal(loaded.initialized, true);
+  assert.equal(loaded.snapshot.runtime, 'LazyTrae');
+  const reread = await trae(root, ['project', 'read']);
+  assert.equal(reread.code, 0, reread.stderr);
+  assert.equal(JSON.parse(reread.stdout).project_id, projectIdOf(root));
+  t.diagnostic(JSON.stringify({ refusal: 'STATE_FOREIGN_RUNTIME', malformed: ['INVALID_VALUE', 'MISSING_FIELD'],
+    state_bytes_unchanged: true, own_state_loads: true }));
+});
+
 test('the dashboard service resolves its store root only inside .lazytrae', async t => {
   // The resolved store-root contract: Trae's project record, its queue and the
   // shared registry each have exactly one path, and only the registry is not
