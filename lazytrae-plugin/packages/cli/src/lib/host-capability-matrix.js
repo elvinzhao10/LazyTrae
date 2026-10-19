@@ -111,6 +111,9 @@ function cliMatrix(repoRoot, options) {
   for (const [id, supported] of [
     ['config-yaml-candidate', major === 1 && !ambiguous],
     ['config-toml-candidate', major !== null && major >= 2 && !ambiguous],
+    ['approval-policy-toml-candidate', major !== null && major >= 2 && !ambiguous],
+    ['sandbox-permissions-toml-candidate', major !== null && major >= 2 && !ambiguous],
+    ['acp-serve-candidate', major !== null && major >= 2],
     ['skills-traecli-candidate', major !== null],
     ['skills-trae-compat-candidate', major !== null && major >= 2],
   ]) {
