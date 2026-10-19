@@ -18,11 +18,13 @@ native Trae adapter.
   the host-capability-matrix, and the project-adapter suite now asserts that
   matrix claims `host-executed`/`host-observed` for no capability without a
   fresh current-session probe (mutation-proven).
-- Boundaries stay explicit: the vendored git-observation collectors are
-  byte-pinned but wired into no Trae project route (this surface exposes no
-  git view; commit links stay producer-side `source_revision`); native host
-  embedding, chat handoff, and host wake remain unobserved; host readiness
-  stays pending.
+- Boundaries stay explicit: the served dashboard does expose a live git view —
+  a live probe saw `/api/project/git` answer 200 behind the authenticated
+  session and invoke the vendored `git-observation/local` collector, reporting
+  `observed` with the fixture's commit facts (unauthenticated reads reject
+  401), while the project read routes (`/api/project`, `/architecture`,
+  `/evidence`) stayed equally session-bound; native host embedding, chat
+  handoff, and host wake remain unobserved; host readiness stays pending.
 
 ## Eval-driven fixes
 
