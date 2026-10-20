@@ -25,6 +25,7 @@ a host is only considered ready after it is observed in a fresh session.
 - The core MCP server gains its sixteenth tool, `lazytrae.dashboard`; it manages the owned dashboard or reads native task context and does not execute tasks.
 - The family's persistent project core is vendored behind a native Trae store: `lazytrae project init|read|command` keeps the record strictly opt-in (`read` and `command` are inert typed not-initialized results before `init`), and the seventeenth MCP tool `lazytrae.project` reads the record or submits one typed project command; it never initializes and never schedules work.
 - Queue planning in the browser UI can create, amend, and reorder queued plans; queue edits never start work, and dispatch stays an explicitly invoked bounded CLI workload with a separate verifier.
+- The completion pass repinned both vendored families at `bb696092` (dashboard tree `e55a9c00…`, project tree `16561f3…`), carrying the family's redesigned project dashboard — dark-first family design language, a de-tabbed shell with a static retractable sidebar and in-place navigation, six redesigned views, navigation guards — alongside Trae's per-repo store isolation, the foreign-authored-native-state refusal, and the conservative approval/permissions/ACP rescan adoption.
 - Documentation now states the honest capability labels: host embedding, chat handoff, and wake remain unobserved; host readiness stays pending; `dashboard context` reports `host_execution: not-observed`.
 
 This release adds the shared dashboard surface to the workflow foundation
@@ -43,6 +44,7 @@ token-saving or cost claim is made.
 | v1.3.5 repairs | Real runtime exercises, bounded hooks, dependency updates and current platform guidance. |
 | v1.4.0 dashboard | Vendored portable dashboard core, native Trae adapter, sixteenth MCP tool, queue planning UI and honest capability labels. |
 | v1.4.0 project platform | Vendored persistent project core, native opt-in project record (`lazytrae project`), seventeenth MCP tool and Trae goal-identity mapping. |
+| v1.4.0 completion | Repinned families at `bb696092` with the redesigned project dashboard (dark-first, sidebar shell, in-place navigation), per-repo isolation, native-state refusal and the Trae rescan adoption. |
 
 ### Just ask, or use a command — both work
 
@@ -113,6 +115,18 @@ Plan-edits views, a task inspector, an evidence preview dialog, and queue
 planning where you can create, amend, and reorder queued plans. Queue edits
 never start work: dispatch happens only through the explicit execute path
 below, and competing edits at one revision conflict without mutation.
+
+After an explicit project init the same served UI mounts the family's project
+dashboard — a tab-free single surface: a static retractable sidebar
+(WORKSPACE/OBSERVATION destination groups, 56px icon rail, Cmd/Ctrl+B;
+Cmd/Ctrl+1..7 jump to destinations) navigates in place over a capped history
+stack, with the dock inspector on the right. The family design language is
+dark-first (light/dark/system persists) on design tokens v2, with the product
+accent marking identity and wayfinding only. Keyboard map: Tab keeps the
+native ring; `j`/`k` traverse list scopes; `/` focuses the first filter;
+Escape closes the topmost overlay and returns focus; segmented controls take
+Arrow/Home/End. Each repository's dashboard stores stay isolated to that
+repository, and a foreign runtime's writes are refused.
 
 The MCP tool `lazytrae.dashboard` (actions `start|open|status|stop|snapshot|context`)
 delegates to the installed checked CLI route. **It does not execute tasks.**
