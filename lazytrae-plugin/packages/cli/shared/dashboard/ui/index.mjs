@@ -1,4 +1,5 @@
 import { createDashboardConnection } from './connection.mjs';
+import { installNativeExperience } from './components.mjs';
 import { createPlanningEditor } from './editing.mjs';
 import { createTaskInspector } from './inspector-view.mjs';
 import { createVerificationView } from './verification-view.mjs';
@@ -67,14 +68,20 @@ async function refreshProject({ force = false } = {}) {
       if (project) {
         projectViews = createLiveProjectViews({ project, adapter: projectAdapter, runElement: runDashboard,
           runId: envelope?.snapshot?.run_id ?? null, runSnapshot: envelope?.snapshot ?? null,
-          onDestinationRequest: destination => projectShell?.selectDestination(destination) });
+          onDestinationRequest: destination => projectShell?.selectDestination(destination),
+          onOpenItem: item => projectShell?.openItem(item),
+          onOpenPlan: planId => projectShell?.openPlan(planId) });
       }
       projectShell = createProjectShell({ projectionProvider: () => projectAdapter.bundle(), product: { name: project?.runtime ?? 'LazySeries' },
         views: projectViews?.views ?? {}, callbacks: { onPlanDrill({ nodeId, drill }) {
           const planId = project?.plans.some(plan => plan.id === nodeId) ? nodeId : drill;
-          if (planId) projectViews?.openPlan(planId);
+          if (planId) projectShell.openPlan(planId);
         } } });
       projectRoot.replaceChildren(projectShell.element);
+      // The T11 density control re-homes into the shell's identity footer
+      // (T20a): one theme control and one density control, both in the rail.
+      const footerHost = projectShell.element.querySelector('[data-testid="shell-footer-controls"]');
+      if (footerHost && !footerHost.contains(native.control.element)) footerHost.append(native.control.element);
     } else if (project) {
       projectViews?.update(project); projectShell.update();
     }
@@ -120,4 +127,5 @@ const systemTheme = matchMedia('(prefers-color-scheme: dark)'); const theme = do
 function applyTheme() { document.documentElement.dataset.theme = theme.value === 'system' ? (systemTheme.matches ? 'dark' : 'light') : theme.value; }
 theme.addEventListener('change', applyTheme); systemTheme.addEventListener('change', applyTheme);
 window.addEventListener('pagehide', () => { clearTimeout(pollTimer); if (evidenceObjectUrl) URL.revokeObjectURL(evidenceObjectUrl); if (editor?.getState().dirty) sessionStorage.setItem('lazybuddy-draft', JSON.stringify(editor.getState())); });
+const native = installNativeExperience(); // T11 native layer: focus system, density, tooltips (idempotent with theme-init)
 document.documentElement.dataset.dashboardReady = 'true';

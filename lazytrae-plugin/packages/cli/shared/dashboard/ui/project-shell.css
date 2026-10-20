@@ -1,31 +1,86 @@
 @import './overview.css';
 
-/* T14 project shell — the project name leads, the selected product is a compact
-   identity badge, destinations render only after initialization (IO-2). Tokens
-   only; no animation, shared var(--fast) transitions only. */
+/* T20a project shell — the static retractable sidebar + one cohesive
+   content surface. No tab strip: the sidebar is a fixed column that never
+   overlays content (it retracts to the 56px icon rail), the content region
+   scrolls independently, and one page-header pattern (back affordance +
+   destination/item title + context meta + dock trigger) leads every
+   destination. Tokens only; no animation, shared var(--fast) transitions
+   only. */
 
 .project-shell { display: grid; gap: var(--s4); }
 .project-shell[data-live='true'] { gap: var(--s2); margin-block-start: 0; }
 .project-shell section { margin-block-start: 0; }
 .project-shell section > header { margin-block-end: var(--s2); }
-.shell-head h1 { margin: 0; font-size: var(--heading); }
 .shell-title { overflow-wrap: anywhere; }
-.shell-product-badge .status { min-block-size: auto; }
-.shell-product-badge [data-identity='product'] { color: var(--neutral-ink); background: color-mix(in srgb,var(--verified-fill) 55%,var(--surface)); }
 .shell-context { flex-wrap: wrap; margin: 0; }
+.shell-context [data-testid='shell-title'] { font-weight: var(--strong); }
 
-.shell-destinations { flex-wrap: wrap; gap: var(--s2); }
-.shell-destinations [data-destination] { border-radius: var(--radius-pill); }
-.shell-destinations [data-destination][data-state='live'][aria-pressed='true'] { background: var(--selected); }
-.shell-destination-reason { font-size: var(--caption); align-self: center; }
+/* -- App frame: sidebar static column, content scrolls on its own -------- */
 
-.shell-content { display: grid; gap: var(--s4); }
+/* The initialized frame fills its host edge to edge (the hosts opt in via
+   :has in this file and live.css); the pre-init state keeps the padded
+   page flow. */
+.project-shell[data-initialized='true'] { gap: 0; min-block-size: 0; }
+.project-shell[data-initialized='true'] .lb-shell { block-size: 100%; min-block-size: 0; align-items: stretch; background: var(--bg); }
+body:has(.project-shell[data-initialized='true']) { block-size: 100dvh; overflow: hidden; }
+body:has(.project-shell[data-initialized='true']) > main { display: flex; flex-direction: column; block-size: 100%; min-block-size: 0; max-inline-size: none; padding: 0; }
+body:has(.project-shell[data-initialized='true']) > main > header { flex: 0 0 auto; margin: 0; padding: var(--s2) var(--s4); border-block-end: var(--line) solid var(--border); background: var(--veil); -webkit-backdrop-filter: blur(var(--veil-blur)); backdrop-filter: blur(var(--veil-blur)); }
+body:has(.project-shell[data-initialized='true']) > main > #shell-root { flex: 1 1 auto; min-block-size: 0; display: grid; }
+body:has(.project-shell[data-initialized='true']) > main > footer { flex: 0 0 auto; margin: 0; padding: var(--s2) var(--s4); border-block-start: var(--line) solid var(--border); }
+
+/* The rail: a static column of the frame grid — never position:fixed, never
+   an overlay. Destinations scroll inside it; the identity footer pins. The
+   rail sits on the card surface over the tinted app canvas (T20-RF). */
+.project-shell .lb-sidebar { position: static; block-size: 100%; display: flex; flex-direction: column; gap: var(--s2); overflow: hidden; border: none; border-inline-end: var(--line) solid var(--border); border-radius: 0; box-shadow: var(--elevation-2); }
+.project-shell .lb-sidebar .lb-sidebar-collapse { align-self: flex-end; }
+.project-shell .lb-sidebar[data-collapsed='true'] .lb-sidebar-collapse { align-self: center; }
+.project-shell .lb-sidebar .lb-sidebar-destinations { flex: 1 1 auto; min-block-size: 0; overflow-y: auto; overscroll-behavior: contain; margin-block-start: var(--s2); }
+.project-shell .lb-sidebar .lb-sidebar-footer { flex: 0 0 auto; display: grid; gap: var(--s2); border-block-start: var(--line) solid var(--border); padding-block-start: var(--s2); }
+.project-shell .lb-sidebar .lb-sidebar-identity { display: grid; gap: var(--s1); justify-items: start; }
+.project-shell .shell-footer-controls:empty { display: none; }
+.project-shell .shell-footer-controls label { display: flex; align-items: center; gap: var(--s1); }
+.project-shell .shell-footer-controls select { min-inline-size: 0; }
+.project-shell .shell-footer-note { margin: 0; }
+.project-shell .lb-sidebar[data-collapsed='true'] .shell-footer-controls,
+.project-shell .lb-sidebar[data-collapsed='true'] .shell-footer-note,
+.project-shell .lb-sidebar[data-collapsed='true'] .lb-sidebar-identity { display: none; }
+
+/* Grouped destinations: small uppercase section headers over icon+label
+   rows; the active row is the accent-tinted pill with its left bar, and a
+   projection-fed count badge rides the trailing edge (T20-RF). */
+.project-shell .lb-sidebar-group + .lb-sidebar-group { margin-block-start: var(--s3); }
+.project-shell .lb-sidebar-group-label { display: block; padding-inline: var(--s2); font-size: var(--caption); font-weight: var(--strong); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.project-shell .lb-sidebar-group-items { display: grid; gap: var(--s1); margin: 0; padding: 0; list-style: none; }
+.project-shell .lb-sidebar-destination { border-radius: var(--radius-pill); }
+.project-shell .lb-sidebar-destination[aria-current='page'] { background: var(--product-accent-soft); color: var(--product-accent); box-shadow: inset 2px 0 0 0 var(--product-accent); }
+.project-shell .lb-sidebar-destination[aria-current='page'] .lb-sidebar-badge { background: var(--product-accent); color: var(--product-accent-contrast); }
+
+/* The main side is ONE scroll container: the page header sticks to its top
+   edge as a frosted bar (translucent veil + backdrop blur) with the content
+   scrolling beneath it — the reference dashboard's sticky header. */
+.project-shell .lb-shell-main { display: block; padding: 0; min-block-size: 0; overflow-y: auto; overscroll-behavior: contain; }
+.project-shell .shell-page-head { position: sticky; inset-block-start: 0; z-index: 4; display: grid; gap: var(--s2); padding: var(--s3) var(--s4); border-block-end: var(--line) solid var(--border); background: var(--veil); -webkit-backdrop-filter: blur(var(--veil-blur)); backdrop-filter: blur(var(--veil-blur)); box-shadow: var(--elevation-1); }
+.project-shell .shell-page-bar { gap: var(--s3); }
+.project-shell .shell-page-lead { gap: var(--s3); min-inline-size: 0; }
+.project-shell .shell-page-titles { gap: var(--s1); min-inline-size: 0; }
+.project-shell .shell-page-kicker { margin: 0; text-transform: uppercase; letter-spacing: .08em; }
+.project-shell .shell-page-title { margin: 0; font-size: var(--heading); font-weight: var(--strong); letter-spacing: -0.015em; overflow-wrap: anywhere; }
+.project-shell .shell-page-meta { margin: 0; }
+.project-shell .shell-content { min-block-size: 0; padding: var(--s4); align-content: start; gap: var(--s4); }
+.project-shell[data-live='true'] .shell-content { gap: var(--s3); padding: var(--s3) var(--s4); }
+
+/* The docked regions lose their floating-card chrome inside the dock. */
+.project-shell .lb-dock .spike-inspector,
+.project-shell .lb-dock .overview-records { border: none; padding: 0; background: transparent; box-shadow: none; }
+.shell-dock-section + .shell-dock-section { border-block-start: var(--line) solid var(--border); padding-block-start: var(--s3); }
+.shell-dock-section:empty { display: none; }
+
 .plan-browser { display: grid; grid-template-columns: minmax(min(18rem, 100%), .7fr) minmax(0, 2fr); gap: var(--s4); align-items: start; }
 .plan-index { position: sticky; inset-block-start: var(--s4); max-block-size: calc(100dvh - var(--s8)); overflow: auto; }
 .plan-index button { display: grid; inline-size: 100%; text-align: start; gap: var(--s1); }
 .plan-index button[aria-pressed='true'] { background: var(--selected); }
 .plan-detail { min-inline-size: 0; }
-.plan-breadcrumb { border-block-end: var(--line) solid var(--border); padding-block-end: var(--s3); }
 .project-record-list { margin: 0; padding: 0; list-style: none; }
 .project-record-list li + li { border-block-start: var(--line) solid var(--border); }
 .project-record { padding-block: var(--s3); min-inline-size: 0; }
@@ -33,14 +88,11 @@
 .project-records > section { margin: 0; align-content: start; }
 .project-collection > .notice { margin-block-start: var(--s3); }
 .execution-live > header { margin-block-end: 0; }
-.project-shell[data-live='true'] .spike-inspector { display: none; }
 .project-shell[data-live='true'] .spike-sentence > .meta:last-child { display: none; }
-.project-shell[data-live='true'] .overview-view { grid-template-columns: minmax(0,1fr) minmax(18rem,22rem); align-items: start; }
 .project-shell[data-live='true'] .overview-view { gap: var(--s2); }
 .project-shell[data-live='true'] .overview-view section { margin-block-start: 0; }
 .project-shell[data-live='true'] .overview-head,.project-shell[data-live='true'] .overview-metrics,
 .project-shell[data-live='true'] .project-spike,.project-shell[data-live='true'] .overview-context { grid-column: 1; }
-.project-shell[data-live='true'] .overview-records { grid-column: 2; grid-row: 1 / span 3; position: sticky; inset-block-start: var(--s3); max-inline-size: none; box-shadow: var(--shadow); }
 .project-shell[data-live='true'] .overview-head { gap: var(--s2); }
 .project-shell[data-live='true'] .overview-sentence { gap: var(--s1); }
 .project-shell[data-live='true'] .overview-sentence h3,.project-shell[data-live='true'] .overview-metrics h3 { font-size: var(--body); }
@@ -54,8 +106,6 @@
 .project-shell[data-live='true'] .spike-legend-details[open] { flex-basis: 100%; }
 .project-shell[data-live='true'] .spike-toolbar { min-block-size: var(--control); }
 .project-shell[data-live='true'] .spike-toolbar .spike-status { min-block-size: auto; }
-.project-shell[data-live='true'] .shell-head { grid-template-columns: minmax(14rem,auto) minmax(0,1fr); align-items: center; gap: var(--s3); }
-.project-shell[data-live='true'] > .shell-head { margin-block-end: 0; }
 .project-shell[data-live='true'] .spike-graph-wrap { position: relative; }
 .project-shell[data-live='true'] .spike-graph-wrap > .graph-viewport-controls { position: absolute; z-index: 1; inset-block-start: var(--s2); inset-inline-end: var(--s2); padding: var(--s1); border-radius: var(--radius-control); background: var(--raised); box-shadow: var(--shadow); }
 .project-detail-loader > .architecture-view,.project-detail-loader > .git-metrics-view,.project-detail-loader > .evidence-view { margin-block-start: var(--s3); }
@@ -64,19 +114,20 @@
 .project-source-details > summary { cursor: pointer; font-weight: var(--strong); }
 .project-source-details[open] > summary { margin-block-end: var(--s4); }
 
-@media (max-width: 64rem) {
-  .project-shell[data-live='true'] .overview-view { grid-template-columns: minmax(0,1fr); }
-  .project-shell[data-live='true'] .overview-records { grid-column: 1; grid-row: auto; position: static; }
+/* Narrow: the rail retracts to its icon column and the surface stacks. */
+@media (max-width: 48rem) {
+  .project-shell .lb-shell { grid-template-columns: auto minmax(0, 1fr); }
+  .project-shell .lb-sidebar { inline-size: var(--lb-rail-icon); padding-inline: var(--s1); }
+  .project-shell .lb-sidebar .lb-sidebar-destination { justify-content: center; padding-inline: 0; }
+  .project-shell .lb-sidebar .lb-sidebar-destination-label,
+  .project-shell .lb-sidebar .lb-sidebar-group-label { display: none; }
+  .project-shell .lb-sidebar .lb-sidebar-group + .lb-sidebar-group { margin-block-start: var(--s2); }
+  .project-shell .shell-content { padding: var(--s3); }
+  .plan-browser { grid-template-columns: minmax(0, 1fr); }
+  .plan-index { position: static; max-block-size: none; overflow: visible; }
 }
 
 @media (max-width: 44rem) {
   .project-shell[data-live='true'] .overview-metric-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
-}
-
-@media (max-width: 44rem) {
-  .project-shell[data-live='true'] .shell-head { grid-template-columns: minmax(0,1fr); }
-  .shell-destinations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .shell-destination-reason { grid-column: 1 / -1; }
-  .plan-browser { grid-template-columns: minmax(0, 1fr); }
-  .plan-index { position: static; max-block-size: none; overflow: visible; }
+  .project-shell .shell-page-bar { flex-wrap: wrap; }
 }

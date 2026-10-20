@@ -27,10 +27,12 @@ function scopePage(fixture, nav, page) {
 function createLazyDetail({ label, load, compose }) {
   const root = element('section', 'panel stack project-detail-loader');
   let view = null; let pending = null; let loadedRevision = null; let projectRevision = null;
+  // The shell page header names the destination (T20a); the lazy surface
+  // carries only its status and load control.
   const status = element('p', 'meta', `${label} loads from its bounded native collector when opened.`);
   status.setAttribute('role', 'status');
   const action = button(`Load ${label}`, () => activate(true));
-  root.append(element('h2', '', label), status, action);
+  root.append(status, action);
   async function activate(force = false) {
     if (pending) return pending;
     if (view && !force && loadedRevision === projectRevision) return view;
@@ -56,7 +58,9 @@ function createLazyDetail({ label, load, compose }) {
 function createProjectView(project, { adapter }) {
   const root = element('section', 'project-native-editor stack');
   const head = element('header', 'stack');
-  head.append(element('h2', '', 'Project record'), element('p', 'meta',
+  // The shell page header carries the destination title (T20a); the view
+  // leads with its own scope note instead of a duplicate heading.
+  head.append(element('p', 'meta',
     'Features, requirements, principles, decisions, plans and registered originals share the native revision-checked command route.'));
   const editor = createProjectEditor({ snapshot: project,
     sendCommand: command => adapter.command(command),
@@ -79,7 +83,11 @@ function createProjectView(project, { adapter }) {
   root.append(head, summary, architecture.element, sourceDetails);
   return { element: root, ready: editor.ready, update(next) {
     project = next; editor.update(next); architecture.update(next);
-  }, getState: () => editor.getState() };
+  }, getState: () => editor.getState(),
+  // T20 navigation guard: the shell asks this surface before it replaces the
+  // Project destination while the structured editor holds unsaved drafts.
+  needsLeaveGuard: () => editor.needsLeaveGuard(),
+  confirmLeave: options => editor.confirmLeave(options) };
 }
 
 function createPlansView(project, { adapter, onOpenRun }) {
@@ -119,14 +127,9 @@ function createPlansView(project, { adapter, onOpenRun }) {
     const retainedDocument = documentView?.element ?? null;
     detail.replaceChildren();
     if (!plan) { detail.append(emptyState('Plan unavailable', 'The selected plan is no longer present in the latest project revision.')); return; }
-    const breadcrumb = element('div', 'cluster plan-breadcrumb');
-    const back = button('Back to plans', () => {
-      sidebar.scrollIntoView?.({ block: 'start' }); sidebar.querySelector(`[data-plan-id="${CSS.escape(plan.id)}"]`)?.focus();
-    });
-    back.dataset.action = 'back-to-plans';
-    breadcrumb.append(back, element('span', 'meta', `Plans / ${plan.id}`));
+    // The shell page header carries the location (T20a); no in-view breadcrumb.
     const head = element('header', 'stack');
-    head.append(breadcrumb, element('h2', '', plan.title ?? plan.id), element('p', 'meta',
+    head.append(element('h2', '', plan.title ?? plan.id), element('p', 'meta',
       `${plan.declared_lifecycle} · source ${plan.source_freshness} · plan revision ${plan.revision}`));
     const runBar = element('div', 'cluster');
     for (const run of plan.native_runs ?? []) {
@@ -220,14 +223,12 @@ function createExecutionDestination(project, { runElement, runId, runSnapshot: i
   function render() {
     root.replaceChildren();
     const head = element('header', 'stack');
-    if (selection) {
-      const breadcrumb = element('div', 'cluster plan-breadcrumb');
-      const back = button('Back to plan', () => onBackPlan?.(selection.planId)); back.dataset.action = 'back-to-plan';
-      breadcrumb.append(back, element('span', 'meta', `Plans / ${selection.planId} / run ${selection.runId}`));
-      head.append(breadcrumb);
-    }
-    head.append(element('h2', '', 'Execution'), element('p', 'meta', selection
-      ? `Native run ${selection.runId}` : `Authenticated run dashboard · ${runId ?? 'no run binding'}`));
+    // The shell page header carries the destination title and the back
+    // affordance (T20a); the view states only its run binding. The plan
+    // return stays available through the nested breadcrumbs below.
+    head.append(element('p', 'meta', selection
+      ? `Native run ${selection.runId}`
+      : `Authenticated run dashboard · ${runId ?? 'no run binding'}`));
     let controls = null;
     if (runElement && runId && (!selection || selection.runId === runId)) {
       controls = element('details', 'panel stack execution-run-controls');
@@ -388,11 +389,17 @@ function createResearchView(project, { adapter, onOpenEvidence }) {
 }
 
 export function createLiveProjectViews({ project, adapter, runElement = null, runId = null, runSnapshot = null,
-  onDestinationRequest = null }) {
+  onDestinationRequest = null, onOpenItem = null, onOpenPlan = null }) {
   const projectView = createProjectView(project, { adapter });
   let plans;
-  const execution = createExecutionDestination(project, { runElement, runId, runSnapshot, onBackPlan(planId) {
+  // A plan opens as an in-place item location when the shell provides the
+  // item route; without one (unit composition) the plans destination selects.
+  const openPlanLocation = planId => {
+    if (onOpenPlan) { onOpenPlan(planId); return; }
     plans?.open(planId); onDestinationRequest?.('plans');
+  };
+  const execution = createExecutionDestination(project, { runElement, runId, runSnapshot, onBackPlan(planId) {
+    openPlanLocation(planId);
   } });
   plans = createPlansView(project, { adapter, onOpenRun(selection) {
     execution.openRun(selection); onDestinationRequest?.('execution');
@@ -403,15 +410,27 @@ export function createLiveProjectViews({ project, adapter, runElement = null, ru
     loadPage: scopePage, loadPreview: entry => adapter.previewArtifact(entry.id) }) });
   git.update(project); evidence.update(project);
   const research = createResearchView(project, { adapter, async onOpenEvidence(path) {
+    // Opening a retained artifact from research navigates in place to an
+    // evidence item location focused on that artifact when the shell routes
+    // items; the destination-level fallback keeps the pre-location behavior.
+    if (onOpenItem) {
+      onOpenItem({ id: `evidence:${path}`, title: `Evidence · ${path}`, destination: 'evidence', content: evidence.element,
+        enter: async () => {
+          const view = await evidence.activate();
+          const entry = view?.getFixture().entries.find(candidate => candidate.path === path);
+          if (entry) { await view.select(entry.id); view.focusRow(entry.id); }
+        } });
+      return;
+    }
     onDestinationRequest?.('evidence');
     const view = await evidence.activate();
     const entry = view?.getFixture().entries.find(candidate => candidate.path === path);
     if (entry) { await view.select(entry.id); view.focusRow(entry.id); }
   } });
   const views = { project: projectView, plans, execution, git, evidence, research };
-  return { views, openPlan(planId) { plans.open(planId); onDestinationRequest?.('plans'); }, updateRun(next) {
+  return { views, openPlan(planId) { openPlanLocation(planId); }, updateRun(next) {
     execution.updateRun(next);
   }, update(next) {
-    for (const view of Object.values(views)) view.update?.(next);
+    for (const view of Object.values(views)) view?.update?.(next);
   } };
 }
