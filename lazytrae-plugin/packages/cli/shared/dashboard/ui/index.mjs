@@ -22,6 +22,7 @@ let projectShell; let projectViews; let projectReadPending = null; let projectRe
 let runBound = true;
 const projectAdapter = createLiveProjectAdapter({ connection });
 let resumeField = null;
+let lastFocusedField = null; // V2-T8: the focused editor field remembered before the disconnect read-only pass blurs it
 const viewContext = { connection: 'disconnected' };
 let savedDraft = null; try { savedDraft = JSON.parse(sessionStorage.getItem('lazybuddy-draft')); } catch { savedDraft = null; }
 const evidenceHref = evidence => {
@@ -78,10 +79,10 @@ async function refreshProject({ force = false } = {}) {
           if (planId) projectShell.openPlan(planId);
         } } });
       projectRoot.replaceChildren(projectShell.element);
-      // The T11 density control re-homes into the shell's identity footer
-      // (T20a): one theme control and one density control, both in the rail.
-      const footerHost = projectShell.element.querySelector('[data-testid="shell-footer-controls"]');
-      if (footerHost && !footerHost.contains(native.control.element)) footerHost.append(native.control.element);
+      // V2-T1: the shell renders its own compact icon top bar (theme
+      // icon-toggle, dock trigger, rail collapse); the legacy header #theme
+      // select is suppressed by the shell while the frame exists, and no
+      // density control re-homes anywhere — density follows the rail.
     } else if (project) {
       projectViews?.update(project); projectShell.update();
     }
@@ -102,8 +103,14 @@ async function poll() {
   }
   catch (error) {
     viewContext.connection = 'disconnected'; state(`Disconnected · last observation retained · ${error.message}`, 'attention');
+    // V2-T8: remember the focused editor field BEFORE the read-only pass —
+    // disabling the controls blurs the input, so the 401 handler below can
+    // no longer read it from activeElement on a later tick (the reconnect
+    // focus restore silently died on any disconnect-then-401 sequence).
+    const focusedField = document.activeElement?.dataset?.field ?? null;
+    if (focusedField) lastFocusedField = focusedField;
     if (envelope) { work.update(envelope.snapshot); editor.update(envelope.snapshot, { readOnlyReason: 'DISCONNECTED' }); }
-    if (error.status === 401) { resumeField = document.activeElement?.dataset?.field ?? resumeField; connection.disconnect(); connectForm.hidden = false; accessKey.focus(); }
+    if (error.status === 401) { resumeField = document.activeElement?.dataset?.field ?? lastFocusedField ?? resumeField; connection.disconnect(); connectForm.hidden = false; accessKey.focus(); }
     schedule(1200);
   }
 }
@@ -119,7 +126,7 @@ connectForm.addEventListener('submit', async event => {
     }
     await refreshProject({ force: true });
     if (resumeField) document.querySelector(`[data-field="${CSS.escape(resumeField)}"]`)?.focus();
-    resumeField = null; schedule(runBound ? 700 : 5000);
+    resumeField = null; lastFocusedField = null; schedule(runBound ? 700 : 5000);
   }
   catch (error) { connection.disconnect(); connectForm.hidden = false; state(`Connection rejected · ${error.message}`, 'failed'); accessKey.focus(); }
 });
@@ -127,5 +134,5 @@ const systemTheme = matchMedia('(prefers-color-scheme: dark)'); const theme = do
 function applyTheme() { document.documentElement.dataset.theme = theme.value === 'system' ? (systemTheme.matches ? 'dark' : 'light') : theme.value; }
 theme.addEventListener('change', applyTheme); systemTheme.addEventListener('change', applyTheme);
 window.addEventListener('pagehide', () => { clearTimeout(pollTimer); if (evidenceObjectUrl) URL.revokeObjectURL(evidenceObjectUrl); if (editor?.getState().dirty) sessionStorage.setItem('lazybuddy-draft', JSON.stringify(editor.getState())); });
-const native = installNativeExperience(); // T11 native layer: focus system, density, tooltips (idempotent with theme-init)
+installNativeExperience(); // T11 native layer: focus system, tooltips (idempotent with theme-init; V2-T1: no density control)
 document.documentElement.dataset.dashboardReady = 'true';

@@ -18,13 +18,14 @@
 // (destination + optional item) and restores it on reload. The frame is
 // built once per init transition; polling refreshes swap the overview view
 // in place, so the location, the back stack and the dock survive updates.
-import { button, element, statusChip, sidebarNav, createDockPanel } from './components.mjs';
+import { button, element, statusChip, sidebarNav, createDockPanel, createThemeToggle, sidebarActionIcon } from './components.mjs';
 import { createOverviewView } from './overview.mjs';
 
 export const PROJECT_DESTINATIONS = Object.freeze([
   { id: 'overview', label: 'Overview', group: 'Workspace' },
   { id: 'project', label: 'Project', group: 'Workspace' },
   { id: 'plans', label: 'Plans', group: 'Workspace' },
+  { id: 'health', label: 'Health', group: 'Workspace' },
   { id: 'execution', label: 'Execution', group: 'Observation' },
   { id: 'git', label: 'Git', group: 'Observation' },
   { id: 'evidence', label: 'Evidence', group: 'Observation' },
@@ -35,9 +36,63 @@ export const PROJECT_DESTINATIONS = Object.freeze([
 // getStats().activeDestination stay truthful while an item is open.
 const ITEM_SURFACE = { plan: 'plans', evidence: 'evidence', research: 'research' };
 const NAV_STORAGE_KEY = 'lazybuddy-shell-nav';
+const DOCK_STORAGE_KEY = 'lazybuddy-shell-dock-open'; // V2-T4: dock open state, persisted per session
 const HISTORY_LIMIT = 24; // the in-place back stack is small by design — not tabs
 const DESTINATION_OF = id => (PROJECT_DESTINATIONS.some(destination => destination.id === id) ? id : ITEM_SURFACE[String(id).split(':')[0]]);
 const DESTINATION_LABEL = id => PROJECT_DESTINATIONS.find(destination => destination.id === id)?.label ?? id;
+
+// V2-T4 health destination glyph (Lucide activity/pulse geometry, ISC). The
+// sidebar library's destination vocabulary lives in components.mjs (outside
+// this task's owned changes), so the shell swaps the health row's fallback
+// grid glyph for the pulse AFTER the rail mounts — the row keeps its label,
+// tooltip and hit area exactly as the library builds them.
+function pulseGlyph() {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('aria-hidden', 'true');
+  const trace = document.createElementNS(icon.namespaceURI, 'path');
+  trace.setAttribute('d', 'M22 12h-4l-3 9L9 3l-3 9H2');
+  icon.append(trace);
+  return icon;
+}
+
+// V2-T4 dock content refinement: the adopted inspector sections (Summary /
+// Source / Changes / Evidence / Edges) become compact stacked blocks with
+// icon headers. Pure re-markup of the adopted nodes at adopt time — the
+// spike module keeps building its own structure; the dock chrome only
+// decorates it.
+const DOCK_BLOCK_ICONS = {
+  summary: ['M4 6h16', 'M4 12h16', 'M4 18h10'],
+  source: ['M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', 'M14 2v6h6'],
+  changes: ['M12 20h9', 'M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'],
+  evidence: ['m9 12 2 2 4-4', 'M21 12a9 9 0 1 1-9-9'],
+  edges: ['M6 3v12', 'M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z', 'M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z', 'M18 9a9 9 0 0 1-9 9'],
+};
+function dockBlockIcon(name) {
+  const geometry = DOCK_BLOCK_ICONS[name];
+  if (!geometry) return null;
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('aria-hidden', 'true');
+  for (const spec of geometry) {
+    const shape = document.createElementNS(icon.namespaceURI, 'path');
+    shape.setAttribute('d', spec);
+    icon.append(shape);
+  }
+  return icon;
+}
+
+function refineDockInspector(node) {
+  if (!node || node.dataset.dockRefined === 'true') return;
+  node.dataset.dockRefined = 'true';
+  for (const section of [...node.querySelectorAll('section')]) {
+    section.classList.add('shell-dock-block');
+    const heading = section.querySelector('h4') ?? section.querySelector('h3') ?? section.querySelector('h2');
+    const key = String(heading?.textContent ?? '').trim().toLowerCase();
+    const icon = dockBlockIcon(key);
+    if (heading && icon) heading.prepend(icon);
+  }
+}
 
 function readStored(key) {
   try {
@@ -51,8 +106,19 @@ function writeStored(key, value) {
   try { globalThis.sessionStorage?.setItem?.(key, JSON.stringify(value)); } catch { /* same degradation */ }
 }
 
-export function createProjectShell({ projectionProvider, product = { name: 'LazySeries' }, callbacks = {}, views = {} }) {
+export function createProjectShell({ projectionProvider, product = { name: 'LazySeries' }, callbacks = {}, views = {}, viewport = null }) {
   if (typeof projectionProvider !== 'function') throw new TypeError('projectionProvider is required');
+  // V2-T2 collapse state model. The reported regression: the <=48rem rail
+  // retraction was CSS-only, invisible to the state model — at narrow widths
+  // the control and Cmd/Ctrl+B flipped hidden state with no visual change
+  // and persistence recorded the effective flip, desyncing reloads. The fix
+  // separates the two inputs: `userCollapsed` is the explicit, persisted
+  // choice; `narrowRetract` mirrors the <=48rem query. The rail shows the
+  // OR of both, every state change re-syncs the top-bar control, and only
+  // the user choice ever persists.
+  const narrowQuery = viewport ?? (() => { try { return globalThis.matchMedia?.('(max-width: 48rem)') ?? null; } catch { return null; } })();
+  let userCollapsed = false;
+  let narrowRetract = Boolean(narrowQuery?.matches);
   const root = element('section', 'project-shell stack');
   root.dataset.testid = 'project-shell';
   root.dataset.live = String(Object.keys(views).length > 0);
@@ -65,16 +131,26 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
   let sidebar = null;
   let dock = null;
   let dockTrigger = null;
+  let collapseControl = null; // the V2-T1 top-bar home of the rail collapse control
   let dockInspectorRegion = null;
   let dockRecordsRegion = null;
-  let footerControlsHost = null;
+  let topBar = null;
+  let barTitle = null;
   let pageHead = null;
   let contentRegion = null;
   let frameRestored = false;
-  let themeHome = null; // where the adopted #theme control returns when the frame tears down
+  let suppressedThemeControl = null; // the host page #theme select hidden while the bar toggle owns theme
 
   const viewFor = id => id === 'overview' ? overview : views[id] ?? null;
   const plansOfBundle = () => (Array.isArray(bundle?.snapshot?.plans) ? bundle.snapshot.plans : []);
+
+  // The effective rail state (user choice OR narrow auto-retract), applied
+  // without a notify so it never masquerades as a user action; sidebarNav
+  // re-syncs the top-bar control, the row tooltips and the root density.
+  function applyRailState() {
+    if (!sidebar) return;
+    sidebar.setCollapsed(userCollapsed || narrowRetract, { notify: false });
+  }
 
   // Live-shell overview compaction (T20, rebuilt for the T14 structure): with
   // destination views mounted, the overview's secondary context collapses into
@@ -126,8 +202,14 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
   }
 
   function renderUninitialized() {
-    root.replaceChildren();
+    root.replaceChildren(buildTopBar(false));
     root.dataset.initialized = 'false';
+    // V2-T8: the chrome-less pre-init bar carries the theme icon-toggle too,
+    // so the legacy #theme select is suppressed from the moment the shell
+    // mounts — exactly one visible theme home in every shell state. The
+    // select stays the home only before the shell mounts (the pre-connect
+    // login header), and releaseThemeControl on teardown restores it there.
+    suppressThemeControl();
     const notice = element('div', 'panel notice stack');
     notice.dataset.testid = 'shell-uninitialized';
     notice.append(statusChip({ state: 'unavailable', label: 'No initialized project record' }),
@@ -178,6 +260,7 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
     if (!pageHead) return;
     const label = DESTINATION_LABEL(location.destination);
     const inItem = Boolean(location.item);
+    if (barTitle) barTitle.textContent = inItem ? location.item.title : label;
     pageHead.replaceChildren();
     const lead = element('div', 'cluster shell-page-lead');
     if (history.length > 0) {
@@ -202,14 +285,6 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
     lead.append(titles);
     const bar = element('div', 'cluster spread shell-page-bar');
     bar.append(lead);
-    dockTrigger = button('Inspector dock', () => {
-      dock.toggle(dockTrigger);
-      dockTrigger.setAttribute('aria-pressed', String(dock.isOpen()));
-    });
-    dockTrigger.dataset.testid = 'shell-dock-trigger';
-    dockTrigger.setAttribute('aria-pressed', 'false');
-    dockTrigger.setAttribute('aria-label', 'Toggle the contextual inspector dock');
-    bar.append(dockTrigger);
     pageHead.append(bar, renderContextLine(overview.getFixture()));
   }
 
@@ -324,9 +399,11 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
 
   function persistNav() {
     // The bootstrap render must not clobber the saved session: persistence
-    // starts only after the frame restored its state.
+    // starts only after the frame restored its state. V2-T2: only the USER's
+    // explicit choice persists — the narrow auto-retract is a viewport fact,
+    // never a stored preference (the restore/auto-retract desync).
     if (!frame || !frameRestored) return;
-    writeStored(NAV_STORAGE_KEY, { v: 1, collapsed: sidebar?.isCollapsed() ?? false,
+    writeStored(NAV_STORAGE_KEY, { v: 1, collapsed: userCollapsed,
       location: location ? { destination: location.destination, item: location.item
         ? { id: location.item.id, title: location.item.title, meta: location.item.meta ?? '' }
         : null } : null });
@@ -337,7 +414,8 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
     frameRestored = true;
     let restored = false;
     if (saved) {
-      if (typeof saved.collapsed === 'boolean') sidebar.setCollapsed(saved.collapsed, { notify: false });
+      if (typeof saved.collapsed === 'boolean') userCollapsed = saved.collapsed;
+      applyRailState();
       const destination = saved.location?.destination;
       const item = saved.location?.item;
       if (PROJECT_DESTINATIONS.some(entry => entry.id === destination)) {
@@ -385,9 +463,19 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
 
   function adoptDockRegions(view) {
     const inspectorNode = view.element.querySelector('[data-testid="spike-inspector"]');
-    if (inspectorNode) dockInspectorRegion.replaceChildren(inspectorNode);
+    if (inspectorNode) { refineDockInspector(inspectorNode); dockInspectorRegion.replaceChildren(inspectorNode); }
     const recordsNode = view.element.querySelector('[data-testid="overview-records"]');
     if (recordsNode) dockRecordsRegion.replaceChildren(recordsNode);
+  }
+
+  // V2-T4: every dock open/close path (trigger click, Escape, selection
+  // callbacks, session restore) lands here — the root data-dock-open drives
+  // the narrow-only scrim and the trigger keeps its honest aria-pressed.
+  function syncDockChrome() {
+    const open = Boolean(dock?.isOpen?.());
+    if (open) root.setAttribute('data-dock-open', 'true');
+    else root.removeAttribute('data-dock-open');
+    dockTrigger?.setAttribute('aria-pressed', String(open));
   }
 
   // T20-RF sidebar count badges: the projection feeds the attention queue
@@ -401,28 +489,62 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
     sidebar.setCount?.('plans', Number.isFinite(plans) ? plans : 0);
   }
 
-  // The page's theme control moves into the sidebar's identity footer while
-  // the frame exists and returns home when the record is lost, so theme and
-  // density always have exactly one home.
-  function adoptThemeControl() {
-    const select = globalThis.document?.querySelector?.('#theme');
-    if (!select || !footerControlsHost || footerControlsHost.contains(select)) return;
-    const label = typeof select.closest === 'function' ? select.closest('label') : null;
-    const control = label ?? select;
-    themeHome = { parent: control.parentNode, next: control.nextSibling ?? null };
-    footerControlsHost.append(control);
+  // V2-T1: while the frame exists, the top-bar theme icon-toggle is the one
+  // appearance control. A host page that still carries a legacy #theme
+  // select (the served dashboard header) has it hidden for the frame's
+  // lifetime and restored when the record is lost — one home, either way.
+  function suppressThemeControl() {
+    // The attribute form (not '#theme') keeps the lookup testable under the
+    // mini-dom harness; in a browser it selects the same node.
+    const select = globalThis.document?.querySelector?.('[id="theme"]');
+    if (!select) return;
+    const control = typeof select.closest === 'function' ? select.closest('label') : null;
+    const target = control ?? select;
+    if (!target || target.hidden) return;
+    target.hidden = true;
+    suppressedThemeControl = target;
   }
 
   function releaseThemeControl() {
-    if (!themeHome) return;
-    const select = footerControlsHost?.querySelector?.('#theme');
-    const label = select && typeof select.closest === 'function' ? select.closest('label') : null;
-    const control = label ?? select;
-    if (control) {
-      control.remove();
-      if (themeHome.parent?.isConnected ?? false) themeHome.parent.insertBefore?.(control, themeHome.next?.isConnected ? themeHome.next : null);
+    if (suppressedThemeControl) suppressedThemeControl.hidden = false;
+    suppressedThemeControl = null;
+  }
+
+  // The V2-T1 compact icon top bar (<= 48px): product badge + the current
+  // destination/item title on one truncating line; theme icon-toggle, dock
+  // trigger and the rail collapse control on the right. The chrome-less
+  // pre-init variant keeps badge/title/theme only — no rail, no dock.
+  function buildTopBar(withChrome) {
+    const bar = element('header', 'lb-topbar');
+    bar.dataset.testid = 'shell-topbar';
+    const lead = element('div', 'cluster lb-topbar-lead');
+    const badge = element('span', 'lb-topbar-badge', product.family ?? 'LazySeries');
+    badge.dataset.product = product.name; // the per-product accent wash
+    barTitle = element('span', 'lb-topbar-title');
+    barTitle.dataset.testid = 'shell-bar-title';
+    barTitle.textContent = withChrome ? DESTINATION_LABEL(activeDestination) : 'No initialized project';
+    lead.append(badge, barTitle);
+    const actions = element('div', 'cluster lb-topbar-actions');
+    actions.append(createThemeToggle().element);
+    if (withChrome) {
+      dockTrigger = button('', () => dock.toggle(dockTrigger)); // open/close both sync the chrome through onOpen/onClose
+      dockTrigger.className = 'lb-topbar-icon';
+      dockTrigger.dataset.testid = 'shell-dock-trigger';
+      dockTrigger.setAttribute('aria-pressed', String(dock?.isOpen?.() ?? false));
+      dockTrigger.setAttribute('aria-label', 'Toggle the contextual inspector dock');
+      dockTrigger.title = 'Toggle the contextual inspector dock';
+      dockTrigger.append(sidebarActionIcon('dock')); // panel-style glyph: the inspector dock surface
+      collapseControl = button('', null); // sidebarNav wires the click to its toggle
+      collapseControl.className = 'lb-topbar-icon lb-topbar-collapse';
+      collapseControl.dataset.testid = 'shell-collapse';
+      collapseControl.setAttribute('aria-label', 'Collapse sidebar');
+      collapseControl.setAttribute('aria-expanded', 'true');
+      collapseControl.append(sidebarActionIcon('collapse-left'));
+      actions.append(dockTrigger, collapseControl);
     }
-    themeHome = null;
+    bar.append(lead, actions);
+    topBar = bar;
+    return bar;
   }
 
   function createOverview(next) {
@@ -455,7 +577,9 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
     dockBody.append(dockInspectorRegion, dockRecordsRegion);
     dock = createDockPanel({ title: 'Contextual inspector', content: dockBody,
       footer: element('p', 'meta', 'Escape collapses the dock; focus returns to the invoking control.'),
-      onClose: () => dockTrigger?.setAttribute('aria-pressed', 'false') });
+      persistKey: DOCK_STORAGE_KEY,
+      onOpen: () => syncDockChrome(),
+      onClose: () => syncDockChrome() });
 
     const groups = [];
     for (const destination of PROJECT_DESTINATIONS) {
@@ -463,14 +587,20 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
       if (group) group.destinations.push({ id: destination.id, label: destination.label });
       else groups.push({ label: destination.group, destinations: [{ id: destination.id, label: destination.label }] });
     }
-    footerControlsHost = element('div', 'cluster shell-footer-controls');
-    footerControlsHost.dataset.testid = 'shell-footer-controls';
+    const bar = buildTopBar(true); // creates the collapse control the rail adopts
     sidebar = sidebarNav({ product: product.family ?? 'LazySeries', runtime: product.name,
       groups, identityPosition: 'footer',
       current: activeDestination,
-      footer: [footerControlsHost, element('p', 'meta shell-footer-note', 'Destinations project the record; authority stays with the runtime.')],
+      collapseControl,
+      footer: element('p', 'meta shell-footer-note', 'Destinations project the record; authority stays with the runtime.'),
       onNavigate: id => selectDestination(id),
-      onCollapse: () => persistNav() });
+      // A notify is a user-driven toggle (control click or Cmd/Ctrl+B): it
+      // records the explicit choice and persists it; restore and auto-retract
+      // go through applyRailState (notify: false) and persist nothing extra.
+      onCollapse: value => { userCollapsed = value; applyRailState(); persistNav(); } });
+    // V2-T4: the health row carries the pulse glyph (the library's fallback
+    // icon vocabulary is out of scope for this task; the swap is presentational).
+    sidebar.element.querySelector('.lb-sidebar-destination[data-destination="health"] svg')?.replaceChildren(pulseGlyph());
 
     pageHead = element('header', 'shell-page-head stack');
     pageHead.dataset.testid = 'shell-page-head';
@@ -481,11 +611,13 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
     frame = element('div', 'lb-shell');
     frame.dataset.testid = 'shell-frame';
     frame.append(sidebar.element, main);
-    root.replaceChildren(frame, dock.element);
+    root.replaceChildren(bar, frame, dock.element);
     root.dataset.initialized = 'true';
+    syncDockChrome(); // a session-restored open dock announces itself to the chrome
     adoptDockRegions(overview);
-    adoptThemeControl();
+    suppressThemeControl();
     syncSidebarCounts();
+    applyRailState(); // the narrow fact applies even before any saved state exists
     restoreNav();
     globalThis.document?.addEventListener?.('keydown', handleDestinationShortcut);
     callbacks.onStateChange?.({ initialized: true, destinations: PROJECT_DESTINATIONS.map(destination => destination.id) });
@@ -494,8 +626,9 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
   function teardownFrame() {
     globalThis.document?.removeEventListener?.('keydown', handleDestinationShortcut);
     releaseThemeControl();
-    frame = null; sidebar = null; dock = null; dockTrigger = null;
-    pageHead = null; contentRegion = null; footerControlsHost = null; frameRestored = false;
+    frame = null; sidebar = null; dock = null; dockTrigger = null; collapseControl = null;
+    topBar = null; barTitle = null;
+    pageHead = null; contentRegion = null; frameRestored = false;
     location = null; history.length = 0; pendingLeave = null;
   }
 
@@ -536,6 +669,21 @@ export function createProjectShell({ projectionProvider, product = { name: 'Lazy
   }
 
   update();
+  // The <=48rem auto-retract tracks the live query for the shell's lifetime;
+  // applyRailState no-ops while no frame exists, so teardown/rebuild cycles
+  // never lose the narrow fact.
+  narrowQuery?.addEventListener?.('change', () => {
+    narrowRetract = Boolean(narrowQuery.matches);
+    applyRailState();
+  });
+  // V2-T4: the narrow-only scrim dismisses the floating dock. The scrim is
+  // the root's ::after, so its pointer events land on the root itself; clicks
+  // on the dock or any real content bubble past this guard. Registered once
+  // per shell (not per frame), so teardown/rebuild cycles never stack it.
+  root.addEventListener('click', event => {
+    if (event.target !== root || !dock?.isOpen?.() || !narrowQuery?.matches) return;
+    dock.close('scrim');
+  });
   return {
     element: root,
     update,

@@ -104,24 +104,35 @@ export function taskCard({ id, title, execution, verification, progress, selecte
        the dialog close handler). Never moves focus without input.
    Segmented controls ([data-native-segmented], built by segmentedControl):
      ArrowLeft/ArrowRight/Home/End activate the previous/next/first/last
-     enabled segment and focus it; the current segment carries
-     aria-pressed='true' and data-current for styling.
-   Density (createDensityController): compact/regular is persisted per
-   browser under 'lazyseries-density' (every storage access is wrapped in
-   try/catch — private-mode/blocked storage degrades to in-memory only)
-   and applied as data-density on the root, which switches the
-   --density-gutter token between --density-compact and --density-regular.
-   Malformed stored values fall back to regular and never throw.
+       enabled segment and focus it; the current segment carries
+       aria-pressed='true' and data-current for styling.
+   Density is INTERNAL since V2-T1: the compact/regular user setting and its
+     persisted storage key are gone. data-density on the root now follows
+     the collapsed rail automatically (sidebarNav.setCollapsed applies
+     'compact' when the rail retracts, 'regular' when it expands), and the
+     --density-gutter token bridge keeps consuming it.
+   Theme (createThemeToggle): the V2-T1 icon toggle — one icon-only button
+     cycling light -> dark -> system, persisted under 'lazyseries-theme'
+     (blocked storage degrades to the session only), glyph sun/moon/monitor,
+     aria-pressed reflecting the resolved dark state, no <select>.
    Overlays (createOverlayPanel): elevated non-modal panels; Escape or the
-   Close button hides the panel and returns focus to the invoker.
+       Close button hides the panel and returns focus to the invoker.
+   V2-T9 pattern adoptions (dependency-free; docs/design/pattern-adoption.md):
+     - Radix FocusScope loop: Tab wraps inside data-native-trap overlays while
+       focus is already within them (non-modal flow preserved outside).
+     - Radix Dialog.Description: every panel/dialog carries aria-describedby.
+     - Radix RovingTabIndex: segmented groups keep exactly one tab stop.
+     - Mantine factory hooks: createCard / createStatusChip / createDataTable
+       add value/defaultValue + on*Change + get/set parity (DESIGN.md §10).
    Tooltips (installTooltips): status chips and icon-only buttons get a
-   title plus an aria-describedby note in a clipped .native-note node.
+   title plus an aria-describedby note in a clipped .native-note node;
+   overlay open() re-describes its subtree for dynamically rendered content.
    Announcements (announce): one polite [role='status'] region dedicated
    to the layer (never the application status line). */
 
-const DENSITY_KEY = 'lazyseries-density';
-export const NATIVE_DENSITY_STORAGE_KEY = DENSITY_KEY;
-export const NATIVE_DENSITIES = Object.freeze(['compact', 'regular']);
+const THEME_KEY = 'lazyseries-theme';
+export const THEME_STORAGE_KEY = THEME_KEY;
+export const THEME_MODES = Object.freeze(['light', 'dark', 'system']);
 const FOCUSABLE_TAGS = ['BUTTON', 'A', 'INPUT', 'SELECT', 'TEXTAREA'];
 const LIST_SCOPES = '[data-native-list], ol, ul, .task-list, .graph-viewport, .spike-graph-viewport, .architecture-graph-viewport, .execution-graph-viewport, .execution-timeline-viewport, .queue, .attention-list, dialog, .native-overlay';
 const FILTER_INPUT = 'input[type=search], input[data-native-filter]';
@@ -183,19 +194,61 @@ function isEditable(target) {
 const overlayStack = [];
 let overlaySequence = 0;
 
-export function createOverlayPanel({ title, content, invoker = null, onClose } = {}) {
+/* -- V2-T9 pattern adoptions (Radix-style, dependency-free) ----------------
+
+   wirePanelDescription: every overlay panel (overlay / inspector / dock /
+   dialog) carries an aria-describedby note — Radix Dialog's Description
+   contract — rendered as a clipped .native-note INSIDE the panel (it dies
+   with the panel, never leaks ids). The default text states the honest
+   dismissal contract; pass `description: ''` to opt out, or any string to
+   override.
+
+   The focus system's Tab branch adds FocusScope-style loop containment for
+   panels marked data-native-trap='true' (all three overlay factories opt
+   in): Tab from the last focusable wraps to the first (Shift+Tab mirrors).
+   Containment only engages while focus is already INSIDE the panel — these
+   are non-modal overlays, so tabbing from the page keeps its native flow.
+   The <dialog>-based inspector needs no loop: showModal() traps natively.
+
+   activeDescriber: the tooltip describer installed by installTooltips
+   registers itself module-side; every overlay open() re-describes its own
+   subtree so icon-only buttons and chips rendered DYNAMICALLY inside a panel
+   (polling refreshes, drill-down content) get their aria-describedby notes
+   too — the one-shot describe at install time covered only first paint. */
+let descriptionSequence = 0;
+let activeDescriber = null;
+
+function wirePanelDescription(panel, description, fallback) {
+  const text = description ?? fallback;
+  if (!text) return;
+  const note = element('span', 'native-note');
+  note.id = `native-panel-note-${++descriptionSequence}`;
+  note.textContent = text;
+  panel.append(note);
+  panel.setAttribute('aria-describedby', note.id);
+}
+
+const PANEL_DISMISSAL_NOTE = 'Dialog. Press Escape to close; focus returns to the control that opened it.';
+
+function describeOnOpen(panel) {
+  try { activeDescriber?.(panel); } catch { /* describing is best-effort, never fatal */ }
+}
+
+export function createOverlayPanel({ title, content, invoker = null, onClose, description, trapFocus = true } = {}) {
   const panel = element('aside', 'native-overlay');
   const heading = element('h2', '', title);
   const headingId = `native-overlay-${++overlaySequence}`;
   heading.id = headingId;
   panel.setAttribute('role', 'dialog');
   panel.setAttribute('aria-labelledby', headingId);
+  if (trapFocus) panel.setAttribute('data-native-trap', 'true');
   panel.dataset.testid = 'native-overlay';
   const closeControl = button('Close overlay', () => api.close('button'));
   closeControl.dataset.testid = 'native-overlay-close';
   const header = element('header', 'cluster spread');
   header.append(heading, closeControl);
   panel.append(header, content);
+  wirePanelDescription(panel, description, PANEL_DISMISSAL_NOTE);
   panel.hidden = true;
   let trigger = invoker;
   let open = false;
@@ -207,6 +260,7 @@ export function createOverlayPanel({ title, content, invoker = null, onClose } =
       panel.hidden = false;
       panel.dataset.nativeOverlay = 'open';
       overlayStack.push(api);
+      describeOnOpen(panel);
       const focusables = collectFocusables(panel);
       (focusables.find(node => node !== closeControl) ?? closeControl).focus();
       return panel;
@@ -243,6 +297,24 @@ export function installFocusSystem({ root = globalThis.document } = {}) {
       if (dialog && typeof dialog.close === 'function') { event.preventDefault(); dialog.close(); }
       return;
     }
+    // V2-T9 Radix FocusScope-style Tab loop: when focus is inside the topmost
+    // overlay that opted into trapping (data-native-trap), Tab wraps within
+    // the panel instead of escaping to the page behind it. Non-modal honesty
+    // is preserved: the loop only engages while focus is already inside the
+    // panel; tabbing from the page keeps the native flow.
+    if (event.key === 'Tab') {
+      const overlay = [...overlayStack].reverse().find(entry => entry.element && (entry.element === target || entry.element.contains?.(target)));
+      if (!overlay || overlay.element.getAttribute('data-native-trap') !== 'true') return;
+      const focusables = collectFocusables(overlay.element);
+      if (focusables.length === 0) return;
+      event.preventDefault();
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const index = focusables.indexOf(target);
+      if (event.shiftKey) (index <= 0 ? last : focusables[Math.max(0, index - 1)]).focus();
+      else (index === -1 || index === focusables.length - 1 ? first : focusables[index + 1]).focus();
+      return;
+    }
     if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
       const group = closestMatch(target, '[data-native-segmented]');
       if (!group || isEditable(target)) return;
@@ -263,6 +335,13 @@ export function installFocusSystem({ root = globalThis.document } = {}) {
       const live = (root.contains?.(group) ? group : null) ?? root.querySelector?.('[data-native-segmented]');
       const current = live?.querySelector?.("button[aria-pressed='true']");
       if (current && current !== root.activeElement && !current.disabled) current.focus();
+      // V2-T9 roving tabindex parity (Radix RovingTabIndex): after every
+      // activation exactly one segment — the current one — stays in the tab
+      // ring. segmentedControl() ships this from paint; the layer normalizes
+      // hand-wired [data-native-segmented] groups here on each interaction.
+      for (const control of group.querySelectorAll('button')) {
+        control.tabIndex = control.getAttribute('aria-pressed') === 'true' ? 0 : -1;
+      }
       return;
     }
     if (event.key === 'j' || event.key === 'k') {
@@ -304,7 +383,10 @@ export function installFocusSystem({ root = globalThis.document } = {}) {
 
 export function segmentedControl({ label, options, current, onChange, tooltip = false }) {
   if (!Array.isArray(options) || options.length === 0) throw new TypeError('Segmented control requires options');
-  const group = element('div', 'view-switcher native-segmented');
+  // V2-T9 daisyUI one-class-one-meaning: `.lb-segmented` is the canonical
+  // component class; the legacy `.view-switcher` name stays as a pure alias
+  // (both hooks below) so existing view wiring never breaks.
+  const group = element('div', 'lb-segmented view-switcher native-segmented');
   group.dataset.nativeSegmented = 'true';
   group.setAttribute('role', 'group');
   group.setAttribute('aria-label', label);
@@ -321,6 +403,10 @@ export function segmentedControl({ label, options, current, onChange, tooltip = 
     for (const control of group.querySelectorAll('button')) {
       const isCurrent = control.dataset.segment === active;
       control.setAttribute('aria-pressed', String(isCurrent));
+      // V2-T9 roving tabindex (Radix RovingTabIndex): the current segment is
+      // the group's single tab stop; arrows (layer) move within the group —
+      // the same contract createTabs already ships.
+      control.tabIndex = isCurrent ? 0 : -1;
       if (isCurrent) control.setAttribute('data-current', 'true');
       else control.removeAttribute('data-current');
     }
@@ -336,40 +422,50 @@ export function segmentedControl({ label, options, current, onChange, tooltip = 
   return { element: group, setCurrent: value => set(value, { notify: false }), get: () => active };
 }
 
-export function createDensityController({ root = globalThis.document?.documentElement, storage = globalThis.localStorage, onAnnounce } = {}) {
-  let current = 'regular';
+// V2-T1 theme icon toggle. One icon-only button cycling light -> dark ->
+// system (the glyph mirrors the current mode: sun/moon/monitor); the stored
+// 'lazyseries-theme' preference wins at creation, changes persist, and a
+// blocked storage degrades to the session only. aria-pressed reflects the
+// RESOLVED dark state (dark or system-resolved-dark = pressed), so the
+// button stays honest without a <select>.
+const themeGlyphs = {
+  light: [['circle', { cx: 12, cy: 12, r: 4 }], ['path', { d: 'M12 2v2 M12 20v2 M4.9 4.9l1.4 1.4 M17.7 17.7l1.4 1.4 M2 12h2 M20 12h2 M4.9 19.1l1.4-1.4 M17.7 6.3l1.4-1.4' }]],
+  dark: [['path', { d: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z' }]],
+  system: [['path', { d: 'M2 13h20' }], ['rect', { x: 5, y: 3, width: 14, height: 10, rx: 2 }], ['path', { d: 'M8 21h8 M12 17v4' }]],
+};
+
+export function createThemeToggle({ storage = globalThis.localStorage, media = null, onAnnounce } = {}) {
+  const systemQuery = media ?? (() => { try { return globalThis.matchMedia?.('(prefers-color-scheme: dark)') ?? null; } catch { return null; } })();
+  let mode = 'dark'; // the T20-RF dark-first default when nothing valid is stored
   try {
-    const stored = storage?.getItem?.(DENSITY_KEY);
-    if (NATIVE_DENSITIES.includes(stored)) current = stored;
-  } catch { /* storage unavailable (blocked/private mode): keep the default */ }
-  const listeners = new Set();
-  function apply(next, { persist = true, notify = true } = {}) {
-    if (!NATIVE_DENSITIES.includes(next)) return current;
-    current = next;
-    try { root?.setAttribute?.('data-density', current); } catch { /* detached root: stay in memory */ }
-    if (persist) { try { storage?.setItem?.(DENSITY_KEY, current); } catch { /* persistence unavailable: in-memory only */ } }
-    if (notify) for (const listener of listeners) listener(current);
-    return current;
+    const stored = storage?.getItem?.(THEME_KEY);
+    if (THEME_MODES.includes(stored)) mode = stored;
+  } catch { /* storage unavailable (blocked/private mode): session-only */ }
+  const control = button('', () => set(THEME_MODES[(THEME_MODES.indexOf(mode) + 1) % THEME_MODES.length]));
+  control.className = 'lb-theme-toggle';
+  control.dataset.testid = 'shell-theme-toggle';
+  const resolved = () => (mode === 'system' ? (systemQuery ? (systemQuery.matches ? 'dark' : 'light') : 'dark') : mode);
+  function paint() {
+    control.dataset.mode = mode;
+    control.replaceChildren(svgIcon(themeGlyphs[mode]));
+    control.setAttribute('aria-pressed', String(resolved() === 'dark'));
+    const next = THEME_MODES[(THEME_MODES.indexOf(mode) + 1) % THEME_MODES.length];
+    control.setAttribute('aria-label', `Theme: ${mode}`);
+    control.title = `Theme: ${mode} — switch to ${next}`;
+    const root = control.ownerDocument ?? globalThis.document;
+    try { root?.documentElement?.setAttribute?.('data-theme', resolved()); } catch { /* detached root */ }
   }
-  apply(current, { persist: false, notify: false });
-  return {
-    apply,
-    get: () => current,
-    toggle() { return apply(current === 'compact' ? 'regular' : 'compact'); },
-    onChange(listener) { listeners.add(listener); return () => listeners.delete(listener); },
-    control() {
-      const control = segmentedControl({
-        label: 'Density',
-        tooltip: true,
-        options: [{ value: 'compact', label: 'Compact' }, { value: 'regular', label: 'Regular' }],
-        current,
-        onChange: next => { apply(next); onAnnounce?.(next); },
-      });
-      const sync = value => control.setCurrent(value);
-      listeners.add(sync);
-      return control;
-    },
-  };
+  function set(next, { persist = true } = {}) {
+    if (!THEME_MODES.includes(next)) return mode;
+    mode = next;
+    if (persist) { try { storage?.setItem?.(THEME_KEY, mode); } catch { /* session-only */ } }
+    paint();
+    onAnnounce?.(`Theme set to ${mode}`);
+    return mode;
+  }
+  systemQuery?.addEventListener?.('change', paint);
+  paint();
+  return { element: control, get: () => mode, set, resolved };
 }
 
 export function announce(message, { root = globalThis.document } = {}) {
@@ -392,18 +488,8 @@ let tooltipNoteSequence = 0;
 export function installTooltips({ root = globalThis.document } = {}) {
   function describe(scope) {
     if (!scope?.querySelectorAll) return 0;
-    const chips = [...scope.querySelectorAll('.status')];
-    const iconButtons = [...scope.querySelectorAll('button')].filter(control => {
-      // icon-only: no word characters in the label (empty or pure glyphs)
-      const text = String(control.textContent).trim();
-      return !/[\w]/.test(text) && control.getAttribute('aria-label');
-    });
     let added = 0;
-    for (const node of [...chips, ...iconButtons]) {
-      if (node.hasAttribute('aria-describedby') || node.hasAttribute('data-native-noted')) continue;
-      const label = String(node.textContent).trim();
-      if (!label && !iconButtons.includes(node)) continue;
-      const text = chips.includes(node) ? `Status ${node.dataset.state || 'neutral'}: ${label}` : node.getAttribute('aria-label');
+    const attachNote = (node, text) => {
       const note = element('span', 'native-note');
       note.id = `native-note-${++tooltipNoteSequence}`;
       note.textContent = text;
@@ -411,10 +497,38 @@ export function installTooltips({ root = globalThis.document } = {}) {
       node.setAttribute('aria-describedby', note.id);
       if (!node.getAttribute('title')) node.setAttribute('title', text);
       node.setAttribute('data-native-noted', 'true');
+      node.removeAttribute('data-native-unlabeled');
       added += 1;
+    };
+    const chips = [...scope.querySelectorAll('.status')];
+    const iconButtons = [...scope.querySelectorAll('button')].filter(control => {
+      // icon-only: no word characters in the label (empty or pure glyphs)
+      const text = String(control.textContent).trim();
+      return !/[\w]/.test(text);
+    });
+    for (const node of [...chips, ...iconButtons]) {
+      if (node.hasAttribute('aria-describedby') || node.hasAttribute('data-native-noted')) continue;
+      if (chips.includes(node)) {
+        const label = String(node.textContent).trim();
+        if (!label) continue;
+        attachNote(node, `Status ${node.dataset.state || 'neutral'}: ${label}`);
+        continue;
+      }
+      // V2-T9 coverage parity: an icon-only button is described from whichever
+      // naming source it carries (aria-label first, then title, then an
+      // aria-labelledby target). An icon-only button with NO accessible name
+      // is flagged data-native-unlabeled instead of skipped silently — the
+      // layer never invents text, but the gap stays auditable.
+      const labelledBy = node.getAttribute('aria-labelledby');
+      const named = node.getAttribute('aria-label')
+        || node.title
+        || (labelledBy ? labelledBy.split(/\s+/).map(id => root.getElementById?.(id)?.textContent ?? '').join(' ').trim() : '');
+      if (named) attachNote(node, named);
+      else node.setAttribute('data-native-unlabeled', 'true');
     }
     return added;
   }
+  activeDescriber = describe; // V2-T9: overlay open() re-describes its subtree through this
   return { describe };
 }
 
@@ -423,30 +537,32 @@ export function installNativeExperience({ root = globalThis.document, storage = 
   root.documentElement.dataset.nativeExperience = 'true';
   const report = message => announce(message, { root });
   report(''); // the polite region exists from first paint, before any message
-  const density = createDensityController({ root: root.documentElement, storage, onAnnounce: value => report(`Density set to ${value}`) });
-  const control = density.control();
-  const theme = root.querySelector?.('#theme');
-  const target = mount ?? (theme ? closestMatch(theme, 'label')?.parentNode ?? null : null);
-  target?.append?.(control.element);
+  // V2-T1: no density control mounts here — compact/regular stopped being a
+  // user setting; data-density follows the collapsed rail (sidebarNav). The
+  // installer still seeds the internal token state when a page carries none
+  // (real pages resolve it pre-paint in theme-init.js).
+  try { if (!root.documentElement.hasAttribute('data-density')) root.documentElement.setAttribute('data-density', 'regular'); } catch { /* detached root */ }
   const focus = installFocusSystem({ root });
   const tooltips = installTooltips({ root });
   tooltips.describe(root.body);
   return {
-    density, control, focus, tooltips,
+    focus, tooltips,
     announce: report,
     overlay: createOverlayPanel,
-    setDensity: density.apply,
     detach() { focus.detach(); root.documentElement.removeAttribute('data-native-experience'); },
   };
 }
 
-export function createInspector({ title, content }) {
+export function createInspector({ title, content, description } = {}) {
   const dialog = element('dialog', 'stack');
   dialog.dataset.testid = 'task-inspector';
   const heading = element('h2', '', title);
   const titleId = `inspector-${++createInspector.sequence}`;
   heading.id = titleId;
   dialog.setAttribute('aria-labelledby', titleId);
+  // V2-T9: aria-describedby on the dialog itself (Radix Dialog.Description);
+  // the modal <dialog> already traps Tab natively through showModal().
+  wirePanelDescription(dialog, description, PANEL_DISMISSAL_NOTE);
   const header = element('header', 'cluster spread');
   const close = button('Close inspector', () => dialog.close());
   header.append(heading, close);
@@ -733,7 +849,7 @@ export function timelineChart({ tracks = [], testid } = {}) {
 
 let inspectorPanelSequence = 0;
 
-export function inspectorPanel({ title, content, footer = null, onClose } = {}) {
+export function inspectorPanel({ title, content, footer = null, onClose, description, trapFocus = true } = {}) {
   const panel = element('aside', 'lb-inspector');
   panel.dataset.testid = 'inspector-panel';
   panel.hidden = true;
@@ -742,6 +858,8 @@ export function inspectorPanel({ title, content, footer = null, onClose } = {}) 
   heading.id = headingId;
   panel.setAttribute('role', 'region');
   panel.setAttribute('aria-labelledby', headingId);
+  if (trapFocus) panel.setAttribute('data-native-trap', 'true');
+  wirePanelDescription(panel, description, PANEL_DISMISSAL_NOTE);
   const closeControl = button('Close panel', () => api.close('button'));
   closeControl.dataset.testid = 'inspector-panel-close';
   const header = element('header', 'cluster spread');
@@ -768,6 +886,7 @@ export function inspectorPanel({ title, content, footer = null, onClose } = {}) 
       panel.hidden = false;
       panel.dataset.open = 'true';
       overlayStack.push(api);
+      describeOnOpen(panel); // V2-T9: dynamic icon-only content inside gets described
       closeControl.focus();
       return panel;
     },
@@ -827,7 +946,15 @@ export function emptyState({ icon = 'inbox', title, detail = '', action = null, 
   node.append(element('h3', 'lb-empty-title', title));
   if (detail) node.append(element('p', 'lb-empty-detail meta', detail));
   if (action != null) {
-    const control = action.nodeType ? action : button(action.label ?? 'Act', action.onClick ?? null, { primary: action.primary ?? false });
+    // V2-T9 clarity: an empty-state action MUST say what it does — the vague
+    // one-word fallback is gone. Node actions pass through; config actions
+    // without a label are a caller error, not a mystery button.
+    let control;
+    if (action.nodeType) control = action;
+    else {
+      if (!action.label) throw new TypeError('Empty-state action requires a label');
+      control = button(action.label, action.onClick ?? null, { primary: action.primary ?? false });
+    }
     control.classList.add('lb-empty-action');
     node.append(control);
   }
@@ -845,6 +972,96 @@ export function metricTile({ value, label, coverage = null, unavailable = false,
   return node;
 }
 
+/* -- V2-T9 factory hooks (Mantine use-* conventions, dependency-free) -------
+
+   The one-shot renderers above stay the static contract. For the three
+   most-composed components (card, statusChip, dataTable) the create*
+   factories add the controlled/uncontrolled parity Mantine's hooks are known
+   for, in vanilla form:
+
+     value prop      the owner-managed initial value (`state`, `selected`,
+                     `rows`) — the owner keeps updating it through api.set
+     defaultValue    the uncontrolled initial (`defaultState`,
+                     `defaultSelected`, `defaultRows`) — the component owns
+                     the state from there on
+     on*Change       notified on every state change the FACTORY applies
+                     (clicks/keys); programmatic set(value, { notify: false })
+                     is silent, exactly like setCurrent on segmentedControl
+     api             { element, get(), set(value, { notify }) } — one handle,
+                     DOM kept in sync, no re-render protocol needed
+
+   Full conventions in ui/DESIGN.md §10 (additive). */
+
+export function createStatusChip({ state, defaultState, label = '', defaultLabel, onStateChange } = {}) {
+  let current = state ?? defaultState ?? 'neutral';
+  let currentLabel = label ?? defaultLabel ?? '';
+  const chip = statusChip({ state: current, label: currentLabel });
+  function set(nextState, nextLabel, { notify = true } = {}) {
+    const requested = typeof nextState === 'object' && nextState !== null ? nextState : { state: nextState, label: nextLabel };
+    if (!Object.hasOwn(glyphs, requested.state ?? current)) throw new TypeError('Unknown status role');
+    current = requested.state ?? current;
+    if (requested.label !== undefined && requested.label !== null) currentLabel = requested.label;
+    chip.dataset.state = current;
+    chip.replaceChildren(svgIcon([glyphs[current]]), document.createTextNode(currentLabel));
+    if (notify) onStateChange?.(current, currentLabel);
+    return current;
+  }
+  return { element: chip, get: () => current, getLabel: () => currentLabel, set };
+}
+
+export function createCard({ selected, defaultSelected = false, onSelect, ...slots } = {}) {
+  const node = card(slots);
+  let current = Boolean(selected ?? defaultSelected);
+  let controlled = selected !== undefined;
+  function apply(next, { notify = true } = {}) {
+    current = Boolean(next);
+    if (onSelect) {
+      node.dataset.selected = String(current);
+      node.setAttribute('aria-pressed', String(current));
+    }
+    if (notify) onSelect?.(current);
+    return current;
+  }
+  if (onSelect) {
+    // the selection affordances exist only on interactive cards — a display
+    // card is plain markup (no aria-pressed on a non-control)
+    node.dataset.interactive = 'true';
+    node.dataset.selected = String(current);
+    node.setAttribute('aria-pressed', String(current));
+    node.tabIndex = 0;
+    const toggle = () => {
+      // controlled cards (created with `selected`) only notify — the owner
+      // re-applies the new value through set(); uncontrolled cards toggle
+      // themselves (the defaultSelected route)
+      if (controlled) { onSelect?.(!current); return; }
+      apply(!current);
+    };
+    node.addEventListener('click', toggle);
+    node.addEventListener('keydown', event => {
+      if (event.key !== ' ' && event.key !== 'Enter') return;
+      event.preventDefault?.();
+      toggle();
+    });
+  }
+  return { element: node, get: () => current, set: (next, options) => apply(next, options) };
+}
+
+export function createDataTable({ columns, rows, defaultRows, caption, testid } = {}) {
+  let current = rows ?? defaultRows ?? [];
+  const scroll = dataTable({ columns, rows: current, caption, testid });
+  function setRows(nextRows, { notify = true } = {}) {
+    current = Array.isArray(nextRows) ? nextRows : [];
+    const body = scroll.querySelector('tbody');
+    const freshBody = dataTable({ columns, rows: current }).querySelector('tbody');
+    body.parentNode.insertBefore(freshBody, body); // head + caption survive in place
+    body.remove();
+    if (notify) api.onRowsChange?.(current);
+    return current;
+  }
+  const api = { element: scroll, get: () => current, setRows, onRowsChange: null };
+  return api;
+}
+
 /* -- App shell (T12 addendum): sidebar rail, tabbed workspace, dock ------- */
 
 // Destination glyphs (Lucide geometry, ISC) for the icon rail — the T20-RF
@@ -860,14 +1077,24 @@ const destinationGlyphs = {
   research: [['path', { d: 'M10 2v7.31 M14 9.3V2' }], ['path', { d: 'M8.5 2h7' }], ['path', { d: 'M14 9.3l4.7 8.66A2 2 0 0 1 17 21H7a2 2 0 0 1-1.7-3.04L10 9.3' }], ['path', { d: 'M6.9 15h10.2' }]],
 };
 
-// Common action glyphs (Lucide chevrons, ISC): the rail collapse control
-// swaps between these instead of text arrows.
+// Common action glyphs (Lucide chevrons + panel geometry, ISC): the rail
+// collapse control swaps between the chevrons instead of text arrows; the
+// V2-T1 top-bar dock trigger uses the panel glyph.
 const actionGlyphs = {
   'collapse-left': [['path', { d: 'm15 18-6-6 6-6' }]],
   'collapse-right': [['path', { d: 'm9 18 6-6-6-6' }]],
+  dock: [['rect', { x: 3, y: 4, width: 18, height: 16, rx: 2 }], ['path', { d: 'M15 4v16' }]],
 };
 
 export const SIDEBAR_ACTION_ICONS = Object.freeze(Object.keys(actionGlyphs));
+
+// Draws one of the sidebar action glyphs (the « / » collapse chevrons) — the
+// V2-T1 top bar builds its collapse control from the same geometry the rail
+// uses, so both homes always agree.
+export function sidebarActionIcon(name) {
+  if (!Object.hasOwn(actionGlyphs, name)) throw new TypeError('Unknown sidebar action icon');
+  return svgIcon(actionGlyphs[name]);
+}
 
 export const SIDEBAR_DESTINATION_ICONS = Object.freeze(Object.keys(destinationGlyphs));
 
@@ -884,14 +1111,20 @@ export const SIDEBAR_DESTINATION_ICONS = Object.freeze(Object.keys(destinationGl
 // Collapsing to the icon rail also gives every destination a native title
 // tooltip, following the T11 clipped-note contract (visible label when
 // expanded, title + aria-label when the label is hidden).
-export function sidebarNav({ product = 'LazySeries', runtime = 'LazyBuddy', destinations = [], groups = null, identityPosition = 'header', tree = null, footer = null, current = null, collapsed = false, onNavigate = null, onCollapse = null, testid } = {}) {
+// V2-T1: collapseControl accepts an EXTERNALLY built button (the shell top
+// bar relocates the control there); the rail then never mounts its own, and
+// setCollapsed keeps the external control's aria-expanded/label/glyph in
+// step. Collapsing also drives the root data-density: compact follows the
+// retracted rail automatically (internal token state, no user setting).
+export function sidebarNav({ product = 'LazySeries', runtime = 'LazyBuddy', destinations = [], groups = null, identityPosition = 'header', tree = null, footer = null, current = null, collapsed = false, collapseControl = null, onNavigate = null, onCollapse = null, testid } = {}) {
   const rail = element('aside', 'lb-sidebar');
   rail.dataset.testid = testid ?? 'sidebar-nav';
-  const collapseControl = button('', null);
-  collapseControl.className = 'lb-sidebar-collapse';
-  collapseControl.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
-  collapseControl.setAttribute('aria-expanded', String(!collapsed));
-  collapseControl.append(svgIcon(actionGlyphs[collapsed ? 'collapse-right' : 'collapse-left']));
+  const ownsCollapse = collapseControl == null;
+  const railCollapse = ownsCollapse ? button('', null) : collapseControl;
+  if (ownsCollapse) railCollapse.className = 'lb-sidebar-collapse';
+  railCollapse.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+  railCollapse.setAttribute('aria-expanded', String(!collapsed));
+  railCollapse.append(svgIcon(actionGlyphs[collapsed ? 'collapse-right' : 'collapse-left']));
   const identity = element(identityPosition === 'footer' ? 'div' : 'header', 'lb-sidebar-identity');
   const badge = element('span', 'lb-sidebar-product', product);
   badge.dataset.product = runtime; // the per-product accent wash, identity only
@@ -942,8 +1175,13 @@ export function sidebarNav({ product = 'LazySeries', runtime = 'LazyBuddy', dest
   } else {
     for (const destination of destinations) list.append(destinationItem(destination));
   }
-  if (identityPosition === 'footer') rail.append(collapseControl, list);
-  else rail.append(collapseControl, identity, list);
+  if (identityPosition === 'footer') {
+    // the shell's footer-identity rail carries no in-rail collapse control
+    // when the owner relocated it (V2-T1 top bar); a standalone footer rail
+    // without an external control keeps its own affordance
+    if (ownsCollapse) rail.append(railCollapse);
+    rail.append(list);
+  } else rail.append(railCollapse, identity, list);
   if (tree != null) {
     const treeRegion = element('nav', 'lb-sidebar-tree');
     treeRegion.setAttribute('aria-label', 'Context objects');
@@ -972,9 +1210,9 @@ export function sidebarNav({ product = 'LazySeries', runtime = 'LazyBuddy', dest
     setCollapsed(next, { notify = true } = {}) {
       const value = Boolean(next);
       rail.dataset.collapsed = String(value);
-      collapseControl.setAttribute('aria-expanded', String(!value));
-      collapseControl.setAttribute('aria-label', value ? 'Expand sidebar' : 'Collapse sidebar');
-      collapseControl.replaceChildren(svgIcon(actionGlyphs[value ? 'collapse-right' : 'collapse-left']));
+      railCollapse.setAttribute('aria-expanded', String(!value));
+      railCollapse.setAttribute('aria-label', value ? 'Expand sidebar' : 'Collapse sidebar');
+      railCollapse.replaceChildren(svgIcon(actionGlyphs[value ? 'collapse-right' : 'collapse-left']));
       for (const control of list.querySelectorAll('.lb-sidebar-destination')) {
         // T20a rail tooltips: the visible label disappears with the rail, so
         // the collapsed rows carry their label as a native title (the T11
@@ -982,13 +1220,17 @@ export function sidebarNav({ product = 'LazySeries', runtime = 'LazyBuddy', dest
         if (value) { if (!control.getAttribute('title')) control.setAttribute('title', control.getAttribute('aria-label')); }
         else control.removeAttribute('title');
       }
+      // V2-T1: density follows the rail automatically — compact is the
+      // retracted-rail layout state, never a persisted user choice.
+      const rootDocument = rail.ownerDocument ?? globalThis.document;
+      try { rootDocument?.documentElement?.setAttribute?.('data-density', value ? 'compact' : 'regular'); } catch { /* detached: in-memory only */ }
       if (notify) onCollapse?.(value);
       return value;
     },
     toggle() { return api.setCollapsed(rail.dataset.collapsed !== 'true'); },
     isCollapsed: () => rail.dataset.collapsed === 'true',
   };
-  collapseControl.addEventListener('click', () => api.toggle());
+  railCollapse.addEventListener('click', () => api.toggle());
   api.setCollapsed(collapsed, { notify: false }); // the initial state is not a user action
   return api;
 }
@@ -1120,7 +1362,25 @@ export function createTabs({ tabs = [], current = null, onChange = null } = {}) 
   };
 }
 
-export function createDockPanel({ title, content, footer = null, open: initiallyOpen = false, onClose } = {}) {
+// V2-T4 rework: the dock is a FLOATING OVERLAY inspector, not a layout
+// column — elevation-3 rounded panel floating over the right edge with a
+// capped height and an internally scrolling body, so opening it NEVER
+// resizes the main content (geometry lives in the sheets: the base .lb-dock
+// in style.css stays the fixed-overlay baseline; the project shell layers
+// the floating 380–420px treatment plus the narrow-only scrim on top).
+// Contract unchanged and additive: testids, dataset.open, Escape through the
+// T11 overlay stack with focus return, toggle, footer slot. New pieces:
+//   open(invoker, { focus })  a session-restore open passes focus: false so
+//                             the reopened dock never steals focus on mount
+//   onOpen                    announced with the close side (the shell syncs
+//                             its dock chrome from both)
+//   persistKey + storage      the open state persists per session under the
+//                             key ('true'/'false'); a blocked or absent
+//                             storage degrades to the in-memory session.
+//                             A persisted-open dock restores WITHOUT focus
+//                             at creation; the explicit `open: true` option
+//                             keeps its focused first-open behavior.
+export function createDockPanel({ title, content, footer = null, open: initiallyOpen = false, onClose, onOpen = null, persistKey = null, storage = globalThis.sessionStorage, description, trapFocus = true } = {}) {
   const dock = element('aside', 'lb-dock');
   dock.dataset.testid = 'dock-panel';
   dock.hidden = true;
@@ -1129,6 +1389,8 @@ export function createDockPanel({ title, content, footer = null, open: initially
   heading.id = headingId;
   dock.setAttribute('role', 'region');
   dock.setAttribute('aria-labelledby', headingId);
+  if (trapFocus) dock.setAttribute('data-native-trap', 'true');
+  wirePanelDescription(dock, description, PANEL_DISMISSAL_NOTE);
   const closeControl = button('Collapse dock', () => api.close('button'));
   closeControl.dataset.testid = 'dock-panel-close';
   const header = element('header', 'cluster spread');
@@ -1147,15 +1409,20 @@ export function createDockPanel({ title, content, footer = null, open: initially
   }
   let trigger = null;
   let openState = false;
+  const readPersisted = () => { try { return persistKey ? storage?.getItem?.(persistKey) === 'true' : false; } catch { return false; } };
+  const writePersisted = value => { try { if (persistKey) storage?.setItem?.(persistKey, String(value)); } catch { /* blocked storage: the session keeps the in-memory state only */ } };
   const api = {
     element: dock,
-    open(invoker = null) {
+    open(invoker = null, { focus = true } = {}) {
       if (invoker) trigger = invoker;
       openState = true;
       dock.hidden = false;
       dock.dataset.open = 'true';
       overlayStack.push(api);
-      closeControl.focus();
+      if (persistKey) writePersisted(true);
+      describeOnOpen(dock); // V2-T9: dynamic icon-only content inside gets described
+      if (focus) closeControl.focus();
+      onOpen?.();
       return dock;
     },
     close(reason = 'api') {
@@ -1165,6 +1432,7 @@ export function createDockPanel({ title, content, footer = null, open: initially
       dock.removeAttribute('data-open');
       const index = overlayStack.indexOf(api);
       if (index !== -1) overlayStack.splice(index, 1);
+      if (persistKey) writePersisted(false);
       const connected = trigger ? (trigger.isConnected ?? globalThis.document?.body?.contains?.(trigger) ?? false) : false;
       const target = connected ? trigger : null;
       trigger = null;
@@ -1172,9 +1440,10 @@ export function createDockPanel({ title, content, footer = null, open: initially
       target?.focus();
       return true;
     },
-    toggle(invoker = null) { return openState ? api.close('toggle') : (api.open(invoker), true); },
+    toggle(invoker = null, options = {}) { return openState ? api.close('toggle') : (api.open(invoker, options), true); },
     isOpen: () => openState,
   };
-  if (initiallyOpen) api.open();
+  if (persistKey && readPersisted()) api.open(null, { focus: false }); // the session-restore open never moves focus
+  else if (initiallyOpen) api.open();
   return api;
 }
