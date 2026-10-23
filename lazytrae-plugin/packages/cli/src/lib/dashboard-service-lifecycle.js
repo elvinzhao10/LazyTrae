@@ -5,18 +5,20 @@ const { mkdir, lstat, rmdir } = require('node:fs/promises');
 const { hash, privateDirectory, privateRead, DashboardError: ServiceError } = require('./dashboard-files');
 const { secret } = require('./dashboard-service-auth');
 const { capture } = require('./dashboard-snapshot');
+const { read: readProject } = require('./project-state');
 const { readReceipt, writePrivate, challenge, started, sign, removeReceipt } = require('./dashboard-service-identity');
 
 async function binding(options) {
   if (require('node:fs').realpathSync(options.projectRoot) !== options.projectRoot) throw new ServiceError('CANONICAL_DIRECTORY_REQUIRED');
-  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(options.runId) || typeof options.projectId !== 'string' || !options.projectId.length || options.projectId.length > 256) throw new ServiceError('INVALID_BINDING');
-  await capture(options.projectRoot);
+  const runId = options.runId ?? null;
+  if ((runId !== null && !/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(runId))
+    || typeof options.projectId !== 'string' || !options.projectId.length || options.projectId.length > 256) throw new ServiceError('INVALID_BINDING');
   
   const port = options.port ?? 0;
   if (!Number.isSafeInteger(port) || (options.port !== undefined && (port < 1 || port > 65535))) throw new ServiceError('INVALID_PORT');
   const parent = privateDirectory(options.projectRoot, '.lazytrae/dashboard');
-  const directory = privateDirectory(parent, hash(`${options.projectId}\n${options.runId}`));
-  return { ...options, port, directory };
+  const directory = privateDirectory(parent, hash(`${options.projectId}\n${runId === null ? '@project' : runId}`));
+  return { ...options, runId, port, directory };
 }
 function publicIdentity(options, identity) {
   return { status: 'running', identity, url: `http://127.0.0.1:${identity.port}`, credential_file: join(options.directory, 'credential') };
@@ -49,7 +51,10 @@ async function lifecycle(action, rawOptions) {
       if (options.port && identity.port !== options.port) throw new ServiceError('PORT_BINDING_MISMATCH', 409);
       return publicIdentity(options, identity);
     }
-    await capture(options.projectRoot);
+    if (options.runId === null) {
+      const project = await readProject(options.projectRoot, options.projectId);
+      if (project.initialized === false) throw new ServiceError('PROJECT_NOT_INITIALIZED', 404);
+    } else await capture(options.projectRoot);
     if (interrupted) throw new ServiceError('START_INTERRUPTED');
     let credential;
     try { credential = (await privateRead(options.directory, 'credential')).toString(); }
@@ -99,4 +104,3 @@ async function lifecycle(action, rawOptions) {
 }
 
 module.exports = { lifecycle };
-

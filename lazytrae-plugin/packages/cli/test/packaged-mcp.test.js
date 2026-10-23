@@ -133,7 +133,7 @@ test('packaged CLI parity check rejects runtime drift', () => {
   }
 });
 
-test('packed and prefix-installed CLI starts MCP with all 16 tools', { timeout: 30_000 }, async () => {
+test('packed and prefix-installed CLI starts MCP with all 17 tools', { timeout: 30_000 }, async () => {
   const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-packaged-mcp-'));
   try {
     const packOutput = run(npm, ['pack', '--json', '--pack-destination', temporaryRoot]);
@@ -169,10 +169,10 @@ test('packed and prefix-installed CLI starts MCP with all 16 tools', { timeout: 
     assert.equal(initialize.result.serverInfo.name, 'lazytrae-mcp');
     assert.equal(initialize.result.protocolVersion, '2024-11-05');
     assert.equal(toolList.error, undefined);
-    assert.equal(toolList.result.tools.length, 16);
+    assert.equal(toolList.result.tools.length, 17);
     assert.deepEqual(
       toolList.result.tools.map(tool => tool.name),
-      [...require('../src/mcp/tool-defs').TOOLS.map(tool => tool.name), 'lazytrae.dashboard'],
+      [...require('../src/mcp/tool-defs').TOOLS.map(tool => tool.name), 'lazytrae.dashboard', 'lazytrae.project'],
     );
   } finally {
     fs.rmSync(temporaryRoot, { recursive: true, force: true });

@@ -774,8 +774,10 @@ test('dashboard start refuses an occupied foreign port without stopping it', asy
     assert.equal(foreignStillAlive, true, 'foreign listener must survive the refused start');
     const status = cli(root, ['dashboard', 'status', '--port', String(port)]);
     assert.equal(JSON.parse(status.stdout).status, 'stopped');
-    const stray = spawnSync('pgrep', ['-f', 'dashboard-service.js'], { encoding: 'utf8' });
-    assert.equal(stray.stdout.trim(), '', 'no dashboard service process may remain');
+    const { snapshot } = await SNAPSHOT.capture(root);
+    const binding = crypto.createHash('sha256').update(`${snapshot.project_id}\n${snapshot.run_id}`).digest('hex');
+    assert.equal(fs.existsSync(path.join(root, '.lazytrae', 'dashboard', binding, 'receipt.json')), false,
+      'the refused fixture start leaves no signed ownership receipt');
   } finally {
     foreign.close();
     dispose(root);

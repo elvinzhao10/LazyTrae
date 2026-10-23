@@ -3,6 +3,7 @@
 
 const { TOOLS } = require('./tool-defs');
 const { tool: dashboardTool, handleDashboard } = require('./handlers-dashboard');
+const { tool: projectTool, handleProject } = require('./handlers-project');
 const { handleGetActivePlan, handleGetBoulderStatus, handleGetNextTask, handleGetParityStatus } = require('./handlers-read');
 const { handleRecordEvidence, handleMarkTaskDone } = require('./handlers-evidence');
 const { handleAddBlocker, handleRequestReview } = require('./handlers-review');
@@ -18,6 +19,7 @@ const {
 
 const HANDLERS = {
   'lazytrae.dashboard': handleDashboard,
+  'lazytrae.project': handleProject,
   'lazytrae.get_active_plan': handleGetActivePlan,
   'lazytrae.get_boulder_status': handleGetBoulderStatus,
   'lazytrae.get_next_task': handleGetNextTask,
@@ -35,4 +37,4 @@ const HANDLERS = {
   'lazytrae.dependency_graph': handleDependencyGraph,
 };
 
-module.exports = { TOOLS: [...TOOLS, dashboardTool], HANDLERS };
+module.exports = { TOOLS: [...TOOLS, dashboardTool, projectTool], HANDLERS };
