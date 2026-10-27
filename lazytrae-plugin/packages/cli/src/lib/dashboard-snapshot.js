@@ -2,7 +2,7 @@
 const { portable, read } = require('./dashboard-state');
 const { source, assess } = require('./dashboard-proof');
 const { hash, safeRead, protectedPath, DashboardError } = require('./dashboard-files');
-async function capture(root, previous) {
+async function capture(root, previous, expectedRunId) {
   const { createProjector, parseContract } = await portable('projection.mjs');
   const { loop, input } = await read(root);
   const identity = source(root);
@@ -14,6 +14,7 @@ async function capture(root, previous) {
   }
   const project = createProjector({ completionApplies: (_proof, binding, criterion) => binding === input && accepted.has(criterion.id) });
   const snapshot = project(input);
+  if (expectedRunId !== undefined && snapshot.run_id !== expectedRunId) throw new DashboardError('RUN_BINDING_MISMATCH', 409);
   const evidence = [];
   for (const task of snapshot.tasks) for (const attempt of task.attempts) for (const ref of attempt.evidence) {
     evidence.push({ ...ref, task_id: task.id, id: hash(`${input.project_id}\n${input.run_id}\n${task.id}\n${ref.path}\n${ref.sha256}`),
@@ -22,8 +23,8 @@ async function capture(root, previous) {
   return { snapshot, cursor: Buffer.from(JSON.stringify(snapshot.cursor)).toString('base64url'), evidence,
     editability: { supported: true, reason: null }, queue_authority: { supported: true, reason: null } };
 }
-async function evidence(root, id) {
-  const current = await capture(root);
+async function evidence(root, id, expectedRunId) {
+  const current = await capture(root, undefined, expectedRunId);
   const ref = current.evidence.find(item => item.id === id);
   if (!ref || ref.unavailable_reason) throw new DashboardError('UNKNOWN_EVIDENCE', 404);
   const bytes = safeRead(root, ref.path);

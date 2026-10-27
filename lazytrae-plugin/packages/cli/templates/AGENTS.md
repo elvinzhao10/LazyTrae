@@ -9,8 +9,8 @@ verification gate, and local MCP server. Automated package checks run on
 Ubuntu and macOS in the repository workflows; host behavior keeps the evidence labels below. The current
 documentation release is `1.4.0`.
 
-See [the current platform audit](https://github.com/elvinzhao10/LazyTrae/blob/main/docs/reference/platform-status-2026-10-02.md)
-for version-specific native features and legacy route limits.
+The source repository audit at `docs/reference/platform-status-2026-10-27.md`
+records version-specific native features and legacy route limits.
 
 ## Durable onboarding (start here)
 
@@ -74,7 +74,8 @@ When the user types `onboard`:
    action, wait again, and inspect again.
 10. In the observed session, verify one real LazyTrae Skill or command and every
    expected MCP connection for the selected route. The base package expects one
-   `lazytrae` core MCP connection (16 tools after connection); seven optional
+   `lazytrae` core MCP connection (17 tools after connection, including the
+   strictly opt-in `lazytrae.project` record tool); seven optional
    placeholders remain disabled unless separately selected.
 11. Report `package readiness` and `host readiness` as separate fields. Without
     a current Computer Use or user-supplied observation, **HOST READINESS:
@@ -89,7 +90,7 @@ unverified even though the package can generate its local configuration.
 
 ## v1.1 native-host boundary
 
-TraeCode, TraeWork, and TraeCode CLI are three independent hosts. A generated
+TraeCode, TraeWork, and TraeCode CLI identify distinct package routes. Current CN documentation describes a unified TRAE with Agent and IDE modes; select the exact build and mode before applying a legacy route. A generated
 file, a successful package check, or an accepted profile never promotes
 **package readiness** to **host readiness**. The host owns discovery,
 registration, session lifetime, connector launch, and credentials; LazyTrae
@@ -129,7 +130,7 @@ For either manual MCP route, copy only the JSON between
 an undocumented CLI command. Pasting the JSON, reloading, and testing are three
 separate approval-gated actions.
 
-TraeWork does not auto-load the project MCP file. Linux and Windows Work
+The historical TraeWork route did not auto-load the project MCP file. The current CN unified TRAE documents project MCP enablement separately; verify the selected build. CLI 2.0 documents TOML configuration, so JSON is a connector description, not TOML to paste verbatim. Linux and Windows Work
 locations and behavior are unverified; ask the host for its directory before
 using `--skills-dir`. A declaration or load-check is package evidence until the
 selected host visibly connects it.

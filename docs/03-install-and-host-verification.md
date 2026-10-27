@@ -102,4 +102,4 @@ The first channel supports claims about project assets and local contracts. The 
 
 ## Delivery surfaces
 
-TraeCode loads project assets, TraeWork uses its separate skills lifecycle and manual MCP route, and TraeCode CLI requires its own registration/new-session sequence. The detailed host adapters are in [Host capability matrix](10-host-capability-matrix.md) and [Host routes](reference/host-routes.md).
+The package prepares TraeCode project assets, a legacy TraeWork skills lifecycle and manual MCP route, and a TraeCode CLI registration/new-session handoff. Discovery and connection remain host observations; current CN unified TRAE modes must be checked against the selected build. The detailed host adapters are in [Host capability matrix](10-host-capability-matrix.md) and [Host routes](reference/host-routes.md).

@@ -1,142 +1,97 @@
-# LazyTrae v1.4.0 - vendored dashboard core and native Trae adapter
+# LazyTrae v1.4.0
 
-A feature release across the six LazySeries siblings: the family's portable
-dashboard core is vendored identically into every package and wired through a
-native Trae adapter.
+LazyTrae 1.4.0 adds the shared local project dashboard and persistent project
+record to the existing planning, execution and verification workflows.
 
-## Eval-driven fixes
+## Dashboard and project work
 
-- The portable dashboard core (projection, command/queue reducers, browser UI)
-  is vendored from the LazyBuddy source tree byte-identically and pinned in
-  `shared/dashboard.vendor.json`; the Trae adapter, authenticated loopback
-  service, and bounded execute/verify workload are native to this package.
-- The core MCP server gains its sixteenth tool, `lazytrae.dashboard`
-  (start/open/status/stop/snapshot/context). It manages the owned browser
-  dashboard or reads native task context; it does not execute tasks.
-- Every stale "15 tools" string in the README, AGENTS guides, evaluation,
-  reference docs, CLI package README, and the MCP description writers is
-  corrected to 16, and the managed-entry identity constant moves together
-  with its template writers.
-- The adapter suite covers CAS and replay, cycle rejection, queue persistence,
-  revision-bound execution with an independent verifier, failed/cancelled/
-  dirty/stale history, authentication and path boundaries, owned lifecycle,
-  restart, and crash recovery. The packed-route MCP test exercises the
-  documented local `npm pack` tarball route.
+- An authenticated local dashboard with eight destinations: **Overview, Project,
+  Plans, Health, Execution, Git, Evidence and Research**.
+- A project record, editable plans, queue planning and research capture, with
+  source revisions and evidence references visible for review.
+- A run monitor that separates execution progress from verified completion,
+  plus reported token usage, resource activity and retained-run history.
+- A Health inventory of package components, separate from observed host activity.
 
-## Measured efficiency
+The collapsible sidebar, contextual Details and expandable pan/zoom maps keep
+navigation within the project. Source edits use authenticated native project
+binding and revision checks. Queue edits do not start work. Plans and research
+retain source revision and evidence references; these references are not
+immutable source copies or verification verdicts. Unknown usage stays unknown,
+and recorded comparisons do not establish efficiency savings.
 
-No latency, token, cost, or native-host performance improvement is claimed.
-The dashboard service binds an owned loopback port with an authentication
-boundary; queue edits never start work, so planning traffic cannot trigger
-execution. Host embedding, chat handoff, and wake remain unobserved.
+The core MCP server exposes 17 tools. `lazytrae.dashboard` manages the local
+service or reads task context; `lazytrae.project` reads and updates an explicitly
+initialized project record. Neither MCP tool executes work.
 
-## Host capability matrix
-
-TraeCode, TraeWork, and TraeCode CLI remain three independent hosts. The
-dashboard is package-owned local software: it does not prove that a host
-embedded it, handed off a chat, or woke from a host event. `dashboard
-context` reports `host_execution: not-observed`. **HOST READINESS: PENDING**
-until the selected current client demonstrates discovery, skill/command
-execution, relevant hooks, and MCP connections.
-
-## Migration and upgrade
-
-Use the receipt-aware lifecycle update with an explicit project binding.
-Preserve populated run state, modified assets, unknown files, and host
-settings. Existing 1.3.5 tags and assets remain intact. Managed MCP entries
-written by 1.3.5 carry the previous core description; run `lazytrae sync`
-after upgrading so managed entries match the current identity.
-
-Read [AGENTS.md](AGENTS.md), [README.md](README.md), and the selected host
-guide before following a native installation route.
-
-## Known risks
-
-Until `lazytrae-ai` 1.4.0-family versions are published to npm,
-`lazytrae-plugin/packages/mcp` cannot resolve its pinned CLI dependency with
-a plain `npm ci`; the documented local `npm pack` tarball route in
-[Test and release verification](docs/09-test-and-release-verification.md) is
-the workaround. `packages/cli` itself has no unpublished dependency and stays
-installable. Authenticated current-client acceptance remains pending: a
-copied configuration, manifest validation, or isolated lifecycle fixture
-cannot establish host loading. Native host embedding, chat handoff, and wake
-stay unobserved.
-
-## Rollback
-
-Retain the previous release and receipts. Follow the scoped lifecycle removal
-or rollback plan, preserving user-modified and foreign assets. Stop the owned
-dashboard service with `lazytrae dashboard stop` before rollback; host-managed
-registrations require their selected client's removal flow; never remove
-credentials, sessions, or entire shared configuration directories.
-
-## Prior release notes
-
-# LazyTrae v1.3.5 - runtime verification and platform clarity
-
-A maintenance release across the six LazySeries siblings. It carries forward
-the workflow and run-integrity foundation from 1.3.0 through 1.3.4.
-
-## Eval-driven fixes
-
-- Runtime-floor checks execute named package, installation and lifecycle tests.
-  Missing or unknown exercises and failed subprocesses cannot report PASS.
-- Optional TypeScript LSP installation is tested separately with engine-strict
-  dependency installation and the installed server executable.
-- Hook payloads are bounded before parsing and kept out of process arguments.
-  Invalid or oversized events preserve each adapter's exit and state contract.
-- Current product names, configuration scopes and native extension capabilities
-  are distinguished from legacy routes and unverified live integration.
-
-## Measured efficiency
-
-Packed CLI releases exclude generated optional-provider dependency trees while retaining their bundled runtime dependency closure. This prevents source-side provider installations from inflating the tarball or overflowing package-test output buffers.
-
-Hook boundary repairs avoid payload-sized process arguments and bound input
-memory. The first host-independent verification unit is vendored identically
-in sibling packages, with product-specific exercises in small adapters.
-No latency, token, cost or native-host performance improvement is claimed.
-Persistent LSP sessions and event-ledger compaction remain future measured work.
+The dashboard and project cores are hash-pinned in the package's
+[vendor manifests](lazytrae-plugin/packages/cli/shared/dashboard.vendor.json), with a separate
+[project manifest](lazytrae-plugin/packages/cli/shared/project.vendor.json). See the
+[documentation index](docs/README.md) for package architecture and usage.
 
 ## Host capability matrix
 
-TraeCode, TraeWork and TraeCode CLI remain separate surfaces. Current CN TraeCode documents blocking hooks, while this package's legacy hook adapter remains advisory. CLI 2.0 documents plugins, skills and MCP; its configuration must not be inferred from legacy CLI candidates.
-
-See [the dated platform audit](docs/reference/platform-status-2026-10-02.md).
-**HOST READINESS: PENDING** until the selected current client demonstrates
-discovery, skill/command execution, relevant hooks and MCP connections.
-Official feature documentation and package tests are separate evidence.
-
-## Dependencies and runtime requirements
-
-Node.js 24 is recommended. Core lifecycle compatibility remains Node.js 20;
-LazyTrae's standalone CLI also retains its separate Node.js 18 compatibility
-tier. Optional TypeScript language-server 6.x requires Node.js 22.22.2 or later;
-5.x providers retain their own Node.js 20 requirement.
-Python language-server providers are aligned at basedpyright 1.40.1.
-LazyTrae uses fast-uri 4.2.1 directly and the patched 3.1.8 Ajv edge, with
-security and normalization regressions preserved.
-
-## Migration and upgrade
-
-Use the receipt-aware lifecycle update with an explicit project binding.
-Preserve populated run state, modified assets, unknown files and host settings.
-Select the exact client and version before following a native installation route.
-Kimi Code clients can share configuration; Kimi Work is a separate target.
-
-Read [AGENTS.md](AGENTS.md), [README.md](README.md) and the selected host guide.
-Use a newly versioned archive; existing 1.3.4 tags and assets remain intact.
+Current CN TRAE combines Agent and IDE modes; TRAE SOLO CN and CLI are
+separate surfaces. The `TraeCode`, `TraeWork` and `TraeCode CLI` names remain
+version-specific package adapters. CLI 2.0 uses TOML configuration; the legacy
+JSON handoff is not a universal registration command. CN hooks and subagents
+have their own protocol and discovery rules. Package hooks remain advisory.
+See the [platform audit](docs/reference/platform-status-2026-10-27.md) before
+choosing a region, build, mode and route.
 
 ## Known risks
 
-Authenticated current-client acceptance remains pending. A copied configuration,
-manifest validation, or isolated lifecycle fixture cannot establish host loading.
-Optional providers must satisfy their own runtime floor.
-Native features added upstream are not automatically wired into the adapter.
+**HOST READINESS: PENDING.** Package checks do not prove plugin loading, hook
+execution, model selection or live MCP connections. Browser embedding, chat
+handoff and host wake remain unobserved. No current-session model selection or provider entitlement is established.
+
+## Migration and upgrade
+
+Use Node.js 24 LTS (recommended) or Node.js 22 LTS and Git. The core lifecycle
+also accepts Node.js 20 for compatibility. Optional providers have their own
+runtime requirements; onboarding does not enable them.
+
+Use the [installation guide](docs/03-install-and-host-verification.md) and
+[AGENTS.md](AGENTS.md) for the selected route. Update only receipt-owned assets
+and preserve modified or unknown files,
+project history and host settings. Do not combine a full-plugin route
+with its fallback. After updating, observe a fresh host session separately
+from package checks.
 
 ## Rollback
 
-Retain the previous release and receipts. Follow the scoped lifecycle removal
-or rollback plan, preserving user-modified and foreign assets. Host-managed
-registrations require their selected client's removal flow; never remove
-credentials, sessions or entire shared configuration directories.
+Keep the previous release and its receipts. Rollback and removal remain
+receipt-scoped; follow the [removal guide](docs/08-safe-removal.md) instead of
+deleting host directories.
+
+## Eval-driven fixes
+
+Source writes check the expected revision before mutation, and project stores
+reject a foreign runtime identity. Package verification covers these local
+boundaries separately from native host acceptance.
+
+## Measured efficiency
+
+Usage and retained-run comparisons display recorded inputs only. Missing usage
+is not zero, fixture measurements are not live host measurements, and this
+release makes no token, time, resource or cost-saving claim.
+
+## Release verification and distribution
+
+The [release workflow](.github/workflows/release.yml) checks the tag against the
+package version and gates publication on the full CLI suite, standalone MCP runtime tests and publication checks.
+It builds `lazytrae-ai-v1.4.0.tgz` for the selected tag and publishes it as a GitHub Release
+asset. The workflow packs the CLI with `npm pack` after its verification gates;
+existing published assets are retained. This workflow does not publish to npm
+and does not make `lazytrae-ai` or `@lazytrae/mcp-server` available from that
+registry. Registry-dependent workspace installation requires separate
+publication; use durable GitHub onboarding or the documented local tarball
+route for source verification.
+
+Final CI and release-job outcomes belong to the tagged commit's Actions run;
+these notes do not substitute for that result or for current-session host
+acceptance. Reproduction commands are in the
+[test and release guide](docs/09-test-and-release-verification.md).
+
+Historical release entries remain in [CHANGELOG.md](CHANGELOG.md) and dated
+platform audit documents.

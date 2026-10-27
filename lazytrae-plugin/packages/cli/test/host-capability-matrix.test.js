@@ -113,6 +113,9 @@ test('fresh fingerprinted v2 probe promotes only executed and advertised TraeCod
     'project-mcp-json': 'descriptor-only',
     'config-yaml-candidate': 'unavailable',
     'config-toml-candidate': 'descriptor-only',
+    'approval-policy-toml-candidate': 'descriptor-only',
+    'sandbox-permissions-toml-candidate': 'descriptor-only',
+    'acp-serve-candidate': 'descriptor-only',
     'skills-traecli-candidate': 'descriptor-only',
     'skills-trae-compat-candidate': 'descriptor-only',
   });
@@ -194,10 +197,15 @@ test('absent old stale ambiguous and malformed CLI inputs fail closed per featur
   const malformed = statuses(buildCapabilityMatrix(root, 'trae-cli', { now: NOW }));
 
   assert.equal(absent.version, 'unavailable');
+  assert.equal(absent['acp-serve-candidate'], 'unavailable');
   assert.equal(v1['config-yaml-candidate'], 'descriptor-only');
   assert.equal(v1['config-toml-candidate'], 'unavailable');
+  assert.equal(v1['approval-policy-toml-candidate'], 'unavailable');
+  assert.equal(v1['sandbox-permissions-toml-candidate'], 'unavailable');
+  assert.equal(v1['acp-serve-candidate'], 'unavailable');
   assert.equal(ambiguous['config-yaml-candidate'], 'unavailable');
   assert.equal(ambiguous['config-toml-candidate'], 'unavailable');
+  assert.equal(ambiguous['approval-policy-toml-candidate'], 'unavailable');
   assert.equal(stale.version, 'unavailable');
   assert.equal(stale.help, 'unavailable');
   assert.equal(malformed['project-mcp-json'], 'unavailable');

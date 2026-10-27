@@ -1,7 +1,9 @@
 # LazyTrae plugin
 
 
-The current package version is v1.4.0; fresh-session native-host activation remains pending.
+The current package version is v1.4.0; fresh-session native-host activation remains pending. Current CN documentation describes unified TRAE with Agent and IDE modes. The existing route names remain version-specific package adapters; the source repository audit is `docs/reference/platform-status-2026-10-27.md`.
+
+The dashboard includes a visual run monitor with separate execution and verification progress, activity and token charts, retained-run efficiency charts, a searchable resource trace, and a Health inventory. Charts reflect available recorded data; missing usage remains unknown and comparisons do not establish an efficiency improvement. Research capture records findings and supports SHA-256-bound evidence references without copying the source or granting verification. Drafts, filters and display state survive background refresh; identical revisions are skipped.
 
 ## Durable installation
 

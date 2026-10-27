@@ -2,6 +2,8 @@
 const path = require('node:path');
 const { detectRepoRoot } = require('../lib/loop-store');
 const { capture } = require('../lib/dashboard-snapshot');
+const PROJECT = require('../lib/project-state');
+const NATIVE = require('../lib/dashboard-state');
 const { lifecycle } = require('../lib/dashboard-service-lifecycle');
 const { DashboardError } = require('../lib/dashboard-files');
 
@@ -27,9 +29,18 @@ async function invoke(root, args) {
     return require('../lib/dashboard-producer').execute(root, request);
   }
   if (!['start', 'open', 'status', 'stop'].includes(action) || (rest.length && (rest.length !== 2 || rest[0] !== '--port'))) throw new DashboardError('INVALID_ARGV');
-  const { snapshot } = await capture(root);
-  return lifecycle(action === 'open' ? 'start' : action, { projectRoot: root, projectId: snapshot.project_id,
-    runId: snapshot.run_id, assetRoot: path.resolve(__dirname, '../../shared/dashboard/ui'),
+  let binding;
+  try {
+    const { snapshot } = await capture(root);
+    binding = { projectId: snapshot.project_id, runId: snapshot.run_id };
+  } catch (error) {
+    if (!['ENOENT', 'NATIVE_LOOP_REQUIRED'].includes(error.code)) throw error;
+    const project = await PROJECT.read(root, NATIVE.projectId(root));
+    if (project.initialized === false) throw new DashboardError('PROJECT_NOT_INITIALIZED');
+    binding = { projectId: project.project_id, runId: null };
+  }
+  return lifecycle(action === 'open' ? 'start' : action, { projectRoot: root, projectId: binding.projectId,
+    runId: binding.runId, assetRoot: path.resolve(__dirname, '../../shared/dashboard/ui'),
     ...(rest.length ? { port: Number(rest[1]) } : {}) });
 }
 async function run(args) {
