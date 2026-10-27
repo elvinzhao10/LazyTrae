@@ -1,6 +1,6 @@
 # Host capability matrix
 
-**Current documentation release: v1.3.5.** This is a boundary matrix, not a
+**Current documentation release: v1.4.0.** This is a boundary matrix, not a
 claim that a package result has made any host ready.
 
 LazyTrae deliberately aligns policy and package safety across Trae surfaces while keeping host adapters distinct. The same project assets may be present on two surfaces without both hosts exposing the same discovery or registration behavior.
@@ -71,7 +71,7 @@ Use the absolute release-owned launcher. `load-check --host work` and
 `load-check --host cli` print the local core connector between
 `LAZYTRAE_MCP_JSON_BEGIN` and `LAZYTRAE_MCP_JSON_END`. For Work, paste that
 JSON in **Settings → MCP** after approval. For CLI, use the selected build's
-documented/manual MCP settings flow; no public universal MCP registration
+documented/manual MCP settings flow; CLI 2.0 documents TOML, so the printed JSON is not TOML to paste verbatim. No public universal MCP registration
 command is assumed. Paste, reload/new session, and live verification are
 separate one-action handoffs. The launcher is the **documented package route**;
 supplied macOS IDE/Work behavior is an **observed prerelease route**; without a
@@ -82,4 +82,4 @@ access TraeCode CLI, so its live-host route is explicitly unverified.
 
 Automated package CI runs on Ubuntu and macOS as defined in the workflows. TraeWork paths, discovery, hook execution, and MCP connection remain per-session observations; the supplied host reports are historical macOS evidence only.
 
-See [the dated platform audit](reference/platform-status-2026-10-02.md) and [Trae product surfaces](reference/trae-product-surfaces.md) for native CN IDE hooks and CLI 2.0 boundaries.
+See [the dated platform audit](reference/platform-status-2026-10-27.md) and [Trae product surfaces](reference/trae-product-surfaces.md) for native CN IDE hooks and CLI 2.0 boundaries.

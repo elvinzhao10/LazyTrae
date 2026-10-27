@@ -2,45 +2,101 @@
 
 ![LazyTrae](lazytrae-banner.jpg)
 
-[![Package 1.3.5](https://img.shields.io/badge/package-1.3.5-7ce8d1)](RELEASE_NOTES.md)
+[![Package 1.4.0](https://img.shields.io/badge/package-1.4.0-7ce8d1)](RELEASE_NOTES.md)
 [![MIT License](https://img.shields.io/badge/license-MIT-silver)](LICENSE)
 [![LazySeries family](https://img.shields.io/badge/LazySeries-6_siblings-7ce8d1)](#lazyseries-family)
 
 **Describe the work. Keep the plan. Prove the result.**
 
-LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
-**TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
+LazyTrae helps you use structured, evidence-based workflows across the package routes for **TraeCode**,
+**TraeWork**, and **TraeCode CLI**. Current CN documentation describes a unified TRAE with Agent and IDE modes; select the exact build and mode before using a legacy route. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-[Platform status](docs/reference/platform-status-2026-10-02.md) · [Get started](#recommended-install-with-ai-help) · [Host routes](#choose-one-route) ·
-[1.3.5 notes](RELEASE_NOTES.md) · [Family](#lazyseries-family) · [Docs](docs/)
+[Platform status](docs/reference/platform-status-2026-10-27.md) · [Get started](#recommended-install-with-ai-help) · [Host routes](#choose-one-route) ·
+[1.4.0 notes](RELEASE_NOTES.md) · [Family](#lazyseries-family) · [Docs](docs/)
 
-> **Current package version: v1.3.5. HOST READINESS: PENDING.** Local checks and release
+> **Current package version: v1.4.0. HOST READINESS: PENDING.** Local checks and release
 > archives prove package behavior; a fresh host session must prove loading,
 > command/skill execution and MCP connections.
 
-## What's in 1.3.5
+## What's in 1.4.0
 
-- Runtime checks execute real package and lifecycle paths; unknown exercises and failed checks cannot report success.
-- Core and optional TypeScript LSP requirements are checked separately, including unsupported runtimes.
-- Hook input is bounded before parsing and stays out of process arguments.
-- Platform guides distinguish current native capabilities, legacy routes and integrations awaiting live acceptance.
+- An authenticated local dashboard with eight destinations: **Overview, Project,
+  Plans, Health, Execution, Git, Evidence and Research**.
+- A project record, editable plans, queue planning and research capture, with
+  source revisions and evidence references visible for review.
+- A run monitor that separates execution progress from verified completion,
+  plus reported token usage, resource activity and retained-run history.
+- A Health inventory of package components, separate from observed host activity.
 
-This is a maintenance release. It includes the workflow foundation introduced
-in the family since v1.3.0 and subsequent reliability work. For Kimi and DeepSeek,
-that describes inherited family behavior, not prior public releases of these
-ports. The details below describe the cumulative v1.3.5 experience; the
-[release notes](RELEASE_NOTES.md) distinguish this patch's fixes from inherited
-features. No new speed, token-saving or cost claim is made.
+The core MCP server exposes 17 tools. `lazytrae.dashboard` manages the local
+service or reads task context; `lazytrae.project` reads and updates an explicitly
+initialized project record. Neither MCP tool executes work.
 
-| Family milestone | What you get in the current package |
-| --- | --- |
-| v1.3.0 foundation | Natural-language entry, editable plans, durable decisions and verification tiers. |
-| v1.3.1 reliability | Clearer execution intent, safer isolation and evidence comparisons. |
-| v1.3.2 handoff | Revision-bound verification-report contracts; generic completion APIs have separate limits. |
-| v1.3.3 hardening | Host-specific hook, MCP and publication repairs. |
-| v1.3.4 maintenance | Transactional run integrity, safer lifecycle and native adapter repairs. |
-| v1.3.5 repairs | Real runtime exercises, bounded hooks, dependency updates and current platform guidance. |
+The release builds on the existing planning, decision-memory and verification
+workflows described below. No speed, token-saving or cost improvement is
+claimed. See the [release notes](RELEASE_NOTES.md) for compatibility and upgrade
+boundaries; historical changes remain in `CHANGELOG.md`.
+
+## Browser dashboard (v1.4.0)
+
+After explicit project initialization, the dashboard provides **Overview,
+Project, Plans, Health, Execution, Git, Evidence and Research** in a collapsible
+sidebar. Contextual Details keep the selected item in view; maps support pan,
+zoom and an expanded modal. Theme and density preferences persist, and
+navigation guards protect unsaved edits.
+
+Execution progress and verification are separate. Token charts, resource
+activity and retained-run comparisons show available records; missing usage
+remains unknown. Health lists package Skills, commands, agents, hooks and MCP
+components without treating that inventory as host activation.
+
+Plans and research expose source revisions and evidence references. A hash
+reference does not preserve an immutable copy of its source or verify a
+finding. Source edits require authentication, the correct native project
+binding and a matching revision; stale edits conflict instead of overwriting
+newer work. Queue edits never start execution.
+
+The service binds to authenticated loopback, and each repository keeps its own
+project state. Browser access, transactional edits, queue planning, context
+copy and observations are package capabilities. Host embedding, chat handoff
+and wake remain unobserved; **HOST READINESS: PENDING** still applies.
+
+The portable dashboard and project cores are pinned in
+`lazytrae-plugin/packages/cli/shared/dashboard.vendor.json` and
+`lazytrae-plugin/packages/cli/shared/project.vendor.json`. The
+[documentation index](docs/README.md) covers package architecture and usage.
+
+### Native dashboard commands
+
+Use the durable launcher shown in the install guide for
+`dashboard start|open|status|stop|snapshot|context`. Service lifecycle commands accept
+an optional port; `context` reports `host_execution: not-observed`.
+Task execution is a separate CLI-only operation:
+
+```text
+lazytrae dashboard execute <goal-id> <criterion-id> --executor <project-relative-node-script> --verifier <different-project-relative-node-script> [--timeout ms]
+```
+
+The scripts receive captured task context on stdin. The separate verifier must
+exit successfully with non-empty output before a receipt is published. HTTP
+and MCP dashboard operations do not invoke this execution path.
+
+### Dashboard gallery
+
+Recorded demo data served by the native local dashboard; not a live host-session receipt.
+
+**Overview** — execution and verification progress, recorded activity and the project map.
+
+![LazyTrae dashboard Overview with recorded demo data](docs/images/dashboard-overview.jpg)
+
+**Plans** — plan records, source context and revision-aware review.
+
+![LazyTrae dashboard Plans with recorded demo data](docs/images/dashboard-plans.jpg)
+
+**Health** — package component inventory, separate from observed host activity.
+
+![LazyTrae dashboard Health with recorded demo data](docs/images/dashboard-health.jpg)
 
 ### Just ask, or use a command — both work
 
@@ -89,13 +145,14 @@ Milestones, decision gates, and full state/version semantics are shared
 byte-identically with LazyBuddy and LazyQoder (see
 `lazytrae-plugin/packages/cli/contracts/lazyseries-shared-semantics.v1.json`).
 
+
 ## Recommended: install with AI help
 
 You do not need to work through the technical setup alone. Open an AI coding
 assistant in your project and paste this:
 
 > Help me install LazyTrae from https://github.com/elvinzhao10/LazyTrae for
-> this project. Use v1.3.5 and follow AGENTS.md and the current install guide. Run safe package checks first,
+> this project. Use v1.4.0 and follow AGENTS.md and the current install guide. Run safe package checks first,
 > explain each step plainly, and ask me before changing host settings, adding
 > an MCP connector, or registering anything in Trae.
 
@@ -107,6 +164,10 @@ Manual setup is available when you prefer complete control. You need
 **Node.js LTS 24 (recommended) or 22 (supported alternative)** and **Git**. The lifecycle also accepts Node.js LTS 20 for compatibility. Start from the verified origin
 `https://github.com/elvinzhao10/LazyTrae` and follow the
 [installation guide](docs/03-install-and-host-verification.md).
+
+This release is distributed through GitHub. Its release workflow does not
+publish `lazytrae-ai` or `@lazytrae/mcp-server` to npm; registry-dependent setup
+requires a separate publication. Use the durable GitHub onboarding route below.
 
 Run `lifecycle onboard` once to create a durable installation. After that, use
 the stable launcher for `lifecycle status` and safe lifecycle actions:
@@ -125,6 +186,11 @@ Until that is observed, the honest result is **HOST READINESS: PENDING**.
 Local files and checks never prove that a host has loaded the package.
 
 ## Choose one route
+
+Current CN TRAE combines Agent and IDE modes, while TRAE SOLO CN and CLI
+remain distinct surfaces. The names below are version-specific package
+adapters; confirm the selected region, build and mode against the
+[platform audit](docs/reference/platform-status-2026-10-27.md).
 
 Pick one host route during onboarding:
 
@@ -168,6 +234,9 @@ package checks separate from settings and connector changes.
 
 ## Package inventory
 
+These counts describe shipped definitions and declarations, not loaded host
+components.
+
 | Surface | Count | Role |
 | --- | ---: | --- |
 | Skills | 17 | Host-facing workflow policies for planning, execution, review, and verification. |
@@ -188,10 +257,12 @@ acceptance evidence. These packages run independently.
 | [LazyQoder](https://github.com/elvinzhao10/LazyQoder) | Qoder CLI / IDE / app |
 | [LazyZCode](https://github.com/elvinzhao10/LazyZCode) | ZCode |
 | [LazyKimi](https://github.com/elvinzhao10/LazyKimi) | Kimi Code CLI · Kimi Work (experimental) |
-| [LazyDeepSeek](https://github.com/elvinzhao10/LazyDeepSeek) | DeepSeek Harness 0.2.0-rc.2 |
+| [LazyDeepSeek](https://github.com/elvinzhao10/LazyDeepSeek) | DeepSeek Harness 0.2.1-rc.3 |
 
 The family shares planning, evidence, decision-memory and completion contracts.
-The first shared verification core is vendored in every package; product adapters keep host setup and permissions explicit. Matching contracts do not make host capabilities interchangeable. In particular,
+The first shared verification core is vendored in every package, and 1.4.0 adds
+the shared portable dashboard core behind each product's native adapter;
+product adapters keep host setup and permissions explicit. Matching contracts do not make host capabilities interchangeable. In particular,
 Kimi Work remains experimental for LazyKimi, and DeepSeek's synthesized events
 are not native hooks. Use each sibling's host guide before installation.
 
@@ -241,7 +312,9 @@ The commercial TraeCode CLI is a separate host from the open-source TRAE-agent
 project. LazyTrae remains a separate native integration with its own package
 and observed-host evidence. It does not substitute TRAE-agent execution for a
 commercial CLI session. The base topology is one active core MCP server with
-15 tools; seven optional capability declarations remain disabled placeholders.
+17 tools, including the `lazytrae.dashboard` management tool and the
+`lazytrae.project` record tool; seven optional
+capability declarations remain disabled placeholders.
 
 Loop selection returns distinct active, blocked, failed, exhausted, and complete
 outcomes. Only a verified checkpoint records loop completion. Starting a pending

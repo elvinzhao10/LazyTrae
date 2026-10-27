@@ -9,6 +9,8 @@ const commands = {
   onboard: () => require('./commands/init').run,
   initdeep: () => require('./commands/init').run,
   doctor: () => require('./commands/doctor').run,
+  dashboard: () => require('./commands/dashboard').run,
+  project: () => require('./commands/project').run,
   sync: () => require('./commands/sync').run,
   status: () => require('./commands/status').run,
   offboard: () => require('./commands/offboard').run,
@@ -57,6 +59,8 @@ Commands:
   onboard     Compatible onboarding alias for safe core installation
   initdeep    Compatible InitDeep alias for safe core installation
   doctor      Check LazyTrae installation health
+  dashboard   Open or inspect the live native loop dashboard
+  project     Opt-in persistent project record over the vendored family core
   sync        Update managed templates and managed blocks
   status      Report independent package and host adapter evidence
   offboard    Remove exact outputs owned by one host adapter

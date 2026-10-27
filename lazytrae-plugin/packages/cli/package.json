@@ -1,6 +1,6 @@
 {
   "name": "lazytrae-ai",
-  "version": "1.3.5",
+  "version": "1.4.0",
   "description": "LazyTrae CLI installer and doctor — Trae-native workflows with MCP support",
   "main": "src/index.js",
   "bin": {
@@ -35,11 +35,11 @@
   "dependencies": {
     "ajv": "^8.12.0",
     "ajv-formats": "3.0.1",
-    "fast-uri": "4.2.2"
+    "fast-uri": "4.2.3"
   },
   "overrides": {
     "ajv": {
-      "fast-uri": "3.1.8"
+      "fast-uri": "3.1.9"
     }
   },
   "bundledDependencies": [

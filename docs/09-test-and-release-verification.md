@@ -1,6 +1,6 @@
 # Test and release verification
 
-**Current documentation release: v1.3.5.** Release checks must distinguish a
+**Current documentation release: v1.4.0.** Release checks must distinguish a
 local generator/profile/probe result from a native host observation.
 
 LazyTrae uses layered evidence. A release check is useful only when its scope is explicit: a unit test does not prove a packed artifact, a packed artifact does not prove a host connection, and host observation does not rewrite package ownership.
@@ -32,6 +32,27 @@ The fixture harness uses two workers by default. Set
 out-of-range values fail before tests start. The bounded lock/process timing
 tests stay on the serial path even when the rest of the suite uses concurrency.
 
+### Standalone MCP package and the publish gap
+
+`lazytrae-plugin/packages/mcp` declares the exact published CLI package
+(`lazytrae-ai`) as its dependency. Until the `lazytrae-ai` 1.4.0-family
+versions are published to npm, a plain `npm ci` in `packages/mcp` cannot
+resolve that pin and fails; this is a known publish gap, not a broken package.
+The documented local workaround uses the CLI tarball directly:
+
+```bash
+npm pack lazytrae-plugin/packages/cli --pack-destination <disposable-dir>
+mkdir -p lazytrae-plugin/packages/mcp/node_modules/lazytrae-ai
+tar -xzf <disposable-dir>/lazytrae-ai-<version>.tgz \
+  -C lazytrae-plugin/packages/mcp/node_modules/lazytrae-ai --strip-components=1
+npm test --prefix lazytrae-plugin/packages/mcp
+```
+
+The extracted route is gitignored local install state for testing only; remove
+the disposable pack directory afterwards. Development checks in
+[CONTRIBUTING.md](../CONTRIBUTING.md) scope `npm ci` to `packages/cli`, which
+has no unpublished dependency and stays installable.
+
 ## Release evidence boundary
 
 `doctor` reports readiness and warnings. `verify --must-pass` adds completion gate status and exits unsuccessfully when either doctor or the gates are not ready. Trae hooks are advisory, so completion enforcement intentionally lives in these CLI/MCP paths rather than in host hook exit codes.
@@ -45,7 +66,7 @@ checked-in efficiency baseline.
 
 Normal CI is self-contained: it does not require a sibling repository. Documentation and contract parity with LazyBuddy are release-only paired parity checks, run only when both absolute roots are explicitly supplied. That keeps the shared safety contract auditable without creating a runtime, installer, or CI dependency between packages.
 
-Package CI coverage runs on the operating systems and Node versions listed in the workflows. Trae asset discovery, hooks, MCP calls, specialist behavior, cancellation, and completion require separate manual observation in the selected current host session. The supplied host observations are historical macOS reports and do not establish current v1.3.5 readiness.
+Package CI coverage runs on the operating systems and Node versions listed in the workflows. Trae asset discovery, hooks, MCP calls, specialist behavior, cancellation, and completion require separate manual observation in the selected current host session. The supplied host observations are historical macOS reports and do not establish current v1.4.0 readiness.
 
 Historical QA of the published v1.3.0 archive also invoked installed `init`, `status`, `sync`, and
 adaptive/handoff surfaces. It confirms a complete native context capsule,
@@ -120,7 +141,7 @@ and W5.4 is **PENDING** — record it per host in the current
 
 ## Manual host-session verification record
 
-Automated CI and package checks do not establish host activation. Current observation: no current TraeCode, TraeWork, or TraeCode CLI session has been observed. The supplied macOS host reports are historical and do not establish v1.3.5 behavior. Keep the per-host record below pending until observed; do not fill unknown fields from package files or a previous build.
+Automated CI and package checks do not establish host activation. Current observation: no current TraeCode, TraeWork, or TraeCode CLI session has been observed. The supplied macOS host reports are historical and do not establish v1.4.0 behavior. Keep the per-host record below pending until observed; do not fill unknown fields from package files or a previous build.
 
 Before a host session, record the candidate commit or archive SHA and package-check result. In the selected user-approved host, record host product, exact version/build, edition or region when shown, OS, selected route, install root, fresh session ID and start time. Then observe a real Skill/command/hook appropriate to that route and record the exact invocation and result. Invoke one named specialist for a bounded task and capture the host-visible action and actual outputs. Start a bounded delegated task, cancel it through the host, and record cancellation propagation plus whether any late write occurred. Complete a small task and inspect the actual changed paths, task/plan status, and completion artifact; record artifact paths and hashes alongside the content review. Hashes prove byte integrity only, not independent truth. Follow the [outcome-evaluation protocol](../lazytrae-plugin/packages/cli/contracts/OUTCOME-EVALUATION.md) for cost and cohort claims. For the selected Trae route, record the real core MCP tool call and every expected server/tool status declared by that route.
 
