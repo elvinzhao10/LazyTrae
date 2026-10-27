@@ -159,7 +159,8 @@ async function listen(options, control) {
             || command.project_id !== options.projectId) throw new ServiceError('COMMAND_BINDING_MISMATCH', 409);
           try {
             const result = requireInitialized(await executeProjectCommand(options.projectRoot, command, actor, options.projectId));
-            send(response, result, result.receipt?.status === 'conflict' ? 409 : 200);
+            const query = ['project.read', 'project.change.preview', 'source.map', 'source.edit.preview'].includes(command.operation);
+            send(response, query ? { result } : result, result.receipt?.status === 'conflict' ? 409 : 200);
           } catch (error) { throw projectFailure(error); }
           return;
         }

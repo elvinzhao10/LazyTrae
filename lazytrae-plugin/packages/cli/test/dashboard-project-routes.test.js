@@ -152,6 +152,41 @@ test('native project HTTP routes preserve Trae identity, source boundaries and c
       assert.equal(conflict.value.receipt.reason, 'REVISION_CONFLICT');
     });
 
+    await t.test('read-only editor queries return the dashboard result envelope', async () => {
+      const statePath = path.join(root, PROJECT.STATE_PATH);
+      const before = fs.readFileSync(statePath);
+      const map = { schema_version: 1, command_id: 'http:map', project_id: projectId,
+        expected_revision: 1, operation: 'source.map', payload: { source_id: 'source:group/plan' } };
+      assert.equal((await request(live.url, '/api/project/commands', { method: 'POST', body: map })).status, 401);
+      const response = await request(live.url, '/api/project/commands', { method: 'POST', token, body: map });
+      assert.equal(response.status, 200, response.text);
+      assert.equal(response.value.result.operation, 'source.map');
+      assert.equal(response.value.result.observation, 'current');
+      assert.ok(response.value.result.anchors.length > 0);
+      const preview = { ...map, command_id: 'http:preview', operation: 'source.edit.preview',
+        payload: { authority: 'local:test', source_id: 'source:group/plan', expected_sha256: sha256(source),
+          expected_source_revision: 1, edits: [{ kind: 'set_task_text', anchor_id: 'document', item: 0, text: 'Updated task' }] } };
+      const previewResponse = await request(live.url, '/api/project/commands', { method: 'POST', token, body: preview });
+      assert.equal(previewResponse.status, 200, previewResponse.text);
+      assert.equal(previewResponse.value.result.operation, 'source.edit.preview');
+      assert.equal(previewResponse.value.result.status, 'invalid');
+      const valid = { ...preview, command_id: 'http:valid-preview', payload: { ...preview.payload,
+        edits: [{ kind: 'rename_heading', anchor_id: response.value.result.anchors[0].anchor_id, title: 'Updated plan' }] } };
+      const validResponse = await request(live.url, '/api/project/commands', { method: 'POST', token, body: valid });
+      assert.equal(validResponse.status, 200, validResponse.text);
+      assert.equal(validResponse.value.result.status, 'valid');
+      assert.match(validResponse.value.result.patch_text, /Updated plan/);
+      const stale = await request(live.url, '/api/project/commands', { method: 'POST', token,
+        body: { ...map, command_id: 'http:stale-map', expected_revision: 0 } });
+      assert.equal(stale.value.result.status, 'conflict');
+      assert.equal(stale.value.result.reason, 'REVISION_CONFLICT');
+      const foreign = await request(live.url, '/api/project/commands', { method: 'POST', token,
+        body: { ...map, project_id: 'trae:foreign' } });
+      assert.equal(foreign.status, 409);
+      assert.deepEqual(fs.readFileSync(statePath), before);
+      assert.equal(fs.readFileSync(path.join(root, 'docs/plan.md'), 'utf8'), source);
+    });
+
     await t.test('encoded source identity resolves only its registered Markdown file', async () => {
       const response = await request(live.url, '/api/project/sources/source:group%2Fplan', { token });
       assert.equal(response.status, 200);
