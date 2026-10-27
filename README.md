@@ -21,32 +21,82 @@ a host is only considered ready after it is observed in a fresh session.
 
 ## What's in 1.4.0
 
-The dashboard includes a visual run monitor with separate execution and verification progress, activity and token charts, retained-run efficiency charts, a searchable resource trace, and a Health inventory. Charts reflect available recorded data; missing usage remains unknown and comparisons do not establish an efficiency improvement. Research capture records findings and supports SHA-256-bound evidence references without copying the source or granting verification. Drafts, filters and display state survive background refresh; identical revisions are skipped.
+- An authenticated local dashboard with eight destinations: **Overview, Project,
+  Plans, Health, Execution, Git, Evidence and Research**.
+- A project record, editable plans, queue planning and research capture, with
+  source revisions and evidence references visible for review.
+- A run monitor that separates execution progress from verified completion,
+  plus reported token usage, resource activity and retained-run history.
+- A Health inventory of package components, separate from observed host activity.
 
-- The family's portable dashboard core is vendored behind a native Trae adapter: `lazytrae dashboard start|open|status|stop [--port]|snapshot|context|execute` and an authenticated loopback browser UI.
-- The core MCP server gains its sixteenth tool, `lazytrae.dashboard`; it manages the owned dashboard or reads native task context and does not execute tasks.
-- The family's persistent project core is vendored behind a native Trae store: `lazytrae project init|read|command` keeps the record strictly opt-in (`read` and `command` are inert typed not-initialized results before `init`), and the seventeenth MCP tool `lazytrae.project` reads the record or submits one typed project command; it never initializes and never schedules work.
-- Queue planning in the browser UI can create, amend, and reorder queued plans; queue edits never start work, and dispatch stays an explicitly invoked bounded CLI workload with a separate verifier.
-- The completion pass repinned both vendored families at `bb696092` (dashboard tree `e55a9c00…`, project tree `16561f3…`), carrying the family's redesigned project dashboard — dark-first family design language, a de-tabbed shell with a static retractable sidebar and in-place navigation, six redesigned views, navigation guards — alongside Trae's per-repo store isolation, the foreign-authored-native-state refusal, and the conservative approval/permissions/ACP rescan adoption.
-- Documentation now states the honest capability labels: host embedding, chat handoff, and wake remain unobserved; host readiness stays pending; `dashboard context` reports `host_execution: not-observed`.
+The core MCP server exposes 17 tools. `lazytrae.dashboard` manages the local
+service or reads task context; `lazytrae.project` reads and updates an explicitly
+initialized project record. Neither MCP tool executes work.
 
-This release adds the shared dashboard surface to the workflow foundation
-introduced in the family since v1.3.0. The details below describe the
-cumulative v1.4.0 experience; the [release notes](RELEASE_NOTES.md)
-distinguish this release's additions from inherited features. No new speed,
-token-saving or cost claim is made.
+The release builds on the existing planning, decision-memory and verification
+workflows described below. No speed, token-saving or cost improvement is
+claimed. See the [release notes](RELEASE_NOTES.md) for compatibility and upgrade
+boundaries; historical changes remain in `CHANGELOG.md`.
 
-| Family milestone | What you get in the current package |
-| --- | --- |
-| v1.3.0 foundation | Natural-language entry, editable plans, durable decisions and verification tiers. |
-| v1.3.1 reliability | Clearer execution intent, safer isolation and evidence comparisons. |
-| v1.3.2 handoff | Revision-bound verification-report contracts; generic completion APIs have separate limits. |
-| v1.3.3 hardening | Host-specific hook, MCP and publication repairs. |
-| v1.3.4 maintenance | Transactional run integrity, safer lifecycle and native adapter repairs. |
-| v1.3.5 repairs | Real runtime exercises, bounded hooks, dependency updates and current platform guidance. |
-| v1.4.0 dashboard | Vendored portable dashboard core, native Trae adapter, sixteenth MCP tool, queue planning UI and honest capability labels. |
-| v1.4.0 project platform | Vendored persistent project core, native opt-in project record (`lazytrae project`), seventeenth MCP tool and Trae goal-identity mapping. |
-| v1.4.0 completion | Repinned families at `bb696092` with the redesigned project dashboard (dark-first, sidebar shell, in-place navigation), per-repo isolation, native-state refusal and the Trae rescan adoption. |
+## Browser dashboard (v1.4.0)
+
+After explicit project initialization, the dashboard provides **Overview,
+Project, Plans, Health, Execution, Git, Evidence and Research** in a collapsible
+sidebar. Contextual Details keep the selected item in view; maps support pan,
+zoom and an expanded modal. Theme and density preferences persist, and
+navigation guards protect unsaved edits.
+
+Execution progress and verification are separate. Token charts, resource
+activity and retained-run comparisons show available records; missing usage
+remains unknown. Health lists package Skills, commands, agents, hooks and MCP
+components without treating that inventory as host activation.
+
+Plans and research expose source revisions and evidence references. A hash
+reference does not preserve an immutable copy of its source or verify a
+finding. Source edits require authentication, the correct native project
+binding and a matching revision; stale edits conflict instead of overwriting
+newer work. Queue edits never start execution.
+
+The service binds to authenticated loopback, and each repository keeps its own
+project state. Browser access, transactional edits, queue planning, context
+copy and observations are package capabilities. Host embedding, chat handoff
+and wake remain unobserved; **HOST READINESS: PENDING** still applies.
+
+The portable dashboard and project cores are pinned in
+`lazytrae-plugin/packages/cli/shared/dashboard.vendor.json` and
+`lazytrae-plugin/packages/cli/shared/project.vendor.json`. The
+[documentation index](docs/README.md) covers package architecture and usage.
+
+### Native dashboard commands
+
+Use the durable launcher shown in the install guide for
+`dashboard start|open|status|stop|snapshot|context`. Service lifecycle commands accept
+an optional port; `context` reports `host_execution: not-observed`.
+Task execution is a separate CLI-only operation:
+
+```text
+lazytrae dashboard execute <goal-id> <criterion-id> --executor <project-relative-node-script> --verifier <different-project-relative-node-script> [--timeout ms]
+```
+
+The scripts receive captured task context on stdin. The separate verifier must
+exit successfully with non-empty output before a receipt is published. HTTP
+and MCP dashboard operations do not invoke this execution path.
+
+### Dashboard gallery
+
+Recorded demo data served by the native local dashboard; not a live host-session receipt.
+
+**Overview** — execution and verification progress, recorded activity and the project map.
+
+![LazyTrae dashboard Overview with recorded demo data](docs/images/dashboard-overview.jpg)
+
+**Plans** — plan records, source context and revision-aware review.
+
+![LazyTrae dashboard Plans with recorded demo data](docs/images/dashboard-plans.jpg)
+
+**Health** — package component inventory, separate from observed host activity.
+
+![LazyTrae dashboard Health with recorded demo data](docs/images/dashboard-health.jpg)
 
 ### Just ask, or use a command — both work
 
@@ -95,57 +145,6 @@ Milestones, decision gates, and full state/version semantics are shared
 byte-identically with LazyBuddy and LazyQoder (see
 `lazytrae-plugin/packages/cli/contracts/lazyseries-shared-semantics.v1.json`).
 
-## Browser dashboard (1.4.0)
-
-LazyTrae 1.4.0 vendors the family's portable dashboard core
-(`packages/cli/shared/dashboard/`, byte-identical with the LazyBuddy source and
-hash-pinned in `shared/dashboard.vendor.json`) behind a native Trae adapter.
-The CLI owns an authenticated loopback service and a browser UI:
-
-```text
-lazytrae dashboard start        # start the owned loopback service
-lazytrae dashboard open         # start and print the browser URL plus the protected credential file
-lazytrae dashboard status       # report service state
-lazytrae dashboard stop         # stop the service
-lazytrae dashboard snapshot     # print the same native snapshot
-lazytrae dashboard context <goal-id>   # print read-only task context (host_execution: not-observed)
-```
-
-`start`, `open`, `status`, and `stop` accept `--port N`; without it the service
-binds an owned loopback port. The browser UI offers Work, Verification, and
-Plan-edits views, a task inspector, an evidence preview dialog, and queue
-planning where you can create, amend, and reorder queued plans. Queue edits
-never start work: dispatch happens only through the explicit execute path
-below, and competing edits at one revision conflict without mutation.
-
-After an explicit project init the same served UI mounts the family's project
-dashboard — a tab-free single surface: a static retractable sidebar
-(WORKSPACE/OBSERVATION destination groups, 56px icon rail, Cmd/Ctrl+B;
-Cmd/Ctrl+1..7 jump to destinations) navigates in place over a capped history
-stack, with the dock inspector on the right. The family design language is
-dark-first (light/dark/system persists) on design tokens v2, with the product
-accent marking identity and wayfinding only. Keyboard map: Tab keeps the
-native ring; `j`/`k` traverse list scopes; `/` focuses the first filter;
-Escape closes the topmost overlay and returns focus; segmented controls take
-Arrow/Home/End. Each repository's dashboard stores stay isolated to that
-repository, and a foreign runtime's writes are refused.
-
-The MCP tool `lazytrae.dashboard` (actions `start|open|status|stop|snapshot|context`)
-delegates to the installed checked CLI route. **It does not execute tasks.**
-Task execution stays a CLI-only, explicitly invoked bounded workload:
-
-```text
-lazytrae dashboard execute <goal-id> <criterion-id> --executor <project-relative-node-script> --verifier <different-project-relative-node-script> [--timeout ms]
-```
-
-Both scripts receive a read-only captured JSON task context on stdin; the
-separate verifier must exit zero with non-empty output before any receipt is
-published. This is a local Node workload, never an HTTP or MCP operation.
-
-Honest boundaries: native host embedding, chat handoff, and wake-from-host
-remain **unobserved**, and host readiness stays **PENDING** — the dashboard is
-package-owned local software, not proof that a Trae host embedded or executed
-it. `dashboard context` reports `host_execution: not-observed`.
 
 ## Recommended: install with AI help
 
@@ -166,6 +165,10 @@ Manual setup is available when you prefer complete control. You need
 `https://github.com/elvinzhao10/LazyTrae` and follow the
 [installation guide](docs/03-install-and-host-verification.md).
 
+This release is distributed through GitHub. Its release workflow does not
+publish `lazytrae-ai` or `@lazytrae/mcp-server` to npm; registry-dependent setup
+requires a separate publication. Use the durable GitHub onboarding route below.
+
 Run `lifecycle onboard` once to create a durable installation. After that, use
 the stable launcher for `lifecycle status` and safe lifecycle actions:
 
@@ -183,6 +186,11 @@ Until that is observed, the honest result is **HOST READINESS: PENDING**.
 Local files and checks never prove that a host has loaded the package.
 
 ## Choose one route
+
+Current CN TRAE combines Agent and IDE modes, while TRAE SOLO CN and CLI
+remain distinct surfaces. The names below are version-specific package
+adapters; confirm the selected region, build and mode against the
+[platform audit](docs/reference/platform-status-2026-10-27.md).
 
 Pick one host route during onboarding:
 
@@ -226,6 +234,9 @@ package checks separate from settings and connector changes.
 
 ## Package inventory
 
+These counts describe shipped definitions and declarations, not loaded host
+components.
+
 | Surface | Count | Role |
 | --- | ---: | --- |
 | Skills | 17 | Host-facing workflow policies for planning, execution, review, and verification. |
@@ -246,7 +257,7 @@ acceptance evidence. These packages run independently.
 | [LazyQoder](https://github.com/elvinzhao10/LazyQoder) | Qoder CLI / IDE / app |
 | [LazyZCode](https://github.com/elvinzhao10/LazyZCode) | ZCode |
 | [LazyKimi](https://github.com/elvinzhao10/LazyKimi) | Kimi Code CLI · Kimi Work (experimental) |
-| [LazyDeepSeek](https://github.com/elvinzhao10/LazyDeepSeek) | DeepSeek Harness 0.2.0-rc.2 |
+| [LazyDeepSeek](https://github.com/elvinzhao10/LazyDeepSeek) | DeepSeek Harness 0.2.1-rc.3 |
 
 The family shares planning, evidence, decision-memory and completion contracts.
 The first shared verification core is vendored in every package, and 1.4.0 adds
