@@ -8,10 +8,24 @@ const { read: readProject, readSource: readProjectSource, execute: executeProjec
 const { authentication, checkRequest, readBody } = require('./dashboard-service-auth');
 const { capture: nativeCapture, evidence: nativeEvidence } = require('./dashboard-snapshot');
 const { hash, safeRead, DashboardError: ServiceError } = require('./dashboard-files');
-const capture = (options, cursor) => nativeCapture(options.projectRoot, cursor);
-const evidence = (options, id) => nativeEvidence(options.projectRoot, id);
+const capture = (options, cursor) => nativeCapture(options.projectRoot, cursor, options.runId);
+const evidence = (options, id) => nativeEvidence(options.projectRoot, id, options.runId);
 const projectPortable = name => import(pathToFileURL(resolve(__dirname, '../../shared/project', name)).href);
 const dashboardPortable = name => import(pathToFileURL(resolve(__dirname, '../../shared/dashboard/ui', name)).href);
+async function projectHealth() {
+  const { collectPackageHealth } = await import(pathToFileURL(resolve(__dirname, '../../shared/dashboard/adapters/package-health.mjs')).href);
+  return collectPackageHealth({ runtime: 'LazyTrae', pluginRoot: resolve(__dirname, '../../../..'), packageVersion: require('../../package.json').version,
+    capabilities: { browser: 'available', project_platform: 'available', project_source_editing: 'available', project_telemetry: 'available', context_copy: 'available' } });
+}
+async function projectTelemetry(options) {
+  const { runtimeTelemetry, attachCostHistory } = await import(pathToFileURL(resolve(__dirname, '../../shared/dashboard/adapters/telemetry.mjs')).href);
+  const project = requireInitialized(await readProject(options.projectRoot, options.projectId)).snapshot;
+  let run = null; let error = null;
+  try { if (options.runId) run = (await capture(options)).snapshot; }
+  catch (failure) { error = failure.code ?? 'RUN_READ_FAILED'; }
+  return attachCostHistory(runtimeTelemetry(project, run, error), { runtime: 'LazyTrae',
+    readFile: (reference, limit) => safeRead(options.projectRoot, reference, limit) });
+}
 function decodeCursor(value) {
  if (value === undefined) return null;
  if (typeof value !== 'string' || value.length > 4096 || !/^[A-Za-z0-9_-]+$/.test(value)) throw new ServiceError('RESYNC_REQUIRED', 409);
@@ -123,7 +137,8 @@ async function listen(options, control) {
           return;
         }
         const detailRoute = { '/api/project/architecture': projectArchitecture,
-          '/api/project/git': projectGit, '/api/project/evidence': projectEvidence }[request.url];
+          '/api/project/git': projectGit, '/api/project/evidence': projectEvidence, '/api/project/health': projectHealth,
+          '/api/project/telemetry': projectTelemetry }[request.url];
         if (request.method === 'GET' && detailRoute) {
           try { send(response, await detailRoute(options, actor)); }
           catch (error) { throw projectFailure(error); }

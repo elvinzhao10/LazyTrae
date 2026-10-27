@@ -66,6 +66,17 @@ test('native project HTTP routes preserve Trae identity, source boundaries and c
     const token = session.value.token;
     const projectId = NATIVE_STATE.projectId(root);
 
+    await t.test('package health is authenticated and does not initialize a project', async () => {
+      assert.equal((await request(live.url, '/api/project/health')).status, 401);
+      const response = await request(live.url, '/api/project/health', { token });
+      assert.equal(response.status, 200, response.text);
+      assert.equal(response.value.schema, 'lazybuddy/plugin-health@1');
+      assert.equal(response.value.sections[0].items[0].observed, 'LazyTrae');
+      assert.equal(response.value.sections.find(section => section.id === 'host').items[0].status, 'unavailable');
+      assert.equal(fs.existsSync(path.join(root, PROJECT.STATE_PATH)), false);
+      assert.ok(!response.text.includes(credential) && !response.text.includes(token));
+    });
+
     await t.test('read before explicit init is authenticated, inert and not found', async () => {
       const statePath = path.join(root, PROJECT.STATE_PATH);
       const registryPath = path.join(root, PROJECT.REGISTRY_PATH);
@@ -88,6 +99,12 @@ test('native project HTTP routes preserve Trae identity, source boundaries and c
       assert.ok(Array.isArray(response.value.project.plans), 'HTTP project is the shared snapshot, not the native helper envelope');
       assert.equal(response.value.native_loop.project_id, projectId);
       assert.equal(response.value.native_loop.run_id, 'run-project-http');
+      assert.equal((await request(live.url, '/api/project/telemetry')).status, 401);
+      const telemetry = await request(live.url, '/api/project/telemetry', { token });
+      assert.equal(telemetry.status, 200, telemetry.text);
+      assert.equal(telemetry.value.schema, 'lazyseries/runtime-telemetry@1');
+      assert.equal(telemetry.value.project_id, projectId);
+      assert.equal(telemetry.value.usage, null);
       const uiRoot = path.resolve(__dirname, '../shared/dashboard/ui');
       const { createLiveProjectAdapter } = await import(pathToFileURL(path.join(uiRoot, 'live-project-adapter.mjs')).href);
       const { overviewFixture } = await import(pathToFileURL(path.join(uiRoot, 'overview-fixture.mjs')).href);
@@ -311,6 +328,41 @@ test('project-only dashboard start refuses to initialize an empty repository', a
     assert.equal(fs.existsSync(path.join(root, PROJECT.REGISTRY_PATH)), false);
     assert.equal(fs.existsSync(path.join(root, '.lazytrae', 'dashboard')), false);
   } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('run-bound service refuses a replacement native loop', async () => {
+  const root = fixture();
+  const projectId = NATIVE_STATE.projectId(root);
+  const options = { projectRoot: root, projectId, runId: 'run-project-http', assetRoot: path.resolve(__dirname, '../shared/dashboard/ui') };
+  let live; let unexpected;
+  try {
+    await PROJECT.init(root, { projectId });
+    await assert.rejects(async () => { unexpected = await SERVICE.lifecycle('start', { ...options, runId: 'other-run' }); },
+      error => error.code === 'RUN_BINDING_MISMATCH');
+    live = await SERVICE.lifecycle('start', options);
+    const credential = fs.readFileSync(live.credential_file, 'utf8');
+    const session = await request(live.url, '/api/session', { method: 'POST', body: {}, headers: { 'x-dashboard-bootstrap': credential } });
+    const token = session.value.token;
+    assert.equal((await request(live.url, '/api/snapshot', { token })).value.snapshot.run_id, options.runId);
+    const loopPath = path.join(root, '.lazytrae/state/active-loop.json');
+    const loop = JSON.parse(fs.readFileSync(loopPath, 'utf8'));
+    loop.run_id = 'replacement-run';
+    fs.writeFileSync(loopPath, JSON.stringify(loop));
+    for (const route of ['/api/snapshot', '/api/updates', `/api/evidence/${'a'.repeat(64)}`]) {
+      const response = await request(live.url, route, { token });
+      assert.equal(response.status, 409, route);
+      assert.equal(response.value.code, 'RUN_BINDING_MISMATCH', route);
+    }
+    const telemetry = await request(live.url, '/api/project/telemetry', { token });
+    assert.equal(telemetry.status, 200);
+    assert.equal(telemetry.value.run_id, null);
+    assert.equal(telemetry.value.monitor.available, false);
+    assert.ok(telemetry.value.problems.some(problem => problem.detail === 'RUN_BINDING_MISMATCH'));
+  } finally {
+    if (live) await SERVICE.lifecycle('stop', { ...options, port: live.identity.port });
+    if (unexpected) await SERVICE.lifecycle('stop', { ...options, runId: 'other-run', port: unexpected.identity.port });
     fs.rmSync(root, { recursive: true, force: true });
   }
 });

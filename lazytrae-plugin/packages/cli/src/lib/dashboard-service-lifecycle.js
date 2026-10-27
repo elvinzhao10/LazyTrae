@@ -54,7 +54,7 @@ async function lifecycle(action, rawOptions) {
     if (options.runId === null) {
       const project = await readProject(options.projectRoot, options.projectId);
       if (project.initialized === false) throw new ServiceError('PROJECT_NOT_INITIALIZED', 404);
-    } else await capture(options.projectRoot);
+    } else await capture(options.projectRoot, undefined, options.runId);
     if (interrupted) throw new ServiceError('START_INTERRUPTED');
     let credential;
     try { credential = (await privateRead(options.directory, 'credential')).toString(); }
