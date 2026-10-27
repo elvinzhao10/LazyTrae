@@ -136,3 +136,22 @@ test('workflow regression rejects missing gates, unpinned actions, and dry-run p
   assert.throws(() => validateWorkflow(`${contents}\n      - uses: actions/checkout@v4\n        with:\n          repository: example/LazyBuddy\n`), /sibling checkout/);
   assert.throws(() => validateWorkflow(`${contents}\n      - run: lazytrae tooling enable codegraph\n`), /optional-tool activation/);
 });
+
+test('archive name extraction handles large npm pack inventories in both jobs', () => {
+  const workflow = fs.readFileSync(WORKFLOW_PATH, 'utf8');
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'lazytrae-pack-inventory-'));
+  try {
+    const inventory = JSON.stringify([{ filename: 'lazytrae-ai-1.4.0.tgz', files: [{ path: 'x'.repeat(4 * 1024 * 1024) }] }]);
+    fs.writeFileSync(path.join(temporaryRoot, 'pack.json'), inventory);
+    for (const job of ['mcp', 'package']) {
+      const line = jobBlock(workflow, job).split('\n').find(value => value.trimStart().startsWith('archive_name='));
+      assert.ok(line, `${job} must extract the archive name`);
+      const script = `set -euo pipefail\ntemporary_root="$1"\npack_json="$(cat "$temporary_root/pack.json")"\n${line.trim()}\nprintf '%s' "$archive_name"`;
+      const result = childProcess.spawnSync('bash', ['-c', script, 'bash', temporaryRoot], { encoding: 'utf8' });
+      assert.equal(result.status, 0, `${job}: ${result.stderr}`);
+      assert.equal(result.stdout, 'lazytrae-ai-1.4.0.tgz');
+    }
+  } finally {
+    fs.rmSync(temporaryRoot, { recursive: true, force: true });
+  }
+});

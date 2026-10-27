@@ -119,8 +119,8 @@ jobs:
             rm -rf "$temporary_root"
           }
           trap cleanup EXIT
-          pack_json="$(npm pack --json --pack-destination "$temporary_root" ../cli)"
-          archive_name="$(node -e "const [entry] = JSON.parse(process.argv[1]); if (!entry?.filename) process.exit(1); process.stdout.write(entry.filename)" "$pack_json")"
+          npm pack --json --pack-destination "$temporary_root" ../cli > "$temporary_root/pack.json"
+          archive_name="$(node -e "const [entry] = JSON.parse(require('node:fs').readFileSync(process.argv[1], 'utf8')); if (!entry?.filename) process.exit(1); process.stdout.write(entry.filename)" "$temporary_root/pack.json")"
           test -f "$temporary_root/$archive_name"
           mkdir -p node_modules/lazytrae-ai
           tar -xzf "$temporary_root/$archive_name" -C node_modules/lazytrae-ai --strip-components=1
@@ -151,8 +151,8 @@ jobs:
             rm -rf "$temporary_root"
           }
           trap cleanup EXIT
-          pack_json="$(npm pack --json --pack-destination "$temporary_root")"
-          archive_name="$(node -e "const [entry] = JSON.parse(process.argv[1]); if (!entry?.filename) process.exit(1); process.stdout.write(entry.filename)" "$pack_json")"
+          npm pack --json --pack-destination "$temporary_root" > "$temporary_root/pack.json"
+          archive_name="$(node -e "const [entry] = JSON.parse(require('node:fs').readFileSync(process.argv[1], 'utf8')); if (!entry?.filename) process.exit(1); process.stdout.write(entry.filename)" "$temporary_root/pack.json")"
           tarball="$temporary_root/$archive_name"
           test -f "$tarball"
           for member in package/package.json package/bin/lazytrae.js package/src/index.js package/LICENSE package/NOTICE package/README.md; do
