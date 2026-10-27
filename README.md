@@ -8,11 +8,11 @@
 
 **Describe the work. Keep the plan. Prove the result.**
 
-LazyTrae helps you use structured, evidence-based workflows in **TraeCode**,
-**TraeWork**, and **TraeCode CLI**. It prepares local project assets and checks;
+LazyTrae helps you use structured, evidence-based workflows across the package routes for **TraeCode**,
+**TraeWork**, and **TraeCode CLI**. Current CN documentation describes a unified TRAE with Agent and IDE modes; select the exact build and mode before using a legacy route. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-[Platform status](docs/reference/platform-status-2026-10-02.md) · [Get started](#recommended-install-with-ai-help) · [Host routes](#choose-one-route) ·
+[Platform status](docs/reference/platform-status-2026-10-27.md) · [Get started](#recommended-install-with-ai-help) · [Host routes](#choose-one-route) ·
 [1.4.0 notes](RELEASE_NOTES.md) · [Family](#lazyseries-family) · [Docs](docs/)
 
 > **Current package version: v1.4.0. HOST READINESS: PENDING.** Local checks and release
@@ -20,6 +20,8 @@ a host is only considered ready after it is observed in a fresh session.
 > command/skill execution and MCP connections.
 
 ## What's in 1.4.0
+
+The dashboard includes a visual run monitor with separate execution and verification progress, activity and token charts, retained-run efficiency charts, a searchable resource trace, and a Health inventory. Charts reflect available recorded data; missing usage remains unknown and comparisons do not establish an efficiency improvement. Research capture records findings and supports SHA-256-bound evidence references without copying the source or granting verification. Drafts, filters and display state survive background refresh; identical revisions are skipped.
 
 - The family's portable dashboard core is vendored behind a native Trae adapter: `lazytrae dashboard start|open|status|stop [--port]|snapshot|context|execute` and an authenticated loopback browser UI.
 - The core MCP server gains its sixteenth tool, `lazytrae.dashboard`; it manages the owned dashboard or reads native task context and does not execute tasks.

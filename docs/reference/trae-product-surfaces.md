@@ -1,6 +1,6 @@
 # Trae product surfaces — v1.4.0
 
-Reviewed 2026-10-02; rescanned 2026-10-18. TraeCode IDE, TraeWork and TraeCode
+Reviewed 2026-10-02; rescanned 2026-10-18. See the [2026-10-27 audit](platform-status-2026-10-27.md) for the current CN merger and dated releases. TraeCode IDE, TraeWork and TraeCode
 CLI are separate execution surfaces. Record region, application/build and
 execution profile. Global TRAE and CN TraeCode documentation must not be
 treated as identical. The 2026-10-18 rescan found the global portal

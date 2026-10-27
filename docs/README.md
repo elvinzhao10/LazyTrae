@@ -5,8 +5,9 @@ installation manual: each page names the executable boundary, the data it
 owns, and the evidence that constrains its behavior. Use the root
 [README](../README.md) for host directions.
 
-The current documentation release is [v1.4.0](../RELEASE_NOTES.md). Its
-adaptive context guidance keeps native selection separate from advisory,
+The current documentation release is [v1.4.0](../RELEASE_NOTES.md).
+[Current platform status](reference/platform-status-2026-10-27.md) records the CN
+unified TRAE documentation and per-route evidence limits. Adaptive context guidance keeps native selection separate from advisory,
 unobserved host presentation.
 
 ## System at a glance

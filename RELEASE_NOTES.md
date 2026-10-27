@@ -1,10 +1,14 @@
 # LazyTrae v1.4.0 - vendored dashboard core and native Trae adapter
 
+**2026-10-27 documentation audit:** CN TRAE documents the merger of TraeCode and TraeWork and lists v3.4.1–3.4.4 on 2026-10-15. Existing adapter names are retained as version-specific package routes, pending actual host verification. See [platform status](docs/reference/platform-status-2026-10-27.md) for sources, local version observations, and feature boundaries. No host activation is claimed.
+
 A feature release across the six LazySeries siblings: the family's portable
 dashboard core is vendored identically into every package and wired through a
 native Trae adapter.
 
 ## Completion pass (2026-10-19)
+
+The dashboard includes a visual run monitor with separate execution and verification progress, activity and token charts, retained-run efficiency charts, a searchable resource trace, and a Health inventory. Charts reflect available recorded data; missing usage remains unknown and comparisons do not establish an efficiency improvement. Research capture records findings and supports SHA-256-bound evidence references without copying the source or granting verification. Drafts, filters and display state survive background refresh; identical revisions are skipped.
 
 A scoped completion pass over the 1.4.0 surfaces; every bullet cites the
 branch commit that delivers it.
@@ -96,7 +100,7 @@ execution. Host embedding, chat handoff, and wake remain unobserved.
 
 ## Host capability matrix
 
-TraeCode, TraeWork, and TraeCode CLI remain three independent hosts. The
+TraeCode, TraeWork, and TraeCode CLI remain distinct package routes. Current CN TRAE unifies the former desktop products in Agent and IDE modes; each selected build and mode needs its own observation. The
 dashboard is package-owned local software: it does not prove that a host
 embedded it, handed off a chat, or woke from a host event. `dashboard
 context` reports `host_execution: not-observed`. **HOST READINESS: PENDING**
