@@ -1,5 +1,12 @@
 # Host routes
 
+## Current TRAE product and adapter names — checked 2026-10-30
+
+[Official TRAE documentation](https://docs.trae.cn/enterprise_traecode-and-traework-merged-as-all-new-trae) describes the merged TRAE application with **Agent mode** and **IDE mode**, plus desktop, web and mobile clients. TraeCode and TraeWork are legacy product names. Select the actual mode, region and build before using a package route.
+
+Existing `ide`, `work` and `cli` values are compatibility adapter IDs. `ide` supplies project artifacts for the IDE route; `work` retains the historical Work Skills/manual-MCP handoff and does **not** establish compatibility with the merged Agent mode. Use the merged client's documented configuration and observe the current session before claiming support. `cli` remains the separate TRAE CLI adapter. A version/help probe recognizes current TRAE/TRAE CLI banners but never proves a mode, plugin discovery or readiness. No migration, uninstall, host-setting edit or credential action is performed by this guide.
+
+
 **Current documentation release: v1.4.0.** Select exactly one independent
 host route; package outputs never prove that the selected host discovered or
 executed them.
@@ -42,9 +49,9 @@ unverified; use only the selected build's documented/manual configuration.
 
 | Host | Package artifact (safe local work) | One-action handoff and expected observation |
 | --- | --- | --- |
-| **TraeCode** | Documented package route: `init --host ide` copies project assets. `.trae/mcp.json` is generated with `command: node`, the absolute release launcher, and the project root. | Auto-discovery is an observed prerelease route. After approval, reopen the project and verify one Skill/command plus the core MCP. |
-| **TraeWork** | Approval-gated Skills copy/import uses the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the JSON printed by `load-check --host work` in **Settings → MCP**. Paste only after approval, reload later, then observe one Skill plus the core MCP. |
-| **TraeCode CLI** | Documented package route: `init --host cli` writes local project and verification assets. | No public universal MCP registration command is assumed. Use the JSON from `load-check --host cli` with the selected build's documented/manual settings flow, start a new session later, then observe one command plus the core MCP. |
+| **TRAE IDE mode** (`ide`; legacy TraeCode) | Documented package route: `init --host ide` copies project assets. `.trae/mcp.json` is generated with `command: node`, the absolute release launcher, and the project root. | Auto-discovery is an observed prerelease route. After approval, reopen the project and verify one Skill/command plus the core MCP. |
+| **Legacy TraeWork** (`work`; merged Agent-mode support unverified) | Approval-gated Skills copy/import uses the observed macOS directory or a host-reported `--skills-dir`. | The observed prerelease route accepts the JSON printed by `load-check --host work` in **Settings → MCP**. Paste only after approval, reload later, then observe one Skill plus the core MCP. |
+| **TRAE CLI** (`cli`; legacy TraeCode CLI) | Documented package route: `init --host cli` writes local project and verification assets. | No public universal MCP registration command is assumed. Use the JSON from `load-check --host cli` with the selected build's documented/manual settings flow, start a new session later, then observe one command plus the core MCP. |
 
 ## v1.1 generator, profile, and probe limits
 

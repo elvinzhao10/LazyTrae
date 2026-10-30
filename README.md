@@ -1,5 +1,12 @@
 # LazyTrae
 
+## Current TRAE product and adapter names — checked 2026-10-30
+
+[Official TRAE documentation](https://docs.trae.cn/enterprise_traecode-and-traework-merged-as-all-new-trae) describes the merged TRAE application with **Agent mode** and **IDE mode**, plus desktop, web and mobile clients. TraeCode and TraeWork are legacy product names. Select the actual mode, region and build before using a package route.
+
+Existing `ide`, `work` and `cli` values are compatibility adapter IDs. `ide` supplies project artifacts for the IDE route; `work` retains the historical Work Skills/manual-MCP handoff and does **not** establish compatibility with the merged Agent mode. Use the merged client's documented configuration and observe the current session before claiming support. `cli` remains the separate TRAE CLI adapter. A version/help probe recognizes current TRAE/TRAE CLI banners but never proves a mode, plugin discovery or readiness. No migration, uninstall, host-setting edit or credential action is performed by this guide.
+
+
 ![LazyTrae](lazytrae-banner.jpg)
 
 [![Package 1.4.0](https://img.shields.io/badge/package-1.4.0-7ce8d1)](RELEASE_NOTES.md)
@@ -8,16 +15,27 @@
 
 **Describe the work. Keep the plan. Prove the result.**
 
-LazyTrae helps you use structured, evidence-based workflows across the package routes for **TraeCode**,
-**TraeWork**, and **TraeCode CLI**. Current CN documentation describes a unified TRAE with Agent and IDE modes; select the exact build and mode before using a legacy route. It prepares local project assets and checks;
+LazyTrae helps you use structured, evidence-based workflows across **TRAE IDE mode**, the legacy **Work** adapter, and **TRAE CLI**. Current CN documentation describes a unified TRAE with Agent and IDE modes; select the exact build and mode before using a legacy route. It prepares local project assets and checks;
 a host is only considered ready after it is observed in a fresh session.
 
-[Platform status](docs/reference/platform-status-2026-10-27.md) · [Get started](#recommended-install-with-ai-help) · [Host routes](#choose-one-route) ·
+[Platform status](docs/reference/platform-status-2026-10-30.md) · [Get started](#recommended-install-with-ai-help) · [Host routes](#choose-one-route) ·
 [1.4.0 notes](RELEASE_NOTES.md) · [Family](#lazyseries-family) · [Docs](docs/)
 
 > **Current package version: v1.4.0. HOST READINESS: PENDING.** Local checks and release
 > archives prove package behavior; a fresh host session must prove loading,
 > command/skill execution and MCP connections.
+
+## Unreleased 1.4.1 — verification, history and scale
+
+The combined former 1.4.1 and 1.4.2 scope is implemented in this development branch. Package metadata and the published baseline remain **1.4.0**; this PR does not publish a release. Live-host acceptance is **deferred by the maintainer as of 2026-10-30**, and remains pending.
+
+- Retain versioned verification scenarios, compare attempts by their source/criterion/plan subject, and promote an observed failure into an unverified regression scenario.
+- Bind rerun review to the exact plan, criterion and captured source. Pending, rejected, stale and used approvals cannot authorize another native attempt; independent verification remains required.
+- Inspect checkpoint/decision history through authenticated, paginated reads. Deduplicate identical runtime events with transactional recovery while retaining the original ledger and failed attempts.
+- Preserve first-review plan bytes, correct legacy review-state updates, and harden owned-process cleanup against PID reuse and exit races.
+- Reduce repeated replay and unnecessary review-source capture in measured local cases. These measurements do not establish whole-task latency, token or cost savings.
+
+See the [1.4.1 completion and validation record](docs/verification/1.4.1-completion.md) and [usage/contracts](docs/verification/1.4.1-verification-history.md).
 
 ## What's in 1.4.0
 
@@ -43,7 +61,7 @@ boundaries; historical changes remain in `CHANGELOG.md`.
 After explicit project initialization, the dashboard provides **Overview,
 Project, Plans, Health, Execution, Git, Evidence and Research** in a collapsible
 sidebar. Contextual Details keep the selected item in view; maps support pan,
-zoom and an expanded modal. Theme and density preferences persist, and
+zoom and an expanded modal. Theme preferences persist, and
 navigation guards protect unsaved edits.
 
 Execution progress and verification are separate. Token charts, resource
@@ -190,7 +208,7 @@ Local files and checks never prove that a host has loaded the package.
 Current CN TRAE combines Agent and IDE modes, while TRAE SOLO CN and CLI
 remain distinct surfaces. The names below are version-specific package
 adapters; confirm the selected region, build and mode against the
-[platform audit](docs/reference/platform-status-2026-10-27.md).
+[platform audit](docs/reference/platform-status-2026-10-30.md).
 
 Pick one host route during onboarding:
 
