@@ -116,9 +116,9 @@ function runIntrospection(executable, argv) {
 
 function classifyIdentity(host, output) {
   if (/\btrae-agent\b|open[\s-]*source/i.test(output)) return false;
-  if (host === 'ide') return /^\s*traecode\b/im.test(output);
+  if (host === 'ide') return /^\s*traecode\b/im.test(output) || /^\s*trae(?:\s+ide)?\s+v?\d+\.\d+\.\d+\b/im.test(output);
   if (host === 'work') return /^\s*traework\b/im.test(output);
-  return /^\s*traecode\s+cli\b/im.test(output);
+  return /^\s*(?:traecode|trae)\s+cli\b/im.test(output);
 }
 
 function classifyRegion(output) {
@@ -134,7 +134,7 @@ function classifyEdition(output) {
 }
 
 function classifyVersion(output) {
-  const match = /\b(?:TraeCode(?:\s+CLI)?|TraeWork)\s+v?(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)/i.exec(output);
+  const match = /\b(?:TraeCode(?:\s+CLI)?|TraeWork|TRAE(?:\s+CLI|\s+IDE)?)\s+v?(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)/i.exec(output);
   return match?.[1] || 'unknown';
 }
 
