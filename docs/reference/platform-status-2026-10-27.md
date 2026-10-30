@@ -1,5 +1,7 @@
 # Trae platform status — 2026-10-27
 
+Historical snapshot: see [the 2026-10-30 audit](platform-status-2026-10-30.md) for current documentation and compatibility changes.
+
 This is a documentation and package-boundary audit for LazyTrae **1.4.0**;
 not a host acceptance test. Official pages are rolling documents checked on
 2026-10-27. The latest dated entry visible in the [CN TRAE changelog](https://docs.trae.cn/ide_changelog)

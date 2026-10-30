@@ -6,7 +6,7 @@ owns, and the evidence that constrains its behavior. Use the root
 [README](../README.md) for host directions.
 
 The current documentation release is [v1.4.0](../RELEASE_NOTES.md).
-[Current platform status](reference/platform-status-2026-10-27.md) records the CN
+[Current platform status](reference/platform-status-2026-10-30.md) records the CN
 unified TRAE documentation and per-route evidence limits. Adaptive context guidance keeps native selection separate from advisory,
 unobserved host presentation.
 
@@ -95,3 +95,11 @@ boundary reference](reference/dependency-and-host-boundaries.md).
 For a complete source-family index, including command families, templates,
 hooks, helper libraries, provider lifecycle, and release checks, read the
 [runtime subsystem reference](reference/runtime-subsystems.md).
+
+## Development milestone
+
+[Combined verification, history and scale work](verification/1.4.1-verification-history.md) describes the local 1.4.1 development scope and its acceptance boundaries.
+
+## Unreleased 1.4.1 documentation
+
+[Completion and validation](verification/1.4.1-completion.md) · [Verification/history usage](verification/1.4.1-verification-history.md) · [Platform audit](reference/platform-status-2026-10-30.md). Live-host testing is deferred by the maintainer; package readiness and host acceptance remain separate.

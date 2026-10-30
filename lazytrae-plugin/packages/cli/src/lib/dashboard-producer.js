@@ -1,7 +1,8 @@
 'use strict';
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 const { randomUUID } = require('node:crypto');
-const { update, state, projectId } = require('./dashboard-state');
+const { update, state, projectId, runInput, portable } = require('./dashboard-state');
 const { source, planHash } = require('./dashboard-proof');
 const { runWorker } = require('./dashboard-worker');
 const { hash, json, safeRead, DashboardError } = require('./dashboard-files');
@@ -30,6 +31,8 @@ async function execute(root, request) {
   if (executor === verifier || scriptHashes[0] === scriptHashes[1]) throw new DashboardError('DISTINCT_VERIFIER_REQUIRED');
   const identity = source(root);
   if (!identity.head || !identity.clean) throw new DashboardError('WORKTREE_DIRTY');
+  const { reviewAdmission } = await portable('review-admission.mjs');
+  const { captureReviewSource } = await import(pathToFileURL(path.resolve(__dirname, '../../shared/project/review-source.mjs')).href);
   const context = update(root, loop => {
     if (['paused', 'cancelled'].includes(loop.loop_state)) throw new DashboardError('LOOP_NOT_ACTIVE');
     if ((loop.dashboard_attempts ?? []).some(a => a.execution === 'running') || loop.goals.some(g => g.id !== goalId && g.status === 'in_progress')) throw new DashboardError('TASK_ALREADY_RUNNING');
@@ -41,6 +44,15 @@ async function execute(root, request) {
       consumed_plan_revision: loop.plan_revision ?? 0, worker_id: `trae-executor:${process.pid}`, parent_task_id: null,
       source_revision: identity.head, execution: 'running', verification: 'unverified',
       started_at: new Date().toISOString(), finished_at: null, evidence: [] };
+    if ((loop.reviews ?? []).some(review => review.task_id === goalId && review.criterion_id === criterionId)) {
+      const snapshot = runInput(root, loop, captureReviewSource);
+      const request = { review_id: null, subject: null, task_id: goalId, criterion_id: criterionId,
+        attempt_id: attempt.id, worker_id: attempt.worker_id, role: 'worker', executor_attempt_id: null };
+      const inspected = reviewAdmission({ snapshot, request, mode: 'inspect' });
+      const admitted = reviewAdmission({ snapshot, request: { ...request, review_id: inspected.binding.review_id,
+        subject: inspected.binding.subject }, mode: 'admit' });
+      loop.reviews = admitted.reviews;
+    }
     loop.dashboard_attempts ??= []; loop.dashboard_attempts.push(attempt); event(loop, attempt); consume(loop);
     goal.status = 'in_progress'; loop.loop_state = 'active'; loop.active_goal_id = goalId;
     return { result: { project_id: projectId(root), run_id: loop.run_id, attempt, task: state(loop).tasks.find(t => t.id === goalId), plan_sha256: planHash(goal) } };
