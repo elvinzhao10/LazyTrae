@@ -3,9 +3,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const RELEASE_VERSION = '1.4.0';
-const PREVIOUS_VERSION = '1.3.5';
+const RELEASE_VERSION = '1.4.1';
+const PREVIOUS_VERSION = '1.4.0';
 const VERSION_JSON_PATHS = [
+  ["lazytrae-plugin/packages/cli/contracts/lazyseries-trae-host-status.v2.schema.json", ["properties", "version", "const"]],
   ['lazytrae-plugin/packages/cli/package.json', ['version']],
   ['lazytrae-plugin/packages/cli/package-lock.json', ['version']],
   ['lazytrae-plugin/packages/cli/package-lock.json', ['packages', '', 'version']],
@@ -95,7 +96,7 @@ function classify(root) {
   else {
     const notes = fs.readFileSync(notesPath, 'utf8');
     if (!notes.startsWith(`# ${'LazyTrae'} v${RELEASE_VERSION}`)) failures.push('CURRENT_VERSION_DRIFT_TEXT RELEASE_NOTES.md:1');
-    const currentNotes = notes.split('## Prior release notes')[0];
+    const currentNotes = notes.split(/^## (?:Prior|Previous)\b.*$/m)[0].split(/\n# /)[0];
     for (const section of REQUIRED_RELEASE_NOTE_SECTIONS) {
       if (!currentNotes.includes(`## ${section}`)) failures.push(`MISSING_RELEASE_NOTE_SECTION ${section}`);
     }

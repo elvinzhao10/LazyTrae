@@ -3,7 +3,7 @@ const { createServer } = require('node:http');
 const { readFileSync } = require('node:fs');
 const { join, resolve } = require('node:path');
 const { pathToFileURL } = require('node:url');
-const { portable, execute } = require('./dashboard-state');
+const { portable, execute, read: readRun, state: runState } = require('./dashboard-state');
 const { read: readProject, readSource: readProjectSource, execute: executeProjectCommand } = require('./project-state');
 const { authentication, checkRequest, readBody } = require('./dashboard-service-auth');
 const { capture: nativeCapture, evidence: nativeEvidence } = require('./dashboard-snapshot');
@@ -128,6 +128,21 @@ async function listen(options, control) {
           return;
         }
         const actor = auth.session(request);
+        if (request.method === 'POST' && request.url === '/api/history/query') {
+          if (options.runId === null) throw new ServiceError('RUN_NOT_BOUND', 409);
+          const { loop, input } = await readRun(options.projectRoot);
+          if (input.run_id !== options.runId || input.project_id !== options.projectId) throw new ServiceError('RUN_BINDING_MISMATCH', 409);
+          const { queryCheckpointHistory } = await dashboardPortable('checkpoint-history.mjs');
+          try {
+            send(response, await queryCheckpointHistory(input, await readBody(request), async id => {
+              const old = (loop.dashboard_history ?? []).find(entry => entry.revision === id - 1);
+              if (!old) throw new Error('HISTORY_UNAVAILABLE');
+              return runState({ ...loop, run_id: old.run_id ?? loop.run_id, goals: old.goals,
+                plan_revision: old.plan_revision ?? null, decisions: old.decisions ?? [] });
+            }));
+          } catch (error) { throw new ServiceError(/^[A-Z_]+$/.test(error.message) ? error.message : 'HISTORY_UNAVAILABLE', 422); }
+          return;
+        }
         if (request.method === 'GET' && request.url === '/api/project') {
           try {
             const native = requireInitialized(await readProject(options.projectRoot, options.projectId));

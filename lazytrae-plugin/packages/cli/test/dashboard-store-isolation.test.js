@@ -17,13 +17,13 @@ const CLI_ENTRY = path.join(CLI_ROOT, 'src', 'index.js');
 const PROJECT_STATE = require('../src/lib/project-state');
 
 // The sibling plugins share one worktrees checkout layout
-// (<worktrees>/<Name>/1.4.0-completion/<name>-plugin); when present the real
+// (<worktrees>/<Name>/1.4.1-completion/<name>-plugin); when present the real
 // foreign CLIs are exercised against the same root. In a standalone clone the
 // cross-runtime half skips and the hand-authored foreign-identity half below
 // still proves the refusal.
 const WORKTREES = path.resolve(CLI_ROOT, '../../../../..');
-const BUDDY_CLI = path.join(WORKTREES, 'LazyBuddy/1.4.0-completion/lazybuddy-plugin/shared/project/cli.mjs');
-const QODER_CLI = path.join(WORKTREES, 'LazyQoder/1.4.0-completion/lazyqoder-plugin/shared/dashboard-host/project.mjs');
+const BUDDY_CLI = path.join(WORKTREES, 'LazyBuddy/1.4.1-completion/lazybuddy-plugin/shared/project/cli.mjs');
+const QODER_CLI = path.join(WORKTREES, 'LazyQoder/1.4.1-completion/lazyqoder-plugin/shared/dashboard-host/project.mjs');
 const buddyAvailable = fs.existsSync(BUDDY_CLI);
 const qoderAvailable = fs.existsSync(QODER_CLI);
 

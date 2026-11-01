@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.4.1] — 2026-11-01
+
+Release date: 2026-11-01. See [release notes](RELEASE_NOTES.md).
+
+Prepare the combined verification/history/scale release, align package/runtime versions, document current native app routes and preserve deferred live acceptance. The current TRAE combines Agent and IDE modes. The IDE project adapter uses .trae assets; legacy work/cli adapter IDs remain compatibility identifiers. Work Skills/manual-MCP and CLI connector descriptions do not establish merged Agent-mode discovery. Hooks remain advisory in this adapter.
+
+### Verification, history and scale
+
+Release **1.4.1** combines the former 1.4.1 and 1.4.2 verification, history and scale scope. Live-host acceptance is **deferred by the maintainer as of 2026-10-30**, and remains pending.
+
+- Retain versioned verification scenarios, compare attempts by their source/criterion/plan subject, and promote an observed failure into an unverified regression scenario.
+- Bind rerun review to the exact plan, criterion and captured source. Pending, rejected, stale and used approvals cannot authorize another native attempt; independent verification remains required.
+- Inspect checkpoint/decision history through authenticated, paginated reads. Deduplicate identical runtime events with transactional recovery while retaining the original ledger and failed attempts.
+- Preserve first-review plan bytes, correct legacy review-state updates, and harden owned-process cleanup against PID reuse and exit races.
+- Reduce repeated replay and unnecessary review-source capture in measured local cases. These measurements do not establish whole-task latency, token or cost savings.
+
+TRAE is the merged product with Agent and IDE modes. Legacy ide/work/cli adapter IDs remain for compatibility; the historical Work adapter does not prove merged Agent-mode support. Current TRAE/TRAE CLI banners are recognized without granting readiness.
+
+See the [1.4.1 completion record](docs/verification/1.4.1-completion.md).
+
 All notable public changes to LazyTrae are documented here. Versions follow
 [Semantic Versioning](https://semver.org/).
 

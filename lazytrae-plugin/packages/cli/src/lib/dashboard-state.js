@@ -6,6 +6,7 @@ const { statePath, loopArtifactPaths } = require('./loop-store');
 const { readTransaction, runTransaction } = require('./state-transaction');
 const { executionRevision } = require('./harness-execution-context');
 const { DashboardError, hash, json, readJSON, safeRead, protectedPath } = require('./dashboard-files');
+const { source, planHash } = require('./dashboard-proof');
 const portable = name => import(pathToFileURL(path.resolve(__dirname, '../../shared/dashboard', name)).href);
 const projectId = root => `trae:${hash(fs.realpathSync(root))}`;
 const queuePath = '.lazytrae/state/dashboard-queue.json';
@@ -34,7 +35,7 @@ function state(loop) {
     blocker: goal.blockedReason ?? null, criteria: goal.successCriteria.map(item => criterion(goal, item, attemptIds.get(item.id))) })) };
 }
 function merge(loop, reduced) {
-  for (const key of ['plan_revision', 'dashboard_project_id', 'dashboard_commands', 'dashboard_plan_transitions', 'acknowledgements', 'decisions', 'evidence_submissions']) {
+  for (const key of ['plan_revision', 'dashboard_project_id', 'dashboard_commands', 'dashboard_plan_transitions', 'acknowledgements', 'decisions', 'evidence_submissions', 'reviews', 'dashboard_ledger_generation']) {
     if (reduced[key] !== undefined) loop[key] = reduced[key];
   }
   for (const task of reduced.tasks) {
@@ -76,16 +77,24 @@ async function execute(root, command, actor) {
     });
   }
   const { reduceCommand } = await portable('command-reducer.mjs');
+  const { captureReviewSource } = await import(pathToFileURL(path.resolve(__dirname, '../../shared/project/review-source.mjs')).href);
   return update(root, loop => {
     if (command.operation === 'attach_evidence') {
       const item = command.payload.evidence;
       if (protectedPath(item.path)) throw new DashboardError('PROTECTED_SERVICE_ARTIFACT');
       if (item.sha256 !== hash(safeRead(root, item.path))) throw new DashboardError('REFERENCE_CHANGED');
     }
-    const next = reduceCommand({ state: state(loop), revision: loop.revision ?? 0, run_id: loop.run_id, project_id: projectId(root), command, actor });
+    const next = reduceCommand({ ...runInput(root, loop, captureReviewSource), command, actor });
     if (!next.replay) {
       loop.dashboard_history ??= [];
-      loop.dashboard_history.push({ revision: loop.revision, command_id: command.command_id, goals: structuredClone(loop.goals) });
+      loop.dashboard_history.push({ revision: loop.revision, command_id: command.command_id, run_id: loop.run_id,
+        plan_revision: loop.plan_revision ?? 0, goals: structuredClone(loop.goals), decisions: structuredClone(loop.decisions ?? []) });
+      if (next.compaction) {
+        const archive = path.join('.lazytrae', 'state', 'dashboard-history', `${loop.revision + 1}.json`);
+        if (fs.existsSync(path.join(root, archive))) throw new DashboardError('HISTORY_ARCHIVE_COLLISION');
+        next.members = [{ path: path.join(root, archive), content: json({ source_sha256: next.compaction.before_sha256, events: loop.dashboard_events }) }];
+        loop.dashboard_events = next.compaction.text.trim() ? next.compaction.text.trim().split('\n').map(line => JSON.parse(line)) : [];
+      }
       merge(loop, next.state);
     }
     return next;
@@ -94,13 +103,19 @@ async function execute(root, command, actor) {
 async function read(root) {
   const { reduceQueue } = await portable('queue-reducer.mjs');
   const loop = readTransaction(root, 'active-loop', () => rawLoop(root));
+  const { captureReviewSource } = await import(pathToFileURL(path.resolve(__dirname, '../../shared/project/review-source.mjs')).href);
   const queue = readTransaction(root, 'dashboard-queue', () => {
     const store = readQueue(root);
     return reduceQueue({ action: 'read', store, project_id: projectId(root), revision: store.revision, actor: 'native-reader' }).store;
   });
-  return { loop, input: { project_id: projectId(root), run_id: loop.run_id, revision: loop.revision ?? 0,
-    plan_revision: loop.plan_revision ?? 0, state: state(loop), sources: [{ id: 'trae-native', kind: 'runtime',
-      generation: loop.run_id, text: (loop.dashboard_events ?? []).map(event => JSON.stringify(event)).join('\n') + ((loop.dashboard_events ?? []).length ? '\n' : '') }],
+  return { loop, input: { ...runInput(root, loop, captureReviewSource),
     queue: queue.plans, queue_revision: queue.revision, queue_acknowledgements: queue.commands.map(item => item.result) } };
 }
-module.exports = { portable, projectId, rawLoop, state, update, execute, read };
+function runInput(root, loop, captureReviewSource) {
+  return { project_id: projectId(root), run_id: loop.run_id, revision: loop.revision ?? 0,
+    plan_revision: loop.plan_revision ?? 0, state: state(loop), source_revision: source(root).head,
+    plan_digest: hash(loop.goals.map(planHash).join('\n')), review_content_sha256: captureReviewSource(root),
+    sources: [{ id: 'trae-native', kind: 'runtime', generation: `${loop.run_id}:${loop.dashboard_ledger_generation ?? 0}`,
+      text: (loop.dashboard_events ?? []).map(event => JSON.stringify(event)).join('\n') + ((loop.dashboard_events ?? []).length ? '\n' : '') }] };
+}
+module.exports = { runInput, portable, projectId, rawLoop, state, update, execute, read };

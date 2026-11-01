@@ -547,8 +547,48 @@ test('valid old evidence cannot verify a criterion after the plan changes', asyn
     assert.equal(criterion.version, 2);
     assert.equal(criterion.requirement, 'Changed requirement');
     assert.notEqual(criterion.verification, 'verified');
-    assert.deepEqual(criterion.history, [{ version: 1, requirement: 'Criterion for goal-1', result_ids: [first.attempt_id] }]);
+    assert.deepEqual(criterion.history, [{ version: 1, requirement: 'Criterion for goal-1', result_ids: [first.attempt_id], scenarios: [] }]);
     assert.ok(after.snapshot.tasks[0].attempts.some(attempt => attempt.id === first.attempt_id));
+  } finally { dispose(root); }
+});
+
+test('native failure promotion, review and duplicate-event compaction preserve observed history', async () => {
+  // Given: a real failed verifier on a source-controlled fixture.
+  const root = gitRoot('verification-history', { 'executor.js': EXECUTOR_OK, 'verifier.js': VERIFIER_FAIL });
+  seedLoop(root, [makeGoal('goal-1')]);
+  try {
+    const failed = await DASHBOARD_COMMAND.invoke(root, ['execute', 'goal-1', 'goal-1-c1', '--executor', 'executor.js', '--verifier', 'verifier.js']);
+    assert.equal(failed.status, 'failed');
+    let snapshot = (await SNAPSHOT.capture(root)).snapshot;
+    async function apply(operation, payload, target = 'goal-1') {
+      const result = await STATE.execute(root, planCommand(snapshot.project_id, snapshot.run_id, target, operation, payload, snapshot.revision), ACTOR);
+      assert.equal(result.status, 'pending_agent'); snapshot = (await SNAPSHOT.capture(root)).snapshot; return result;
+    }
+    // When: preserving the failure as a versioned regression and recording its review.
+    await apply('promote_failure', { criterion_id: 'goal-1-c1', expected_version: 1, attempt_id: failed.attempt_id,
+      scenario: { id: 'regression:failure', requirement: 'Reproduce the actual failed verifier', verifier_ref: 'verifier.js' } });
+    const criterion = snapshot.tasks[0].criteria[0];
+    assert.equal(criterion.scenarios[0].origin.attempt_id, failed.attempt_id);
+    const subject = { criterion_version: criterion.version, plan_revision: snapshot.plan_revision, ...snapshot.review_context };
+    await apply('request_review', { review_id: 'review:trae', criterion_id: criterion.id, action: 'rerun_criterion', subject });
+    await assert.rejects(DASHBOARD_COMMAND.invoke(root, ['execute', 'goal-1', 'goal-1-c1', '--executor', 'executor.js', '--verifier', criterion.scenarios[0].verifier_ref]), /REVIEW_NOT_APPROVED/);
+    await apply('resolve_review', { review_id: 'review:trae', decision: 'approved', rationale: 'Reviewed the recorded failure', subject });
+    const rerun = await DASHBOARD_COMMAND.invoke(root, ['execute', 'goal-1', 'goal-1-c1', '--executor', 'executor.js', '--verifier', criterion.scenarios[0].verifier_ref]);
+    assert.equal(rerun.status, 'failed'); snapshot = (await SNAPSHOT.capture(root)).snapshot;
+    assert.equal(snapshot.tasks[0].attempts.find(attempt => attempt.id === rerun.attempt_id).criterion_version, 2);
+    assert.ok(snapshot.tasks[0].attempts.some(attempt => attempt.id === failed.attempt_id));
+    STATE.update(root, loop => { loop.dashboard_events.push(structuredClone(loop.dashboard_events[0])); return { result: {} }; });
+    const prior = await STATE.read(root); snapshot = (await SNAPSHOT.capture(root)).snapshot;
+    const text = prior.input.sources[0].text;
+    await apply('compact_history', { source_sha256: crypto.createHash('sha256').update(text).digest('hex') }, snapshot.run_id);
+    // Then: original events remain archived, current replay deduplicates and no pass is invented.
+    const current = await STATE.read(root);
+    assert.equal(current.loop.dashboard_events.length, prior.loop.dashboard_events.length - 1);
+    assert.equal(snapshot.reviews[0].state, 'consumed');
+    assert.equal(snapshot.reviews[0].consumed_attempt_id, rerun.attempt_id);
+    assert.notEqual(snapshot.tasks[0].criteria[0].verification, 'verified');
+    const archive = JSON.parse(fs.readFileSync(path.join(root, '.lazytrae/state/dashboard-history', `${snapshot.revision}.json`)));
+    assert.equal(archive.events.length, prior.loop.dashboard_events.length);
   } finally { dispose(root); }
 });
 

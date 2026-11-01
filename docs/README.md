@@ -5,8 +5,8 @@ installation manual: each page names the executable boundary, the data it
 owns, and the evidence that constrains its behavior. Use the root
 [README](../README.md) for host directions.
 
-The current documentation release is [v1.4.0](../RELEASE_NOTES.md).
-[Current platform status](reference/platform-status-2026-10-27.md) records the CN
+The current documentation release is [v1.4.1](../RELEASE_NOTES.md).
+[Current platform status](reference/platform-status-2026-10-30.md) records the CN
 unified TRAE documentation and per-route evidence limits. Adaptive context guidance keeps native selection separate from advisory,
 unobserved host presentation.
 
@@ -71,7 +71,7 @@ local package contracts, not a claim that a host executed a presentation.
 | [01 — Execution model](01-mental-model.md) | Why are instructions, templates, execution, state, and proof distinct layers? |
 | [02 — Request decomposition](02-first-task.md) | How does an outcome become acceptance criteria and a proof surface? |
 | [03 — Package delivery](03-install-and-host-verification.md) | What does `init` copy, and what remains a host observation? |
-| [v1.4.0 installation and host verification](03-install-and-host-verification.md) | Which source branch, lifecycle commands, and host proof are current? |
+| [v1.4.1 installation and host verification](03-install-and-host-verification.md) | Which source branch, lifecycle commands, and host proof are current? |
 | [04 — Workflow playbooks](04-workflow-playbooks.md) | How do skills, commands, and agent roles encode proportional workflow policy? |
 | [05 — Evidence and completion](05-evidence-and-completion.md) | How are doctor, gates, statuses, and completion claims kept honest? |
 | [06 — Capabilities and approvals](06-capabilities-and-approvals.md) | How does local-first capability selection avoid persistent mutation? |
@@ -95,3 +95,13 @@ boundary reference](reference/dependency-and-host-boundaries.md).
 For a complete source-family index, including command families, templates,
 hooks, helper libraries, provider lifecycle, and release checks, read the
 [runtime subsystem reference](reference/runtime-subsystems.md).
+
+## Development milestone
+
+[Combined verification, history and scale work](verification/1.4.1-verification-history.md) describes the local 1.4.1 development scope and its acceptance boundaries.
+
+## 1.4.1 release documentation
+
+[Completion and validation](verification/1.4.1-completion.md) · [Verification/history usage](verification/1.4.1-verification-history.md) · [Platform audit](reference/platform-status-2026-10-30.md). Live-host testing is deferred by the maintainer; package readiness and host acceptance remain separate.
+
+- [1.4.1 native integration and release gates](reference/native-integration-1.4.1.md)

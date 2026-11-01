@@ -202,7 +202,8 @@ test('host probe bounds time and output and rejects script-level network attempt
     const timeout = writeExecutable(root, 'trae-timeout', 'sleep 5');
     const flood = writeExecutable(root, 'trae-flood', [
       "printf 'TraeCode CLI '",
-      'i=0; while [ "$i" -lt 90000 ]; do printf x; i=$((i + 1)); done',
+      // One oversized write exercises the byte bound without racing the wall-clock deadline.
+      "printf '%90000s' x",
     ].join('\n'));
     const networkMarker = path.join(root, 'network-attempted');
     const network = writeExecutable(root, 'trae-network', [
@@ -220,5 +221,19 @@ test('host probe bounds time and output and rejects script-level network attempt
     assert.equal(JSON.parse(flooded.stdout).status, 'malformed');
     assert.equal(JSON.parse(blockedNetwork.stdout).status, 'unsupported');
     assert.equal(fs.existsSync(networkMarker), false);
+  });
+});
+
+test('merged TRAE and renamed CLI identities preserve mode and readiness boundaries', () => {
+  withTemporaryDirectory(root => {
+    const { probeHost } = require('../src/lib/host-probe');
+    const unified = writeExecutable(root, 'Trae', "printf 'TRAE 4.0.0 region=china edition=individual\\n'");
+    const cli = writeExecutable(root, 'traecli', "printf 'TRAE CLI 2.0.0 region=china edition=enterprise\\n'");
+    const ide = probeHost({ host: 'ide', executable: unified, expectedSha256: digest(unified) });
+    const terminal = probeHost({ host: 'cli', executable: cli, expectedSha256: digest(cli) });
+    assert.equal(ide.status, 'accessible'); assert.equal(ide.binary.version, '4.0.0');
+    assert.equal(terminal.status, 'accessible'); assert.equal(terminal.binary.version, '2.0.0');
+    assert.equal(ide.host_readiness, 'pending'); assert.equal(terminal.host_readiness, 'pending');
+    assert.equal(probeHost({ host: 'work', executable: unified, expectedSha256: digest(unified) }).status, 'unsupported');
   });
 });
