@@ -130,7 +130,6 @@ test('canonical host-route docs classify documented, observed, and pending state
   // Given: the focused host adapter guides shipped to maintainers and initialized projects.
   const paths = [
     path.resolve(CLI_ROOT, 'templates', 'AGENTS.md'),
-    path.resolve(CLI_ROOT, '..', '..', '..', 'README.md'),
     path.resolve(CLI_ROOT, '..', '..', '..', 'docs', '03-install-and-host-verification.md'),
     path.resolve(CLI_ROOT, '..', '..', '..', 'docs', '10-host-capability-matrix.md'),
     path.resolve(CLI_ROOT, '..', '..', '..', 'docs', 'reference', 'host-routes.md'),

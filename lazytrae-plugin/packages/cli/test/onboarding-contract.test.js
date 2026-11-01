@@ -94,10 +94,8 @@ test('onboarding documents all host routes without claiming host discovery', () 
 test('local-first onboarding protocol covers every stage and host readiness boundary', () => {
   const routeDocs = [
     path.join(REPOSITORY_ROOT, 'AGENTS.md'),
-    path.join(REPOSITORY_ROOT, 'README.md'),
     path.join(REPOSITORY_ROOT, 'docs', '03-install-and-host-verification.md'),
     path.join(REPOSITORY_ROOT, 'docs', 'reference', 'host-routes.md'),
-    path.join(REPOSITORY_ROOT, 'lazytrae-plugin', 'README.md'),
     path.join(REPOSITORY_ROOT, 'lazytrae-plugin', 'packages', 'cli', 'README.md'),
     path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'AGENTS.md'),
   ];
@@ -131,7 +129,17 @@ test('local-first onboarding protocol covers every stage and host readiness boun
 
   const readme = fs.readFileSync(path.join(REPOSITORY_ROOT, 'README.md'), 'utf8');
   assert.doesNotMatch(readme, /npm install --global/i);
-  assert.match(readme, /stable launcher/i);
+  const installGuide = fs.readFileSync(path.join(REPOSITORY_ROOT, 'docs', '03-install-and-host-verification.md'), 'utf8');
+  assert.match(installGuide, /launcher\.js/);
+});
+
+test('public READMEs point to the full onboarding protocol without unsafe claims', () => {
+  for (const relative of ['README.md', 'lazytrae-plugin/README.md']) {
+    const content = fs.readFileSync(path.join(REPOSITORY_ROOT, relative), 'utf8');
+    assert.match(content, /docs\/03-install-and-host-verification\.md/, relative);
+    assert.match(content, /docs\/reference\/host-routes\.md/, relative);
+    assertNoUnsafeOnboardingClaims(content, relative);
+  }
 });
 
 test('root and installed AGENTS share one portable local-first protocol', () => {
@@ -147,11 +155,9 @@ test('root and installed AGENTS share one portable local-first protocol', () => 
 test('every shipped host route is portable, JSON-first, and evidence-qualified', () => {
   const hostRouteDocs = [
     path.join(REPOSITORY_ROOT, 'AGENTS.md'),
-    path.join(REPOSITORY_ROOT, 'README.md'),
     path.join(REPOSITORY_ROOT, 'docs', '03-install-and-host-verification.md'),
     path.join(REPOSITORY_ROOT, 'docs', '10-host-capability-matrix.md'),
     path.join(REPOSITORY_ROOT, 'docs', 'reference', 'host-routes.md'),
-    path.join(REPOSITORY_ROOT, 'lazytrae-plugin', 'README.md'),
     path.join(REPOSITORY_ROOT, 'lazytrae-plugin', 'packages', 'cli', 'README.md'),
     path.join(REPO_ROOT, 'packages', 'cli', 'templates', 'AGENTS.md'),
   ];

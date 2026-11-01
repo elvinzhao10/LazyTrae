@@ -60,6 +60,12 @@ function assertCurrentRuntimeGuidance(content, documentationPath) {
   assert.match(content, /(?:Node\.js(?: LTS)? |or )22/i, `${documentationPath} must name Node.js 22 as an alternative`);
 }
 
+function assertPublicSetupLinks(content, documentationPath) {
+  assert.match(content, /docs\/03-install-and-host-verification\.md/, `${documentationPath} must link to the installation guide`);
+  assert.match(content, /docs\/reference\/host-routes\.md/, `${documentationPath} must link to the host setup contract`);
+  assert.match(content, /fresh\s+(?:host\s+)?session/i, `${documentationPath} must require fresh-session verification`);
+}
+
 function assertTraeCliRemovalGuidance(content, documentationPath) {
   assert.doesNotMatch(content, /trae-cli\s+mcp\s+remove\s+lazytrae/i, `${documentationPath} must not advertise a universal TraeCode CLI MCP removal command`);
   assert.match(content, /TraeCode CLI[\s\S]*selected build's\s+documented\/manual MCP settings flow/i, `${documentationPath} must direct TraeCode CLI removal through the selected build's documented/manual MCP settings flow`);
@@ -69,9 +75,11 @@ test('Given installed LazyTrae guidance, when its package boundary is checked, t
   const packageReadme = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'README.md'), 'utf8');
   const installedGuide = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'templates', 'AGENTS.md'), 'utf8');
   const cliReadme = fs.readFileSync(path.join(repositoryRoot, 'lazytrae-plugin', 'packages', 'cli', 'README.md'), 'utf8');
-  assert.match(packageReadme, /init --host work` invokes the bounded Work skill installation/, 'package README must describe the Work init lifecycle accurately');
-  assert.match(packageReadme, /self-contained CLI tarball/i, 'package README must describe the self-contained CLI artifact');
-  assert.match(packageReadme, /cold offline/i, 'package README must describe the cold-offline artifact check');
+  assertPublicSetupLinks(packageReadme, 'package README');
+  const routes = fs.readFileSync(path.join(repositoryRoot, 'docs', 'reference', 'host-routes.md'), 'utf8');
+  assert.match(routes, /init --host work` is itself host-managed because it copies Skills/, 'host guide must describe the Work installation boundary');
+  assert.match(cliReadme, /self-contained CLI tarball/i, 'CLI artifact guide must describe the self-contained package');
+  assert.match(cliReadme, /cold offline/i, 'CLI artifact guide must describe the offline artifact check');
   assertDurableLifecycleGuidance(installedGuide, 'installed AGENTS.md');
   assertCurrentRuntimeGuidance(installedGuide, 'installed AGENTS.md');
   assert.match(installedGuide, /## `offboard` protocol/, 'installed setup guide must provide safe offboarding');
@@ -92,8 +100,12 @@ test('Given public lifecycle documentation, when its installation contract is ch
 
   for (const relativePath of paths) {
     const content = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
-    assertDurableLifecycleGuidance(content, relativePath);
-    assertCurrentRuntimeGuidance(content, relativePath);
+    if (relativePath === 'README.md' || relativePath === 'lazytrae-plugin/README.md') {
+      assertPublicSetupLinks(content, relativePath);
+    } else {
+      assertDurableLifecycleGuidance(content, relativePath);
+      assertCurrentRuntimeGuidance(content, relativePath);
+    }
   }
 
   const historicalRoutePath = 'docs/v1.3.0-supported-route.md';
@@ -121,8 +133,14 @@ test('Given v1.2 host-readiness documentation, when current release boundaries a
     const content = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');
     const expectedVersion = relativePath === 'lazytrae-evaluation.md' ? /1\.3\.3/ : /1\.4\.1/;
     assert.match(content, expectedVersion, `${relativePath} must retain its current or historical release identity`);
-    assert.match(content, /TraeCode[\s\S]*TraeWork[\s\S]*TraeCode CLI/, `${relativePath} must keep three independent host sections`);
-    assert.match(content, /package readiness[\s\S]{0,300}host readiness|host readiness[\s\S]{0,300}package readiness/i, `${relativePath} must separate package and host readiness`);
+    if (relativePath === 'README.md') {
+      assertPublicSetupLinks(content, relativePath);
+      assert.match(content, /TRAE IDE mode[\s\S]*TRAE CLI/, 'public README must identify current client routes');
+      assert.match(content, /Legacy Work assets do not establish Agent-mode compatibility/, 'public README must distinguish the legacy adapter');
+    } else {
+      assert.match(content, /TraeCode[\s\S]*TraeWork[\s\S]*TraeCode CLI/, `${relativePath} must keep the compatibility host sections`);
+      assert.match(content, /package readiness[\s\S]{0,300}host readiness|host readiness[\s\S]{0,300}package readiness/i, `${relativePath} must separate package and host readiness`);
+    }
     assert.doesNotMatch(content, /(?:^|\n)(?![^\n]*(?:\bno\b|\bnot\b|\bnever\b|\bwithout\b|\binert\b))[^\n]*(?:marketplace\s+(?:publish|install)|cloud\s+upload|package[- ]ready[^\n]{0,80}host[- ]ready)/im, `${relativePath} must not make an unsupported promotion or distribution claim`);
   }
 
