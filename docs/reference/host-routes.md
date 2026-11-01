@@ -7,7 +7,7 @@
 Existing `ide`, `work` and `cli` values are compatibility adapter IDs. `ide` supplies project artifacts for the IDE route; `work` retains the historical Work Skills/manual-MCP handoff and does **not** establish compatibility with the merged Agent mode. Use the merged client's documented configuration and observe the current session before claiming support. `cli` remains the separate TRAE CLI adapter. A version/help probe recognizes current TRAE/TRAE CLI banners but never proves a mode, plugin discovery or readiness. No migration, uninstall, host-setting edit or credential action is performed by this guide.
 
 
-**Current documentation release: v1.4.0.** Select exactly one independent
+**Current documentation release: v1.4.1.** Select exactly one independent
 host route; package outputs never prove that the selected host discovered or
 executed them.
 

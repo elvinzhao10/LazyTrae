@@ -7,7 +7,7 @@ const test = require('node:test');
 const expectedVersion = require('../package.json').version;
 const packagedMcp = require('../src/mcp');
 const sourceMcp = require('../../mcp/src');
-const RELEASE_VERSION = '1.4.0';
+const RELEASE_VERSION = '1.4.1';
 const previousReleaseVersion = '1.3.0';
 
 const CURRENT_RELEASE_PATHS = [

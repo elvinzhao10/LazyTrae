@@ -13,7 +13,7 @@ function withFixture(prefix, callback) {
   }
 }
 
-test('load-check reports v1.4.0 package readiness separately from unverified IDE registration', () => {
+test('load-check reports v1.4.1 package readiness separately from unverified IDE registration', () => {
   withFixture('lazytrae-load-check-ready-', fixture => {
     const result = runCli(['load-check', '--host', 'ide'], { cwd: fixture });
 
@@ -30,7 +30,7 @@ test('load-check reports v1.4.0 package readiness separately from unverified IDE
   });
 });
 
-test('load-check help identifies the v1.4.0 package readiness check', () => {
+test('load-check help identifies the v1.4.1 package readiness check', () => {
   const result = runCli(['load-check', '--help']);
 
   assert.equal(result.status, 0, result.stdout);

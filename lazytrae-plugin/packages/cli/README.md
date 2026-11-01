@@ -1,10 +1,10 @@
 # lazytrae-ai
 
-The current package version is v1.4.0; fresh-session native-host activation remains pending. Current CN documentation describes unified TRAE with Agent and IDE modes; the package retains version-specific adapters. The source repository audit is `docs/reference/platform-status-2026-10-27.md`.
+The current package version is v1.4.1; fresh-session native-host activation remains pending. Current CN documentation describes unified TRAE with Agent and IDE modes; the package retains version-specific adapters. The source repository audit is `docs/reference/platform-status-2026-10-27.md`.
 
 LazyTrae CLI — Trae-native workflow installer and runtime.
 
-This v1.4.0 package keeps automatic selection native and host handling
+This v1.4.1 package keeps automatic selection native and host handling
 advisory: a complete current task/loop/session identity may form a bounded
 context capsule, but `presented-to-host` remains `not-observed` until a real
 Trae session is observed. Init and sync preflight managed conflicts and retain
