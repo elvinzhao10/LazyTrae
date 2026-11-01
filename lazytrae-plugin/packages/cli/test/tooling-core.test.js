@@ -181,7 +181,7 @@ test('tooling install replaces incompatible host providers with pinned owned fal
     assert.match(detected.stdout, /ripgrep: owned \(ready\)/);
     assert.match(detected.stdout, /ast-grep: owned \(ready\)/);
     assert.deepEqual(receipt.provisioned_capabilities, ['ripgrep', 'ast-grep']);
-    assert.equal(manifest.optionalDependencies['@ast-grep/cli'], '0.45.2');
+    assert.equal(manifest.optionalDependencies['@ast-grep/cli'], '0.51.0');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
