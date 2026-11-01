@@ -2,6 +2,8 @@
 
 ## [1.4.1] — Unreleased
 
+Prepared 2026-11-01; unpublished. See [release notes](RELEASE_NOTES.md).
+
 Prepare the combined verification/history/scale release, align package/runtime versions, document current native app routes and preserve deferred live acceptance. The current TRAE combines Agent and IDE modes. The IDE project adapter uses .trae assets; legacy work/cli adapter IDs remain compatibility identifiers. Work Skills/manual-MCP and CLI connector descriptions do not establish merged Agent-mode discovery. Hooks remain advisory in this adapter.
 
 ### Verification, history and scale
