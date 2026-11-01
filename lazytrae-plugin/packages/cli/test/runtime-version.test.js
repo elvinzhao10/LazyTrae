@@ -63,7 +63,7 @@ const REGEX_EXPECTATION_PATHS = [
   {
     relativePath: '../test/documentation-regression.test.js',
     previous: /assert\.match\(packageAgents, \/1\\\.2\\\.3\//,
-    current: /assert\.match\(packageAgents, \/1\\\.4\\\.0\//,
+    current: /assert\.match\(packageAgents, \/1\\\.4\\\.1\//,
   },
 ];
 const HISTORICAL_CONTEXT_PATHS = new Set([

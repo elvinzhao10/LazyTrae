@@ -18,8 +18,8 @@ test('load-check reports v1.4.1 package readiness separately from unverified IDE
     const result = runCli(['load-check', '--host', 'ide'], { cwd: fixture });
 
     assert.equal(result.status, 0, result.stdout);
-    assert.match(result.stdout, /LazyTrae Tool Load Check — v1\.4\.0 Package Readiness/);
-    assert.match(result.stdout, /PASS Machine status v2: version=1\.4\.0/);
+    assert.match(result.stdout, /LazyTrae Tool Load Check — v1\.4\.1 Package Readiness/);
+    assert.match(result.stdout, /PASS Machine status v2: version=1\.4\.1/);
     assert.doesNotMatch(result.stdout, /v0\.17/);
     assert.doesNotMatch(result.stdout, /v0\.16/);
     assert.match(result.stdout, /PENDING hooks\.json event mappings: 0\/6/);
@@ -34,7 +34,7 @@ test('load-check help identifies the v1.4.1 package readiness check', () => {
   const result = runCli(['load-check', '--help']);
 
   assert.equal(result.status, 0, result.stdout);
-  assert.match(result.stdout, /Check v1\.4\.0 package readiness after initialization\./);
+  assert.match(result.stdout, /Check v1\.4\.1 package readiness after initialization\./);
   assert.doesNotMatch(result.stdout, /v0\.17/);
 });
 

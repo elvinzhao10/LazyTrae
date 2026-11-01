@@ -14,7 +14,7 @@ Existing `ide`, `work` and `cli` values are compatibility adapter IDs. `ide` sup
 LazyTrae packages local routes for **TraeCode**, **TraeWork**, and **TraeCode CLI**. The release-owned local launcher supplies the portable installer,
 verification gate, and local MCP server. Automated package checks run on
 Ubuntu and macOS in the repository workflows; host behavior keeps the evidence labels below. The current
-documentation release is `1.4.0`.
+documentation release is `1.4.1`.
 
 The source repository audit at `docs/reference/platform-status-2026-10-30.md`
 records version-specific native features and legacy route limits.
